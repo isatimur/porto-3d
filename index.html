@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Порту — 3D-карта достопримечательностей</title>
+    <meta name="description" content="Интерактивная 3D-карта Порту: Дору, шесть мостов, Рибейра, соборы, дворцы и сады." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3l7 13-7 13-7-13z' fill='%23e0a948'/%3E%3C/svg%3E" />
+    <link rel="canonical" href="https://porto-3d.com/" />
+    <meta name="theme-color" content="#0f2a57" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Porto 3D" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Porto 3D" />
+    <meta property="og:title" content="Porto 3D · Sé, Bom Jesus, Sameiro and 27 more landmarks" />
+    <meta property="og:description" content="An interactive 3D map of Porto: the Douro, its six bridges, the Ribeira, cathedrals, palaces and gardens. In Portuguese, English and Russian." />
+    <meta property="og:url" content="https://porto-3d.com/" />
+    <meta property="og:image" content="https://porto-3d.com/og/porto.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Porto in 3D at golden hour: the Luís I bridge over the Douro" />
+    <meta property="og:locale" content="pt_PT" />
+    <meta property="og:locale:alternate" content="en_GB" />
+    <meta property="og:locale:alternate" content="ru_RU" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Porto 3D · Sé, Bom Jesus, Sameiro and 27 more landmarks" />
+    <meta name="twitter:description" content="An interactive 3D map of Porto: the Douro, its six bridges, the Ribeira, cathedrals, palaces and gardens." />
+    <meta name="twitter:image" content="https://porto-3d.com/og/porto.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Roboto+Flex:opsz,wdth,wght@8..144,100..151,400..800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="scene" aria-label="Трёхмерная карта Порту"></canvas>
+      <div id="labels" aria-hidden="true"></div>
+
+      <!-- Header of five things: wordmark, search, «Сейчас» (with the
+           «Атмосфера» popover on its arrow), «Кино», «⋯» menu. Everything
+           else lives in the menu sheet (#tools-sheet): a drop-down panel on
+           desktop, a bottom sheet on phones. JS-created tools go in with
+           mountTool(el, group) from src/ui.js. -->
+      <div class="topbar" id="topbar">
+        <header class="brand">
+          <span class="brand-tile" aria-hidden="true"><span>P</span></span>
+          <span class="brand-text">
+            <h1>Порту</h1>
+            <span class="brand-count" id="count" aria-live="polite"></span>
+          </span>
+        </header>
+        <div class="search" id="search" role="search">
+          <svg class="search-icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" /><path d="M12.8 12.8 17 17" /></svg>
+          <input id="search-input" class="search-input" type="search" autocomplete="off" spellcheck="false" enterkeyhint="go" role="combobox" aria-expanded="false" aria-controls="search-results" aria-autocomplete="list" aria-label="Поиск" />
+          <kbd class="search-kbd" aria-hidden="true">/</kbd>
+          <button type="button" class="search-close" id="search-close" aria-label="Закрыть поиск">×</button>
+          <div class="search-panel" id="search-panel" hidden>
+            <div class="search-filters">
+              <button type="button" class="search-chip" id="search-open-now" aria-pressed="false">Открыто сейчас</button>
+            </div>
+            <div class="search-results" id="search-results" role="listbox" aria-label="Результаты поиска"></div>
+          </div>
+        </div>
+        <div class="modes" role="group" aria-label="Режимы просмотра">
+          <div class="now-split">
+            <button type="button" class="hbtn now-btn" id="now-btn" aria-pressed="false" disabled><span class="now-dot" aria-hidden="true"></span><span class="hbtn-label">Сейчас</span></button>
+            <button type="button" class="hbtn atmo-btn" id="atmo-btn" aria-expanded="false" aria-controls="atmo" aria-label="Атмосфера" title="Атмосфера: время, сезон, погода"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6.5 8 10l4-3.5" /></svg></button>
+          </div>
+          <button type="button" class="hbtn mode-btn" id="cinema-toggle" aria-controls="cinema" title="Фильм о Порту с утра до ночи"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5v9l7.5-4.5z" /></svg><span class="hbtn-label">Кино</span></button>
+        </div>
+        <button type="button" class="hbtn tools-toggle" id="tools-toggle" aria-expanded="false" aria-controls="tools-sheet" aria-label="Меню"><span class="tools-dots" aria-hidden="true">⋯</span></button>
+        <div class="tools-sheet" id="tools-sheet" role="group" aria-label="Меню">
+          <div class="tools-head">
+            <p class="tools-title">Меню</p>
+            <button type="button" class="tools-close" id="tools-close" aria-label="Закрыть">×</button>
+          </div>
+          <div class="tools-group" data-group="modes">
+            <p class="tools-group-title">Режимы</p>
+            <button type="button" class="tool mode-btn" id="story-toggle" aria-controls="story" title="2000 лет истории Порту" data-closes-tools><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3.5h4.2c.5 0 .8.3.8.8v8.2c0-.6-.4-1-1-1H3zM13 3.5H8.8c-.5 0-.8.3-.8.8v8.2c0-.6.4-1 1-1h4z" /></svg><span class="mode-label">История</span></button>
+            <button type="button" class="tool mode-btn" id="routes-open" data-closes-tools><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 13.5a1.5 1.5 0 1 0 0-.01M12 2.5a1.5 1.5 0 1 0 0 .01M5.5 12.5h4a2.5 2.5 0 0 0 0-5h-3a2.5 2.5 0 0 1 0-5h4" /></svg><span class="mode-label">Маршруты</span></button>
+          </div>
+          <div class="tools-group" data-group="atmosphere">
+            <p class="tools-group-title">Атмосфера</p>
+            <button type="button" class="tool" id="atmo-open" data-closes-tools>Время, сезон, погода</button>
+          </div>
+          <div class="tools-group" data-group="language">
+            <p class="tools-group-title">Язык</p>
+            <select id="language" class="tool language" aria-label="Язык">
+              <option value="pt" lang="pt-PT">PT</option>
+              <option value="en" lang="en">EN</option>
+              <option value="ru" lang="ru">RU</option>
+            </select>
+          </div>
+          <div class="tools-group" data-group="legend">
+            <p class="tools-group-title">Карта</p>
+            <button type="button" class="tool" id="legend-toggle" aria-expanded="false" aria-controls="legend">Легенда</button>
+            <div class="legend glass" id="legend" hidden>
+              <p class="legend-title">Улицы</p>
+              <ul class="legend-list">
+                <li><svg viewBox="0 0 24 8" aria-hidden="true"><line x1="1" y1="4" x2="23" y2="4" stroke="#f3bb68" stroke-width="2.4" /></svg>главные</li>
+                <li><svg viewBox="0 0 24 8" aria-hidden="true"><line x1="1" y1="4" x2="23" y2="4" stroke="#d9954f" stroke-width="1.8" /></svg>второстепенные</li>
+                <li><svg viewBox="0 0 24 8" aria-hidden="true"><line x1="1" y1="4" x2="23" y2="4" stroke="#b08a62" stroke-width="1.2" opacity="0.8" /></svg>местные</li>
+                <li><svg viewBox="0 0 24 8" aria-hidden="true"><line x1="1" y1="4" x2="23" y2="4" stroke="#a3a3a3" stroke-width="1.8" stroke-dasharray="4 3" /></svg>железная дорога</li>
+                <li><svg viewBox="0 0 24 8" aria-hidden="true"><line x1="1" y1="4" x2="23" y2="4" stroke="#5fa9dc" stroke-width="2.4" /></svg>реки</li>
+              </ul>
+              <p class="legend-title">Маршруты</p>
+              <ul class="legend-list">
+                <li><svg viewBox="0 0 24 8" aria-hidden="true"><line x1="1" y1="4" x2="23" y2="4" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" /></svg>пешком</li>
+                <li><svg viewBox="0 0 24 8" aria-hidden="true"><line x1="1" y1="4" x2="23" y2="4" stroke="currentColor" stroke-width="2.6" stroke-dasharray="6 4" /></svg>автобус, такси</li>
+                <li><svg viewBox="0 0 24 8" aria-hidden="true"><line x1="2" y1="4" x2="23" y2="4" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="0.1 4.5" /></svg>фуникулёр</li>
+              </ul>
+            </div>
+          </div>
+          <div class="tools-group" data-group="share">
+            <p class="tools-group-title">Поделиться</p>
+            <button type="button" class="tool" id="share" data-closes-tools>Поделиться</button>
+          </div>
+          <div class="tools-group" data-group="sky">
+            <p class="tools-group-title">Время и погода</p>
+            <div class="tool scale-switch time-switch" id="time-switch" role="group" aria-label="Время суток">
+              <span class="scale-name">Время:</span>
+              <button type="button" data-time="morning" aria-pressed="false">утро</button>
+              <span class="scale-sep" aria-hidden="true">·</span>
+              <button type="button" data-time="day" aria-pressed="false">день</button>
+              <span class="scale-sep" aria-hidden="true">·</span>
+              <button type="button" data-time="sunset" aria-pressed="true">закат</button>
+              <span class="scale-sep" aria-hidden="true">·</span>
+              <button type="button" data-time="night" aria-pressed="false">ночь</button>
+            </div>
+          </div>
+          <div class="tools-group" data-group="display">
+            <p class="tools-group-title">Изображение</p>
+            <button type="button" class="tool fx-toggle" id="fx-toggle" aria-pressed="true" title="Свечение, лучи солнца, сглаживание"><span class="fx-name">Эффекты:</span> <span class="fx-state">вкл</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- «Атмосфера»: one popover for the time of day, the season and the
+           weather. Its presets drive the original controls, which stay in
+           the hidden «sky» group of the menu (src/ui.js createAtmosphere). -->
+      <div class="atmo" id="atmo" role="dialog" aria-labelledby="atmo-title" hidden>
+        <div class="atmo-head">
+          <p class="atmo-title" id="atmo-title">Атмосфера</p>
+          <button type="button" class="atmo-close" id="atmo-close" aria-label="Закрыть">×</button>
+        </div>
+        <p class="atmo-h">Время</p>
+        <div class="atmo-row" role="group" aria-label="Время суток">
+          <button type="button" class="atmo-opt atmo-live" data-atmo="live" aria-pressed="false"><span class="now-dot" aria-hidden="true"></span>сейчас</button>
+          <button type="button" class="atmo-opt" data-atmo="time:morning" aria-pressed="false">утро</button>
+          <button type="button" class="atmo-opt" data-atmo="time:day" aria-pressed="false">день</button>
+          <button type="button" class="atmo-opt" data-atmo="time:sunset" aria-pressed="false">закат</button>
+          <button type="button" class="atmo-opt" data-atmo="time:night" aria-pressed="false">ночь</button>
+        </div>
+        <p class="atmo-h">Сезон</p>
+        <div class="atmo-row" role="group" aria-label="Сезон">
+          <button type="button" class="atmo-opt" data-atmo="season:spring" aria-pressed="false" disabled>весна</button>
+          <button type="button" class="atmo-opt" data-atmo="season:summer" aria-pressed="false" disabled>лето</button>
+          <button type="button" class="atmo-opt" data-atmo="season:fall" aria-pressed="false" disabled>осень</button>
+          <button type="button" class="atmo-opt" data-atmo="season:winter" aria-pressed="false" disabled>зима</button>
+        </div>
+        <p class="atmo-h">Погода</p>
+        <div class="atmo-row" role="group" aria-label="Погода">
+          <button type="button" class="atmo-opt" data-atmo="weather:clear" aria-pressed="false" disabled>ясно</button>
+          <button type="button" class="atmo-opt" data-atmo="weather:rain" aria-pressed="false" disabled>дождь</button>
+          <button type="button" class="atmo-opt" data-atmo="weather:fog" aria-pressed="false" disabled>туман</button>
+          <button type="button" class="atmo-opt atmo-minor" data-atmo="weather:partly" aria-pressed="false" disabled>облачно</button>
+          <button type="button" class="atmo-opt atmo-minor" data-atmo="weather:overcast" aria-pressed="false" disabled>пасмурно</button>
+        </div>
+      </div>
+
+      <!-- Callout card next to the selected landmark (C1), with a leader
+           line to its pin. src/ui.js createCallout; main.js positions it. -->
+      <svg class="callout-leader" id="callout-leader" aria-hidden="true" hidden><line /><circle r="11" /></svg>
+      <section class="callout" id="callout" aria-labelledby="callout-title" hidden>
+        <div class="callout-inner">
+          <figure class="callout-figure" id="callout-figure"><img id="callout-img" alt="" decoding="async" /></figure>
+          <div class="callout-body">
+            <p class="callout-meta" id="callout-meta"></p>
+            <h2 class="callout-title" id="callout-title"></h2>
+            <p class="callout-short" id="callout-short"></p>
+            <ul class="callout-facts" id="callout-facts"></ul>
+            <div class="callout-acts">
+              <button type="button" class="btn-primary" id="callout-more">Подробнее</button>
+              <button type="button" class="btn-ghost" id="callout-pano">360°</button>
+              <a class="btn-ghost" id="callout-walk" target="_blank" rel="noopener noreferrer">Дойти</a>
+            </div>
+          </div>
+          <button type="button" class="callout-close" id="callout-close" aria-label="Закрыть">×</button>
+        </div>
+      </section>
+      <div class="clusters" id="clusters" aria-hidden="true"></div>
+
+      <nav class="side glass" aria-label="Места и маршруты">
+        <div class="side-switch" id="side-switch" role="tablist" aria-label="Раздел" hidden>
+          <button type="button" role="tab" id="tab-places" aria-controls="view-places" aria-selected="true">Места</button>
+          <button type="button" role="tab" id="tab-routes" aria-controls="view-routes" aria-selected="false" tabindex="-1">Маршруты</button>
+        </div>
+        <div class="side-view" id="view-places" role="tabpanel" aria-labelledby="tab-places">
+          <div class="chips" id="chips" role="group" aria-label="Фильтр по категориям"></div>
+          <ol class="places" id="place-list"></ol>
+        </div>
+        <div class="side-view" id="view-routes" role="tabpanel" aria-labelledby="tab-routes" hidden>
+          <ol class="routes" id="route-list"></ol>
+        </div>
+      </nav>
+
+      <aside class="detail glass" id="detail" hidden aria-labelledby="detail-title">
+        <div class="detail-head">
+          <button type="button" class="detail-back" id="detail-back" hidden></button>
+          <p class="detail-meta" id="detail-meta"></p>
+          <h2 id="detail-title"></h2>
+          <p class="detail-pt" id="detail-pt" lang="pt"></p>
+          <p class="detail-note" id="detail-lang-note" hidden>Текст пока только на русском</p>
+          <button type="button" class="detail-close" id="detail-close" aria-label="Закрыть">×</button>
+        </div>
+        <div class="tabs" id="detail-tabs" role="tablist" aria-label="Разделы карточки">
+          <button type="button" role="tab" id="tab-overview" aria-controls="panel-overview" data-tab="overview">Обзор</button>
+          <button type="button" role="tab" id="tab-history" aria-controls="panel-history" data-tab="history">История</button>
+          <button type="button" role="tab" id="tab-gallery" aria-controls="panel-gallery" data-tab="gallery">Галерея</button>
+          <button type="button" role="tab" id="tab-video" aria-controls="panel-video" data-tab="video">Видео</button>
+          <button type="button" role="tab" id="tab-pano" aria-controls="panel-pano" data-tab="pano">360°</button>
+        </div>
+        <div class="detail-body" id="detail-body">
+          <section class="tab-panel" id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
+            <figure class="detail-figure" id="detail-figure">
+              <img id="detail-img" alt="" decoding="async" />
+              <figcaption class="detail-missing">Фото недоступно</figcaption>
+            </figure>
+            <p class="detail-short" id="detail-short"></p>
+            <p class="detail-long" id="detail-long"></p>
+            <div class="tip" id="detail-tip" hidden>
+              <p class="tip-label">Совет</p>
+              <p class="tip-text" id="detail-tip-text"></p>
+            </div>
+            <ul class="facts" id="detail-facts" hidden></ul>
+            <p class="detail-credit" id="detail-credit"><a target="_blank" rel="noopener noreferrer"></a></p>
+          </section>
+          <section class="tab-panel" id="panel-history" role="tabpanel" aria-labelledby="tab-history" tabindex="0" hidden>
+            <div class="history" id="detail-history"></div>
+            <div class="sources" id="detail-sources" hidden>
+              <p class="sources-title">Источники</p>
+              <ul id="detail-sources-list"></ul>
+            </div>
+          </section>
+          <section class="tab-panel" id="panel-gallery" role="tabpanel" aria-labelledby="tab-gallery" tabindex="0" hidden></section>
+          <section class="tab-panel" id="panel-video" role="tabpanel" aria-labelledby="tab-video" tabindex="0" hidden></section>
+          <section class="tab-panel" id="panel-pano" role="tabpanel" aria-labelledby="tab-pano" tabindex="0" hidden>
+            <div id="pano-image">
+              <button type="button" class="pano-card" id="pano-open">
+                <img id="pano-thumb" alt="" decoding="async" />
+                <span class="pano-card-label">Открыть панораму 360°</span>
+              </button>
+              <p class="pano-card-cap" id="pano-card-cap"></p>
+              <p class="pano-card-hint">Перетаскивайте, чтобы осмотреться. Колесо или щипок — приближение. Esc — выход.</p>
+            </div>
+            <div id="pano-video">
+              <div id="pano-video-card"></div>
+              <p class="pano-card-cap" id="pano-video-cap"></p>
+              <p class="pano-card-hint">Видео снято камерой 360°. В плеере перетаскивайте кадр, чтобы осмотреться.</p>
+            </div>
+          </section>
+        </div>
+        <div class="detail-nav">
+          <button type="button" id="detail-prev" aria-label="Предыдущее место">←</button>
+          <span id="detail-pos"></span>
+          <button type="button" id="detail-next" aria-label="Следующее место">→</button>
+        </div>
+      </aside>
+
+      <aside class="detail route-panel glass" id="route-panel" hidden aria-labelledby="route-title">
+        <div class="detail-head">
+          <p class="detail-meta" id="route-meta"></p>
+          <h2 id="route-title"></h2>
+          <p class="detail-pt" id="route-sub"></p>
+          <button type="button" class="detail-close" id="route-close" aria-label="Закрыть маршрут">×</button>
+        </div>
+        <div class="route-actions">
+          <button type="button" class="action" id="route-play" aria-pressed="false">Начать облёт</button>
+        </div>
+        <div class="detail-body">
+          <p class="route-desc" id="route-desc"></p>
+          <ol class="itinerary" id="itinerary"></ol>
+          <p class="route-attr" id="route-attr" hidden></p>
+        </div>
+      </aside>
+
+      <div class="instruments" id="instruments">
+        <button type="button" class="compass" id="compass" aria-label="Повернуть карту на север" title="Повернуть карту на север">
+          <svg viewBox="0 0 44 44" aria-hidden="true">
+            <circle cx="22" cy="22" r="20.5" class="compass-ring" />
+            <g id="compass-rose" class="compass-rose">
+              <path d="M22 12 L25.2 22 L22 20.7 L18.8 22 Z" class="compass-n" />
+              <path d="M22 35 L18.8 22 L22 23.3 L25.2 22 Z" class="compass-s" />
+              <text x="22" y="10.2" text-anchor="middle" class="compass-letter">С</text>
+            </g>
+          </svg>
+        </button>
+        <div class="scalebar" aria-hidden="true">
+          <span class="scalebar-bar" id="scalebar-bar"></span>
+          <span class="scalebar-label" id="scalebar-label"></span>
+        </div>
+      </div>
+
+      <p class="hint">Перетащите — вращение · колесо — масштаб · клик по метке — подробнее</p>
+      <p class="hint hint-fly">WASD — полёт · Q/E — высота · Shift — быстрее</p>
+      <div class="fly-keys" id="fly-keys" aria-hidden="true">
+        <span class="fk" data-k="q">Q</span><span class="fk" data-k="w">W</span><span class="fk" data-k="e">E</span>
+        <span class="fk" data-k="a">A</span><span class="fk" data-k="s">S</span><span class="fk" data-k="d">D</span>
+        <span class="fk fk-wide" data-k="shift">Shift</span><span class="fk" data-k="alt">Alt</span>
+      </div>
+      <p class="toast" id="toast" role="status" aria-live="polite" hidden></p>
+
+      <div class="cinema" id="cinema" hidden>
+        <div class="cinema-bar cinema-bar-top" aria-hidden="true"></div>
+        <div class="cinema-bar cinema-bar-bottom" aria-hidden="true"></div>
+        <p class="cinema-brand" aria-hidden="true">Порту <span>·</span> <em>Кино</em> <span class="cinema-count" id="cinema-count"></span></p>
+        <figure class="cinema-photo" id="cinema-photo" aria-hidden="true">
+          <div class="cinema-photo-frame"><img alt="" decoding="async" /></div>
+          <figcaption></figcaption>
+        </figure>
+        <div class="cinema-card" id="cinema-card" aria-live="polite">
+          <p class="cinema-num"></p>
+          <h2 class="cinema-title"></h2>
+          <p class="cinema-pt" lang="pt"></p>
+          <p class="cinema-year"></p>
+          <p class="cinema-short"></p>
+        </div>
+        <div class="cinema-controls" role="group" aria-label="Управление фильмом">
+          <button type="button" class="cinema-btn" id="cinema-prev" aria-label="Предыдущая глава" title="Предыдущая глава (←)"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3.5v9M13 3.5v9L6 8z" /></svg></button>
+          <button type="button" class="cinema-btn" id="cinema-play" aria-pressed="false" aria-label="Пауза" title="Пауза (Space)"><svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5v9M11 3.5v9" /></svg><svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5v9l7.5-4.5z" /></svg></button>
+          <button type="button" class="cinema-btn" id="cinema-skip" aria-label="Следующая глава" title="Следующая глава (→)"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M12 3.5v9M3 3.5v9L10 8z" /></svg></button>
+          <div class="cinema-progress" id="cinema-progress" role="group" aria-label="Ход фильма"><span class="cinema-fill" aria-hidden="true"></span></div>
+          <button type="button" class="cinema-exit" id="cinema-exit" title="Выйти (Esc)">Выйти</button>
+        </div>
+      </div>
+
+      <section class="story" id="story" hidden tabindex="-1" aria-label="История Порту">
+        <div class="story-scroll">
+          <div class="story-track"></div>
+        </div>
+        <nav class="story-dots" aria-label="Главы истории"></nav>
+        <button type="button" class="tool story-close" title="Закрыть (Esc)">Закрыть</button>
+      </section>
+
+      <div class="loader" id="loader" role="progressbar" aria-label="Загрузка карты" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="loader-inner">
+          <p class="loader-title">Порту</p>
+          <div class="loader-track"><div class="loader-bar" id="loader-bar"></div></div>
+          <p class="loader-text" id="loader-text">Загрузка</p>
+        </div>
+      </div>
+    </div>
+
+    <dialog class="lightbox" id="lightbox" aria-label="Просмотр фото">
+      <figure class="lb-figure">
+        <img class="lb-img" alt="" decoding="async" />
+        <span class="lb-missing">Фото недоступно</span>
+      </figure>
+      <div class="lb-bar">
+        <p class="lb-pos"></p>
+        <div class="lb-text">
+          <p class="lb-caption"></p>
+          <p class="lb-credit"></p>
+        </div>
+      </div>
+      <button type="button" class="lb-btn lb-prev" aria-label="Предыдущее фото">←</button>
+      <button type="button" class="lb-btn lb-next" aria-label="Следующее фото">→</button>
+      <button type="button" class="lb-close" aria-label="Закрыть">×</button>
+    </dialog>
+
+    <dialog class="pano" id="pano" aria-label="Панорама 360°">
+      <div class="pano-stage" tabindex="0" aria-label="Панорама. Стрелки — поворот, плюс и минус — масштаб"></div>
+      <p class="pano-status" role="status"></p>
+      <div class="pano-bar">
+        <div class="pano-text">
+          <p class="pano-caption"></p>
+          <p class="pano-credit"></p>
+        </div>
+        <button type="button" class="tool pano-gyro" aria-pressed="false">Гироскоп</button>
+      </div>
+      <button type="button" class="lb-close pano-close" aria-label="Закрыть панораму">×</button>
+    </dialog>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

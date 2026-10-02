@@ -1,0 +1,66 @@
+{
+  "id": "porto",
+  "name": { "pt": "Porto", "en": "Porto", "ru": "Порту" },
+  "name_ru_cases": { "gen": "Порту", "prep": "Порту", "ins": "Порту" },
+  "domain": null,
+  "hostnames": ["porto-3d.com", "www.porto-3d.com"],
+  "origin": { "lat": 41.1496, "lon": -8.611 },
+  "core_bbox": { "s": 41.12, "w": -8.68, "n": 41.19, "e": -8.55 },
+  "wide_bbox": { "s": 41.05, "w": -8.75, "n": 41.27, "e": -8.45 },
+  "terrain": {
+    "dataset": "eudem25m",
+    "spacing_m": 110,
+    "probes": {
+      "centre": [41.1496, -8.611],
+      "clerigos": [41.1456, -8.6145],
+      "foz": [41.149, -8.678]
+    }
+  },
+  "timezone": "Europe/Lisbon",
+  "locale_default": "ru",
+  "season_default": "auto",
+  "description": {
+    "ru": "Интерактивная 3D-карта Порту: Дору, шесть мостов, Рибейра, соборы, дворцы и сады.",
+    "en": "An interactive 3D map of Porto: the Douro, its six bridges, the Ribeira, cathedrals, palaces and gardens.",
+    "pt": "Um mapa 3D interativo do Porto: o Douro, as seis pontes, a Ribeira, catedrais, palácios e jardins."
+  },
+  "country": { "ru": "Португалия", "en": "Portugal", "pt": "Portugal" },
+  "transit": {
+    "gtfs_url": "https://opendata.porto.digital/dataset/horarios-paragens-e-rotas-em-formato-gtfs-stcp",
+    "operator": "STCP + Metro do Porto",
+    "operator_long": "Sociedade de Transportes Colectivos do Porto + Metro do Porto",
+    "gtfs_rt": null,
+    "todo": "confirm the exact zip URLs for STCP and Metro do Porto GTFS"
+  },
+  "aircraft": { "lat": 41.15, "lon": -8.61, "radius_nm": 40 },
+  "weather": { "lat": 41.1496, "lon": -8.611 },
+  "traffic": { "car_free": [[41.1456, -8.6109, 150], [41.1487, -8.6136, 120]], "axes_base": [41.15, -8.62] },
+  "nature": { "hills": [{ "lat": 41.1579, "lon": -8.6291, "r": 900, "name": "Serra do Pilar" }] },
+  "start_view": { "landmark": "ribeira", "narrow_landmark": "ponte-luis-i" },
+  "data_dir": "data",
+  "landmarks_file": "data/landmarks.json",
+  "og_image": null,
+  "landmark_candidates": [
+    { "id": "clerigos", "name_pt": "Torre e Igreja dos Clérigos", "category": "religious", "why": "Baroque tower, the city's landmark" },
+    { "id": "lello", "name_pt": "Livraria Lello", "category": "civic", "why": "1906 neo-Gothic bookshop with the forked staircase" },
+    { "id": "sao-bento", "name_pt": "Estação de São Bento", "category": "civic", "why": "azulejo-tiled station hall, 20k tiles" },
+    { "id": "se-porto", "name_pt": "Sé do Porto", "category": "religious", "why": "Romanesque cathedral on the hilltop" },
+    { "id": "bolsa", "name_pt": "Palácio da Bolsa", "category": "civic", "why": "Neoclassical stock exchange, Arab Room" },
+    { "id": "sao-francisco-porto", "name_pt": "Igreja de São Francisco", "category": "religious", "why": "Baroque gilt interior, catacombs" },
+    { "id": "ponte-luis-i", "name_pt": "Ponte Luís I", "category": "structure", "why": "1886 double-deck iron arch by Teófilo Seyrig" },
+    { "id": "ribeira", "name_pt": "Cais da Ribeira", "category": "street", "why": "UNESCO riverfront, arcaded houses" },
+    { "id": "serralves", "name_pt": "Fundação de Serralves", "category": "museum", "why": "Art Deco villa + Siza museum, park" },
+    { "id": "casa-musica", "name_pt": "Casa da Música", "category": "civic", "why": "Rem Koolhaas' 2005 concert hall" },
+    { "id": "dragao", "name_pt": "Estádio do Dragão", "category": "sport", "why": "FC Porto, Euro 2004" },
+    { "id": "felgueiras", "name_pt": "Farol de Felgueiras / Foz", "category": "structure", "why": "Douro mouth, ocean water" },
+    { "id": "caves-gaia", "name_pt": "Caves do Vinho do Porto (Gaia)", "category": "civic", "why": "port wine lodges, south bank" },
+    { "id": "ponte-arrabida", "name_pt": "Ponte da Arrábida", "category": "structure", "why": "1963 concrete arch across the Douro" },
+    { "id": "ponte-maria-pia", "name_pt": "Ponte Maria Pia", "category": "structure", "why": "1877 Eiffel railway bridge" },
+    { "id": "mercado-bolhao", "name_pt": "Mercado do Bolhão", "category": "civic", "why": "1914 covered market, restored 2023" },
+    { "id": "aliados", "name_pt": "Avenida dos Aliados + Câmara", "category": "street", "why": "granite civic avenue, city hall" },
+    { "id": "carmo", "name_pt": "Igreja do Carmo", "category": "religious", "why": "Baroque church with side azulejo facade" },
+    { "id": "palacio-cristal", "name_pt": "Jardins do Palácio de Cristal", "category": "park", "why": "gardens and domed Pavilhão Rosa Mota" },
+    { "id": "uporto-reitoria", "name_pt": "Universidade do Porto (Reitoria)", "category": "education", "why": "rectorate and Praça Gomes Teixeira" }
+  ],
+  "notes": "About 4x Braga's area. The Douro with six real bridges; the ocean at Foz. Single-city fork: data_dir is flat data/, like Braga. Pipeline not run yet. See README."
+}

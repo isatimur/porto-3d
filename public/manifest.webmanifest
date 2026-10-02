@@ -1,0 +1,19 @@
+{
+  "name": "Porto 3D — mapa interativo",
+  "short_name": "Porto 3D",
+  "description": "An interactive 3D map of Porto: the Douro, its six bridges, the Ribeira, cathedrals, palaces and gardens.",
+  "lang": "pt-PT",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#14110d",
+  "theme_color": "#14110d",
+  "categories": ["travel", "navigation", "education"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
