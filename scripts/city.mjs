@@ -5,7 +5,9 @@
 //   node scripts/city.mjs --city guimaraes
 //
 // Steps, in order (each is `node scripts/<step>.mjs --city <id>`):
-//   terrain, buildings, ms-buildings, roads, nature, tiles, traffic-axes, gtfs
+//   terrain, buildings, roads, nature, tiles, ms-buildings, traffic-axes, gtfs
+// ms-buildings comes after tiles: its build phase reads data/tiles to drop
+// Microsoft shapes that duplicate OSM buildings.
 //
 // Resume: a step whose main output already exists is skipped.
 //   --force        run every selected step again (and allow the Braga run)
@@ -37,10 +39,10 @@ const stepName = (s) => (s ? s.replace(/^fetch-/, '') : s);
 const STEPS = [
   { name: 'terrain', script: 'fetch-terrain.mjs', out: 'terrain.json' },
   { name: 'buildings', script: 'fetch-buildings.mjs', out: 'buildings.json' },
-  { name: 'ms-buildings', script: 'fetch-ms-buildings.mjs', out: 'buildings-ms.json' },
   { name: 'roads', script: 'fetch-roads.mjs', out: 'roads.json' },
   { name: 'nature', script: 'fetch-nature.mjs', out: 'nature.json' },
   { name: 'tiles', script: 'fetch-tiles.mjs', out: 'tiles/index.json' },
+  { name: 'ms-buildings', script: 'fetch-ms-buildings.mjs', out: 'buildings-ms.json' },
   { name: 'traffic-axes', script: 'fetch-traffic-axes.mjs', out: 'traffic-axes.json' },
   { name: 'gtfs', script: 'fetch-gtfs.mjs', out: 'gtfs/schedule.json', skip: () => (CITY.transit?.gtfs_url ? null : 'no GTFS feed configured') },
 ].map((s) => ({ ...s, cmd: `node scripts/${s.script} --city ${CITY.id}`, done: existsSync(dataPath(...s.out.split('/'))) }));
