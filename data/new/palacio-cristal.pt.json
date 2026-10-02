@@ -1,0 +1,24 @@
+{
+  "name": "Jardins do Palácio de Cristal",
+  "year": "1865",
+  "short": "Parque romântico do século XIX em torno do local do Palácio de Cristal (1865–1951), com vistas sobre o Douro e o Atlântico.",
+  "long": "Os Jardins do Palácio de Cristal são um parque romântico na zona de Massarelos, traçado na década de 1860 em torno do Palácio de Cristal. O palácio de 1865, inspirado no Crystal Palace de Londres, foi demolido em 1951 e substituído pelo Pavilhão Rosa Mota. Dos terraços e alamedas do parque desfrutam-se panorâmicas sobre o Douro, o Atlântico e a cidade. É hoje um dos espaços de passeio preferidos dos portuenses.",
+  "history": "O Palácio de Cristal foi construído segundo projeto do arquiteto inglês Thomas Dillen Jones, em granito, ferro e vidro, inspirado no Crystal Palace de Londres. As obras começaram em 1861 e, a 18 de setembro de 1865, o palácio foi inaugurado pelo rei D. Luís I.\n\nO palácio foi construído para a Exposição Internacional do Porto, que reuniu 3139 expositores de Portugal e de muitos países da Europa e do mundo. Foi aqui que, em 1865, se montou a primeira árvore de Natal pública de Portugal.\n\nO parque em volta do palácio foi traçado na década de 1860 pelo paisagista alemão Émile David. Os jardins conservam alamedas de tílias e castanheiros, camélias, ginkgos, araucárias e um roseiral; ocupam cerca de 9,57 hectares.\n\nEm 1933, o palácio e os jardins foram adquiridos pela Câmara Municipal do Porto. Ao longo dos seus 86 anos, o palácio acolheu uma exposição de rosas (1879), a primeira exposição-bazar de belas-artes (1881) e a Exposição Colonial Portuguesa (1934).\n\nEm 1951 o palácio foi demolido para dar lugar ao Pavilhão dos Desportos (atual Pavilhão Rosa Mota, também conhecido como Super Bock Arena), projetado pelo arquiteto José Carlos Loureiro. A contestação popular manteve o nome Palácio de Cristal para os jardins.",
+  "facts": [
+    "O Palácio de Cristal (1865) foi projetado por Thomas Dillen Jones, inspirado no Crystal Palace de Londres.",
+    "O palácio media 150 metros de comprimento por 72 de largura, com três naves, em granito, ferro e vidro.",
+    "Foi inaugurado a 18 de setembro de 1865 por D. Luís I para a Exposição Internacional do Porto, com 3139 expositores.",
+    "Em 1865 acolheu a primeira árvore de Natal pública de Portugal.",
+    "Os jardins foram traçados a partir da década de 1860 pelo paisagista alemão Émile David e ocupam cerca de 9,57 hectares.",
+    "O palácio foi demolido em 1951; no local está hoje o Pavilhão Rosa Mota (Super Bock Arena).",
+    "As suas alamedas e miradouros oferecem panorâmicas sobre o Douro, o Atlântico e a cidade."
+  ],
+  "tip": "Venha ao pôr do sol: o miradouro junto à Avenida das Tílias tem a melhor vista sobre o Douro. A entrada nos jardins é gratuita e, perto, ficam o Museu Romântico e o Solar do Vinho do Porto.",
+  "gallery": [
+    { "caption": "Os Jardins do Palácio de Cristal" },
+    { "caption": "Panorâmica do Douro a partir dos terraços" },
+    { "caption": "As alamedas e o roseiral" },
+    { "caption": "O Pavilhão Rosa Mota no local do palácio" }
+  ],
+  "panorama": null
+}

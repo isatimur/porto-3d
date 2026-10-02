@@ -339,7 +339,7 @@ export function buildNature(opts) {
     const rings = a.r.map((ring) => ring.map((q) => project(q[0], q[1]))).filter((r) => r.length >= 3);
     if (!rings.length) continue;
     const area = Math.max(0, ringArea(rings[0]) - rings.slice(1).reduce((s, r) => s + ringArea(r), 0));
-    areas.push({ k: a.k, rings, area });
+    areas.push({ k: a.k, rings, area, open: a.o === 1 });
   }
   stats.areas = areas.length;
 

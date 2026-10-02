@@ -1,0 +1,22 @@
+{
+  "name": "Cais da Ribeira",
+  "year": "Século XVIII",
+  "short": "Cais histórico do Porto na margem do Douro, ladeado por casas com arcadas dos séculos XVII–XVIII; inscrito na lista do Património Mundial da UNESCO em 1996.",
+  "long": "A Ribeira é o mais antigo bairro ribeirinho do Porto e o coração do seu centro histórico. Casas altas e estreitas com arcadas, telhados de telha e fachadas de azulejo descem até à água, e a Praça da Ribeira é o centro do bairro. Durante séculos, daqui partia o vinho do Porto, transportado pelo Douro em barcos rabelos de fundo chato. Em 1996, a Ribeira, com a Ponte de Dom Luís I, foi inscrita na lista do Património Mundial da UNESCO.",
+  "history": "A Ribeira é o mais antigo bairro ribeirinho do Porto, nascido em torno de um porto de águas profundas que deu o nome à cidade e ao país (Portus Cale). Já na Idade Média fervia aqui o comércio entre o Porto e Gaia, e o Douro era a principal via do vinho, do sal e das mercadorias.\n\nO aspeto atual do bairro formou-se nos séculos XVII e XVIII: casas altas e estreitas com arcadas no piso térreo, telhados de telha e fachadas revestidas a azulejo. A Praça da Ribeira, com o seu chafariz e o antigo mercado ribeirinho, tornou-se o centro.\n\nDesde o século XVIII a Ribeira foi um centro do comércio do vinho do Porto: nos seus armazéns e cais carregavam-se pipas que desciam o Douro em barcos rabelos. Perto, na Miragaia, ergue-se a Igreja de São Pedro de Miragaia, uma das mais antigas da cidade.\n\nNo século XX o bairro empobreceu e degradou-se, mas a reabilitação começou na segunda metade do século. Em 1996, o centro histórico do Porto, incluindo a Ribeira e a Ponte de Dom Luís I, foi inscrito na lista do Património Mundial da UNESCO. Hoje é o coração turístico da cidade, com restaurantes, cais rabelo e barcos de passeio.",
+  "facts": [
+    "Bairro ribeirinho do Porto; inscrito no Património Mundial da UNESCO em 1996.",
+    "Casas com arcadas dos séculos XVII–XVIII e fachadas de azulejo definem o cais.",
+    "A Praça da Ribeira é o coração histórico do bairro, com mercado e chafariz.",
+    "Durante séculos o vinho do Porto partiu daqui em barcos rabelos de fundo chato.",
+    "A Igreja de São Pedro de Miragaia, uma das mais antigas, fica perto."
+  ],
+  "tip": "Venha de manhã cedo, antes das multidões: é quando melhor se apreciam as arcadas e as fachadas coloridas. Da Praça da Ribeira partem barcos de passeio e o teleférico de Gaia passa perto.",
+  "gallery": [
+    { "caption": "O cais da Ribeira e as casas com arcadas ao longo do Douro" },
+    { "caption": "A Praça da Ribeira, coração do bairro" },
+    { "caption": "Barcos rabelos no cais da Ribeira" },
+    { "caption": "Fachadas de azulejo na luz do entardecer" }
+  ],
+  "panorama": null
+}

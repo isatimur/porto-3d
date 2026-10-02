@@ -1,0 +1,24 @@
+{
+  "name": "Porto Cathedral (Sé)",
+  "year": "12th century",
+  "short": "A Romanesque cathedral on the highest hill of the old town, fortress-like in appearance, with a Gothic cloister lined in azulejos and Baroque remodelling by Niccolò Nasoni.",
+  "long": "Porto Cathedral, known as the Sé, was built from the first half of the 12th century to the early 13th, making it one of Portugal's oldest and most important monuments. From the Romanesque period it retains the massive twin-towered facade with a rose window, three naves and barrel vaults; it was among the first Portuguese buildings to use flying buttresses. The 14th century added a Gothic cloister, and the 18th century remodelled the interior and facade in Baroque style. From the terrace in front, the view over the city's tiled rooftops towards the Douro is one of the finest in Porto.",
+  "history": "Construction began in the first half of the 12th century and continued into the early 13th. The original building was Romanesque: a twin-towered facade with a rose window and a three-nave body under a barrel vault; the central nave is carried on flying buttresses, which makes the Sé one of the first buildings in Portugal to use them.\n\nIn the Gothic period, around 1333, the funerary chapel of João Gordo was built — a knight of the Hospitaller Order and ally of King Denis I, buried beneath a recumbent effigy. The cloister also dates from this era, built in the 14th–15th centuries under King John I. In 1387 John I married Philippa of Lancaster in this cathedral.\n\nThe exterior changed greatly in the Baroque age. Around 1736 the Italian architect Niccolò Nasoni added a Baroque lateral gallery, the galilé; around 1772 the Romanesque portal was replaced with a new one, and the balustrades and domes of the towers also became Baroque.\n\nThe Romanesque main chapel was replaced in the 17th century by a larger Baroque one. The high altar, made between 1727 and 1729, is an important work of the Johannine Baroque, designed by Santos Pacheco and carved by Miguel Francisco da Silva, with murals by Nasoni. To the left of the main chapel stands a magnificent silver altarpiece of the second half of the 17th century; in 1807 it was saved from Napoleon's troops by being hastily walled up behind plaster.\n\nThe cathedral holds three organs, one of them on the choir loft marking an important chapter in Portuguese organ building. In 2022 it received 509,702 visitors, the most of any monument in northern Portugal. It was declared a national monument as far back as 1910.",
+  "facts": [
+    "The cathedral was built from the first half of the 12th century to the early 13th.",
+    "John I and Philippa of Lancaster married here in 1387.",
+    "Niccolò Nasoni added the Baroque lateral gallery around 1736; a new portal followed around 1772.",
+    "The Baroque high altar was made in 1727–1729 to a design by Santos Pacheco.",
+    "The 17th-century silver altarpiece was saved in 1807 by being walled up behind plaster.",
+    "It has been a national monument since 1910.",
+    "509,702 people visited in 2022."
+  ],
+  "tip": "Come at opening time or just before closing, when the light inside is at its best and crowds are thinner. Do not miss the Gothic cloister with its azulejos, and step onto the terrace: the free view of the bishop's palace, the Terreiro da Sé and the rooftops above the Douro is superb. The cathedral sits on a hill, so walk up from São Bento station or take the Guindais funicular from Ribeira.",
+  "gallery": [
+    {"caption": "The Romanesque facade of the cathedral, with its twin towers and rose window against the sky."},
+    {"caption": "The 14th-century Gothic cloister, its walls lined with blue-and-white azulejos."},
+    {"caption": "The main nave with the Baroque high altar and the silver altarpiece to the left."},
+    {"caption": "The view from the cathedral terrace over the bishop's palace and Porto's old centre."}
+  ],
+  "panorama": null
+}

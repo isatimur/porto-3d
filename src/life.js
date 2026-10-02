@@ -1,9 +1,17 @@
 // The living city: what moves on the map.
 //
-//   - the Bom Jesus funicular (1882, water balance): two cars on the real
-//     OSM tracks (data/life.json), counter-balanced, one up while the
-//     other comes down; a 4-minute trip run ten times faster, with a pause
-//     at the stations. The cars ride on the model's own track bed;
+//   - the Bom Jesus funicular (1882, water balance) and Porto's Funicular
+//     dos Guindais (1891, rebuilt 2004): two cars on the real OSM tracks
+//     (data/life.json), counter-balanced, one up while the other comes
+//     down; a 4-minute trip run ten times faster, with a pause at the
+//     stations. The cars ride on the model's own track bed where the city
+//     has one (Braga), else on the terrain height;
+//   - the historic trams (Elétrico Linha 1): yellow Carros Elétricos along
+//     the river from Infante toward Foz, following the real OSM route at
+//     ground height, easing to a stop and reversing at each terminus;
+//   - the Teleférico de Gaia (2011): two stations, two haul ropes and six
+//     cabins gliding between the Cais de Gaia and the Jardim do Morro, each
+//     cabin gently swaying; a cabin passes every ~20 s;
 //   - traffic on the primary and secondary streets: instanced cars and
 //     vans that follow the OSM polylines at 30-55 km/h in both directions,
 //     turning onto a connected street at each end; head and tail lights at
@@ -190,11 +198,16 @@ function carGeometry() {
   return g;
 }
 
-function buildFunicular({ project, heightAt, items }) {
-  const tracks = LIFE?.funicular?.tracks;
-  const it = items.find((i) => i.data.id === 'bom-jesus');
+export function buildFunicular({ project, heightAt, items }) {
+  const cfg = LIFE?.funicular;
+  const tracks = cfg?.tracks;
   if (!Array.isArray(tracks) || tracks.length < 2) return null;
+  // a modelled track bed when the city has one (Braga's Bom Jesus); Porto's
+  // Guindais has none, so the cars ride the terrain height instead
+  const it = (cfg.site ? items.find((i) => i.data.id === cfg.site) : null) || items.find((i) => i.data.id === 'bom-jesus');
   const mesh = it?.meshes?.[0];
+  const top = project(tracks[0][0][0], tracks[0][0][1]);
+  const topY = heightAt(top.x, top.z);
   const STEP = 1.5; // world units (6 m) between samples
   const lines = tracks.slice(0, 2).map((tr) => {
     const pts = tr.map((q) => project(q[0], q[1]));
@@ -288,7 +301,7 @@ function buildFunicular({ project, heightAt, items }) {
   }
   function update(dt, camera) {
     time += dt;
-    const hidden = !it || !mesh?.visible || camera.position.distanceToSquared(_p.set(it.x, it.base, it.z)) > 2600 * 2600;
+    const hidden = (mesh ? !mesh.visible : false) || camera.position.distanceToSquared(_p.set(top.x, topY, top.z)) > 2600 * 2600;
     cars.visible = !hidden;
     if (hidden) return;
     u = phaseU(time);
@@ -298,7 +311,7 @@ function buildFunicular({ project, heightAt, items }) {
     place(1, L1, L1.total - half - u * (L1.total - 2 * half));
     cars.instanceMatrix.needsUpdate = true;
   }
-  update(0, { position: new THREE.Vector3(it?.x ?? 0, 0, it?.z ?? 0) });
+  update(0, { position: new THREE.Vector3(top.x, topY, top.z) });
   return {
     object: cars,
     update,
@@ -311,6 +324,259 @@ function buildFunicular({ project, heightAt, items }) {
       return u;
     },
     stats: { tracks: lines.map((L) => +(L.total / S).toFixed(0)), bedHits: lines.map((L) => `${L.hits}/${L.xs.length}`) },
+  };
+}
+
+// ------------------------------------------------------------ trams
+const TRAM_M = 9; // metres, the Porto Carro Elétrico
+const TRAM_SPEEDUP = 10; // the map runs the timetable faster, like the funicular
+
+// A yellow Carro Elétrico: skirt, body, a lit window band, clerestory roof,
+// a raised trolley pole and a headlight; +z is the front (metres -> world).
+function tramGeometry() {
+  const W = 2.4;
+  const parts = [
+    box(W, 0.5, TRAM_M, 0, 0, 0, 0x24231f),
+    box(W, 1.5, TRAM_M - 0.5, 0, 0.5, 0, 0xe7b32a),
+    box(W + 0.06, 0.85, TRAM_M - 1.9, 0, 1.0, 0.1, 0x223039, 1),
+    box(W - 0.2, 0.18, TRAM_M - 0.9, 0, 2.0, 0, 0xd39a1c),
+    box(0.1, 1.25, 0.1, 0, 2.15, -1.4, 0x3a3f42),
+    box(1.5, 0.07, 0.07, 0, 3.4, -1.4, 0x3a3f42),
+    box(1.0, 0.26, 0.12, 0, 0.85, TRAM_M / 2 - 0.06, 0xffe9b0, 1),
+  ];
+  const g = mergeGeometries(parts);
+  g.scale(S, S, S);
+  return g;
+}
+
+export function buildTrams({ project, heightAt, mobile, lite }) {
+  const cfg = LIFE?.trams;
+  const routes = cfg?.routes;
+  if (!Array.isArray(routes) || !routes.length) return null;
+  const STEP = 1.5; // world units between samples
+  const lines = routes
+    .map((tr) => {
+      if (!Array.isArray(tr) || tr.length < 2) return null;
+      const p = tr.map((q) => project(q[0], q[1]));
+      const xs = [];
+      const zs = [];
+      for (let i = 1; i < p.length; i++) {
+        const a = p[i - 1];
+        const b = p[i];
+        const n = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.z - a.z) / STEP));
+        for (let j = i === 1 ? 0 : 1; j <= n; j++) {
+          xs.push(a.x + ((b.x - a.x) * j) / n);
+          zs.push(a.z + ((b.z - a.z) * j) / n);
+        }
+      }
+      // ground height, median-smoothed so the tram does not bob per sample
+      const raw = xs.map((x, i) => heightAt(x, zs[i]));
+      const ys = raw.map((_, i) => {
+        const w = raw.slice(Math.max(0, i - 2), i + 3).sort((m, n) => m - n);
+        return w[w.length >> 1];
+      });
+      const cum = [0];
+      for (let i = 1; i < xs.length; i++) cum.push(cum[i - 1] + Math.hypot(xs[i] - xs[i - 1], zs[i] - zs[i - 1]));
+      return { xs, zs, ys, cum, total: cum[cum.length - 1] };
+    })
+    .filter(Boolean);
+  if (!lines.length) return null;
+
+  const COUNT = lite || mobile ? 2 : 4;
+  const mesh = new THREE.InstancedMesh(tramGeometry(), lifeMaterial({ roughness: 0.45, metalness: 0.2 }), COUNT);
+  mesh.name = 'trams';
+  mesh.castShadow = false;
+  mesh.receiveShadow = true;
+  mesh.frustumCulled = false;
+  mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+
+  const speed = (cfg.speed_mps ?? 6) * S * TRAM_SPEEDUP;
+  const DWELL = 6; // seconds at each terminus
+  // trapezoid speed profile: 15 % accelerating, 15 % braking
+  const A = 0.15;
+  const profile = (x) => (x < A ? (0.5 * x * x) / (A * (1 - A)) : x < 1 - A ? (x - A / 2) / (1 - A) : 1 - (0.5 * (1 - x) * (1 - x)) / (A * (1 - A)));
+  // a round trip: out, dwell, back, dwell. The eased ends round the tram's
+  // path into a pill, so it slows, stops and reverses without a snap.
+  function arcAt(L, t) {
+    const one = L.total / speed;
+    const P = 2 * (one + DWELL);
+    const p = ((t % P) + P) % P;
+    if (p < DWELL) return 0;
+    if (p < DWELL + one) return profile((p - DWELL) / one) * L.total;
+    if (p < 2 * DWELL + one) return L.total;
+    return (1 - profile((p - 2 * DWELL - one) / one)) * L.total;
+  }
+  const trams = [];
+  for (let i = 0; i < COUNT; i++) {
+    const L = lines[i % lines.length];
+    const cycle = 2 * (L.total / speed + DWELL);
+    trams.push({ L, offset: (i / COUNT) * cycle });
+  }
+
+  const _q = new THREE.Quaternion();
+  const _e = new THREE.Euler(0, 0, 0, 'YXZ');
+  const _p = new THREE.Vector3();
+  const _s = new THREE.Vector3(1, 1, 1);
+  const _m = new THREE.Matrix4();
+  const at = { x: 0, y: 0, z: 0, yaw: 0, pitch: 0 };
+  function sample(L, s) {
+    let i = 1;
+    while (i < L.cum.length - 1 && L.cum[i] < s) i++;
+    const u = THREE.MathUtils.clamp((s - L.cum[i - 1]) / Math.max(1e-6, L.cum[i] - L.cum[i - 1]), 0, 1);
+    at.x = L.xs[i - 1] + (L.xs[i] - L.xs[i - 1]) * u;
+    at.z = L.zs[i - 1] + (L.zs[i] - L.zs[i - 1]) * u;
+    at.y = L.ys[i - 1] + (L.ys[i] - L.ys[i - 1]) * u;
+    const dx = L.xs[i] - L.xs[i - 1];
+    const dz = L.zs[i] - L.zs[i - 1];
+    at.yaw = Math.atan2(dx, dz); // +z of the tram along the travel direction
+    at.pitch = Math.atan2(-(L.ys[i] - L.ys[i - 1]), Math.max(1e-3, Math.hypot(dx, dz)));
+    return at;
+  }
+  const anchorX = lines[0].xs[lines[0].xs.length >> 1];
+  const anchorZ = lines[0].zs[lines[0].zs.length >> 1];
+  let time = -DWELL * 0.4; // first view: a tram already under way
+  function update(dt, camera) {
+    time += dt;
+    const hidden = camera.position.distanceToSquared(_p.set(anchorX, 0, anchorZ)) > 2600 * 2600;
+    mesh.visible = !hidden;
+    if (hidden) return;
+    for (let i = 0; i < COUNT; i++) {
+      const tr = trams[i];
+      sample(tr.L, arcAt(tr.L, time + tr.offset));
+      _e.set(at.pitch, at.yaw, Math.sin(time * 1.3 + i * 2.1) * 0.012, 'YXZ');
+      _q.setFromEuler(_e);
+      _p.set(at.x, at.y + 0.09 * S, at.z);
+      _m.compose(_p, _q, _s);
+      mesh.setMatrixAt(i, _m);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+  }
+  update(0, { position: new THREE.Vector3(anchorX, 0, anchorZ) });
+  return {
+    object: mesh,
+    update,
+    stats: { trams: COUNT, routes: lines.length, km: +(lines.reduce((s, L) => s + L.total, 0) / S / 1000).toFixed(1) },
+  };
+}
+
+// ------------------------------------------------------------ cable car
+function cabinGeometry() {
+  // a red Gaia gondola: cabin, lit window band, roof, hanger arm and grip
+  const parts = [
+    box(2.2, 1.9, 2.4, 0, 0, 0, 0xc0392b),
+    box(2.26, 0.75, 2.46, 0, 0.85, 0, 0x1f2a30, 1),
+    box(2.32, 0.18, 2.52, 0, 1.9, 0, 0x9c2d22),
+    box(0.12, 0.95, 0.12, 0, 2.08, 0, 0x3a3f42),
+    box(1.7, 0.14, 0.55, 0, 3.0, 0, 0x3a3f42),
+  ];
+  const g = mergeGeometries(parts);
+  g.scale(S, S, S);
+  return g;
+}
+
+export function buildCableCar({ project, heightAt, mobile, lite }) {
+  const cfg = LIFE?.cablecar;
+  const st = cfg?.stations;
+  if (!Array.isArray(st) || st.length < 2) return null;
+  const lo = project(st[0][0], st[0][1]);
+  const up = project(st[1][0], st[1][1]);
+  const DECK = 5 * S; // station deck above the ground
+  const a = new THREE.Vector3(lo.x, heightAt(lo.x, lo.z) + DECK, lo.z);
+  const b = new THREE.Vector3(up.x, heightAt(up.x, up.z) + DECK, up.z);
+  const span = Math.max(1e-3, a.distanceTo(b));
+  const yaw = Math.atan2(b.x - a.x, b.z - a.z);
+  const sag = span * 0.03;
+
+  const group = new THREE.Group();
+  group.name = 'cablecar';
+
+  // stations: a hall, a canopy, a glazed control box and a small tower
+  const stGeo = mergeGeometries([
+    box(8, 4.6, 10, 0, 0, 0, 0xb7b0a4),
+    box(8.8, 0.35, 11, 0, 4.6, 0, 0x6a6459),
+    box(3.2, 3.4, 3.2, 0, 0, 0, 0x28323a, 1),
+    box(1.2, 6, 1.2, -3, 0, -4, 0x8f887d),
+  ]);
+  stGeo.scale(S, S, S);
+  const stMat = lifeMaterial({ roughness: 0.8 });
+  for (const p of [a, b]) {
+    const m = new THREE.Mesh(stGeo, stMat);
+    m.position.set(p.x, p.y - DECK, p.z);
+    m.rotation.y = yaw;
+    m.castShadow = true;
+    m.receiveShadow = true;
+    group.add(m);
+  }
+
+  // the two haul ropes, with a little catenary sag
+  const side = { x: -(b.z - a.z) / span, z: (b.x - a.x) / span };
+  const ropePts = (sgn) => {
+    const arm = 1.3 * S * sgn;
+    const out = [];
+    for (let i = 0; i <= 24; i++) {
+      const s = i / 24;
+      out.push(
+        new THREE.Vector3(
+          a.x + (b.x - a.x) * s + side.x * arm,
+          a.y + (b.y - a.y) * s - sag * Math.sin(Math.PI * s),
+          a.z + (b.z - a.z) * s + side.z * arm,
+        ),
+      );
+    }
+    return out;
+  };
+  const ropeMat = new THREE.LineBasicMaterial({ color: 0x2a2f33 });
+  for (const sgn of [-1, 1]) {
+    const rope = new THREE.Line(new THREE.BufferGeometry().setFromPoints(ropePts(sgn)), ropeMat);
+    rope.name = 'cablecar-rope';
+    group.add(rope);
+  }
+
+  const COUNT = lite ? 2 : cfg.cabins ?? (mobile ? 4 : 6);
+  const cab = new THREE.InstancedMesh(cabinGeometry(), lifeMaterial({ roughness: 0.5 }), COUNT);
+  cab.name = 'cablecar-cabins';
+  cab.castShadow = false;
+  cab.frustumCulled = false;
+  cab.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  group.add(cab);
+
+  const HANG = 3.0 * S; // the grip sits 3 m above the cabin base
+  const oneWay = ((cfg.period ?? 20) * COUNT) / 2; // a cabin passes every `period` s
+  const mid = new THREE.Vector3().lerpVectors(a, b, 0.5);
+  const _q = new THREE.Quaternion();
+  const _e = new THREE.Euler(0, 0, 0, 'YXZ');
+  const _p = new THREE.Vector3();
+  const _s = new THREE.Vector3(1, 1, 1);
+  const _m = new THREE.Matrix4();
+  let time = 0;
+  function update(dt, camera) {
+    time += dt;
+    const hidden = camera.position.distanceToSquared(_p.set(mid.x, mid.y, mid.z)) > 2600 * 2600;
+    group.visible = !hidden;
+    if (hidden) return;
+    for (let i = 0; i < COUNT; i++) {
+      const ph = (((time / oneWay + i / COUNT) % 2) + 2) % 2;
+      const s = ph < 1 ? ph : 2 - ph; // ping-pong: lower <-> upper
+      const sgn = i % 2 ? 1 : -1; // one direction per rope
+      const arm = 1.3 * S * sgn;
+      _p.set(
+        a.x + (b.x - a.x) * s + side.x * arm,
+        a.y + (b.y - a.y) * s - sag * Math.sin(Math.PI * s) - HANG,
+        a.z + (b.z - a.z) * s + side.z * arm,
+      );
+      const sway = 0.05 * Math.sin(time * 0.9 + i * 1.7);
+      _e.set(sway * 0.5, yaw, sway, 'YXZ');
+      _q.setFromEuler(_e);
+      _m.compose(_p, _q, _s);
+      cab.setMatrixAt(i, _m);
+    }
+    cab.instanceMatrix.needsUpdate = true;
+  }
+  update(0, { position: new THREE.Vector3(mid.x, mid.y, mid.z) });
+  return {
+    object: group,
+    update,
+    stats: { cabins: COUNT, spanM: Math.round(span / S), gainM: Math.round((b.y - a.y) / S) },
   };
 }
 
@@ -1138,6 +1404,8 @@ export function createLife(ctx) {
   );
 
   const funicular = safe('funicular', () => buildFunicular({ project, heightAt, items }));
+  const trams = safe('trams', () => buildTrams({ project, heightAt, mobile, lite }));
+  const cablecar = safe('cablecar', () => buildCableCar({ project, heightAt, mobile, lite }));
   const traffic = safe('traffic', () => buildTraffic({ roads, project, heightAt, mobile, model, N: carMax }));
   const birds = safe('birds', () => buildBirds({ items, heightAt, project, nature, mobile, lite }));
   const fountains = safe('fountains', () => buildFountains({ project, heightAt, items, mobile }));
@@ -1146,7 +1414,7 @@ export function createLife(ctx) {
   const street = safe('streetscape', () =>
     createStreetscape({ camera, roads, project, heightAt, items, outlines: ctx.outlines, footprints: ctx.footprints, lite, mobile, debug, model, fx, surfaceHeights }),
   );
-  for (const p of [funicular, traffic, birds, fountains, street]) if (p) group.add(p.object);
+  for (const p of [funicular, trams, cablecar, traffic, birds, fountains, street]) if (p) group.add(p.object);
 
   const ctxLive = { scene, camera, renderer, project, heightAt, datumM, mobile, reducedMotion, live, model, atmosphere, group };
   // aircraft and buses: a separate chunk, loaded after the first frame
@@ -1168,6 +1436,8 @@ export function createLife(ctx) {
   const stats = {
     buildMs,
     funicular: funicular?.stats ?? null,
+    trams: trams?.stats ?? null,
+    cablecar: cablecar?.stats ?? null,
     traffic: traffic?.stats ?? null,
     birds: birds?.stats ?? null,
     fountains: fountains?.stats ?? null,
@@ -1214,6 +1484,8 @@ export function createLife(ctx) {
     view.rain = weather.rainK;
     model?.update();
     funicular?.update(adt, camera);
+    trams?.update(adt, camera);
+    cablecar?.update(adt, camera);
     traffic?.update(adt, camera, frustum, view);
     birds?.update(adt, camera, view);
     fountains?.update(camera, view);
@@ -1234,6 +1506,8 @@ export function createLife(ctx) {
     weather,
     live,
     funicular,
+    trams,
+    cablecar,
     traffic,
     birds,
     fountains,

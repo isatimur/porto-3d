@@ -5,7 +5,7 @@
 // The raw Overpass response is cached in <data dir>/.cache/nature-raw.json; --refresh refetches it.
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
-import { CITY, BBOX, ORIGIN, USER_AGENT, dataPath, cachePath, dataRel } from './geo-lib.mjs';
+import { CITY, BBOX, WIDE_BBOX, ORIGIN, USER_AGENT, dataPath, cachePath, dataRel } from './geo-lib.mjs';
 
 const OUT = dataPath('nature.json');
 const CACHE = cachePath('nature-raw.json');
@@ -27,6 +27,10 @@ const MIRRORS = [
 ];
 
 const b = `${BBOX.s},${BBOX.w},${BBOX.n},${BBOX.e}`;
+// The coast and any bay/sea polygons are fetched over the whole wide bbox:
+// the Atlantic lies west of the core (Foz do Douro is the core's west edge),
+// so it never appears in a core-only query.
+const bw = `${WIDE_BBOX.s},${WIDE_BBOX.w},${WIDE_BBOX.n},${WIDE_BBOX.e}`;
 const AREA_FILTERS = [
   '["natural"~"^(wood|water|scrub|heath|grassland)$"]',
   '["landuse"~"^(forest|grass|meadow|orchard|vineyard|farmland|recreation_ground|village_green|reservoir|basin)$"]',
@@ -38,6 +42,11 @@ const QUERY = `[out:json][timeout:180];
 (
 ${AREA_FILTERS.map(f => `  way${f}(${b});\n  relation["type"="multipolygon"]${f}(${b});`).join('\n')}
   way["waterway"~"^(river|stream|canal)$"](${b});
+  way["natural"="coastline"](${bw});
+  way["natural"="bay"](${bw});
+  relation["natural"="bay"](${bw});
+  way["place"="sea"](${bw});
+  relation["place"="sea"](${bw});
 );
 out geom;`;
 
@@ -163,13 +172,13 @@ function areaM2(ring) {
   return Math.abs(s) / 2;
 }
 
-// Sutherland-Hodgman clip of an open ring against the BBOX rectangle.
-function clipRing(ring) {
+// Sutherland-Hodgman clip of an open ring against a lat/lon rectangle.
+function clipRing(ring, box = BBOX) {
   const edges = [
-    [p => p[0] >= BBOX.s, (a, c) => cutLat(a, c, BBOX.s)],
-    [p => p[0] <= BBOX.n, (a, c) => cutLat(a, c, BBOX.n)],
-    [p => p[1] >= BBOX.w, (a, c) => cutLon(a, c, BBOX.w)],
-    [p => p[1] <= BBOX.e, (a, c) => cutLon(a, c, BBOX.e)],
+    [p => p[0] >= box.s, (a, c) => cutLat(a, c, box.s)],
+    [p => p[0] <= box.n, (a, c) => cutLat(a, c, box.n)],
+    [p => p[1] >= box.w, (a, c) => cutLon(a, c, box.w)],
+    [p => p[1] <= box.e, (a, c) => cutLon(a, c, box.e)],
   ];
   let out = ring;
   for (const [inside, cut] of edges) {
@@ -274,6 +283,8 @@ const stats = { ringsUnclosed: 0, innerUnassigned: 0, dedupRings: 0, relations: 
 // 1. Raw polygons: { k, id, outer, holes, name }
 const polys = [];
 const lines = [];
+const coastPts = []; // natural=coastline points over the wide bbox (the ocean mask)
+const seaPolys = []; // natural=bay / place=sea closed ways, when OSM has them
 const standalone = new Map(); // way id -> kind, for closed ways with their own area tags
 const extraHoles = new Map(); // way id -> holes moved over from a relation duplicate
 
@@ -318,7 +329,7 @@ for (const el of elements) {
       extraHoles.get(o.ids[0]).push(...o.holes);
       continue;
     }
-    polys.push({ k, id: `r${el.id}`, outer: o.pts, holes: o.holes, name: t.name });
+    polys.push({ k, id: `r${el.id}`, outer: o.pts, holes: o.holes, name: t.name, open: t.estuary === 'yes' });
   }
 }
 
@@ -327,6 +338,16 @@ for (const el of elements) {
   const t = el.tags || {};
   const pts = geomPts(el.geometry);
   if (!pts) continue;
+  // The coastline is a line, not an area: keep its points to build the ocean mask.
+  if (t.natural === 'coastline') {
+    if (t.place !== 'islet') for (const p of pts) coastPts.push(p);
+    continue;
+  }
+  // A real bay/sea polygon, when OSM has one, beats a synthesized mask.
+  if (t.natural === 'bay' || t.place === 'sea') {
+    if (same(pts[0], pts.at(-1)) && pts.length >= 4) seaPolys.push({ k: 'water', id: `w${el.id}`, outer: pts.slice(0, -1), holes: [], name: t.name, open: true });
+    continue;
+  }
   if (LINE_KINDS[t.waterway]) {
     lines.push({ el, pts });
     continue;
@@ -334,7 +355,7 @@ for (const el of elements) {
   const k = standalone.get(el.id);
   if (!k) continue;
   stats.ways++;
-  polys.push({ k, id: `w${el.id}`, outer: pts.slice(0, -1), holes: extraHoles.get(el.id) || [], name: t.name });
+  polys.push({ k, id: `w${el.id}`, outer: pts.slice(0, -1), holes: extraHoles.get(el.id) || [], name: t.name, open: t.estuary === 'yes' });
 }
 
 // 2-5. Clip, simplify, filter, round.
@@ -360,7 +381,11 @@ function buildAreas(bigTol) {
       rings.push(hs);
       net -= ha;
     }
-    out.push({ k: p.k, id: p.id, r: rings, _a: Math.max(0, net), _n: p.name });
+    // Open water (the tidal estuary, wide rivers, the ocean): no bank foam and
+    // no fine bank subdivision. A water body over ~1 km² is open; a tagged
+    // estuary always is.
+    const open = p.open || (p.k === 'water' && net > 1e6);
+    out.push({ k: p.k, id: p.id, r: rings, _a: Math.max(0, net), _n: p.name, o: open ? 1 : undefined });
   }
   out.sort((a, b) => PRIORITY.indexOf(a.k) - PRIORITY.indexOf(b.k) || b._a - a._a);
   return out;
@@ -387,14 +412,52 @@ function buildLines() {
 }
 
 const lineOut = buildLines();
+
+// The Atlantic. A real natural=bay / place=sea polygon when OSM has one;
+// otherwise a synthetic mask west of the mainland coastline. The coastline is
+// a line, and Porto's shore is single-valued in latitude, so the ocean is the
+// region between the wide-bbox west edge and the easternmost coastline point
+// of each latitude band (offshore islets never win, being further west). The
+// result is open water: no bank foam, no fine bank subdivision downstream.
+const SEA_BIN = 0.002; // deg latitude, ~220 m
+function buildSeaAreas() {
+  const outers = [];
+  for (const s of seaPolys) {
+    const c = clipRing(s.outer, WIDE_BBOX);
+    if (c.length >= 3) outers.push(c);
+  }
+  if (!outers.length && coastPts.length) {
+    const rows = new Map();
+    for (const [lat, lon] of coastPts) {
+      if (lat < WIDE_BBOX.s || lat > WIDE_BBOX.n || lon < WIDE_BBOX.w || lon > WIDE_BBOX.e) continue;
+      const key = Math.round(lat / SEA_BIN);
+      const cur = rows.get(key);
+      if (!cur || lon > cur.lon) rows.set(key, { lat: key * SEA_BIN, lon });
+    }
+    if (rows.size >= 2) {
+      const ring = [[WIDE_BBOX.s, WIDE_BBOX.w]];
+      for (const key of [...rows.keys()].sort((a, b) => a - b)) {
+        const p = rows.get(key);
+        const lat = Math.min(WIDE_BBOX.n, Math.max(WIDE_BBOX.s, p.lat));
+        const last = ring.at(-1);
+        if (last[0] !== lat || last[1] !== r5(p.lon)) ring.push([lat, r5(p.lon)]);
+      }
+      ring.push([WIDE_BBOX.n, WIDE_BBOX.w]);
+      outers.push(ring);
+    }
+  }
+  return outers.map((outer) => ({ k: 'water', id: 'sea', r: [outer], o: 1, _a: areaM2(outer), _n: 'Atlantic Ocean' }));
+}
+const seaAreas = buildSeaAreas();
+
 let areas, json, usedTol;
 for (const tol of [4, 6, 8, 10]) {
-  areas = buildAreas(tol);
+  areas = buildAreas(tol).concat(seaAreas);
   json = JSON.stringify({
     source: '© OpenStreetMap contributors, ODbL 1.0 (Overpass API)',
     fetched: raw.osm3s?.timestamp_osm_base || new Date().toISOString(),
     bbox: BBOX,
-    areas: areas.map(({ k, id, r }) => ({ k, id, r })),
+    areas: areas.map(({ k, id, r, o }) => (o ? { k, id, r, o } : { k, id, r })),
     lines: lineOut,
   });
   usedTol = tol;
@@ -425,6 +488,11 @@ for (const el of elements) {
 console.log(`Relation outer members also emitted standalone: ${dupOuter.length ? dupOuter.join(', ') : 'none'}`);
 const tri = areas.flatMap(a => a.r).filter(r => r.length < 4).length;
 console.log(`Rings with fewer than 4 points (source has < 4 unique points after clip + rounding): ${tri}`);
+const seas = areas.filter(a => a.id === 'sea');
+for (const s of seas) console.log(`Ocean: ${s.r[0].length} points, ${(s._a / 1e6).toFixed(1)} km², ${seaPolys.length ? 'OSM bay/sea' : 'synthesized from coastline'} (${coastPts.length} coastline points)`);
+if (!seas.length) console.log(`Ocean: none (${coastPts.length} coastline points)`);
+const openWater = areas.filter(a => a.k === 'water' && a.o);
+console.log(`Open water bodies (estuary / wide river / sea): ${openWater.map(a => `${a.id} ${(a._a / 1e6).toFixed(2)} km²`).join(', ') || 'none'}`);
 
 console.log('\nAreas per kind:');
 for (const k of PRIORITY) {

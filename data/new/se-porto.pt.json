@@ -1,0 +1,24 @@
+{
+  "name": "Sé do Porto",
+  "year": "Século XII",
+  "short": "Catedral românica no ponto mais alto do centro histórico, com aspecto de fortaleza, claustro gótico revestido de azulejos e reformas barrocas de Nicolau Nasoni.",
+  "long": "A Sé do Porto foi construída entre a primeira metade do século XII e o início do século XIII, sendo um dos monumentos mais antigos e importantes de Portugal. Da época românica conserva a fachada maciça com duas torres e rosácea, três naves e abóbadas de canhão; foi um dos primeiros edifícios portugueses a usar arcobotantes. O século XIV acrescentou o claustro gótico e o século XVIII remodelou o interior e a fachada em estilo barroco. Do terraço fronteiro avista-se uma das melhores paisagens do Porto, sobre os telhados da cidade até ao Douro.",
+  "history": "A construção começou na primeira metade do século XII e prolongou-se até ao início do século XIII. O primeiro edifício era românico: fachada com torres e rosácea e corpo de três naves coberto por abóbada de canhão; a nave central apoia-se em arcobotantes, o que faz da Sé um dos primeiros edifícios portugueses a empregá-los.\n\nNa época gótica, por volta de 1333, foi construída a capela funerária de João Gordo, cavaleiro da Ordem dos Hospitalários e colaborador de D. Dinis, sepultado sob um túmulo com jacente. Também desta época data o claustro, erguido nos séculos XIV–XV sob o reinado de D. João I. Em 1387, D. João I casou-se aqui com D. Filipa de Lencastre.\n\nO exterior mudou muito na época barroca. Por volta de 1736 o arquitecto italiano Nicolau Nasoni acrescentou à fachada lateral uma galilé barroca; cerca de 1772 construiu-se um novo portal em substituição do românico original, e as balaustradas e cúpulas das torres tornaram-se também barrocas.\n\nA capela-mor românica foi substituída no século XVII por outra, maior, de estilo barroco. O altar-mor, executado entre 1727 e 1729, é uma obra importante do barroco joanino, projectada por Santos Pacheco e esculpida por Miguel Francisco da Silva, com pinturas murais de Nasoni. À esquerda da capela-mor ergue-se um magnífico altar de prata da segunda metade do século XVII; em 1807 foi salvo das tropas napoleónicas ao ser apressadamente murado atrás de uma parede de gesso.\n\nA Sé integra três órgãos, um deles no coro-alto, que marca um período importante do desenvolvimento organístico em Portugal. Em 2022 registou 509 702 entradas, sendo o monumento mais visitado do norte do país. Foi classificada como Monumento Nacional em 1910.",
+  "facts": [
+    "A catedral foi construída entre a primeira metade do século XII e o início do século XIII.",
+    "D. João I e D. Filipa de Lencastre casaram aqui em 1387.",
+    "Nicolau Nasoni acrescentou a galilé barroca por volta de 1736; o novo portal surgiu cerca de 1772.",
+    "O altar-mor barroco foi executado em 1727–1729 segundo risco de Santos Pacheco.",
+    "O altar de prata do século XVII foi salvo em 1807 ao ser murado atrás de gesso.",
+    "É Monumento Nacional desde 1910.",
+    "Em 2022 recebeu 509 702 visitantes."
+  ],
+  "tip": "Chegue à abertura ou pouco antes do fecho, quando a luz interior é melhor e há menos gente. Não perca o claustro gótico com os azulejos e vá ao terraço: a vista gratuita sobre o Paço Episcopal, o Terreiro da Sé e os telhados junto ao Douro é excelente. A Sé fica no alto, pelo que convém subir a pé desde a estação de São Bento ou usar o funicular dos Guindais, a partir da Ribeira.",
+  "gallery": [
+    {"caption": "A fachada românica da catedral, com as duas torres e a rosácea recortadas no céu."},
+    {"caption": "O claustro gótico do século XIV, com as paredes revestidas de azulejos."},
+    {"caption": "A nave principal, com o altar-mor barroco e o altar de prata à esquerda."},
+    {"caption": "A vista do terraço da Sé sobre o Paço Episcopal e o centro histórico do Porto."}
+  ],
+  "panorama": null
+}

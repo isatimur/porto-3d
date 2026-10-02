@@ -1,0 +1,24 @@
+{
+  "name": "Felgueiras Lighthouse",
+  "year": "1886",
+  "short": "An 1886 granite lighthouse at the tip of the Felgueiras breakwater in Foz do Douro, where the Douro meets the Atlantic.",
+  "long": "The Farolim de Felgueiras is a small lighthouse on the right bank of the Douro, at the tip of the Felgueiras breakwater in the Foz do Douro district, where the river meets the Atlantic. It is a hexagonal tower of exposed granite masonry about ten metres high, with a red gallery and lantern. It was built in 1886, automated in 1979 and deactivated in 2009. Nearby are the Foz beaches and the Fort of São Francisco Xavier (Castelo do Queijo).",
+  "history": "Work on the breakwater began as early as 1790: by royal letter of 15 February, Reinaldo Oudinot was put in charge of opening up the mouth of the Douro. The mole took the name Felgueiras from the rock it faces to the west.\n\nThe lighthouse itself was built in 1886 at the tip of the breakwater. Its hexagonal tower is made of exposed granite; the red gallery and lantern are flanked by a small white service building.\n\nBefore deactivation the lighthouse showed a red flash every five seconds and had a range of nine nautical miles; it also had a fog signal. It was modernised in 1945, which made the Senhora da Luz lighthouse dispensable.\n\nIn 1979 it was automated and joined the first network of remotely controlled lighthouses on the Portuguese coast, operated from the Leça lighthouse.\n\nIn 2009 it was deactivated, although its sound signal was kept. It is now a protected monument: the tower itself is closed, but the surrounding breakwater area is accessible.",
+  "facts": [
+    "Built in 1886 at the tip of the Felgueiras breakwater in Foz do Douro, on the right bank of the Douro.",
+    "A hexagonal tower of exposed granite masonry about 10 metres high.",
+    "Range of 9 nautical miles, with a red flash every 5 seconds.",
+    "Automated in 1979; deactivated in 2009, though the fog signal was kept.",
+    "National lighthouse number 82; work on the breakwater began in 1790.",
+    "Nearby are Praia dos Ingleses and Praia do Ourigo beaches and the Castelo do Queijo fort.",
+    "Classified as a property of municipal interest (Imóvel de Interesse Municipal)."
+  ],
+  "tip": "The best time is sunset or during a storm, when the waves break dramatically against the mole. Walk to it from Avenida de D. Carlos I along the breakwater; the tower is closed, but the surroundings and the Foz waterfront are open.",
+  "gallery": [
+    { "caption": "The Felgueiras lighthouse on the breakwater" },
+    { "caption": "The granite tower and red lantern" },
+    { "caption": "Atlantic waves by the mole" },
+    { "caption": "The Foz do Douro waterfront" }
+  ],
+  "panorama": null
+}

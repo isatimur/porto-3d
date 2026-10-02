@@ -1,0 +1,24 @@
+{
+  "name": "Fundação de Serralves",
+  "year": "1999",
+  "short": "Fundação de arte contemporânea de Serralves: o museu de Álvaro Siza Vieira (1999) e uma casa Art Deco num parque de 18 hectares.",
+  "long": "Serralves é um complexo cultural do Porto que reúne um museu de arte contemporânea, um parque e uma casa, cada um representando uma época diferente: arquitetura contemporânea, modernismo e Art Deco. O museu foi projetado por Álvaro Siza Vieira e inaugurado a 6 de junho de 1999. A Casa de Serralves, construída entre 1925 e 1944 para Carlos Alberto Cabral, é um dos melhores exemplos de Art Deco em Portugal. O parque, com cerca de 18 hectares, reúne uma coleção de esculturas ao ar livre.",
+  "history": "Em dezembro de 1986, o Estado adquiriu a Quinta de Serralves para aí instalar o futuro Museu Nacional de Arte Moderna. O parque e a casa abriram ao público a 29 de maio de 1987.\n\nA 27 de julho de 1989, um decreto criou a Fundação de Serralves, uma parceria inovadora entre o Estado e a sociedade civil. Em março de 1991, a Fundação assinou um contrato com o arquiteto Álvaro Siza Vieira para projetar o museu.\n\nO museu foi construído nas antigas hortas da quinta e inaugurado a 6 de junho de 1999. O edifício de 13 000 m² inclui 4500 m² de espaços de exposição em 14 galerias; em 2000 foi acrescentado um auditório.\n\nA Casa de Serralves foi mandada construir por Carlos Alberto Cabral, 2.º Conde de Vizela, com projeto de José Marques da Silva. A decoração interior está ligada a nomes como Ruhlmann, Lalique, Brandt e Perzel; a casa foi construída entre 1925 e 1944.\n\nA coleção do museu começa em 1968; não há exposição permanente, mas realizam-se cerca de cinco mostras de artistas convidados por ano. Em 2012, todo o conjunto foi classificado como monumento nacional.",
+  "facts": [
+    "O museu foi projetado por Álvaro Siza Vieira e inaugurado a 6 de junho de 1999.",
+    "A Casa de Serralves é uma casa Art Deco construída entre 1925 e 1944 com projeto de José Marques da Silva.",
+    "O parque ocupa cerca de 18 hectares e recebeu o Prémio Henry Ford para o Ambiente em 1997.",
+    "O museu tem 13 000 m², com 4500 m² de exposição em 14 galerias.",
+    "A coleção centra-se na arte posterior a 1968; não há exposição permanente.",
+    "No parque estão obras de Richard Serra, Dan Graham e Claes Oldenburg.",
+    "Em 2012 o conjunto foi classificado como monumento nacional."
+  ],
+  "tip": "O bilhete dá acesso ao museu e ao parque, por isso reserve pelo menos meio dia. Pode chegar de autocarro até à Avenida Marechal Gomes da Costa; consulte horários e descontos em serralves.pt.",
+  "gallery": [
+    { "caption": "O Museu de Serralves de Arte Contemporânea" },
+    { "caption": "A Casa de Serralves, casa Art Deco" },
+    { "caption": "As alamedas do Parque de Serralves" },
+    { "caption": "Esculturas ao ar livre no parque" }
+  ],
+  "panorama": null
+}

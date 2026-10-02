@@ -1,0 +1,24 @@
+{
+  "name": "Igreja de São Francisco",
+  "year": "1383",
+  "short": "Igreja gótica de 1383–1410, com um dos interiores barrocos dourados mais ricos de Portugal e catacumbas sob o altar.",
+  "long": "A Igreja de São Francisco é o melhor exemplo de arquitectura gótica no Porto: três naves e transepto, construída entre 1383 e 1410. Ficou célebre, porém, pelo interior: na primeira metade do século XVIII, paredes, colunas, capelas laterais e tecto foram revestidos de talha dourada barroca. A profusão de ouro, o retábulo da Árvore de Jesse e as catacumbas sob a igreja fazem dela um dos templos mais notáveis da cidade. Conserva ainda uma rara pintura mural medieval, a Senhora da Rosa.",
+  "history": "Os franciscanos estabeleceram-se no Porto no início do século XIII e, em 1233, receberam um terreno para a igreja. As querelas com o bispo sobre os limites do couto e a resistência das autoridades religiosas adiaram as obras durante anos; interveio o papa Inocêncio V, cuja bula Doelentis accepimus de 1244 confirmou a posse do terreno à ordem. Seguiram-se então as fundações do mosteiro e de uma primeira igreja, mais modesta e de nave única.\n\nEm 1383, por decreto de D. Fernando, protector dos franciscanos, iniciaram-se as obras da igreja actual, concluídas em 1410. O novo templo era bastante maior: três naves em cinco tramos, transepto saliente e cabeceira tripartida cintada por contrafortes. É o melhor exemplo de arquitectura gótica no Porto; no reinado de D. João I pintou-se aqui uma rara pintura mural, a Senhora da Rosa, atribuída a António Florentim.\n\nNos séculos XV e XVI, famílias proeminentes do Porto tornaram-se patronas do mosteiro, financiando as capelas laterais. Uma das mais notáveis é a capela de São João Baptista, construída na década de 1530 para a família Carneiro segundo desenho de João de Castilho, em estilo manuelino.\n\nA principal campanha artística decorreu na primeira metade do século XVIII, quando quase todas as superfícies interiores — paredes, colunas, capelas e tecto — foram revestidas de talha dourada barroca. Os retábulos foram executados por Filipe da Silva, António Gomes, Manuel da Costa Andrade e outros; a Árvore de Jesse (1718–1721) é considerada a expressão mais exuberante desse tema em Portugal.\n\nEm 1833, um incêndio provocado por tiros das tropas miguelistas durante o cerco do Porto destruiu as instalações conventuais. O claustro em ruínas foi arrasado para dar lugar ao Palácio da Bolsa. Extintas as ordens religiosas masculinas em 1834, a igreja serviu de armazém da Alfândega até 1839. Foi classificada como Monumento Nacional em 1910. Sob o templo existem catacumbas com os restos dos frades, hoje integradas no museu.",
+  "facts": [
+    "Os franciscanos receberam o terreno em 1233; uma bula papal confirmou-o em 1244.",
+    "A igreja actual foi construída entre 1383 e 1410, sob D. Fernando.",
+    "O interior foi revestido de talha dourada barroca na primeira metade do século XVIII.",
+    "O retábulo da Árvore de Jesse foi executado em 1718–1721.",
+    "O mosteiro ardeu em 1833; entre 1834 e 1839 a igreja foi armazém da Alfândega.",
+    "A pintura mural da Senhora da Rosa remonta ao reinado de D. João I.",
+    "É Monumento Nacional desde 1910 e tem catacumbas sob a igreja."
+  ],
+  "tip": "A entrada é paga e inclui as catacumbas e o museu; venha de manhã, antes dos grupos. A igreja fica a poucos passos do Palácio da Bolsa, pelo que convém visitar os dois seguidos. No interior é escuro e muito dourado — evite o flash e deixe os olhos habituarem-se. A estação de metro mais próxima é São Bento; siga depois em direcção à Ribeira.",
+  "gallery": [
+    {"caption": "A fachada ocidental gótica da igreja, com a rosácea e o portal barroco."},
+    {"caption": "A rosácea gótica e o portal, com colunas e a estátua de São Francisco."},
+    {"caption": "O interior barroco dourado: retábulos, colunas e talha."},
+    {"caption": "As catacumbas sob a igreja, onde repousam os restos dos frades."}
+  ],
+  "panorama": null
+}

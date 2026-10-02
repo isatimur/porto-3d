@@ -1,0 +1,22 @@
+{
+  "name": "Caves do Vinho do Porto em Gaia",
+  "year": "Séculos XVII–XIX",
+  "short": "Conjunto de caves do vinho do Porto em Vila Nova de Gaia, onde o vinho envelhece há séculos; aqui trabalham as casas Croft, Taylor's, Sandeman, Graham's e Ramos Pinto.",
+  "long": "Vila Nova de Gaia, na margem sul do Douro, é o centro histórico do envelhecimento do vinho do Porto. As uvas crescem no vale do Douro Superior e o vinho desce o rio até Gaia, onde matura nas caves frescas e húmidas. Foi o clima que motivou esta localização: a foz do Douro é mais fresca e húmida do que o quente vale vinhateiro. Hoje, a maioria das caves está aberta a visitas e provas.",
+  "history": "Vila Nova de Gaia, na margem sul do Douro, é o centro histórico do envelhecimento do vinho do Porto. As uvas crescem no vale do Douro Superior e o vinho desce o rio até Gaia, onde matura nas caves frescas e húmidas — 'caves', do português, que significa 'adegas'.\n\nA transferência para Gaia deveu-se ao clima: a foz do Douro é mais fresca e húmida do que o quente vale vinhateiro, e a proximidade do Porto e do Atlântico facilitava a exportação. Em 1777, após as reformas da Companhia Geral da Agricultura das Vinhas do Alto Douro, Gaia tornou-se o local oficial de armazenamento e envelhecimento de todo o vinho do Porto exportado.\n\nAs casas mais antigas instalaram-se aqui entre os séculos XVII e XIX: Croft (1678), Taylor's (1692), Sandeman (1790), Cockburn's (1815), Graham's (1820) e Ramos Pinto (1880). Ao longo da Avenida Diogo Leite cresceram longos armazéns de pedra, com pipas de carvalho e caves de garrafas.\n\nO vinho do Porto é um vinho fortificado: adiciona-se aguardente vínica durante a fermentação para a interromper e conservar o açúcar. Hoje, a maioria das caves está aberta a visitas e provas, e a marginal de Gaia tornou-se um dos principais percursos turísticos da cidade.",
+  "facts": [
+    "O vinho do Porto envelhece em Gaia desde o século XVIII; em 1777 a vila tornou-se o local oficial de armazenamento do vinho exportado.",
+    "O nome 'caves' vem da palavra portuguesa para adegas.",
+    "Entre as casas mais antigas: Croft (1678), Taylor's (1692), Sandeman (1790), Graham's (1820), Ramos Pinto (1880).",
+    "O clima fresco e húmido da foz do Douro torna Gaia ideal para envelhecer vinho fortificado.",
+    "O vinho do Porto é fortificado: adiciona-se aguardente ao mosto para parar a fermentação e manter o açúcar."
+  ],
+  "tip": "Reserve a visita com prova com antecedência, sobretudo no verão: a Sandeman, a Taylor's e a Ramos Pinto podem ter filas. Pode chegar a pé pelo tabuleiro inferior da Ponte de Dom Luís I ou de teleférico.",
+  "gallery": [
+    { "caption": "Pipas de carvalho numa cave de vinho do Porto em Gaia" },
+    { "caption": "A marginal da Avenida Diogo Leite e os seus armazéns" },
+    { "caption": "Barcos rabelos e armazéns de vinho na margem do Douro" },
+    { "caption": "Uma prova de vinho do Porto nas caves" }
+  ],
+  "panorama": null
+}

@@ -1,0 +1,22 @@
+{
+  "name": "Ponte de Dona Maria Pia",
+  "year": "1877",
+  "short": "Ponte ferroviária em arco de 1877, de Gustave Eiffel e Théophile Seyrig; foi substituída pela Ponte de São João em 1991.",
+  "long": "A Ponte de Dona Maria Pia foi a primeira grande ponte de Gustave Eiffel e um notável monumento da engenharia do século XIX. O seu arco em ferrovia forjada em forma de crescente, com 160 metros de vão, era o maior vão de arco único do mundo à data da construção. A ponte de via única serviu a linha Lisboa–Porto durante mais de um século, até ser substituída pela Ponte de São João em 1991. Já não está em serviço, mas continua a fazer parte da silhueta do vale do Douro.",
+  "history": "Em 1875, a Companhia Real dos Caminhos de Ferro Portugueses lançou um concurso para uma ponte que levasse a linha Lisboa–Porto. O rio é rápido, sobe até 20 metros em cheia e tem leito de cascalho, pelo que não era possível colocar pilares na água e era necessário um vão central de cerca de 160 metros.\n\nO projeto de Gustave Eiffel foi o mais barato das quatro propostas consideradas e foi aprovado. A construção começou a 5 de janeiro de 1876; as cheias de inverno interromperam os trabalhos, retomados em março de 1877. A ponte foi inaugurada a 4 de novembro de 1877, na presença do rei D. Luís I e da rainha Maria Pia de Saboia, que lhe dá o nome.\n\nA estrutura usa um arco de ferrovia forjada em forma de crescente com dois rótulas e 160 metros de vão — na altura o maior vão de arco único do mundo, superior ao arco da ponte de Eads, em St. Louis. A ponte tem cerca de 353 metros de comprimento e 60 metros acima da água.\n\nEra uma ponte de via única e, com o tempo, as restrições de carga e velocidade tornaram-na num estrangulamento. O serviço ferroviário terminou em 1991, com os comboios a passarem para a nova Ponte de São João; já em 1990 a American Society of Civil Engineers a reconheceu como International Historic Civil Engineering Landmark. A ponte está hoje encerrada, mas continua a integrar a paisagem da cidade.",
+  "facts": [
+    "Inaugurada a 4 de novembro de 1877; construção iniciada a 5 de janeiro de 1876.",
+    "O vão central de 160 m era o maior vão de arco único do mundo na época.",
+    "Foi a primeira grande ponte de Gustave Eiffel, com cálculos de Théophile Seyrig.",
+    "De via única; substituída pela Ponte de São João e desativada em 1991.",
+    "Reconhecida como International Historic Civil Engineering Landmark pela ASCE em 1990."
+  ],
+  "tip": "As melhores vistas são do cais da Ribeira e da Ponte de Dom Luís I, de onde se vê o arco completo. A ponte está encerrada ao trânsito, pelo que deve ser apreciada à distância.",
+  "gallery": [
+    { "caption": "O arco em crescente da Ponte de Dona Maria Pia sobre o Douro" },
+    { "caption": "O vão de 160 metros, um recorde em 1877" },
+    { "caption": "A ponte na panorâmica do Porto e de Vila Nova de Gaia" },
+    { "caption": "A estrutura de ferro e os pilares de granito" }
+  ],
+  "panorama": null
+}

@@ -203,7 +203,11 @@ for (let d = 0; d < g.n; d++) {
 console.log(`roundabout lanes: ${roundLanes} (${ringLanes} on closed rings), clockwise: ${roundCw}`);
 
 // ---- simulate
-const secs = +(process.argv[2] || 90);
+// [seconds] is an optional positional arg. Ignore flags (e.g. --city porto),
+// otherwise "--city" would be read as the duration and the simulation would
+// run zero steps and pass vacuously.
+const secsArg = process.argv.slice(2).find((a) => /^\d+$/.test(a));
+const secs = +(secsArg || 90);
 let seed = 7;
 const rnd = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296);
 const flow = createFlow(net, { N: 600, rnd });

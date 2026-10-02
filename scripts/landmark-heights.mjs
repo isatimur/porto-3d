@@ -176,5 +176,49 @@ const GUIMARAES = {
   },
 };
 
-export const HEIGHTS_BY_CITY = { braga: BRAGA, guimaraes: GUIMARAES };
+// Porto (researched 2026-10-02: pt/en Wikipedia, Wikidata P2048/P2043, OSM tags, SIPA/DGPC
+// where available). Published figures exist for the bridges, the Clérigos tower and the
+// Felgueiras light; the rest are estimates with reasoning. `force` overrides a wrong OSM tag.
+const PORTO = {
+  clerigos: {
+    m: 75.6, source: 'wikipedia', on: 'w247168260', main_m: 25, main_source: 'estimate', force: true,
+    note: 'Torre dos Clérigos: 75.6 m (Wikidata Q54802080 P2048 = 75.6 m; pt/en Wikipedia). The OSM tower way w247168260 carries height=75 and is overridden to the published 75.6. Church body ~25 m.',
+    parts: { w247168257: [22.5, 'Casa da Irmandade dos Clérigos, OSM height=22.5.'] },
+  },
+  lello: { m: 14, source: 'estimate', note: 'Livraria Lello (1906) occupies two tall storeys plus an attic of the Rua das Carmelitas block; about 14 m. No published height (pt/en Wikipedia checked 2026-10-02).' },
+  'sao-bento': {
+    m: 22, source: 'estimate', force: true,
+    note: 'São Bento station (José Marques da Silva, 1896-1916): tall azulejo hall with the central clock gable; about 22 m. OSM building:levels=2 (6.4 m) counts the side wings only. No published height.',
+    parts: { w1363395865: [16, 'Torreão Sul (south pavilion).'], w1363395867: [16, 'Torreão Norte (north pavilion).'] },
+  },
+  'se-porto': { m: 30, source: 'estimate', note: 'Twin crenellated Romanesque towers of the Sé do Porto; about 30 m. No published height; scaled from photos against the ~30 m nave length (OSM outline).' },
+  bolsa: { m: 20, source: 'estimate', note: 'Neoclassical Palácio da Bolsa (1842-1910): two tall storeys around the courtyard (the Arab Room dome is inside); about 20 m. No published height.' },
+  'sao-francisco-porto': { m: 18, source: 'estimate', note: 'Baroque church of São Francisco: façade and nave about 18 m. No published height (pt/en Wikipedia checked).' },
+  'ponte-luis-i': { m: 60, source: 'wikipedia', note: 'Ponte Luís I (1886): upper deck 60 m above the Douro, central span 172 m, total length 385.25 m. Wikidata Q1322447 gives P2048=45 m for the structural height and P2043=385.25 m.' },
+  ribeira: { m: 18, source: 'estimate', on: 'w210555178', note: 'Cais da Ribeira: the arcaded riverfront houses are 4-5 storeys, façade line about 18 m. The mapped area (w239012587, area=yes) is flat ground; the height rides on the Carris Hoteles Porto Ribeira house (w210555178, 5 storeys).' },
+  serralves: { m: 12, source: 'estimate', note: 'Casa de Serralves (Art Deco villa, 1925-1944): two storeys plus basement, about 12 m. The 1999 Siza museum and its west wing are similar; no published heights.' },
+  'casa-musica': { m: 40, source: 'estimate', note: 'Casa da Música (Rem Koolhaas, 2005): OSM w603359226 tags height=40; the concert-hall monolith is about 40 m. No published height on pt.wikipedia.' },
+  dragao: {
+    m: 40, source: 'estimate', on: 'w1427108120',
+    note: 'Estádio do Dragão (2003): single-tier bowl with a continuous roof, about 40 m above the pitch; OSM maps the four stands as building=stadium (w1427108120-123) and the bowl as leisure=stadium (w547707192). No published height.',
+    parts: { w1427108121: [40, 'North stand.'], w1427108122: [40, 'East stand.'], w1427108123: [40, 'West stand.'] },
+  },
+  felgueiras: {
+    m: 10, source: 'wikipedia', on: 'n1675107645', main_m: 3, main_source: 'estimate',
+    note: 'Farolim de Felgueiras: 10 m (Wikidata Q10280208 P2048 = 10 m). OSM maps the light only as a node; the only closed OSM footprint is the Molhe de Felgueiras breakwater (w446589339, main, ~3 m above water).',
+  },
+  'caves-gaia': { m: 14, source: 'estimate', note: "Port-wine lodges on the Gaia bank: sandstone warehouses of 2-3 storeys, about 14 m. OSM names the lodges only as tourism=wine_cellar nodes (Sandeman, Cálem, Burmester, Augusto's); the main footprint is the adjacent Sandeman lodge building w382530398." },
+  'ponte-arrabida': { m: 70, source: 'estimate', note: 'Ponte da Arrábida (1963): about 70 m above the Douro (OSM w460839285 height=70), central arch span 270 m, total length 493.2 m (Wikidata Q1785740 P2043).' },
+  'ponte-maria-pia': { m: 61.2, source: 'wikipedia', note: 'Ponte Maria Pia (Eiffel, 1877): 61.2 m high, central span 160 m (Wikidata Q1550899 P2048/P2043).' },
+  'mercado-bolhao': { m: 12, source: 'estimate', force: true, note: 'Mercado do Bolhão (1914, restored 2023): two market floors around an open court, about 12 m to the roof ridge. OSM building:levels=1 (3.2 m) counts a single level; overridden.' },
+  aliados: { m: 30, source: 'estimate', note: 'Câmara Municipal do Porto (1920-1957): central clock tower about 30 m. OSM r3012085 height=30, building:levels=5.' },
+  carmo: { m: 25, source: 'estimate', note: 'Igreja do Carmo (1756-1768): twin façade towers above the azulejo side; about 25 m. No published height.' },
+  'palacio-cristal': {
+    m: 30, source: 'osm height tag', on: 'w35341148', main_m: 0, main_source: 'flat',
+    note: 'Jardins do Palácio de Cristal: tallest built element is the Super Bock Arena / Pavilhão Rosa Mota (w35341148, OSM height=30); the gardens polygon is flat. NOTE: the landmark coordinate in data/landmarks.json (41.15442,-8.62503) is ~830 m north of the real gardens (41.1470,-8.6265), so cfg.maxOffset relaxes the distance check.',
+  },
+  'uporto-reitoria': { m: 18, source: 'estimate', force: true, note: 'Reitoria da Universidade do Porto (Pardal Monteiro, 1950s-1961): three-storey granite block with a tall entrance portico, about 18 m. OSM r3047226 building:levels=3 (9.6 m) understates the portico.' },
+};
+
+export const HEIGHTS_BY_CITY = { braga: BRAGA, guimaraes: GUIMARAES, porto: PORTO };
 export const HEIGHTS = HEIGHTS_BY_CITY[CITY.id] || {};

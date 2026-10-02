@@ -3,11 +3,20 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check:models": "node scripts/count-tris.mjs",
+    "verify": "node scripts/verify.mjs",
+    "check:data": "node scripts/check-data.mjs --city porto",
+    "check:geo": "node scripts/check-geo.mjs --city porto",
+    "check:dimensions": "node scripts/check-dimensions.mjs --city porto",
+    "check:fit": "node scripts/check-fit.mjs --city porto",
+    "check:traffic": "node scripts/check-traffic.mjs --city porto",
+    "check:models": "node scripts/count-tris.mjs --city porto",
     "city": "node scripts/city.mjs"
   },
   "dependencies": {

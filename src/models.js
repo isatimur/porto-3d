@@ -19,6 +19,21 @@
 // it into DETAILED below.
 import { Kit, PALETTE, MAT, triangleCount } from './models/kit.js';
 import { blockBuilders } from './models/porto/block.js';
+// Detailed 1:1 builders (one file per landmark, { [id]: builder }).
+import ponteLuisI from './models/porto/ponte-luis-i.js';
+import ponteArrabida from './models/porto/ponte-arrabida.js';
+import ponteMariaPia from './models/porto/ponte-maria-pia.js';
+import clerigos from './models/porto/clerigos.js';
+import sePorto from './models/porto/se-porto.js';
+import bolsa from './models/porto/bolsa.js';
+import saoBento from './models/porto/sao-bento.js';
+import lello from './models/porto/lello.js';
+import casaMusica from './models/porto/casa-musica.js';
+import serralves from './models/porto/serralves.js';
+import dragao from './models/porto/dragao.js';
+import mercadoBolhao from './models/porto/mercado-bolhao.js';
+import carmo from './models/porto/carmo.js';
+import uportoReitoria from './models/porto/uporto-reitoria.js';
 
 export { PALETTE, MAT, triangleCount };
 
@@ -47,7 +62,22 @@ export const LANDMARK_SPECS = {
   'uporto-reitoria': { type: 'university', h: 20, yaw: 0 },
 };
 
-const DETAILED = {};
+const DETAILED = {
+  ...ponteLuisI,
+  ...ponteArrabida,
+  ...ponteMariaPia,
+  ...clerigos,
+  ...sePorto,
+  ...bolsa,
+  ...saoBento,
+  ...lello,
+  ...casaMusica,
+  ...serralves,
+  ...dragao,
+  ...mercadoBolhao,
+  ...carmo,
+  ...uportoReitoria,
+};
 const BUILDERS = { ...blockBuilders(Object.keys(LANDMARK_SPECS)), ...DETAILED };
 
 const TYPE_DEFAULT = Object.fromEntries(Object.entries(LANDMARK_SPECS).map(([id, s]) => [s.type, id]));

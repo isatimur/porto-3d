@@ -339,7 +339,83 @@ const GUIMARAES_CFG = {
     as: { w130533846: { tag: 'site', h: 0, name: 'Centro Cultural Vila Flor (site)' } }, model: 'palace',
   },
 };
-const OVERRIDES_BY_CITY = { braga: BRAGA_CFG, guimaraes: GUIMARAES_CFG };
+// Porto (2026-10-02). Objects picked from Overpass around each data/landmarks.json coordinate
+// (within 300 m by name / historic / tourism / building / leisure), each re-checked for the
+// expected name and a closed ring. The bridges use the OSM `man_made=bridge` area ways, the
+// palaces/churches the building outlines; two landmarks need notes:
+//  - felgueiras: OSM maps the lighthouse only as a node; the only closed footprint is the
+//    Molhe de Felgueiras breakwater, so the node is carried as the tall element (`on`).
+//  - caves-gaia: the port-wine lodges are mapped only as tourism=wine_cellar nodes; the main
+//    outline is the adjacent (unnamed) Sandeman lodge building, so `name` matches anything.
+const PORTO_CFG = {
+  clerigos: {
+    main: 'w211337881', name: /Clérigos/, site: { buffer: 2 }, cats: ['building', 'tower'],
+    include: ['w247168260', 'w223780953', 'w247168257'], model: 'church-tower',
+  },
+  lello: { main: 'w229270821', name: /Lello/, site: { buffer: 0 }, cats: [], model: 'house' },
+  'sao-bento': {
+    main: 'w1159533444', name: /São Bento/, site: { buffer: 2 }, cats: ['building'],
+    include: ['w156208956', 'w156208962', 'w385795747', 'w1363395865', 'w1363395867'], model: 'station',
+  },
+  'se-porto': {
+    main: 'w210461448', name: /Sé do Porto/, site: { buffer: 2 }, cats: ['building', 'garden', 'tower'],
+    include: ['w210470750', 'w210470763'], model: 'cathedral',
+  },
+  bolsa: {
+    main: 'w1038770631', name: /Bolsa/, site: { buffer: 0 }, cats: [],
+    exclude: ['w364841377'], as: { w1038770631: { tag: 'building', h: 20, name: 'Palácio da Bolsa' } },
+    model: 'palace',
+  },
+  'sao-francisco-porto': {
+    main: 'w210681249', name: /São Francisco/, site: { buffer: 2 }, cats: ['building'],
+    include: ['w210681233', 'w210681237'], model: 'church',
+  },
+  'ponte-luis-i': { main: 'w835566871', name: /Luiz I|Luís I/, site: { buffer: 0 }, cats: [], model: 'bridge' },
+  ribeira: {
+    main: 'w239012587', name: /Cais da Ribeira/, site: { buffer: 0 }, cats: ['building'],
+    include: ['w210555178'], exclude_outline: false, model: 'waterfront',
+  },
+  serralves: {
+    main: 'w167487331', name: /Serralves/, site: { area: 'w13621449', buffer: 5 }, cats: ['building', 'garden'],
+    include: ['w167487344', 'w1217051184', 'w1038045811'], exclude_outline: false, model: 'museum-villa',
+  },
+  'casa-musica': { main: 'w603359226', name: /Casa da Música/, site: { buffer: 0 }, cats: [], model: 'concert-hall' },
+  dragao: {
+    main: 'w547707192', name: /Dragão/, site: { buffer: 0 }, cats: ['stand', 'building', 'pitch'],
+    include: ['w1427108120', 'w1427108121', 'w1427108122', 'w1427108123'],
+    exclude: ['r13423683', 'r16358916'], exclude_outline: false, model: 'stadium',
+  },
+  felgueiras: {
+    main: 'w446589339', name: /Felgueiras/, site: { buffer: 0 }, cats: [],
+    include: ['n1675107645'], model: 'lighthouse',
+  },
+  'caves-gaia': {
+    main: 'w382530398', name: /.*/, site: { radius: 60 }, cats: [],
+    include: ['w239742909', 'w382530395', 'w332930890'], exclude_outline: false, model: 'wine-lodge',
+  },
+  'ponte-arrabida': { main: 'w460839285', name: /Arrábida/, site: { buffer: 0 }, cats: [], model: 'bridge-arch' },
+  'ponte-maria-pia': { main: 'w835569085', name: /Maria Pia/, site: { buffer: 0 }, cats: [], model: 'bridge' },
+  'mercado-bolhao': {
+    main: 'r3046626', name: /Bolhão/, site: { buffer: 0 }, cats: ['building'], holes: true, model: 'market',
+  },
+  aliados: {
+    main: 'r3012085', name: /Câmara Municipal do Porto/, site: { buffer: 0 }, cats: ['building'],
+    streets: /^Avenida dos Aliados$/, exclude_outline: false, model: 'avenue',
+  },
+  carmo: {
+    main: 'w229772731', name: /Carmo/, site: { buffer: 2 }, cats: ['building'],
+    include: ['w229772733', 'w229786274'], model: 'church',
+  },
+  'palacio-cristal': {
+    main: 'w244599647', name: /Palácio de Cristal/, site: { buffer: 0 },
+    cats: ['building', 'garden', 'water', 'site', 'pitch'], include: ['w35341148'],
+    exclude_outline: false, maxOffset: 900, model: 'park',
+  },
+  'uporto-reitoria': {
+    main: 'r3047226', name: /Reitoria/, site: { buffer: 0 }, cats: ['building'], model: 'university',
+  },
+};
+const OVERRIDES_BY_CITY = { braga: BRAGA_CFG, guimaraes: GUIMARAES_CFG, porto: PORTO_CFG };
 const CFG = OVERRIDES_BY_CITY[CITY.id] || {};
 
 // Verified or estimated heights, used when OSM has no height / levels tag (or force).
@@ -581,7 +657,9 @@ for (const l of todo) {
   // gateWall mode: the landmark sits at the gate / tower, not at the mean of every wall way of the main.
   const mainPoint = cfg.gateWall ? center(geomOf(els.get(cfg.gateWall))) : mg.point || center(mg);
   const dMain = dist(mainPoint, [l.lat, l.lon]);
-  if (dMain > 250) throw new Error(`${l.id}: main object is ${Math.round(dMain)} m from the landmark coordinate`);
+  // cfg.maxOffset: override the 250 m default for a landmark whose landmarks.json coordinate
+  // is known to be off (Porto's palacio-cristal coordinate sits ~830 m from the real gardens).
+  if (dMain > (cfg.maxOffset ?? 250)) throw new Error(`${l.id}: main object is ${Math.round(dMain)} m from the landmark coordinate`);
 
   // cfg.synth: rings cut from an OSM way along its own nodes. One may replace the outline.
   const mainRing = outline;

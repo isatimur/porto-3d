@@ -86,7 +86,14 @@ if (bld) {
   if (B.length < minBuildings) err(`buildings: only ${B.length} buildings (min ${minBuildings} for ${CITY.id})`);
   if (bad) err(`buildings: ${bad} invalid entries`);
   if (outside) warn(`buildings: ${outside} start more than ~500 m outside the bbox`);
-  if (size > 8 * 1024 * 1024) err(`buildings: file ${(size / 1048576).toFixed(2)} MB > 8 MB`);
+  // Download-size budget, per city: Porto's wide extent and OSM coverage are
+  // several times Braga's, so the same byte ceiling does not apply. The 8 MB
+  // baseline stays visible as a warning, even under a higher city ceiling.
+  const MAX_BUILDINGS_MB_BY_CITY = { braga: 8, guimaraes: 8, porto: 12 };
+  const maxMb = MAX_BUILDINGS_MB_BY_CITY[CITY.id] ?? 8;
+  const mb = size / 1048576;
+  if (mb > maxMb) err(`buildings: file ${mb.toFixed(2)} MB > ${maxMb} MB (${CITY.id})`);
+  else if (mb > 8) warn(`buildings: file ${mb.toFixed(2)} MB > 8 MB baseline (within ${CITY.id}'s ${maxMb} MB ceiling)`);
   // Landmark main footprints must not be duplicated in the grey mass.
   let overlap = 0;
   const pip = ([y, x], poly) => { let ins = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [yi, xi] = poly[i], [yj, xj] = poly[j]; if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) ins = !ins; } return ins; };

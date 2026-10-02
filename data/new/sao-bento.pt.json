@@ -1,0 +1,24 @@
+{
+  "name": "Estação de Porto-São Bento",
+  "year": "1916",
+  "short": "Estação em estilo Belle Époque, obra de José Marques da Silva, cujo átrio é revestido com cerca de 20 000 azulejos de Jorge Colaço sobre a história de Portugal.",
+  "long": "A estação de São Bento foi construída no lugar do mosteiro beneditino de São Bento de Avé Maria. Uma estação provisória abriu em 1896, e o edifício actual, de influência francesa, foi projectado pelo arquitecto José Marques da Silva. O ponto alto é o átrio, revestido com cerca de 20 000 azulejos de Jorge Colaço (1905–1906), que representam o Torneio de Arcos de Valdevez, o casamento de D. João I com D. Filipa de Lencastre, a Conquista de Ceuta e a história dos transportes. São Bento continua a ser um dos principais interfaces da cidade.",
+  "history": "A estação de São Bento foi erguida no lugar do antigo mosteiro beneditino de São Bento de Avé Maria, demolido no final do século XIX. Uma estação provisória abriu a 8 de Novembro de 1896, então designada Estação Central do Porto. O edifício actual, em estilo Belle Époque e de forte influência francesa, foi projectado pelo arquitecto José Marques da Silva, com obras iniciadas em 1900.\n\nO átrio foi revestido de azulejos de Jorge Colaço: os painéis foram instalados em 1905–1906 e produzidos na Fábrica de Sacavém. Cobrindo cerca de 551 metros quadrados, reúnem aproximadamente 20 000 azulejos. Representam o Torneio de Arcos de Valdevez (1140), a apresentação de Egas Moniz ao rei Afonso VII, a entrada de D. João I e D. Filipa de Lencastre no Porto (1387) e a Conquista de Ceuta (1415), além de cenas rurais e de um friso sobre a história dos transportes, que termina com a chegada dos caminhos de ferro.\n\nA estação foi oficialmente inaugurada a 5 de Outubro de 1916. Com as suas torres laterais ao gosto da Escola de Fontainebleau, o edifício é um dos principais monumentos da cidade, e as suas salas servem não só os passageiros, mas também como espaço de exposições e concertos.\n\nSão Bento situa-se na Linha do Minho e liga o Porto a Braga, Guimarães, à Linha do Douro (Régua, Pinhão, Pocinho) e a Aveiro. Sendo uma estação terminal, os comboios entram e saem por túneis. Está classificada como Imóvel de Interesse Público desde 1997.",
+  "facts": [
+    "A estação provisória abriu a 8 de Novembro de 1896; o edifício actual foi inaugurado a 5 de Outubro de 1916.",
+    "O átrio reúne cerca de 20 000 azulejos, cobrindo aproximadamente 551 m².",
+    "Os painéis foram executados por Jorge Colaço na Fábrica de Sacavém, em 1905–1906.",
+    "O arquitecto do edifício foi José Marques da Silva.",
+    "Ergue-se no lugar do mosteiro de São Bento de Avé Maria.",
+    "É Imóvel de Interesse Público desde 1997.",
+    "Daqui partem comboios para Braga, Guimarães, a Linha do Douro e Aveiro."
+  ],
+  "tip": "Visite o átrio de manhã cedo ou ao fim do dia, quando há menos passageiros e a luz realça os azulejos; a entrada é gratuita, por ser uma estação em funcionamento. Os painéis vêem-se melhor do piso superior da galeria. A Torre dos Clérigos e a Sé ficam a cinco minutos a pé. São Bento é um interface de metro (linhas D e G), prático para circular na cidade.",
+  "gallery": [
+    {"caption": "A fachada da estação de São Bento, com as torres e o relógio, na Praça de Almeida Garrett."},
+    {"caption": "O átrio revestido pelos azulejos de Jorge Colaço, com cenas da história."},
+    {"caption": "Um painel de azulejos com a entrada de D. João I e D. Filipa de Lencastre no Porto."},
+    {"caption": "As plataformas sob as estruturas metálicas da cobertura da estação."}
+  ],
+  "panorama": null
+}

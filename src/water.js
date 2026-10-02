@@ -417,6 +417,15 @@ export function createWater({ data, areas, project, heightAt }) {
   const LIFT = 0.28; // world units (1.1 m) above the terrain
   const MAX_SEG = 5;
   const MAX_EDGE = 4.5; // world units (18 m)
+  // A bank-distance mesh only needs vertices near the bank: the Douro or the
+  // ocean would otherwise be split to millions of triangles (and overflow the
+  // argument list). Cap the vertex count; edges longer than this are fine
+  // offshore.
+  const VERT_CAP = 20000;
+  // Open water (a.open): the tidal estuary, a wide river, the ocean. No bank
+  // foam, no bank-distance attribute, and no fine subdivision — the source
+  // ring is already dense enough and the surface is flat-shaded anyway.
+  const SHORE_OPEN = 99.0;
   for (const l of data.lines || []) {
     if (!Array.isArray(l.p) || l.p.length < 2) continue;
     const half = ((l.w || 3) * S) / 2;
@@ -467,10 +476,17 @@ export function createWater({ data, areas, project, heightAt }) {
     }
     const all = outer.concat(...holes);
     const rings = [outer, ...holes];
+    const open = !!a.open;
     const hs = all.map((p) => heightAt(p.x, p.y));
-    const lo = Math.min(...hs);
-    const flat = Math.max(...hs) - lo < 2; // a pond: level; else follow the ground
-    // split long edges (midpoints shared through a key map)
+    let lo = Infinity;
+    let hi = -Infinity;
+    for (const h of hs) {
+      if (h < lo) lo = h;
+      if (h > hi) hi = h;
+    }
+    const flat = hi - lo < 2; // a pond: level; else follow the ground
+    // split long edges (midpoints shared through a key map); open water keeps
+    // its source resolution — it needs no bank-distance vertices
     const verts = all.map((p) => ({ x: p.x, z: p.y }));
     const mid = new Map();
     const midpoint = (i, j) => {
@@ -484,7 +500,7 @@ export function createWater({ data, areas, project, heightAt }) {
       return m;
     };
     let tris = faces.map((f) => f.slice());
-    for (let pass = 0; pass < 6; pass++) {
+    for (let pass = 0; !open && pass < 6 && verts.length < VERT_CAP; pass++) {
       const next = [];
       let split = false;
       for (const [i, j, k] of tris) {
@@ -503,14 +519,20 @@ export function createWater({ data, areas, project, heightAt }) {
       if (!split) break;
     }
     const base = pos.length / 3;
-    const dist = verts.map((v) => edgeDistance(v.x, v.z, rings));
-    // a basin too small for interior vertices would be lace all over: it
-    // gets no bank foam (a tank or a fountain pool with a stone rim)
-    const tiny = Math.max(...dist) < 1;
+    let dist = null;
+    let tiny = false;
+    if (!open) {
+      dist = verts.map((v) => edgeDistance(v.x, v.z, rings));
+      // a basin too small for interior vertices would be lace all over: it
+      // gets no bank foam (a tank or a fountain pool with a stone rim)
+      let far = 0;
+      for (const d of dist) if (d > far) far = d;
+      tiny = far < 1;
+    }
     verts.forEach((v, i) => {
       pos.push(v.x, (flat ? lo : heightAt(v.x, v.z)) + LIFT * 0.7, v.z);
       flow.push(0, 0);
-      shore.push(tiny ? 3 : dist[i]);
+      shore.push(open ? SHORE_OPEN : tiny ? 3 : dist[i]);
     });
     for (const [i, j, k] of tris) idx.push(base + i, base + j, base + k);
   }
