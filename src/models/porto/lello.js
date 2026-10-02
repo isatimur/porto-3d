@@ -6,6 +6,7 @@ import { Kit, PALETTE, MAT, PROFILES, corniceProfile, archPath, pointedPath } fr
 import { onEdge, polyCornice, polyBand, polyWindows, roofOver, plainBuilding } from '../metric.js';
 import { edges, obb, offset, bbox } from '../geom.js';
 import { win, tablet } from '../parts.js';
+import { fitTo } from './site-fit.js';
 
 const rectPts = (cx, cz, w, d) => [
   [cx - w / 2, cz - d / 2], [cx + w / 2, cz - d / 2],
@@ -13,6 +14,7 @@ const rectPts = (cx, cz, w, d) => [
 ];
 
 function builder(k, site) {
+  const done = fitTo(k, site, { w: 10, d: 16.2, h: 17.5, cx: 0, cz: 0.3 });
   const W = 9;
   const D = 15;
   const H = 13;
@@ -104,6 +106,7 @@ function builder(k, site) {
   k.pop();
   for (const sx of [-1, 1]) k.box(0.7, 2.2, 0.7, 'graniteDark', sx * 2.4, H + 2.2, -3.0);
   k.end('front');
+  done();
 }
 
 builder.metric = true;

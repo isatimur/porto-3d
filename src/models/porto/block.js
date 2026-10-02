@@ -69,7 +69,13 @@ function makeBlock(id) {
     k.end('height');
   }
   block.metric = true;
-  block.rule = { note: 'generic massing from OSM outline and parts; replaced by a detailed builder' };
+  // The massing model extrudes the outline and every wall/flat part, so the
+  // real extent it stands for is their union (not the outline alone). Tags
+  // the builder ignores (streets, sites) are left out.
+  block.rule = {
+    note: 'generic massing from OSM outline and parts; replaced by a detailed builder',
+    extent: [/^(building|church|tower|monument|stand|wall|on|water|pitch|garden|park|ruins|square)$/],
+  };
   return block;
 }
 

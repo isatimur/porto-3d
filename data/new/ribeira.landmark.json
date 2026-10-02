@@ -16,10 +16,39 @@
   ],
   "tip_ru": "Приходите ранним утром, пока не пришли толпы: так лучше видно аркады и цветные фасады. От Праша-да-Рибейра отходят прогулочные лодки, а рядом проходит канатная дорога Гая.",
   "gallery": [
-    { "img": "assets/img/ribeira.jpg", "caption_ru": "Набережная Рибейра и дома с аркадами вдоль Дору" },
-    { "img": "assets/img/ribeira-1.jpg", "caption_ru": "Праша-да-Рибейра — сердце квартала" },
-    { "img": "assets/img/ribeira-2.jpg", "caption_ru": "Лодки-рабелу у пристани Рибейры" },
-    { "img": "assets/img/ribeira-3.jpg", "caption_ru": "Фасады в азулежу в вечернем свете" }
+    {
+      "img": "assets/img/ribeira-1.jpg",
+      "kind": "exterior",
+      "caption_ru": "Набережная Рибейра — общий вид",
+      "credit": {
+        "author": "Aurélio Paz dos Reis",
+        "license": "Public domain",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Ribeira_do_Porto_apr6497_(9289534189).jpg"
+      },
+      "_commons": "File:Ribeira do Porto apr6497 (9289534189).jpg"
+    },
+    {
+      "img": "assets/img/ribeira-2.jpg",
+      "kind": "exterior",
+      "caption_ru": "Набережная Рибейра — общий вид",
+      "credit": {
+        "author": "Charles Chusseau-Flaviens",
+        "license": "Public domain",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Scene_au_port_(Ribeira_-_Porto).jpg"
+      },
+      "_commons": "File:Scene au port (Ribeira - Porto).jpg"
+    },
+    {
+      "img": "assets/img/ribeira-3.jpg",
+      "kind": "exterior",
+      "caption_ru": "Набережная Рибейра — общий вид",
+      "credit": {
+        "author": "Gerry Labrijn from London, UK",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2014-P23_Porto_(15088780623).jpg"
+      },
+      "_commons": "File:2014-P23 Porto (15088780623).jpg"
+    }
   ],
   "videos": [],
   "panorama": null,

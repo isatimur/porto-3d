@@ -18,43 +18,33 @@
     },
     "gallery": [
       {
-        "src": "assets/img/clerigos.jpg",
-        "kind": "exterior",
-        "caption_ru": "Церковь и башня Клеригуш с фронтального сада на улице Клеригуш.",
-        "credit": {
-          "author": "António Amen",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Vitoria-Igreja_e_Torre_dos_Cl%C3%A9rigos_(1)_(cropped).jpg"
-        }
-      },
-      {
         "src": "assets/img/clerigos-1.jpg",
         "kind": "exterior",
-        "caption_ru": "Колокольня крупным планом: гранитный фасад, ниша со статуей и ярусы звонницы.",
+        "caption_ru": "Церковь и башня Клеригуш — колокольня",
         "credit": {
-          "author": "António Amen",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Vitoria-Igreja_e_Torre_dos_Cl%C3%A9rigos_(1)_(cropped).jpg"
+          "author": "Deensel",
+          "license": "CC BY 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Cl%C3%A9rigos_Tower_(37151256565).jpg"
         }
       },
       {
         "src": "assets/img/clerigos-2.jpg",
         "kind": "exterior",
-        "caption_ru": "Овальный интерьер церкви с барочным алтарём, кафедрами и органами.",
+        "caption_ru": "Церковь и башня Клеригуш — общий вид",
         "credit": {
-          "author": "António Amen",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Vitoria-Igreja_e_Torre_dos_Cl%C3%A9rigos_(1)_(cropped).jpg"
+          "author": "Phil",
+          "license": "CC BY 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Clerigos_(3581166170).jpg"
         }
       },
       {
         "src": "assets/img/clerigos-3.jpg",
         "kind": "exterior",
-        "caption_ru": "Панорама Порту и реки Дору с верхнего яруса башни.",
+        "caption_ru": "Церковь и башня Клеригуш — общий вид",
         "credit": {
-          "author": "António Amen",
+          "author": "Alegna13",
           "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Vitoria-Igreja_e_Torre_dos_Cl%C3%A9rigos_(1)_(cropped).jpg"
+          "source_url": "https://commons.wikimedia.org/wiki/File:Clerigos_igreja.jpg"
         }
       }
     ],
@@ -116,43 +106,33 @@
     },
     "gallery": [
       {
-        "src": "assets/img/lello.jpg",
-        "kind": "exterior",
-        "caption_ru": "Неоготический фасад Ливрарии Лелло на Руа-даш-Кармелиташ",
-        "credit": {
-          "author": "Bene Riobó",
-          "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Livraria_Lello,_Porto.jpg"
-        }
-      },
-      {
         "src": "assets/img/lello-1.jpg",
         "kind": "exterior",
-        "caption_ru": "Вход в магазин с улицы Руа-даш-Кармелиташ",
+        "caption_ru": "Книжный магазин Лелло — общий вид",
         "credit": {
-          "author": "Bene Riobó",
-          "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Livraria_Lello,_Porto.jpg"
+          "author": "Ray Swi-hymn from Sijhih-Taipei, Taiwan",
+          "license": "CC BY-SA 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:20200130_Livraria_Lello_3298_(49650948426).jpg"
         }
       },
       {
         "src": "assets/img/lello-2.jpg",
         "kind": "exterior",
-        "caption_ru": "Интерьер с деревянными арками и витражом-кларабойей",
+        "caption_ru": "Книжный магазин Лелло — общий вид",
         "credit": {
-          "author": "Bene Riobó",
-          "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Livraria_Lello,_Porto.jpg"
+          "author": "Werner Bayer",
+          "license": "CC0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:2025-b-Libreria_Lello_-_3_(54884634867).jpg"
         }
       },
       {
         "src": "assets/img/lello-3.jpg",
-        "kind": "exterior",
-        "caption_ru": "Книжные полки под неоготическими арками",
+        "kind": "detail",
+        "caption_ru": "Книжный магазин Лелло — панорамный вид",
         "credit": {
-          "author": "Bene Riobó",
+          "author": "John Samuel",
           "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Livraria_Lello,_Porto.jpg"
+          "source_url": "https://commons.wikimedia.org/wiki/File:Exterior_view_of_Livraria_Lello_01.jpg"
         }
       }
     ],
@@ -218,43 +198,33 @@
     },
     "gallery": [
       {
-        "src": "assets/img/sao-bento.jpg",
-        "kind": "exterior",
-        "caption_ru": "Фасад вокзала Сан-Бенту с башнями и часами на площади Алмейды Гарретт.",
-        "credit": {
-          "author": "TeWeBs",
-          "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Porto_Sao_Bento_Station.JPG"
-        }
-      },
-      {
         "src": "assets/img/sao-bento-1.jpg",
         "kind": "exterior",
-        "caption_ru": "Вестибюль, облицованный азулежу Жоржи Коласу со сценами истории.",
+        "caption_ru": "Вокзал Сан-Бенту — общий вид",
         "credit": {
-          "author": "TeWeBs",
+          "author": "Diego Delso",
           "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Porto_Sao_Bento_Station.JPG"
+          "source_url": "https://commons.wikimedia.org/wiki/File:Estaci%C3%B3n_de_tren_S%C3%A3o_Bento,_Oporto,_Portugal,_2019-06-02,_DD_05.jpg"
         }
       },
       {
         "src": "assets/img/sao-bento-2.jpg",
         "kind": "exterior",
-        "caption_ru": "Панель азулежу с изображением въезда Жуана I и Филипы Ланкастерской в Порту.",
+        "caption_ru": "Вокзал Сан-Бенту — вечерняя подсветка",
         "credit": {
-          "author": "TeWeBs",
+          "author": "K1008",
           "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Porto_Sao_Bento_Station.JPG"
+          "source_url": "https://commons.wikimedia.org/wiki/File:Bahnhof_Porto_S%C3%A3o_Bento_-_am_Abend.jpg"
         }
       },
       {
         "src": "assets/img/sao-bento-3.jpg",
-        "kind": "exterior",
-        "caption_ru": "Перрон под металлическими фермами перекрытия вокзала.",
+        "kind": "detail",
+        "caption_ru": "Вокзал Сан-Бенту — азулежу",
         "credit": {
-          "author": "TeWeBs",
-          "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Porto_Sao_Bento_Station.JPG"
+          "author": "Peter K Burian",
+          "license": "CC BY 4.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Azuelo_and_mural,_S%C3%A3o_Bento_railway_station,_Porto,_Portugal.jpg"
         }
       }
     ],
@@ -316,43 +286,33 @@
     },
     "gallery": [
       {
-        "src": "assets/img/se-porto.jpg",
-        "kind": "exterior",
-        "caption_ru": "Романский фасад собора с двумя башнями и розеткой на фоне неба.",
-        "credit": {
-          "author": "Diego Delso",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Catedral_de_Oporto,_Portugal,_2012-05-09,_DD_09.JPG"
-        }
-      },
-      {
         "src": "assets/img/se-porto-1.jpg",
         "kind": "exterior",
-        "caption_ru": "Готический клуатр XIV века со стенами, отделанными азулежу.",
+        "caption_ru": "Собор Порту — общий вид",
         "credit": {
-          "author": "Diego Delso",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Catedral_de_Oporto,_Portugal,_2012-05-09,_DD_09.JPG"
+          "author": "Deensel",
+          "license": "CC BY 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:The_Porto_Cathedral_(37008796341).jpg"
         }
       },
       {
         "src": "assets/img/se-porto-2.jpg",
         "kind": "exterior",
-        "caption_ru": "Главный неф собора с барочным алтарём и серебряным алтарём слева.",
+        "caption_ru": "Собор Порту — общий вид",
         "credit": {
-          "author": "Diego Delso",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Catedral_de_Oporto,_Portugal,_2012-05-09,_DD_09.JPG"
+          "author": "Luis_Alberto_Ribeiro_Oliveira",
+          "license": "CC BY-SA 4.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Cedofeita,_Santo_Ildefonso,_S%C3%A9,_Miragaia,_S%C3%A3o_Nicolau_e_Vit%C3%B3ria_-_S%C3%A9_do_Porto_-_2025-10-22_00-57-30_001.JPG"
         }
       },
       {
         "src": "assets/img/se-porto-3.jpg",
         "kind": "exterior",
-        "caption_ru": "Вид с террасы собора на епископский дворец и исторический центр Порту.",
+        "caption_ru": "Собор Порту — общий вид",
         "credit": {
-          "author": "Diego Delso",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Catedral_de_Oporto,_Portugal,_2012-05-09,_DD_09.JPG"
+          "author": "@Miguel A. García.🎈 from Ólvega., España",
+          "license": "CC BY 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Oporto._Portugal...._(54042254813).jpg"
         }
       }
     ],
@@ -414,43 +374,33 @@
     },
     "gallery": [
       {
-        "src": "assets/img/bolsa.jpg",
-        "kind": "exterior",
-        "caption_ru": "Неоклассический фасад дворца биржи со стороны площади Инфанта Генриха.",
-        "credit": {
-          "author": "Zelwy",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:BolsaValoresPorto.jpg"
-        }
-      },
-      {
         "src": "assets/img/bolsa-1.jpg",
         "kind": "exterior",
-        "caption_ru": "Арабский зал с золочёной лепниной и арабесками в духе Альгамбры.",
+        "caption_ru": "Дворец биржи — общий вид",
         "credit": {
-          "author": "Zelwy",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:BolsaValoresPorto.jpg"
+          "author": "Manuel de Sousa",
+          "license": "Public domain",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Palacio_da_Bolsa_(Porto).JPG"
         }
       },
       {
         "src": "assets/img/bolsa-2.jpg",
         "kind": "exterior",
-        "caption_ru": "Двор Наций под стеклянной кровлей с гербами торговых партнёров Порту.",
+        "caption_ru": "Дворец биржи — общий вид",
         "credit": {
-          "author": "Zelwy",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:BolsaValoresPorto.jpg"
+          "author": "Alexkom000",
+          "license": "CC BY 4.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:2025-08-07_Porto,_Pal%C3%A1cio_da_Bolsa.jpg"
         }
       },
       {
         "src": "assets/img/bolsa-3.jpg",
         "kind": "exterior",
-        "caption_ru": "Золотой зал и парадные интерьеры дворца во время экскурсии.",
+        "caption_ru": "Дворец биржи — общий вид",
         "credit": {
-          "author": "Zelwy",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:BolsaValoresPorto.jpg"
+          "author": "Ivan Stesso",
+          "license": "CC BY-SA 4.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Pal%C3%A1cio_da_Bolsa_do_Porto._Ph_Ivan_Stesso.jpg"
         }
       }
     ],
@@ -512,43 +462,33 @@
     },
     "gallery": [
       {
-        "src": "assets/img/sao-francisco-porto.jpg",
-        "kind": "exterior",
-        "caption_ru": "Готический западный фасад церкви с розеткой и барочным порталом.",
-        "credit": {
-          "author": "Georges Jansoone",
-          "license": "CC BY 2.5",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Porto.SanFrancisco02.jpg"
-        }
-      },
-      {
         "src": "assets/img/sao-francisco-porto-1.jpg",
         "kind": "exterior",
-        "caption_ru": "Готическая розетка и портал с колоннами и статуей святого Франциска.",
+        "caption_ru": "Церковь Святого Франциска — общий вид",
         "credit": {
-          "author": "Georges Jansoone",
-          "license": "CC BY 2.5",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Porto.SanFrancisco02.jpg"
+          "author": "Lídia Maria Faria",
+          "license": "CC BY-SA 4.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:IGREJA_DE_S.FRANCISCO_1.jpg"
         }
       },
       {
         "src": "assets/img/sao-francisco-porto-2.jpg",
         "kind": "exterior",
-        "caption_ru": "Золочёный барочный интерьер: алтари, колонны и резьба по дереву.",
+        "caption_ru": "Церковь Святого Франциска — общий вид",
         "credit": {
-          "author": "Georges Jansoone",
-          "license": "CC BY 2.5",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Porto.SanFrancisco02.jpg"
+          "author": "Allison Meier from Brooklyn, United States",
+          "license": "CC BY-SA 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_de_Sao_Francisco_(28502018058).jpg"
         }
       },
       {
         "src": "assets/img/sao-francisco-porto-3.jpg",
         "kind": "exterior",
-        "caption_ru": "Катакомбы под церковью, где покоятся останки монахов.",
+        "caption_ru": "Церковь Святого Франциска — общий вид",
         "credit": {
-          "author": "Georges Jansoone",
-          "license": "CC BY 2.5",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Porto.SanFrancisco02.jpg"
+          "author": "John Samuel",
+          "license": "CC BY-SA 4.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_de_S%C3%A3o_Francisco_(Porto)_01.jpg"
         }
       }
     ],
@@ -610,43 +550,33 @@
     },
     "gallery": [
       {
-        "src": "assets/img/ponte-luis-i.jpg",
-        "kind": "exterior",
-        "caption_ru": "Мост Луиша I и долина Дору на фоне Серра-ду-Пилар",
-        "credit": {
-          "author": "Diego Delso",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Puente_Don_Luis_I,_Oporto,_Portugal,_2012-05-09,_DD_13.JPG"
-        }
-      },
-      {
         "src": "assets/img/ponte-luis-i-1.jpg",
         "kind": "exterior",
-        "caption_ru": "Двухъярусная арка и центральный пролёт 172 метра",
+        "caption_ru": "Мост Луиша I — вечерняя подсветка",
         "credit": {
           "author": "Diego Delso",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Puente_Don_Luis_I,_Oporto,_Portugal,_2012-05-09,_DD_13.JPG"
+          "license": "CC BY-SA 4.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Puente_de_Don_Luis_I,_Oporto,_Portugal,_2019-06-02,_DD_29-31_HDR.jpg"
         }
       },
       {
         "src": "assets/img/ponte-luis-i-2.jpg",
         "kind": "exterior",
-        "caption_ru": "Верхний ярус с линией D метро Порту",
+        "caption_ru": "Мост Луиша I — общий вид",
         "credit": {
-          "author": "Diego Delso",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Puente_Don_Luis_I,_Oporto,_Portugal,_2012-05-09,_DD_13.JPG"
+          "author": "Ralf Peter Reimann",
+          "license": "CC BY-SA 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Portugal_April_2025_DSC_7695_(54483163454).jpg"
         }
       },
       {
         "src": "assets/img/ponte-luis-i-3.jpg",
         "kind": "exterior",
-        "caption_ru": "Ночная подсветка моста над Рибейрой",
+        "caption_ru": "Мост Луиша I — река Дору",
         "credit": {
-          "author": "Diego Delso",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Puente_Don_Luis_I,_Oporto,_Portugal,_2012-05-09,_DD_13.JPG"
+          "author": "Werner Bayer",
+          "license": "CC0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:2025-Arosa_Alva_auf_dem_Douro_in_Porto_-_27_(54885786459).jpg"
         }
       }
     ],
@@ -706,43 +636,33 @@
     },
     "gallery": [
       {
-        "src": "assets/img/ribeira.jpg",
-        "kind": "exterior",
-        "caption_ru": "Набережная Рибейра и дома с аркадами вдоль Дору",
-        "credit": {
-          "author": "Krzysztof Golik",
-          "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Cais_da_Ribeira_in_Porto_(7).jpg"
-        }
-      },
-      {
         "src": "assets/img/ribeira-1.jpg",
         "kind": "exterior",
-        "caption_ru": "Праша-да-Рибейра — сердце квартала",
+        "caption_ru": "Набережная Рибейра — общий вид",
         "credit": {
-          "author": "Krzysztof Golik",
-          "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Cais_da_Ribeira_in_Porto_(7).jpg"
+          "author": "Aurélio Paz dos Reis",
+          "license": "Public domain",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Ribeira_do_Porto_apr6497_(9289534189).jpg"
         }
       },
       {
         "src": "assets/img/ribeira-2.jpg",
         "kind": "exterior",
-        "caption_ru": "Лодки-рабелу у пристани Рибейры",
+        "caption_ru": "Набережная Рибейра — общий вид",
         "credit": {
-          "author": "Krzysztof Golik",
-          "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Cais_da_Ribeira_in_Porto_(7).jpg"
+          "author": "Charles Chusseau-Flaviens",
+          "license": "Public domain",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Scene_au_port_(Ribeira_-_Porto).jpg"
         }
       },
       {
         "src": "assets/img/ribeira-3.jpg",
         "kind": "exterior",
-        "caption_ru": "Фасады в азулежу в вечернем свете",
+        "caption_ru": "Набережная Рибейра — общий вид",
         "credit": {
-          "author": "Krzysztof Golik",
-          "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Cais_da_Ribeira_in_Porto_(7).jpg"
+          "author": "Gerry Labrijn from London, UK",
+          "license": "CC BY-SA 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:2014-P23_Porto_(15088780623).jpg"
         }
       }
     ],
@@ -802,43 +722,33 @@
     },
     "gallery": [
       {
-        "src": "assets/img/serralves.jpg",
-        "kind": "exterior",
-        "caption_ru": "Музей современного искусства Серралвеш",
-        "credit": {
-          "author": "Alegna13",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Museu_de_Serralves_001.jpg"
-        }
-      },
-      {
         "src": "assets/img/serralves-1.jpg",
         "kind": "exterior",
-        "caption_ru": "Casa de Serralves — вилла в стиле ар-деко",
+        "caption_ru": "Фонд Серралвеш — общий вид",
         "credit": {
-          "author": "Alegna13",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Museu_de_Serralves_001.jpg"
+          "author": "madras91",
+          "license": "CC BY 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:A_chance_to_recharge_our_batteries_(46745459345).jpg"
         }
       },
       {
         "src": "assets/img/serralves-2.jpg",
         "kind": "exterior",
-        "caption_ru": "Парк Серралвеш и его аллеи",
+        "caption_ru": "Фонд Серралвеш — общий вид",
         "credit": {
-          "author": "Alegna13",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Museu_de_Serralves_001.jpg"
+          "author": "Francisco Anzola from United States",
+          "license": "CC BY 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Funda%C3%A7%C3%A3o_de_Serralves_(32608595967).jpg"
         }
       },
       {
         "src": "assets/img/serralves-3.jpg",
         "kind": "exterior",
-        "caption_ru": "Скульптуры под открытым небом",
+        "caption_ru": "Фонд Серралвеш — общий вид",
         "credit": {
-          "author": "Alegna13",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Museu_de_Serralves_001.jpg"
+          "author": "Gabriel de Andrade Fernandes from São Paulo, Brasil",
+          "license": "CC BY-SA 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Funda%C3%A7%C3%A3o_serralves_(39740190953).jpg"
         }
       }
     ],
@@ -904,43 +814,33 @@
     },
     "gallery": [
       {
-        "src": "assets/img/casa-musica.jpg",
-        "kind": "exterior",
-        "caption_ru": "Casa da Música на Ротонде Боавишта",
-        "credit": {
-          "author": "Analuisarijosilva",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Casa_da_M%C3%BAsica.jpg"
-        }
-      },
-      {
         "src": "assets/img/casa-musica-1.jpg",
         "kind": "exterior",
-        "caption_ru": "Бетонный многогранник в вечерней подсветке",
+        "caption_ru": "Дом музыки — общий вид",
         "credit": {
-          "author": "Analuisarijosilva",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Casa_da_M%C3%BAsica.jpg"
+          "author": "António Alves Tedim",
+          "license": "CC BY-SA 4.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:A_escada_para_a_m%C3%BAsica.jpg"
         }
       },
       {
         "src": "assets/img/casa-musica-2.jpg",
         "kind": "exterior",
-        "caption_ru": "Зал Suggia — главный концертный зал",
+        "caption_ru": "Дом музыки — общий вид",
         "credit": {
-          "author": "Analuisarijosilva",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Casa_da_M%C3%BAsica.jpg"
+          "author": "Joseolgon",
+          "license": "CC BY 4.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Casa_da_M%C3%BAsica_2026_1.jpg"
         }
       },
       {
         "src": "assets/img/casa-musica-3.jpg",
         "kind": "exterior",
-        "caption_ru": "Азулежу и фойе Дома музыки",
+        "caption_ru": "Дом музыки — общий вид",
         "credit": {
-          "author": "Analuisarijosilva",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Casa_da_M%C3%BAsica.jpg"
+          "author": "Dale Cruse - 10M views from San Francisco, CA, USA",
+          "license": "CC BY 4.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Casa_da_M%C3%BAsica,_Porto,_Portugal_(54828599094).jpg"
         }
       }
     ],
@@ -1006,43 +906,33 @@
     },
     "gallery": [
       {
-        "src": "assets/img/dragao.jpg",
-        "kind": "exterior",
-        "caption_ru": "Стадион Драгау, домашняя арена ФК «Порту»",
-        "credit": {
-          "author": "Валерий Дед",
-          "license": "CC BY 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Porto_Est%C3%A1dio_do_Drag%C3%A3o_2.jpg"
-        }
-      },
-      {
         "src": "assets/img/dragao-1.jpg",
         "kind": "exterior",
-        "caption_ru": "Трибуны стадиона во время матча",
+        "caption_ru": "Стадион Драгау — общий вид",
         "credit": {
-          "author": "Валерий Дед",
-          "license": "CC BY 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Porto_Est%C3%A1dio_do_Drag%C3%A3o_2.jpg"
+          "author": "Threeohsix",
+          "license": "CC BY-SA 4.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Away_team_locker_rooms_at_Est%C3%A1dio_do_Drag%C3%A3o.jpg"
         }
       },
       {
         "src": "assets/img/dragao-2.jpg",
         "kind": "exterior",
-        "caption_ru": "Азулежу на каркасе арены",
+        "caption_ru": "Стадион Драгау — общий вид",
         "credit": {
-          "author": "Валерий Дед",
-          "license": "CC BY 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Porto_Est%C3%A1dio_do_Drag%C3%A3o_2.jpg"
+          "author": "su ro",
+          "license": "CC BY 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Bandeiras_(55702235).jpg"
         }
       },
       {
         "src": "assets/img/dragao-3.jpg",
         "kind": "exterior",
-        "caption_ru": "Вид на поле и трибуны",
+        "caption_ru": "Стадион Драгау — общий вид",
         "credit": {
-          "author": "Валерий Дед",
-          "license": "CC BY 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Porto_Est%C3%A1dio_do_Drag%C3%A3o_2.jpg"
+          "author": "Pdrogon",
+          "license": "CC BY-SA 4.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Call_for_a_Win,_Ask_for_Glory.jpg"
         }
       }
     ],
@@ -1108,43 +998,33 @@
     },
     "gallery": [
       {
-        "src": "assets/img/felgueiras.jpg",
-        "kind": "exterior",
-        "caption_ru": "Маяк Фельгейраш на молу",
-        "credit": {
-          "author": "José Moutinho",
-          "license": "CC BY 2.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Farolim_Felgueiras_01.jpg"
-        }
-      },
-      {
         "src": "assets/img/felgueiras-1.jpg",
         "kind": "exterior",
-        "caption_ru": "Гранитная башня и красный фонарь",
+        "caption_ru": "Маяк Фельгейраш — общий вид",
         "credit": {
-          "author": "José Moutinho",
+          "author": "José Moutinho from Leça da Palmeira, Portugal",
           "license": "CC BY 2.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Farolim_Felgueiras_01.jpg"
+          "source_url": "https://commons.wikimedia.org/wiki/File:Farol_(6969948663).jpg"
         }
       },
       {
         "src": "assets/img/felgueiras-2.jpg",
         "kind": "exterior",
-        "caption_ru": "Волны Атлантики у мола",
+        "caption_ru": "Маяк Фельгейраш — река Дору",
         "credit": {
-          "author": "José Moutinho",
-          "license": "CC BY 2.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Farolim_Felgueiras_01.jpg"
+          "author": "Vitor Oliveira from Torres Vedras, PORTUGAL",
+          "license": "CC BY-SA 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Farol_da_Foz_do_Douro_-_Porto_-_Portugal_(10914201816).jpg"
         }
       },
       {
         "src": "assets/img/felgueiras-3.jpg",
         "kind": "exterior",
-        "caption_ru": "Набережная Фош-ду-Дору",
+        "caption_ru": "Маяк Фельгейраш — река Дору",
         "credit": {
-          "author": "José Moutinho",
+          "author": "Ylliab Photo from Grenoble, France",
           "license": "CC BY 2.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Farolim_Felgueiras_01.jpg"
+          "source_url": "https://commons.wikimedia.org/wiki/File:Farol_de_Felgueiras_-_Porto_-_Portugal_(14083320406).jpg"
         }
       }
     ],
@@ -1210,43 +1090,33 @@
     },
     "gallery": [
       {
-        "src": "assets/img/caves-gaia.jpg",
-        "kind": "exterior",
-        "caption_ru": "Дубовые бочки в погребе портвейна в Гайе",
-        "credit": {
-          "author": "Ray in Manila",
-          "license": "CC BY 2.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Taylor%E2%80%99s_Port_Wine_Cellar,_Vila_Nova_de_Gaia,_Oporto_(48730636822).jpg"
-        }
-      },
-      {
         "src": "assets/img/caves-gaia-1.jpg",
         "kind": "exterior",
-        "caption_ru": "Набережная Авенида Диогу Лейте со складами",
+        "caption_ru": "Винные погреба Порту в Гайе — общий вид",
         "credit": {
-          "author": "Ray in Manila",
-          "license": "CC BY 2.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Taylor%E2%80%99s_Port_Wine_Cellar,_Vila_Nova_de_Gaia,_Oporto_(48730636822).jpg"
+          "author": "Véronique Mergaux",
+          "license": "CC BY-SA 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:IMG_4054-1_Taylors_(6337585469).jpg"
         }
       },
       {
         "src": "assets/img/caves-gaia-2.jpg",
         "kind": "exterior",
-        "caption_ru": "Лодки-рабелу и склады портвейна на берегу Дору",
+        "caption_ru": "Винные погреба Порту в Гайе — общий вид",
         "credit": {
-          "author": "Ray in Manila",
-          "license": "CC BY 2.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Taylor%E2%80%99s_Port_Wine_Cellar,_Vila_Nova_de_Gaia,_Oporto_(48730636822).jpg"
+          "author": "Marco Varisco from Albany, New York, USA",
+          "license": "CC BY-SA 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Peacock_at_Taylors_(3898510810)_(2).jpg"
         }
       },
       {
         "src": "assets/img/caves-gaia-3.jpg",
         "kind": "exterior",
-        "caption_ru": "Дегустация портвейна в винных погребах",
+        "caption_ru": "Винные погреба Порту в Гайе — общий вид",
         "credit": {
-          "author": "Ray in Manila",
-          "license": "CC BY 2.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Taylor%E2%80%99s_Port_Wine_Cellar,_Vila_Nova_de_Gaia,_Oporto_(48730636822).jpg"
+          "author": "Scott Dexter from Brooklyn, US",
+          "license": "CC BY-SA 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Porto_-i---i-_(26121982607).jpg"
         }
       }
     ],
@@ -1306,43 +1176,33 @@
     },
     "gallery": [
       {
-        "src": "assets/img/ponte-arrabida.jpg",
-        "kind": "exterior",
-        "caption_ru": "Бетонная арка моста Аррабида над Дорой",
-        "credit": {
-          "author": "Joseolgon",
-          "license": "Public domain",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Ponte_da_Arrabida_-_Porto.JPG"
-        }
-      },
-      {
         "src": "assets/img/ponte-arrabida-1.jpg",
         "kind": "exterior",
-        "caption_ru": "Пролёт 270 метров — рекорд 1963 года",
+        "caption_ru": "Мост Аррабида — общий вид",
         "credit": {
-          "author": "Joseolgon",
-          "license": "Public domain",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Ponte_da_Arrabida_-_Porto.JPG"
+          "author": "Gerry Labrijn from London, UK",
+          "license": "CC BY-SA 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:2014-P171(I)_Douro_River_Cruise_(15302257643).jpg"
         }
       },
       {
         "src": "assets/img/ponte-arrabida-2.jpg",
-        "kind": "exterior",
-        "caption_ru": "Шесть полос движения между Порту и Гайей",
+        "kind": "detail",
+        "caption_ru": "Мост Аррабида — панорамный вид",
         "credit": {
-          "author": "Joseolgon",
-          "license": "Public domain",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Ponte_da_Arrabida_-_Porto.JPG"
+          "author": "Alexkom000",
+          "license": "CC BY 4.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:2025-07-31_View_of_the_Arr%C3%A1bida_Bridge_from_Rua_do_Cabedelo.jpg"
         }
       },
       {
         "src": "assets/img/ponte-arrabida-3.jpg",
-        "kind": "exterior",
-        "caption_ru": "Мост Аррабида в вечерней подсветке",
+        "kind": "detail",
+        "caption_ru": "Мост Аррабида — панорамный вид",
         "credit": {
-          "author": "Joseolgon",
-          "license": "Public domain",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Ponte_da_Arrabida_-_Porto.JPG"
+          "author": "Francisco Restivo from Porto, Portugal",
+          "license": "CC BY 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:A_view_of_Arr%C3%A1bida_bridge_(3938894926).jpg"
         }
       }
     ],
@@ -1402,43 +1262,33 @@
     },
     "gallery": [
       {
-        "src": "assets/img/ponte-maria-pia.jpg",
-        "kind": "exterior",
-        "caption_ru": "Серповидная арка моста Марии Пии над Дорой",
-        "credit": {
-          "author": "Joseolgon",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Ponte_D._Maria_Pia-Porto.JPG"
-        }
-      },
-      {
         "src": "assets/img/ponte-maria-pia-1.jpg",
         "kind": "exterior",
-        "caption_ru": "Пролёт 160 метров — рекорд 1877 года",
+        "caption_ru": "Мост Марии Пии — общий вид",
         "credit": {
-          "author": "Joseolgon",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Ponte_D._Maria_Pia-Porto.JPG"
+          "author": "Ponte D. Maria Pia, in Diário Ilustrado, 1877, 3 Nov.",
+          "license": "Public domain",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Ponte_d_maria_pia.jpg"
         }
       },
       {
         "src": "assets/img/ponte-maria-pia-2.jpg",
         "kind": "exterior",
-        "caption_ru": "Мост в панораме Порту и Вила-Нова-де-Гайя",
+        "caption_ru": "Мост Марии Пии — общий вид",
         "credit": {
-          "author": "Joseolgon",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Ponte_D._Maria_Pia-Porto.JPG"
+          "author": "Vimacopeca",
+          "license": "CC BY-SA 4.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Bonfim_-_Ponte_de_D._Maria_Pia_-_2025-10-29_23-12-46_001.jpg"
         }
       },
       {
         "src": "assets/img/ponte-maria-pia-3.jpg",
         "kind": "exterior",
-        "caption_ru": "Железная конструкция и опоры из гранита",
+        "caption_ru": "Мост Марии Пии — общий вид",
         "credit": {
-          "author": "Joseolgon",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Ponte_D._Maria_Pia-Porto.JPG"
+          "author": "Thomas Dahlstrøm Nielsen",
+          "license": "CC BY-SA 4.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Full_moon_over_D._Maria_Pia_brigde_July_2023.jpg"
         }
       }
     ],
@@ -1494,47 +1344,37 @@
     "image_credit": {
       "author": "Petnog",
       "license": "CC BY-SA 4.0",
-      "source_url": "https://commons.wikimedia.org/wiki/File:Bolhão2023.jpg"
+      "source_url": "https://commons.wikimedia.org/wiki/File:Bolh%C3%A3o2023.jpg"
     },
     "gallery": [
       {
-        "src": "assets/img/mercado-bolhao.jpg",
-        "kind": "exterior",
-        "caption_ru": "Меркаду ду Больяу после реставрации",
-        "credit": {
-          "author": "Petnog",
-          "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Bolhão2023.jpg"
-        }
-      },
-      {
         "src": "assets/img/mercado-bolhao-1.jpg",
         "kind": "exterior",
-        "caption_ru": "Неоклассический фасад рынка",
+        "caption_ru": "Рынок Больяу — общий вид",
         "credit": {
-          "author": "Petnog",
+          "author": "GualdimG",
           "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Bolhão2023.jpg"
+          "source_url": "https://commons.wikimedia.org/wiki/File:Exterior_of_Mercado_do_Bolh%C3%A3o_01.jpg"
         }
       },
       {
         "src": "assets/img/mercado-bolhao-2.jpg",
         "kind": "exterior",
-        "caption_ru": "Торговые ряды внутри рынка",
+        "caption_ru": "Рынок Больяу — общий вид",
         "credit": {
-          "author": "Petnog",
+          "author": "René Hourdry",
           "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Bolhão2023.jpg"
+          "source_url": "https://commons.wikimedia.org/wiki/File:Mercado_do_Bolhao_20.jpg"
         }
       },
       {
         "src": "assets/img/mercado-bolhao-3.jpg",
         "kind": "exterior",
-        "caption_ru": "Уличные магазины по периметру",
+        "caption_ru": "Рынок Больяу — общий вид",
         "credit": {
-          "author": "Petnog",
-          "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Bolhão2023.jpg"
+          "author": "Maragato1976",
+          "license": "CC BY-SA 3.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Mercado_do_Bolh%C3%A3o_(Porto).jpg"
         }
       }
     ],
@@ -1590,49 +1430,39 @@
     "model": "avenue",
     "image": "assets/img/aliados.jpg",
     "image_credit": {
-      "author": "ho visto nina volare",
+      "author": "ho visto nina volare from Italy",
       "license": "CC BY-SA 2.0",
       "source_url": "https://commons.wikimedia.org/wiki/File:Av_Aliados_5_(Porto).jpg"
     },
     "gallery": [
       {
-        "src": "assets/img/aliados.jpg",
-        "kind": "exterior",
-        "caption_ru": "Западная сторона Авениды душ Алиадуш",
-        "credit": {
-          "author": "ho visto nina volare",
-          "license": "CC BY-SA 2.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Av_Aliados_5_(Porto).jpg"
-        }
-      },
-      {
         "src": "assets/img/aliados-1.jpg",
         "kind": "exterior",
-        "caption_ru": "Вид вдоль авеню",
+        "caption_ru": "Авенида душ Алиадуш — улица и площадь",
         "credit": {
-          "author": "ho visto nina volare",
-          "license": "CC BY-SA 2.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Av_Aliados_5_(Porto).jpg"
+          "author": "User:Otourly",
+          "license": "CC BY-SA 3.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:01._Avenida_dos_Aliados_-_Porto.JPG"
         }
       },
       {
         "src": "assets/img/aliados-2.jpg",
         "kind": "exterior",
-        "caption_ru": "Гранитная застройка авеню",
+        "caption_ru": "Авенида душ Алиадуш — общий вид",
         "credit": {
-          "author": "ho visto nina volare",
-          "license": "CC BY-SA 2.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Av_Aliados_5_(Porto).jpg"
+          "author": "Toms Sk.",
+          "license": "CC BY 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Aliados_(7218951056).jpg"
         }
       },
       {
         "src": "assets/img/aliados-3.jpg",
         "kind": "exterior",
-        "caption_ru": "Авенида душ Алиадуш в сторону ратуши",
+        "caption_ru": "Авенида душ Алиадуш — вечерняя подсветка",
         "credit": {
-          "author": "ho visto nina volare",
-          "license": "CC BY-SA 2.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Av_Aliados_5_(Porto).jpg"
+          "author": "Joseolgon",
+          "license": "CC BY-SA 4.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Avenida_dos_Aliados_in_2016.jpg"
         }
       }
     ],
@@ -1692,49 +1522,39 @@
     "model": "church",
     "image": "assets/img/carmo.jpg",
     "image_credit": {
-      "author": "Otourly",
+      "author": "User:Otourly",
       "license": "CC BY-SA 3.0",
       "source_url": "https://commons.wikimedia.org/wiki/File:19._Igreja_do_Carmo_(Porto).JPG"
     },
     "gallery": [
       {
-        "src": "assets/img/carmo.jpg",
-        "kind": "exterior",
-        "caption_ru": "Церковь ду Карму",
-        "credit": {
-          "author": "Otourly",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:19._Igreja_do_Carmo_(Porto).JPG"
-        }
-      },
-      {
         "src": "assets/img/carmo-1.jpg",
         "kind": "exterior",
-        "caption_ru": "Азулежу 1912 года на боковом фасаде",
+        "caption_ru": "Церковь ду Карму — общий вид",
         "credit": {
-          "author": "Otourly",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:19._Igreja_do_Carmo_(Porto).JPG"
+          "author": "artonthefly",
+          "license": "CC BY 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:2024_09_13_Porto_P9132902_(54100505177).jpg"
         }
       },
       {
         "src": "assets/img/carmo-2.jpg",
         "kind": "exterior",
-        "caption_ru": "Сцены из истории кармелитского ордена",
+        "caption_ru": "Церковь ду Карму — общий вид",
         "credit": {
-          "author": "Otourly",
+          "author": "Silvia Santos",
           "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:19._Igreja_do_Carmo_(Porto).JPG"
+          "source_url": "https://commons.wikimedia.org/wiki/File:ConjIgrejasdosCarmelitas_Descal%C3%A7oseOrdCarmo3.jpg"
         }
       },
       {
         "src": "assets/img/carmo-3.jpg",
         "kind": "exterior",
-        "caption_ru": "Детали фасада церкви ду Карму",
+        "caption_ru": "Церковь ду Карму — общий вид",
         "credit": {
-          "author": "Otourly",
-          "license": "CC BY-SA 3.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:19._Igreja_do_Carmo_(Porto).JPG"
+          "author": "Fernando",
+          "license": "CC BY-SA 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Iglesia_do_Carmo_(50741749157).jpg"
         }
       }
     ],
@@ -1795,43 +1615,33 @@
     },
     "gallery": [
       {
-        "src": "assets/img/palacio-cristal.jpg",
-        "kind": "exterior",
-        "caption_ru": "Сады Хрустального дворца",
-        "credit": {
-          "author": "John Samuel",
-          "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Gardens_of_the_Pal%C3%A1cio_de_Cristal_(Porto)_11.jpg"
-        }
-      },
-      {
         "src": "assets/img/palacio-cristal-1.jpg",
-        "kind": "exterior",
-        "caption_ru": "Панорама Дору с террас парка",
+        "kind": "detail",
+        "caption_ru": "Сады Хрустального дворца — панорамный вид",
         "credit": {
-          "author": "John Samuel",
-          "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Gardens_of_the_Pal%C3%A1cio_de_Cristal_(Porto)_11.jpg"
+          "author": "Sergio Miranda from Maia, Portugal",
+          "license": "CC BY 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:A_view_over_the_%22Douro_River%22_(27844679311).jpg"
         }
       },
       {
         "src": "assets/img/palacio-cristal-2.jpg",
         "kind": "exterior",
-        "caption_ru": "Аллеи и розарий садов",
+        "caption_ru": "Сады Хрустального дворца — общий вид",
         "credit": {
-          "author": "John Samuel",
-          "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Gardens_of_the_Pal%C3%A1cio_de_Cristal_(Porto)_11.jpg"
+          "author": "Júlio Reis",
+          "license": "CC BY-SA 3.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Acer_japonicum_rubra_leaves.jpg"
         }
       },
       {
         "src": "assets/img/palacio-cristal-3.jpg",
         "kind": "exterior",
-        "caption_ru": "Pavilhão Rosa Mota на месте дворца",
+        "caption_ru": "Сады Хрустального дворца — общий вид",
         "credit": {
-          "author": "John Samuel",
-          "license": "CC BY-SA 4.0",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Gardens_of_the_Pal%C3%A1cio_de_Cristal_(Porto)_11.jpg"
+          "author": "José Carlos Casimiro from Maia, Portugal",
+          "license": "CC BY-SA 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Aros_(22549071177).jpg"
         }
       }
     ],
@@ -1897,43 +1707,33 @@
     },
     "gallery": [
       {
-        "src": "assets/img/uporto-reitoria.jpg",
-        "kind": "exterior",
-        "caption_ru": "Здание ректората Университета Порту",
-        "credit": {
-          "author": "Manuel de Sousa",
-          "license": "Public domain",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Reitoria_Universidade_(Porto).JPG"
-        }
-      },
-      {
         "src": "assets/img/uporto-reitoria-1.jpg",
         "kind": "exterior",
-        "caption_ru": "Площадь Гомеша Тейшейры и фонтан со львами",
+        "caption_ru": "Университет Порту (ректорат) — общий вид",
         "credit": {
-          "author": "Manuel de Sousa",
-          "license": "Public domain",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Reitoria_Universidade_(Porto).JPG"
+          "author": "Alegna13",
+          "license": "CC BY-SA 3.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Edif%C3%ADcio_da_Reitoria_da_Universidade_do_Porto.jpg"
         }
       },
       {
         "src": "assets/img/uporto-reitoria-2.jpg",
         "kind": "exterior",
-        "caption_ru": "Фонтан со львами перед ректоратом",
+        "caption_ru": "Университет Порту (ректорат) — общий вид",
         "credit": {
-          "author": "Manuel de Sousa",
-          "license": "Public domain",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Reitoria_Universidade_(Porto).JPG"
+          "author": "Dafema",
+          "license": "CC BY-SA 3.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Fonte_dos_le%C3%B5es_e_reitoria.jpg"
         }
       },
       {
         "src": "assets/img/uporto-reitoria-3.jpg",
         "kind": "exterior",
-        "caption_ru": "Историческое здание ректората",
+        "caption_ru": "Университет Порту (ректорат) — общий вид",
         "credit": {
-          "author": "Manuel de Sousa",
-          "license": "Public domain",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Reitoria_Universidade_(Porto).JPG"
+          "author": "Joseolgon",
+          "license": "CC BY-SA 4.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Museu_de_Hist%C3%B3ria_Natural_e_da_Ci%C3%AAncia_da_Universidade_do_Porto_(3).jpg"
         }
       }
     ],

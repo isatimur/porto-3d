@@ -18,10 +18,39 @@
   ],
   "tip_ru": "Осмотр возможен только с экскурсией, примерно каждые 30 минут; билеты продают на входе, в высокий сезон лучше приходить к открытию. Дворец стоит прямо рядом с церковью Святого Франциска в районе Рибейра, поэтому оба памятника удобно смотреть подряд. Фотографировать в залах разрешено без штатива; самый эффектный кадр — стеклянный двор Наций и Арабский зал.",
   "gallery": [
-    {"img": "assets/img/bolsa.jpg", "caption_ru": "Неоклассический фасад дворца биржи со стороны площади Инфанта Генриха."},
-    {"img": "assets/img/bolsa-1.jpg", "caption_ru": "Арабский зал с золочёной лепниной и арабесками в духе Альгамбры."},
-    {"img": "assets/img/bolsa-2.jpg", "caption_ru": "Двор Наций под стеклянной кровлей с гербами торговых партнёров Порту."},
-    {"img": "assets/img/bolsa-3.jpg", "caption_ru": "Золотой зал и парадные интерьеры дворца во время экскурсии."}
+    {
+      "img": "assets/img/bolsa-1.jpg",
+      "kind": "exterior",
+      "caption_ru": "Дворец биржи — общий вид",
+      "credit": {
+        "author": "Manuel de Sousa",
+        "license": "Public domain",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Palacio_da_Bolsa_(Porto).JPG"
+      },
+      "_commons": "File:Palacio da Bolsa (Porto).JPG"
+    },
+    {
+      "img": "assets/img/bolsa-2.jpg",
+      "kind": "exterior",
+      "caption_ru": "Дворец биржи — общий вид",
+      "credit": {
+        "author": "Alexkom000",
+        "license": "CC BY 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2025-08-07_Porto,_Pal%C3%A1cio_da_Bolsa.jpg"
+      },
+      "_commons": "File:2025-08-07 Porto, Palácio da Bolsa.jpg"
+    },
+    {
+      "img": "assets/img/bolsa-3.jpg",
+      "kind": "exterior",
+      "caption_ru": "Дворец биржи — общий вид",
+      "credit": {
+        "author": "Ivan Stesso",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Pal%C3%A1cio_da_Bolsa_do_Porto._Ph_Ivan_Stesso.jpg"
+      },
+      "_commons": "File:Palácio da Bolsa do Porto. Ph Ivan Stesso.jpg"
+    }
   ],
   "videos": [],
   "panorama": null,

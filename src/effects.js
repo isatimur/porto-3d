@@ -5,7 +5,8 @@
 //                     visible sun, marched radially toward it at half
 //                     resolution, so towers, ridges and crowns cut the
 //                     shafts (skipped when the sun is off screen or below
-//                     the horizon); the same composite carries the faint
+//                     the horizon, and off entirely on the low/lite tier);
+//                     the same composite carries the faint
 //                     summer heat haze over far ground
 //
 // setQuality('2x') renders two drawing-buffer pixels per CSS pixel
@@ -21,7 +22,7 @@
 //
 // With effects off, main.js renders straight to the canvas instead.
 import * as THREE from 'three';
-import { deviceDpr } from './scene.js';
+import { deviceDpr, DPR } from './scene.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
@@ -54,11 +55,14 @@ class SunRaysPass extends Pass {
     this.tint = new THREE.Color(1, 0.85, 0.6);
     this.quad = new FullScreenQuad();
     // tuning (3d-sky-rays): energy threshold over the sky luminance, the
-    // source falloff around the sun, what the foreground keeps of the shafts
-    this.threshold = { value: 0.85 };
-    this.nearK = { value: 14 };
-    this.fore = { value: 0.36 };
-    this.gain = 1.9;
+    // source falloff around the sun, what the foreground keeps of the shafts.
+    // The threshold is high enough that the pale golden-hour sky does not
+    // wash the upper frame; the shafts still read through a roofline over the
+    // Douro. `fore` keeps stone and leaves at contrast under the overlay.
+    this.threshold = { value: 0.9 };
+    this.nearK = { value: 13 };
+    this.fore = { value: 0.42 };
+    this.gain = 1.7;
     this.maskMat = new THREE.ShaderMaterial({
       uniforms: { tDiffuse: { value: null }, tDepth: { value: null }, uSun: { value: this.sun }, uAspect: { value: 1 }, uThreshold: this.threshold, uNearK: this.nearK },
       vertexShader: QUAD_VERT,
@@ -96,7 +100,7 @@ class SunRaysPass extends Pass {
         const int N = 40;
         float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
         void main() {
-          vec2 delta = (vUv - uSun) * 0.9 / float(N);
+          vec2 delta = (vUv - uSun) * 0.95 / float(N);
           // stable jitter against banding (no shimmer: it does not animate)
           vec2 uv = vUv - delta * hash(vUv * 731.0);
           vec3 sum = vec3(0.0);
@@ -106,7 +110,7 @@ class SunRaysPass extends Pass {
             uv -= delta;
             if (uv.x > 0.0 && uv.x < 1.0 && uv.y > 0.0 && uv.y < 1.0) sum += texture2D(tSrc, uv).rgb * w;
             ws += w;
-            w *= 0.955;
+            w *= 0.962;
           }
           gl_FragColor = vec4(sum / max(ws, 1e-4), 1.0);
         }`,
@@ -251,6 +255,9 @@ const FinishShader = {
 
 // ------------------------------------------------------------ public
 export function createEffects(renderer, scene, camera, { reducedMotion = false } = {}) {
+  // Quality tier: the DPR cap is 2 in high quality and 1.5/1.25 in light mode
+  // (main.js sets it before the renderer exists). Rays are off on low/lite.
+  const raysAllowed = DPR.cap >= 2;
   const size = renderer.getSize(new THREE.Vector2());
   const target = new THREE.WebGLRenderTarget(size.x || 1, size.y || 1, {
     type: THREE.HalfFloatType,
@@ -297,7 +304,9 @@ export function createEffects(renderer, scene, camera, { reducedMotion = false }
     const off = Math.max(Math.abs(_p.x), Math.abs(_p.y));
     const fade = inFront ? 1 - THREE.MathUtils.smoothstep(off, 1.0, 1.45) : 0;
     const low = 1 - THREE.MathUtils.smoothstep(_v.y, 0.25, 0.7); // strongest near the horizon
-    const s = fade * THREE.MathUtils.smoothstep(_v.y, -0.02, 0.06) * (1 - night) * (0.35 + 0.65 * low);
+    // quality tier: no shafts on low/lite (reduced motion still keeps the
+    // pass static — its jitter does not animate)
+    const s = raysAllowed ? fade * THREE.MathUtils.smoothstep(_v.y, -0.02, 0.06) * (1 - night) * (0.35 + 0.65 * low) : 0;
     rays.sun.set(_p.x * 0.5 + 0.5, _p.y * 0.5 + 0.5);
     rays.strength = s * rays.gain;
     rays.haze = haze;

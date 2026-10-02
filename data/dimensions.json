@@ -1,0 +1,1231 @@
+{
+  "clerigos": {
+    "footprint_m": {
+      "length": 74,
+      "width": 20,
+      "matches_osm": true,
+      "note": "OSM way 211337881 is the whole Clérigos complex (oval church, tower, Casa da Irmandade) on the OSM footprint."
+    },
+    "height_m": {
+      "total": 75.6,
+      "tower": 75.6,
+      "church_body": 25,
+      "irmandade": 22.5
+    },
+    "elements": {
+      "tower_steps": 225,
+      "carillon_bells": 49,
+      "tower_storeys": 6
+    },
+    "facade_faces": "W",
+    "facade_azimuth_deg": 250,
+    "facade_axis_rel": "bearing_deg (long axis ~70) + 180; the tower front looks west down Rua dos Clérigos",
+    "facade_note": "Tower, connected Casa da Irmandade and oval church front the west end of the block towards Rua dos Clérigos.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM way 211337881 is the whole Clérigos complex (oval church, tower, Casa da Irmandade) on the OSM footprint. Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "height_m.tower",
+          "height_m.total"
+        ],
+        "url": "https://pt.wikipedia.org/wiki/Igreja_e_Torre_dos_Cl%C3%A9rigos",
+        "fact": "tower height",
+        "value": "75,6 metros (torre); 225 degraus; carrilhão de 49 sinos adquirido em 1995"
+      },
+      {
+        "paths": [
+          "height_m.church_body",
+          "height_m.irmandade"
+        ],
+        "source": "estimate",
+        "fact": "church and brotherhood house",
+        "reasoning": "Church body about 25 m; the OSM Casa da Irmandade way carries height=22.5 m."
+      },
+      {
+        "paths": [
+          "elements.tower_steps",
+          "elements.carillon_bells"
+        ],
+        "url": "https://pt.wikipedia.org/wiki/Igreja_e_Torre_dos_Cl%C3%A9rigos",
+        "fact": "tower stairs and carillon",
+        "value": "225 degraus; carrilhão de 49 sinos"
+      },
+      {
+        "paths": [
+          "elements.tower_storeys"
+        ],
+        "url": "https://pt.wikipedia.org/wiki/Igreja_e_Torre_dos_Cl%C3%A9rigos",
+        "fact": "tower storeys",
+        "value": "seis pisos/lanços (six levels)"
+      },
+      {
+        "paths": [
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "facade direction",
+        "reasoning": "West front on Rua dos Clérigos, opposite the 70 deg OSM long axis."
+      }
+    ],
+    "confidence": "high"
+  },
+  "lello": {
+    "footprint_m": {
+      "length": 25.4,
+      "width": 6.2,
+      "matches_osm": true,
+      "note": "OSM way 229270821 is the Lello shop unit inside the Rua das Carmelitas block (narrow frontage)."
+    },
+    "height_m": {
+      "total": 14,
+      "ridge": 14,
+      "storeys": 12
+    },
+    "elements": {
+      "stained_glass_area_m2": 28,
+      "stained_glass_panels": 55,
+      "writers_busts": 6
+    },
+    "facade_faces": "SW",
+    "facade_azimuth_deg": 219,
+    "facade_axis_rel": "bearing_deg (~39) + 180; shopfront faces the street",
+    "facade_note": "Two tall storeys plus attic; the facade faces the narrow street (SW).",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM way 229270821 is the Lello shop unit inside the Rua das Carmelitas block (narrow frontage). Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.ridge",
+          "height_m.storeys"
+        ],
+        "source": "estimate",
+        "fact": "building height",
+        "reasoning": "Two storeys plus attic of the Rua das Carmelitas block; no published height, about 14 m."
+      },
+      {
+        "paths": [
+          "elements.stained_glass_area_m2",
+          "elements.stained_glass_panels"
+        ],
+        "url": "https://pt.wikipedia.org/wiki/Livraria_Lello",
+        "fact": "stained-glass skylight",
+        "value": "claraboia 8 x 3,5 m, 55 painéis (28 m2)"
+      },
+      {
+        "paths": [
+          "elements.writers_busts"
+        ],
+        "url": "https://pt.wikipedia.org/wiki/Livraria_Lello",
+        "fact": "writer busts",
+        "value": "seis bustos (Antero, Eça, Camilo, Teófilo, Tomás Ribeiro, Guerra Junqueiro)"
+      },
+      {
+        "paths": [
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "facade direction",
+        "reasoning": "Shop entrance on Rua das Carmelitas, facing the axis-reverse at about 219 deg."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "sao-bento": {
+    "footprint_m": {
+      "length": 182.6,
+      "width": 77.8,
+      "matches_osm": true,
+      "note": "OSM way 1159533444 is the whole station: head building, two torreões and the platform trainshed (182.6 m long)."
+    },
+    "height_m": {
+      "total": 22,
+      "clock_gable": 22,
+      "tower_pavilions": 16
+    },
+    "elements": {
+      "azulejo_area_m2": 551,
+      "azulejo_tiles": 20000
+    },
+    "facade_faces": "S",
+    "facade_azimuth_deg": 180,
+    "facade_axis_rel": "front faces south to Praça de Almeida Garrett (axis crosses the station)",
+    "facade_note": "Beaux-Arts head building with clock gable and two torreões fronts Praça de Almeida Garrett (S).",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM way 1159533444 is the whole station: head building, two torreões and the platform trainshed (182.6 m long). Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.clock_gable",
+          "height_m.tower_pavilions"
+        ],
+        "source": "estimate",
+        "fact": "station heights",
+        "reasoning": "Tall azulejo hall with central clock gable about 22 m; the OSM building:levels=2 only counts the side wings; torreões about 16 m."
+      },
+      {
+        "paths": [
+          "elements.azulejo_area_m2",
+          "elements.azulejo_tiles"
+        ],
+        "url": "https://pt.wikipedia.org/wiki/Esta%C3%A7%C3%A3o_Ferrovi%C3%A1ria_de_Porto-S%C3%A3o_Bento",
+        "fact": "azulejo panels",
+        "value": "cerca de 20 000 azulejos, área de aproximadamente 551 m2"
+      },
+      {
+        "paths": [
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "facade direction",
+        "reasoning": "Main front south onto the square; the long 182.6 m OSM axis runs along the tracks."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "se-porto": {
+    "footprint_m": {
+      "length": 68.1,
+      "width": 35.8,
+      "matches_osm": true,
+      "note": "OSM way 210461448 is the cathedral body with the two-tower west front and the transept/apse (68.1 m overall)."
+    },
+    "height_m": {
+      "total": 30,
+      "towers": 30,
+      "nave_ridge": 18
+    },
+    "elements": {
+      "towers": 2,
+      "aisles": 2
+    },
+    "facade_faces": "W",
+    "facade_azimuth_deg": 268,
+    "facade_axis_rel": "bearing_deg (~88) + 180; fortified west front over Terreiro da Sé",
+    "facade_note": "Romanesque west front with two crenellated square towers faces west over the Terreiro da Sé.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM way 210461448 is the cathedral body with the two-tower west front and the transept/apse (68.1 m overall). Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.towers",
+          "height_m.nave_ridge"
+        ],
+        "source": "estimate",
+        "fact": "tower and nave heights",
+        "reasoning": "Twin crenellated Romanesque towers about 30 m, scaled from photos against the ~30 m nave length; no published height."
+      },
+      {
+        "paths": [
+          "elements.towers"
+        ],
+        "url": "https://en.wikipedia.org/wiki/Porto_Cathedral",
+        "fact": "two square towers",
+        "value": "flanked by two square towers, each supported with two buttresses and crowned with a cupola"
+      },
+      {
+        "paths": [
+          "elements.aisles"
+        ],
+        "source": "estimate",
+        "fact": "nave and aisles",
+        "reasoning": "Romanesque nave flanked by two lower aisles (en.wikipedia)."
+      },
+      {
+        "paths": [
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "facade direction",
+        "reasoning": "West front; long axis runs roughly east-west (OSM bearing 88.5)."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "bolsa": {
+    "footprint_m": {
+      "length": 73.5,
+      "width": 62.5,
+      "matches_osm": true,
+      "note": "OSM way 1038770631 is the palace block between Rua de São Francisco and the Douro-side streets (73.5 x 62.5 m)."
+    },
+    "height_m": {
+      "total": 20,
+      "main_cornice": 20,
+      "courtyard_dome": 20
+    },
+    "elements": {
+      "storeys": 2
+    },
+    "facade_faces": "W",
+    "facade_azimuth_deg": 270,
+    "facade_axis_rel": "bearing_deg (~90) + 180; Neoclassical front towards Rua de São Francisco (W)",
+    "facade_note": "Neoclassical palace around the glazed Pátio das Nações; the front faces west.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM way 1038770631 is the palace block between Rua de São Francisco and the Douro-side streets (73.5 x 62.5 m). Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.main_cornice",
+          "height_m.courtyard_dome"
+        ],
+        "source": "estimate",
+        "fact": "building height",
+        "reasoning": "Two tall storeys around the courtyard with the internal Arab Room dome; no published height, about 20 m."
+      },
+      {
+        "paths": [
+          "elements.storeys"
+        ],
+        "url": "https://en.wikipedia.org/wiki/Pal%C3%A1cio_da_Bolsa",
+        "fact": "storeys",
+        "value": "two storeys around the Nations' Courtyard, interior finished only in 1910"
+      },
+      {
+        "paths": [
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "facade direction",
+        "reasoning": "Front on Rua de São Francisco; reverse of the ~90 deg OSM axis."
+      }
+    ],
+    "confidence": "low"
+  },
+  "sao-francisco-porto": {
+    "footprint_m": {
+      "length": 51.6,
+      "width": 28.1,
+      "matches_osm": true,
+      "note": "OSM way 210681249 is the Gothic church (nave, transept, apse), not the former convent."
+    },
+    "height_m": {
+      "total": 18,
+      "nave_ridge": 18,
+      "facade": 15
+    },
+    "elements": {
+      "aisles": 2,
+      "naves": 3
+    },
+    "facade_faces": "W",
+    "facade_azimuth_deg": 272,
+    "facade_axis_rel": "bearing_deg (~93) + 180; Gothic west front faces Rua do Infante D. Henrique",
+    "facade_note": "Gothic west front with rose window faces west; gilded Baroque interior.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM way 210681249 is the Gothic church (nave, transept, apse), not the former convent. Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.nave_ridge",
+          "height_m.facade"
+        ],
+        "source": "estimate",
+        "fact": "church heights",
+        "reasoning": "Facade and nave about 18 m; no published height (pt/en Wikipedia checked)."
+      },
+      {
+        "paths": [
+          "elements.naves",
+          "elements.aisles"
+        ],
+        "url": "https://en.wikipedia.org/wiki/Church_of_S%C3%A3o_Francisco_(Porto)",
+        "fact": "three-aisled nave",
+        "value": "three naves, prominent transept and three-part apse"
+      },
+      {
+        "paths": [
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "facade direction",
+        "reasoning": "West front; reverse of the ~93 deg OSM long axis."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "ponte-luis-i": {
+    "footprint_m": {
+      "length": 412.8,
+      "width": 10.7,
+      "matches_osm": true,
+      "note": "OSM way 835566871 is the bridge incl. approaches (412.8 m); the published structural length is 385.25 m."
+    },
+    "height_m": {
+      "total": 60,
+      "upper_deck": 60,
+      "lower_deck": 10,
+      "arch_rise": 45
+    },
+    "elements": {
+      "main_span_m": 172,
+      "total_length_m": 385.25,
+      "tiers": 2
+    },
+    "facade_faces": "S",
+    "facade_azimuth_deg": 167,
+    "facade_axis_rel": "bridge long axis (bearing ~167); no single facade",
+    "facade_note": "Two-deck iron arch bridge across the Douro; no single facade.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM way 835566871 is the bridge incl. approaches (412.8 m); the published structural length is 385.25 m. Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.upper_deck",
+          "elements.main_span_m",
+          "elements.total_length_m"
+        ],
+        "url": "https://en.wikipedia.org/wiki/Dom_Lu%C3%ADs_I_Bridge",
+        "fact": "upper deck, span and length",
+        "value": "upper deck 60 m above the Douro; central span 172 m; total length 385.25 m (Wikidata Q1322447)"
+      },
+      {
+        "paths": [
+          "height_m.arch_rise"
+        ],
+        "url": "https://www.wikidata.org/wiki/Q1322447",
+        "fact": "structural height",
+        "value": "P2048 = 45 m"
+      },
+      {
+        "paths": [
+          "height_m.lower_deck"
+        ],
+        "source": "estimate",
+        "fact": "lower deck",
+        "reasoning": "Lower deck about 10 m above the water (estimate, not published)."
+      },
+      {
+        "paths": [
+          "elements.tiers"
+        ],
+        "source": "estimate",
+        "fact": "decks",
+        "reasoning": "Two decks (upper and lower) carried on the central arch."
+      }
+    ],
+    "confidence": "high"
+  },
+  "ponte-maria-pia": {
+    "footprint_m": {
+      "length": 366.9,
+      "width": 3.2,
+      "matches_osm": true,
+      "note": "OSM way 835569085 is the slender iron bridge outline (366.9 x 3.2 m); published total length 353 m."
+    },
+    "height_m": {
+      "total": 61.2,
+      "deck": 60,
+      "arch_rise": 61.2
+    },
+    "elements": {
+      "main_span_m": 160,
+      "total_length_m": 353
+    },
+    "facade_faces": "NE",
+    "facade_azimuth_deg": 54,
+    "facade_axis_rel": "bridge long axis (bearing ~54); no single facade",
+    "facade_note": "Eiffel iron arch railway bridge; no single facade.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM way 835569085 is the slender iron bridge outline (366.9 x 3.2 m); published total length 353 m. Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "elements.main_span_m"
+        ],
+        "url": "https://www.wikidata.org/wiki/Q1550899",
+        "fact": "height and main span",
+        "value": "P2048 = 61.2 m; P2043/central span = 160 m"
+      },
+      {
+        "paths": [
+          "elements.total_length_m"
+        ],
+        "url": "https://en.wikipedia.org/wiki/Maria_Pia_Bridge",
+        "fact": "total length",
+        "value": "353 m"
+      },
+      {
+        "paths": [
+          "height_m.deck",
+          "height_m.arch_rise"
+        ],
+        "source": "estimate",
+        "fact": "deck and arch",
+        "reasoning": "Deck about 60 m above the Douro; arch crown at the 61.2 m published height."
+      }
+    ],
+    "confidence": "high"
+  },
+  "ponte-arrabida": {
+    "footprint_m": {
+      "length": 499.8,
+      "width": 33.3,
+      "matches_osm": true,
+      "note": "OSM way 460839285 is the concrete arch bridge incl. approaches (499.8 m); published total length 493.2 m."
+    },
+    "height_m": {
+      "total": 70,
+      "deck": 70,
+      "arch_rise": 70
+    },
+    "elements": {
+      "main_span_m": 270,
+      "total_length_m": 493.2,
+      "deck_width_m": 26
+    },
+    "facade_faces": "S",
+    "facade_azimuth_deg": 170,
+    "facade_axis_rel": "bridge long axis (bearing ~170); no single facade",
+    "facade_note": "Concrete arch road bridge across the Douro; no single facade.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM way 460839285 is the concrete arch bridge incl. approaches (499.8 m); published total length 493.2 m. Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.deck"
+        ],
+        "url": "https://www.openstreetmap.org/way/460839285",
+        "fact": "deck height",
+        "value": "OSM height=70 on the bridge way; about 70 m above the Douro"
+      },
+      {
+        "paths": [
+          "elements.main_span_m",
+          "elements.total_length_m"
+        ],
+        "url": "https://www.wikidata.org/wiki/Q1785740",
+        "fact": "arch span and length",
+        "value": "central arch 270 m; total length 493.2 m (P2043)"
+      },
+      {
+        "paths": [
+          "height_m.arch_rise"
+        ],
+        "source": "estimate",
+        "fact": "arch",
+        "reasoning": "Arch crown reaches the 70 m deck height."
+      },
+      {
+        "paths": [
+          "elements.deck_width_m"
+        ],
+        "source": "estimate",
+        "fact": "deck width",
+        "reasoning": "Deck about 26 m wide (estimate; not published in the cited sources)."
+      }
+    ],
+    "confidence": "high"
+  },
+  "dragao": {
+    "footprint_m": {
+      "length": 292.2,
+      "width": 282.3,
+      "matches_osm": true,
+      "note": "OSM way 547707192 is the stadium bowl/site (292 x 282 m); the pitch is 105 x 68 m."
+    },
+    "height_m": {
+      "total": 40,
+      "roof": 40
+    },
+    "elements": {
+      "capacity": 50033,
+      "pitch_length_m": 105,
+      "pitch_width_m": 68,
+      "stands": 4,
+      "azulejo_area_m2": 21000
+    },
+    "facade_faces": "SE",
+    "facade_azimuth_deg": 146,
+    "facade_axis_rel": "stadium bowl (bearing ~146); an open-roof bowl has no single facade",
+    "facade_note": "Single-tier bowl with continuous roof around the pitch; no single facade.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM way 547707192 is the stadium bowl/site (292 x 282 m); the pitch is 105 x 68 m. Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "elements.capacity",
+          "elements.pitch_length_m",
+          "elements.pitch_width_m",
+          "elements.azulejo_area_m2"
+        ],
+        "url": "https://en.wikipedia.org/wiki/Est%C3%A1dio_do_Drag%C3%A3o",
+        "fact": "capacity, pitch and azulejo frame",
+        "value": "capacity 50,033; field size 105 x 68 m; frame of 21,000 m2 of azulejos"
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.roof"
+        ],
+        "source": "estimate",
+        "fact": "roof height",
+        "reasoning": "Single-tier bowl with continuous roof about 40 m above the pitch; no published height."
+      },
+      {
+        "paths": [
+          "elements.stands"
+        ],
+        "source": "estimate",
+        "fact": "stands",
+        "reasoning": "Four stands (N, E, S, W) mapped as building=stadium ways."
+      }
+    ],
+    "confidence": "high"
+  },
+  "felgueiras": {
+    "footprint_m": {
+      "length": 236.5,
+      "width": 15.8,
+      "matches_osm": true,
+      "note": "OSM way 446589339 is the Molhe de Felgueiras breakwater; the 10 m light is mapped only as a node."
+    },
+    "height_m": {
+      "total": 10,
+      "light": 10,
+      "breakwater": 3
+    },
+    "elements": {},
+    "facade_faces": "NE",
+    "facade_azimuth_deg": 62,
+    "facade_axis_rel": "breakwater axis (bearing ~62); a lighthouse has no facade",
+    "facade_note": "Granite breakwater with the small Farolim de Felgueiras light at its head.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM way 446589339 is the Molhe de Felgueiras breakwater; the 10 m light is mapped only as a node. Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.light"
+        ],
+        "url": "https://www.wikidata.org/wiki/Q10280208",
+        "fact": "lighthouse height",
+        "value": "P2048 = 10 m (Farolim de Felgueiras)"
+      },
+      {
+        "paths": [
+          "height_m.breakwater"
+        ],
+        "source": "estimate",
+        "fact": "breakwater",
+        "reasoning": "Breakwater deck about 3 m above the water (estimate)."
+      }
+    ],
+    "confidence": "high"
+  },
+  "serralves": {
+    "footprint_m": {
+      "length": 57.7,
+      "width": 28.8,
+      "matches_osm": true,
+      "note": "OSM way 167487331 is the Casa de Serralves Art Deco villa and its wings (57.7 x 28.8 m); the museum is a separate part."
+    },
+    "height_m": {
+      "total": 12,
+      "villa": 12,
+      "museum": 12
+    },
+    "elements": {
+      "storeys": 2
+    },
+    "facade_faces": "E",
+    "facade_azimuth_deg": 103,
+    "facade_axis_rel": "villa axis (bearing ~103); entrance faces the garden",
+    "facade_note": "Art Deco villa with the entrance and terrace facing the gardens (E).",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM way 167487331 is the Casa de Serralves Art Deco villa and its wings (57.7 x 28.8 m); the museum is a separate part. Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.villa",
+          "height_m.museum"
+        ],
+        "source": "estimate",
+        "fact": "villa and museum heights",
+        "reasoning": "Two storeys plus basement, about 12 m; the 1999 Siza museum and west wing are similar; no published heights."
+      },
+      {
+        "paths": [
+          "elements.storeys"
+        ],
+        "source": "estimate",
+        "fact": "storeys",
+        "reasoning": "Two storeys plus basement (Casa de Serralves, 1925-1944)."
+      },
+      {
+        "paths": [
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "facade direction",
+        "reasoning": "Villa front towards the garden/entrance side, along the ~103 deg OSM axis."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "casa-musica": {
+    "footprint_m": {
+      "length": 76,
+      "width": 63,
+      "matches_osm": true,
+      "note": "OSM way 603359226 is the asymmetrical concert-hall polyhedron (76 x 63 m) on the Rotunda da Boavista."
+    },
+    "height_m": {
+      "total": 40,
+      "hall": 40
+    },
+    "elements": {
+      "floors": 9,
+      "suggia_seats": 1238,
+      "sala2_seats": 270
+    },
+    "facade_faces": "S",
+    "facade_azimuth_deg": 180,
+    "facade_axis_rel": "main glass front faces south to the Rotunda da Boavista",
+    "facade_note": "White-concrete polyhedron; the tall glass front faces the Rotunda (S).",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM way 603359226 is the asymmetrical concert-hall polyhedron (76 x 63 m) on the Rotunda da Boavista. Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.hall"
+        ],
+        "url": "https://www.openstreetmap.org/way/603359226",
+        "fact": "building height",
+        "value": "OSM height=40 on the concert-hall way"
+      },
+      {
+        "paths": [
+          "elements.floors"
+        ],
+        "url": "https://en.wikipedia.org/wiki/Casa_da_M%C3%BAsica",
+        "fact": "floors",
+        "value": "nine-floor-high asymmetrical polyhedron"
+      },
+      {
+        "paths": [
+          "elements.suggia_seats"
+        ],
+        "url": "https://en.wikipedia.org/wiki/Casa_da_M%C3%BAsica",
+        "fact": "Suggia Hall seats",
+        "value": "capacity of 1,238 seats"
+      },
+      {
+        "paths": [
+          "elements.sala2_seats"
+        ],
+        "url": "https://en.wikipedia.org/wiki/Casa_da_M%C3%BAsica",
+        "fact": "Sala 2 seats",
+        "value": "about 270 seated (650 standing)"
+      },
+      {
+        "paths": [
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "facade direction",
+        "reasoning": "Main glazed front towards the Rotunda da Boavista (S)."
+      }
+    ],
+    "confidence": "high"
+  },
+  "ribeira": {
+    "footprint_m": {
+      "length": 70.7,
+      "width": 22.1,
+      "matches_osm": true,
+      "note": "OSM way 239012587 is the Cais da Ribeira waterfront area (70.7 x 22.1 m); the houses are separate ways."
+    },
+    "height_m": {
+      "total": 18,
+      "houses": 18
+    },
+    "elements": {
+      "storeys": 5
+    },
+    "facade_faces": "E",
+    "facade_azimuth_deg": 82,
+    "facade_axis_rel": "riverfront long axis (bearing ~82); no single facade",
+    "facade_note": "Arcaded riverfront block of tall houses facing the Douro; the mapped outline is the quay area.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM way 239012587 is the Cais da Ribeira waterfront area (70.7 x 22.1 m); the houses are separate ways. Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.houses"
+        ],
+        "source": "estimate",
+        "fact": "riverfront houses",
+        "reasoning": "Four to five storey arcaded houses, facade line about 18 m."
+      },
+      {
+        "paths": [
+          "elements.storeys"
+        ],
+        "source": "estimate",
+        "fact": "storeys",
+        "reasoning": "Four to five storeys (estimate from the OSM buildings and photos)."
+      },
+      {
+        "paths": [
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "orientation",
+        "reasoning": "Linear riverfront along the quay; the mapped area is the flat ground."
+      }
+    ],
+    "confidence": "low"
+  },
+  "caves-gaia": {
+    "footprint_m": {
+      "length": 32.8,
+      "width": 29.9,
+      "matches_osm": true,
+      "note": "OSM way 382530398 is the Sandeman lodge building on the Gaia bank (32.8 x 29.9 m)."
+    },
+    "height_m": {
+      "total": 14,
+      "lodges": 14
+    },
+    "elements": {
+      "storeys": 3
+    },
+    "facade_faces": "N",
+    "facade_azimuth_deg": 355,
+    "facade_axis_rel": "lodges face the Douro (N); bearing of the block axis ignored for the facade",
+    "facade_note": "Port-wine lodges: sandstone warehouses with the river front facing the Douro (N).",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM way 382530398 is the Sandeman lodge building on the Gaia bank (32.8 x 29.9 m). Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.lodges"
+        ],
+        "source": "estimate",
+        "fact": "lodge height",
+        "reasoning": "Two to three storey sandstone warehouses, about 14 m; no published height."
+      },
+      {
+        "paths": [
+          "elements.storeys"
+        ],
+        "source": "estimate",
+        "fact": "storeys",
+        "reasoning": "Two to three storeys (estimate from photos)."
+      },
+      {
+        "paths": [
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "facade direction",
+        "reasoning": "The lodges front the Douro to the north."
+      }
+    ],
+    "confidence": "low"
+  },
+  "mercado-bolhao": {
+    "footprint_m": {
+      "length": 142.9,
+      "width": 54.6,
+      "matches_osm": true,
+      "note": "OSM relation 3046626 is the whole Mercado do Bolhão complex (142.9 x 54.6 m) around the open court."
+    },
+    "height_m": {
+      "total": 12,
+      "roof_ridge": 12
+    },
+    "elements": {
+      "floors": 2
+    },
+    "facade_faces": "N",
+    "facade_azimuth_deg": 21,
+    "facade_axis_rel": "long axis (bearing ~21); the market opens on several sides",
+    "facade_note": "Historic market with two floors around an open central courtyard and entrances on several sides.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM relation 3046626 is the whole Mercado do Bolhão complex (142.9 x 54.6 m) around the open court. Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.roof_ridge"
+        ],
+        "source": "estimate",
+        "fact": "roof height",
+        "reasoning": "Two market floors around an open court, about 12 m to the roof ridge; no published height."
+      },
+      {
+        "paths": [
+          "elements.floors"
+        ],
+        "source": "estimate",
+        "fact": "floors",
+        "reasoning": "Two market floors around the open court."
+      },
+      {
+        "paths": [
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "orientation",
+        "reasoning": "Market block with several entrances; azimuth follows the ~21 deg OSM axis."
+      }
+    ],
+    "confidence": "low"
+  },
+  "aliados": {
+    "footprint_m": {
+      "length": 63.8,
+      "width": 51.6,
+      "matches_osm": true,
+      "note": "OSM relation 3012085 is the Câmara Municipal block at the top of Avenida dos Aliados (63.8 x 51.6 m)."
+    },
+    "height_m": {
+      "total": 70,
+      "clock_tower": 70
+    },
+    "elements": {
+      "storeys": 5
+    },
+    "facade_faces": "W",
+    "facade_azimuth_deg": 279,
+    "facade_axis_rel": "bearing_deg (~99) + 180; the front faces Avenida dos Aliados (W)",
+    "facade_note": "Municipal palace with central clock tower, front facing Avenida dos Aliados (W).",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM relation 3012085 is the Câmara Municipal block at the top of Avenida dos Aliados (63.8 x 51.6 m). Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.clock_tower"
+        ],
+        "url": "https://pt.wikipedia.org/wiki/C%C3%A2mara_Municipal_do_Porto",
+        "fact": "clock tower",
+        "value": "A torre central, com 70 metros de altura, ostenta um relógio de carrilhão"
+      },
+      {
+        "paths": [
+          "elements.storeys"
+        ],
+        "url": "https://pt.wikipedia.org/wiki/C%C3%A2mara_Municipal_do_Porto",
+        "fact": "storeys",
+        "value": "O edifício tem seis pisos, uma cave e dois pátios interiores (six storeys)"
+      }
+    ],
+    "confidence": "medium"
+  },
+  "carmo": {
+    "footprint_m": {
+      "length": 34.2,
+      "width": 14.3,
+      "matches_osm": true,
+      "note": "OSM way 229772731 is the Igreja do Carmo body with its twin-tower front (34.2 x 14.3 m)."
+    },
+    "height_m": {
+      "total": 25,
+      "towers": 25,
+      "nave_ridge": 16
+    },
+    "elements": {
+      "towers": 2
+    },
+    "facade_faces": "S",
+    "facade_azimuth_deg": 180,
+    "facade_axis_rel": "bearing_deg (~1) + 180; twin-tower front faces the street to the south",
+    "facade_note": "Baroque church with twin facade towers and an azulejo side wall; front faces S.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM way 229772731 is the Igreja do Carmo body with its twin-tower front (34.2 x 14.3 m). Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.towers",
+          "height_m.nave_ridge"
+        ],
+        "source": "estimate",
+        "fact": "facade towers",
+        "reasoning": "Twin facade towers about 25 m above a single nave; no published height."
+      },
+      {
+        "paths": [
+          "elements.towers"
+        ],
+        "url": "https://pt.wikipedia.org/wiki/Igreja_do_Carmo_(Porto)",
+        "fact": "twin towers",
+        "value": "igreja com duas torres na fachada (1756-1768)"
+      },
+      {
+        "paths": [
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "facade direction",
+        "reasoning": "Twin-tower front at the south end of the N-S OSM axis."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "palacio-cristal": {
+    "footprint_m": {
+      "length": 403.8,
+      "width": 335.9,
+      "matches_osm": true,
+      "note": "OSM way 244599647 is the whole Palácio de Cristal garden (403.8 x 335.9 m); the tallest element is the Super Bock Arena/pavilion."
+    },
+    "height_m": {
+      "total": 30,
+      "pavilion": 30
+    },
+    "elements": {},
+    "facade_faces": "N",
+    "facade_azimuth_deg": 19,
+    "facade_axis_rel": "garden long axis (bearing ~19); a garden has no facade",
+    "facade_note": "Romantic gardens; no single facade. Tallest built element is the Super Bock Arena (Pavilhão Rosa Mota).",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM way 244599647 is the whole Palácio de Cristal garden (403.8 x 335.9 m); the tallest element is the Super Bock Arena/pavilion. Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.pavilion"
+        ],
+        "url": "https://www.openstreetmap.org/way/35341148",
+        "fact": "pavilion height",
+        "value": "OSM height=30 on the Super Bock Arena way (w35341148)"
+      },
+      {
+        "paths": [
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "orientation",
+        "reasoning": "The gardens are an open landscape; the azimuth is the ~19 deg long axis."
+      }
+    ],
+    "confidence": "low"
+  },
+  "uporto-reitoria": {
+    "footprint_m": {
+      "length": 90.5,
+      "width": 61,
+      "matches_osm": true,
+      "note": "OSM relation 3047226 is the Reitoria block (Pardal Monteiro) on Praça Gomes Teixeira (90.5 x 61 m)."
+    },
+    "height_m": {
+      "total": 18,
+      "main_block": 15,
+      "portico": 18
+    },
+    "elements": {
+      "storeys": 3
+    },
+    "facade_faces": "S",
+    "facade_azimuth_deg": 189,
+    "facade_axis_rel": "bearing_deg (~9) + 180; monumental entrance faces Praça Gomes Teixeira (S)",
+    "facade_note": "Granite Modernist block with a tall recessed entrance portico facing the square (S).",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM outline geometry and orientation",
+        "reasoning": "OSM relation 3047226 is the Reitoria block (Pardal Monteiro) on Praça Gomes Teixeira (90.5 x 61 m). Facade azimuth from the building axis and known street orientation."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.main_block",
+          "height_m.portico"
+        ],
+        "source": "estimate",
+        "fact": "building height",
+        "reasoning": "Three granite storeys plus a tall entrance portico, about 18 m; OSM building:levels=3 understates the portico."
+      },
+      {
+        "paths": [
+          "elements.storeys"
+        ],
+        "source": "estimate",
+        "fact": "storeys",
+        "reasoning": "Three storeys (OSM building:levels=3)."
+      },
+      {
+        "paths": [
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "facade direction",
+        "reasoning": "Entrance front towards Praça Gomes Teixeira; reverse of the ~9 deg OSM axis."
+      }
+    ],
+    "confidence": "medium"
+  }
+}

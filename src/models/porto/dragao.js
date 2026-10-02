@@ -54,6 +54,9 @@ function dragao(k, site) {
     for (let i = -3; i <= 3; i++) {
       k.box(1.1, 12, 0.6, 'doorBlue', i * 24 * sx, 1, side * (96 * sz), { mat: MAT.flat });
     }
+    for (let i = -2; i <= 2; i++) {
+      k.box(0.6, 12, 1.1, 'doorBlue', side * (116 * sx), 1, i * 24 * sz, { mat: MAT.flat });
+    }
   }
 
   // raked concrete tiers inside the shell
@@ -67,7 +70,19 @@ function dragao(k, site) {
     const outer = roundRect(ow * sx, od * sz, r * sx, 5);
     const inner = roundRect((ow - 8) * sx, (od - 8) * sz, (r - 3) * sx, 5);
     k.prism(outer, y, h, i % 2 ? 'seat' : 'graniteGrey', { holes: [rev(inner)] });
+    // rows of seats climbing each tier
+    const seats = 40;
+    for (let s = 0; s < seats; s++) {
+      const a = (s / seats) * Math.PI * 2;
+      k.box(1.5, 0.42, 1.2, 'seat', Math.cos(a) * (ow / 2) * sx, y + 0.3, Math.sin(a) * (od / 2) * sz, { ry: -a });
+    }
   });
+
+  // concourse columns carrying the roof ring
+  for (let i = 0; i < 20; i++) {
+    const a = (i / 20) * Math.PI * 2;
+    k.cyl(0.9, 1.1, 4, 6, 'steel', Math.cos(a) * 112 * sx, 26, Math.sin(a) * 92 * sz);
+  }
 
   // four dark corner openings between shell and roof
   for (const [sx2, sz2] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) {
@@ -81,6 +96,11 @@ function dragao(k, site) {
   k.prism(ROOF, 30, 2.6, 'steel', { holes: [rev(ROOF_IN), ...corners.map(rev)] });
   k.prism(offset(ROOF, 0.6), 30, 0.9, 'doorBlue', { holes: [rev(ROOF_IN)] });
   for (const s of [-1, 1]) k.box(220 * sx, 0.8, 3, 'steel', 0, 32.4, s * 98 * sz);
+  // radial trusses under the roof ring
+  for (let i = 0; i < 28; i++) {
+    const a = (i / 28) * Math.PI * 2;
+    k.segment([Math.cos(a) * 62 * sx, 29, Math.sin(a) * 42 * sz], [Math.cos(a) * 118 * sx, 29, Math.sin(a) * 98 * sz], 0.7, 0.7, 'steel');
+  }
 
   // corner floodlight masts
   for (const [sx2, sz2] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) {
@@ -93,6 +113,6 @@ function dragao(k, site) {
 }
 function THREEclamp(v, a, b) { return Math.min(b, Math.max(a, v)); }
 dragao.metric = true;
-dragao.rule = { note: 'Estádio do Dragão bowl, facade shell, tiers and roof, 2003' };
+dragao.rule = { note: 'Estádio do Dragão bowl, facade shell, tiers and roof, 2003', fitTo: true };
 
 export default { dragao };

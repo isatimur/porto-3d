@@ -46,6 +46,9 @@ function builder(k, site) {
   k.end('main');
 
   // -------------------------------------------------------- the lighthouse
+  // The light, not the mole, is the landmark's height: the 'height' group
+  // lets fit.js measure it (rule.heightRel) instead of the low breakwater.
+  k.begin('height');
   k.begin('tower');
   const tx = L / 2 - 4.5;
   const y0 = 0.85;              // mole crown
@@ -83,6 +86,7 @@ function builder(k, site) {
   k.cyl(0.08, 0.08, 0.6, 5, 'iron', tx, ty + 3.35, 0);
   k.sphere(0.16, 'gold', tx, ty + 3.95, 0, { seg: 6, rings: 4, emit: 0.5 });
   k.end('tower');
+  k.end('height');
 
   // keeper's house on the mole
   k.begin('house');

@@ -14,7 +14,9 @@
 // Fog: the stock fog chunks are replaced once, before any shader compiles,
 // by an exponential height fog with sun in-scattering. Every built-in and
 // line material shares it, including the landmark stone shader, so the far
-// hills fade into exactly the colour the sky has at the horizon.
+// hills fade into exactly the colour the sky has at the horizon. Maritime
+// humidity thickens that haze toward the Atlantic and pales it over the
+// water, so the western horizon reads as an ocean horizon.
 import * as THREE from 'three';
 
 // ------------------------------------------------------------ shared fog uniforms
@@ -31,6 +33,13 @@ export const FOG_UNIFORMS = {
   fogParams: { value: { x: 0, y: 4, z: 0.003, w: 3000 } },
   // the data rectangle (x0, z0, x1, z1): outside it the land fades into haze
   fogRect: { value: { x: 0, y: 0, z: 0, w: 0 } },
+  // Maritime haze (Porto's Atlantic): fogOcean is the normalized horizontal
+  // direction toward the ocean; fogMaritime.x thickens the haze along it and
+  // .y tints it toward fogSeaColor. Materials that lack them read 0: no
+  // marine haze, so the shared patch stays safe for custom shaders.
+  fogOcean: { value: { x: -1, y: 0, z: 0 } },
+  fogMaritime: { value: { x: 0, y: 0, z: 0, w: 0 } },
+  fogSeaColor: { value: { x: 0, y: 0, z: 0 } },
 };
 
 // ------------------------------------------------------------ weather uniforms
@@ -228,6 +237,9 @@ if (cloudShape.z > 0.001) {
   uniform vec3 fogSunColor;
   uniform vec4 fogParams;
   uniform vec4 fogRect;
+  uniform vec3 fogOcean;
+  uniform vec3 fogSeaColor;
+  uniform vec4 fogMaritime;
   varying float vFogDepth;
   varying vec3 vFogWorld;
   #ifdef FOG_EXP2
@@ -245,6 +257,10 @@ if (cloudShape.z > 0.001) {
   {
     vec3 fRel = vFogWorld - cameraPosition;
     float fDist = length( fRel );
+    // maritime humidity: 1 looking toward the Atlantic, 0 inland
+    vec2 fH = normalize( fRel.xz + vec2( 1e-4 ) );
+    float fSea = dot( fH, normalize( fogOcean.xz + vec2( 1e-4 ) ) ) * 0.5 + 0.5;
+    fSea *= fSea;
     float fK = fogParams.z > 0.0 ? fogParams.z : 0.003;
     // mean density along the ray, (e^-k*y0 - e^-k*y1) / (k * dy): written
     // with the two exponentials apart it stays finite for a thin, dense
@@ -265,10 +281,14 @@ if (cloudShape.z > 0.001) {
       : max( length( vFogWorld.xz ) - 3000.0, 0.0 );
     float fRamp = smoothstep( 0.0, fEdge, fOut );
     fTau += 5.0 * fRamp * fRamp * ( 3.0 - 2.0 * fRamp ) + 1.2 * fRamp;
+    // thicker air toward the sea, before the fog factor is resolved
+    fTau *= 1.0 + fogMaritime.x * fSea;
     float fogFactor = 1.0 - exp( - max( fTau, 0.0 ) );
     vec3 fDir = fRel / max( fDist, 1e-3 );
     float fSun = pow( max( dot( fDir, fogSunDir ), 0.0 ), max( fogParams.y, 1.0 ) ) * fogParams.x;
     vec3 fCol = mix( fogColor, fogSunColor, clamp( fSun, 0.0, 1.0 ) );
+    // and paler/cooler over the water, so the far hills meet a marine horizon
+    fCol = mix( fCol, fogSeaColor, clamp( fogMaritime.y * fSea, 0.0, 0.85 ) );
     gl_FragColor.rgb = mix( gl_FragColor.rgb, fCol, fogFactor );
   }
 #endif`;
@@ -403,8 +423,9 @@ const SKY_VERT = /* glsl */ `
   }`;
 const SKY_FRAG = /* glsl */ `
   uniform vec3 uSunDir, uZenith, uMid, uHaze, uScatter, uDisk, uGround;
+  uniform vec3 uMaritimeDir, uSeaHaze;
   uniform vec2 uScatterK;
-  uniform float uDiskI, uNight, uEnv;
+  uniform float uDiskI, uNight, uEnv, uMaritime;
   varying vec3 vDir;
   float hash13(vec3 p) {
     p = fract(p * 0.1031);
@@ -415,12 +436,22 @@ const SKY_FRAG = /* glsl */ `
     vec3 d = normalize(vDir);
     float h = d.y;
     float sd = max(dot(d, uSunDir), 0.0);
+    float lowSun = 1.0 - smoothstep(0.06, 0.32, uSunDir.y);
     // the horizon band is the fog colour, in-scatter included (same formula
-    // as the fog chunk), so fogged hills meet the sky without a seam
+    // as the fog chunk), so fogged hills meet the sky without a seam. Toward
+    // the Atlantic (uMaritimeDir) it pales along the horizon: marine haze.
     vec3 haze = mix(uHaze, uScatter, clamp(pow(sd, max(uScatterK.y, 1.0)) * uScatterK.x, 0.0, 1.0));
+    vec2 dh = normalize(vec2(d.x, d.z) + vec2(1e-4));
+    float sea = dot(dh, normalize(uMaritimeDir.xz + vec2(1e-4))) * 0.5 + 0.5;
+    sea *= sea;
+    haze = mix(haze, uSeaHaze, clamp(uMaritime * sea * exp(-abs(h) * 9.0), 0.0, 1.0));
     vec3 col = mix(haze, uMid, smoothstep(0.0, 0.2, h));
     col = mix(col, uZenith, smoothstep(0.14, 0.9, h));
     float above = smoothstep(-0.04, 0.03, h);
+    // the anti-solar Belt of Venus and the warm scatter spread along the
+    // sun's horizon: the cinematic colour of a low sun over the Douro
+    col += mix(uScatter, uHaze, 0.5) * max(dot(d, -uSunDir), 0.0) * exp(-max(h, 0.0) * 7.0) * smoothstep(-0.01, 0.05, h) * lowSun * 0.22;
+    col += uScatter * pow(max(dot(dh, normalize(vec2(uSunDir.x, uSunDir.z) + vec2(1e-4))), 0.0), 4.0) * exp(-max(h, 0.0) * 4.0) * lowSun * 0.16;
     col += uScatter * pow(sd, 14.0) * 0.35 * above;
     // stars, then the sun or moon: not in the environment map (fireflies)
     float sky = 1.0 - uEnv;
@@ -571,6 +602,10 @@ function skySunElevation(el) {
   return el - drop;
 }
 
+// The Atlantic lies west of Porto: marine humidity is strongest toward this
+// compass bearing (world axes: +x east, -z north). One bearing, fixed.
+const MARITIME_AZ = 275;
+
 export function createAtmosphere(renderer, scene, { reducedMotion = false, shadowSize = 4096 } = {}) {
   // base: the time-of-day blend; state: base with the weather on top (what
   // every consumer reads). The weather is re-applied to the base each time,
@@ -581,6 +616,8 @@ export function createAtmosphere(renderer, scene, { reducedMotion = false, shado
   const season = [0, 1, 0, 0]; // [spring, summer, fall, winter]
   const sunDir = dirFrom(state.az, state.el);
   const skySunDir = dirFrom(state.az, skySunElevation(state.el));
+  const oceanDir = dirFrom(MARITIME_AZ, 0);
+  const _sea = new THREE.Color();
 
   const skyU = {
     uSunDir: { value: skySunDir },
@@ -593,6 +630,9 @@ export function createAtmosphere(renderer, scene, { reducedMotion = false, shado
     uDiskI: { value: 0 },
     uNight: { value: 0 },
     uGround: { value: new THREE.Color() },
+    uMaritimeDir: { value: oceanDir.clone() },
+    uSeaHaze: { value: new THREE.Color() },
+    uMaritime: { value: 0 },
   };
   const sky = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 24), skyMaterial(skyU, false));
   sky.scale.setScalar(9000);
@@ -652,6 +692,13 @@ export function createAtmosphere(renderer, scene, { reducedMotion = false, shado
     skyU.uDiskI.value = state.diskI;
     skyU.uNight.value = state.night;
     skyU.uGround.value.copy(state.hemiGround).multiplyScalar(0.55).lerp(state.haze, 0.18);
+    // Maritime haze: fixed ocean bearing, strength and tint from time of day
+    // and weather (paler and a touch warmer over the water at sunset). Kept
+    // low so it is atmosphere, not a wall; gone by night.
+    const day = 1 - state.night;
+    skyU.uMaritimeDir.value.copy(oceanDir);
+    skyU.uMaritime.value = (0.34 + 0.30 * weather.haze) * day;
+    skyU.uSeaHaze.value.copy(state.haze).lerp(state.scatter, 0.10 + 0.08 * (1 - day));
 
     sun.color.copy(state.light);
     sun.intensity = state.lightI;
@@ -691,6 +738,24 @@ export function createAtmosphere(renderer, scene, { reducedMotion = false, shado
     sc.x = _c.r;
     sc.y = _c.g;
     sc.z = _c.b;
+    // maritime fog: extra humidity toward the ocean and its paler sea colour,
+    // carried by the same shared uniforms every fogged material reads
+    const fo = FOG_UNIFORMS.fogOcean.value;
+    fo.x = oceanDir.x;
+    fo.y = oceanDir.y;
+    fo.z = oceanDir.z;
+    const fm = FOG_UNIFORMS.fogMaritime.value;
+    fm.x = (0.10 + 0.20 * weather.haze) * day;
+    fm.y = 0.30 * day;
+    if (linearOutput) {
+      _sea.copy(state.haze).lerp(state.scatter, 0.16);
+    } else {
+      acesInPlace(_sea.copy(state.haze).lerp(state.scatter, 0.16), state.exposure).convertLinearToSRGB();
+    }
+    const fsc = FOG_UNIFORMS.fogSeaColor.value;
+    fsc.x = _sea.r;
+    fsc.y = _sea.g;
+    fsc.z = _sea.b;
   }
 
   // ------------------------------------------------ transitions

@@ -13,6 +13,70 @@ export const VERTICAL_EXAGGERATION = 1.0;
 
 const smooth = (t) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
 
+// ------------------------------------------------------------ relief
+// The DEM is a broad, smooth lattice: at 1:1 it reads as gentle ramps and
+// the Douro gorge, the Serra do Pilar shoulders, the Sé hill and the Foz
+// cliffs lose their bite. Baked once here, cheaply, on the grid itself:
+//   - a local high-pass (raw minus a ~550 m box blur) boosts landforms no
+//     wider than about a kilometre, so hills and the gorge crisp up while
+//     the regional slope and the datum are untouched;
+//   - a little deterministic noise breaks the glassy bilinear surface.
+// The raw heights are kept and re-exported for the streamed tiles, so
+// tile-worker rebuilds exactly the same enhanced grid and nothing seams.
+const RELIEF_GAIN = 0.25;
+const RELIEF_BLUR_R = 5; // cells, about 550 m
+const MICRO_M = 1.1; // metres of fine relief
+const EDGE_FADE = 8; // cells: no enhancement within this many cells of the rim
+
+const hash2 = (x, y) => {
+  const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+  return s - Math.floor(s);
+};
+
+// Separable box blur of the grid, clamped at the edges; one channel.
+function blurGrid(H, cols, rows, R) {
+  const tmp = new Float32Array(H.length);
+  const k = 1 / (2 * R + 1);
+  for (let r = 0; r < rows; r++) {
+    const o = r * cols;
+    let s = 0;
+    for (let x = -R; x <= R; x++) s += H[o + Math.min(cols - 1, Math.max(0, x))];
+    for (let c = 0; c < cols; c++) {
+      tmp[o + c] = s * k;
+      s += H[o + Math.min(cols - 1, c + R + 1)] - H[o + Math.max(0, c - R)];
+    }
+  }
+  const out = new Float32Array(H.length);
+  for (let c = 0; c < cols; c++) {
+    let s = 0;
+    for (let y = -R; y <= R; y++) s += tmp[Math.min(rows - 1, Math.max(0, y)) * cols + c];
+    for (let r = 0; r < rows; r++) {
+      out[r * cols + c] = s * k;
+      s += tmp[Math.min(rows - 1, r + R + 1) * cols + c] - tmp[Math.max(0, r - R) * cols + c];
+    }
+  }
+  return out;
+}
+
+function enhanceGrid(H, cols, rows) {
+  const s0 = blurGrid(H, cols, rows, RELIEF_BLUR_R);
+  const G = new Float32Array(H.length);
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const i = r * cols + c;
+      const edge = Math.min(c, cols - 1 - c, r, rows - 1 - r);
+      const ef = smooth(Math.min(1, Math.max(0, (edge - 2) / EDGE_FADE)));
+      // ridges and hilltops rise only: hollows, the riverbed and the coast
+      // keep their raw height, so the water surface (water.js reads heightAt)
+      // stays where the DEM put it.
+      const hp = Math.max(0, H[i] - s0[i]) * RELIEF_GAIN * ef;
+      const micro = (hash2(c * 1.7, r * 2.3) - 0.5 + 0.5 * (hash2(c * 0.5 + 3, r * 0.5 - 2) - 0.5)) * 2 * MICRO_M * ef;
+      G[i] = H[i] + hp + micro;
+    }
+  }
+  return G;
+}
+
 // data: parsed terrain.json or null (flat fallback).
 // toMetres(lat, lon) -> {x, z} local metres (z = south); S: world units per metre.
 export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGGERATION } = {}) {
@@ -22,6 +86,9 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
   const cols = ok ? data.cols : 2;
   const rows = ok ? data.rows : 2;
   const H = ok ? Float32Array.from(data.heights) : new Float32Array(4);
+  // The elevation actually sampled: raw + relief high-pass + micro-relief
+  // (see enhanceGrid). `H` stays raw and is re-exported for the tiles.
+  const G = ok ? enhanceGrid(H, cols, rows) : H;
   // grid corners in metres: west/east x, south/north z (z grows to the south)
   const sw = ok ? toMetres(data.bbox.s, data.bbox.w) : { x: -1, z: 1 };
   const ne = ok ? toMetres(data.bbox.n, data.bbox.e) : { x: 1, z: -1 };
@@ -76,8 +143,8 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
     const tc = fc - c0;
     const tr = fr - r0;
     const i = r0 * cols + c0;
-    const a = H[i] + (H[i + 1] - H[i]) * tc;
-    const b = H[i + cols] + (H[i + cols + 1] - H[i + cols]) * tc;
+    const a = G[i] + (G[i + 1] - G[i]) * tc;
+    const b = G[i + cols] + (G[i + cols + 1] - G[i + cols]) * tc;
     return a + (b - a) * tr;
   }
 

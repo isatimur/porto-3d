@@ -88,8 +88,47 @@ function serralves(k, site) {
     k.tree(V.cx + spots[i][0] * V.w * 0.85, 0, V.cz + spots[i][1] * V.d * 1.05, 12 + (i % 3) * 3, { kind: 'round', lobes: 2 });
   }
   k.prism(rect(V.cx, V.cz + V.d * 0.75, V.w * 1.2, 4), -0.05, 0.12, 'sand');
+
+  // ---------------- facade and garden detail
+  // museum: mullions along the glazed ribbons and roof plant screens
+  for (let i = 0; i < 26; i++) {
+    const px = mx - (ML - 6) / 2 + ((ML - 6) * i) / 25;
+    k.box(0.12, 3.4, 0.28, 'graniteLight', px, 2.1, mz + MD / 2 + 0.05);
+    k.box(0.12, 3.4, 0.28, 'graniteLight', px, 2.1, mz - MD / 2 - 0.05);
+  }
+  for (let i = 0; i < 4; i++) k.box(4.0, 1.4, 1.6, 'graniteGrey', mx - ML / 2 + 12 + i * 22, MH, mz);
+  // villa: windows on the flanks and rear, a storey band, chimneys
+  for (const s of [-1, 1]) {
+    k.push({ x: vx + s * VL / 2, z: vz, ry: s > 0 ? Math.PI / 2 : -Math.PI / 2 });
+    for (let r = 0; r < 2; r++) for (let i = 0; i < 3; i++) flatWindow(k, -VD / 2 + 3 + i * 5, 1.6 + r * 3.6, 1.5, 2.3, 0.2, { trim: 'white', pane: 'glass', emit: r ? 0.12 : 0 });
+    k.pop();
+  }
+  k.push({ x: vx, z: vz - VD / 2, ry: Math.PI });
+  for (let r = 0; r < 2; r++) for (let i = 0; i < 5; i++) flatWindow(k, -VL / 2 + 5 + i * 7.5, 1.6 + r * 3.6, 1.5, 2.3, 0.2, { trim: 'white', pane: 'glass', emit: 0.1 });
+  k.pop();
+  k.prism(offset(Vp, 0.15), 5.2, 0.35, 'white');
+  for (const [cx2, cz2] of [[vx - VL / 2 + 6, vz], [vx + VL / 2 - 6, vz]]) {
+    k.box(1.2, 2.4, 1.2, 'cream', cx2, VH + 0.3, cz2);
+    k.box(1.6, 0.4, 1.6, 'graniteLight', cx2, VH + 2.7, cz2);
+  }
+  // garden: a fountain, benches and more planting
+  k.cyl(4.2, 4.6, 0.8, 16, 'graniteLight', V.cx + 18, 0, V.cz + 30);
+  k.cyl(0.6, 0.9, 2.2, 10, 'graniteLight', V.cx + 18, 0.8, V.cz + 30);
+  for (const [bx, bz, br] of [[-30, 18, 0], [30, -10, Math.PI / 2], [-10, -40, 0]]) {
+    k.box(2.2, 0.5, 0.6, 'wood', V.cx + bx, 0, V.cz + bz, { ry: br });
+    k.box(2.2, 0.5, 0.6, 'wood', V.cx + bx, 0.5, V.cz + bz - 0.3, { ry: br });
+  }
+  for (let i = 0; i < 4; i++) k.tree(V.cx - 40 + i * 26, 0, V.cz + 55, 9 + (i % 2) * 3, { kind: 'round' });
+
+  // more planting, a rose trellis and a terrace balustrade
+  for (let i = 0; i < 5; i++) k.tree(V.cx - 55 + i * 22, 0, V.cz - 60, 8 + (i % 3) * 3, { kind: i % 2 ? 'cypress' : 'round' });
+  for (let i = 0; i < 14; i++) k.box(0.15, 2.6, 0.15, 'wood', V.cx + 40, 0, V.cz - 34 + i * 4);
+  k.box(0.2, 0.2, 56, 'wood', V.cx + 40, 2.6, V.cz - 8);
+  k.box(0.2, 0.2, 56, 'wood', V.cx + 40, 1.4, V.cz - 8);
+  for (let i = 0; i < 18; i++) k.box(0.12, 0.7, 0.12, 'graniteLight', V.cx - 20 + i * 2.4, 0, V.cz + 44);
+  k.box(43, 0.12, 0.12, 'graniteLight', V.cx - 0.4, 0.7, V.cz + 44);
 }
 serralves.metric = true;
-serralves.rule = { note: 'Serralves villa (Marques da Silva) + Siza museum bar, 1999' };
+serralves.rule = { note: 'Serralves villa (Marques da Silva) + Siza museum bar, 1999', fitTo: true };
 
 export default { serralves };

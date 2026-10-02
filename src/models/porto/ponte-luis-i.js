@@ -35,7 +35,7 @@ function builder(k, site) {
   const af = Math.min(ARCH / 2, span * 0.23);
   const crownY = 52;
   const archAt = (x) => parabola(x, af, LOW_Y, crownY);
-  const N = 26;
+  const N = 34;
 
   k.begin('main');
   k.push({ ry: ang });
@@ -61,16 +61,31 @@ function builder(k, site) {
 
   // --- vertical hangers (arch down to the lower deck)
   for (const z of [-RIB_Z, RIB_Z]) {
-    for (let i = 2; i < N - 1; i += 2) {
+    for (let i = 2; i < N - 1; i += 1) {
       const x = -af + (2 * af * i) / N;
       const y = archAt(x);
       if (y > LOW_Y + 2) k.segment([x, y, z], [x, LOW_Y, z], 0.4, 0.4, 'steel');
     }
   }
 
+  // --- lattice web along each rib: X bracing between consecutive nodes
+  for (const z of [-RIB_Z, RIB_Z]) {
+    for (let i = 0; i + 2 <= N; i += 2) {
+      const x0 = -af + (2 * af * i) / N;
+      const x1 = -af + (2 * af * (i + 2)) / N;
+      const y0 = archAt(x0);
+      const y1 = archAt(x1);
+      const m0 = y0 - 1.3;
+      const m1 = y1 - 1.3;
+      k.segment([x0, m0, z], [x1, m1, z], 0.3, 0.3, 'iron');
+      k.segment([x0, y0, z], [x1, m1, z], 0.24, 0.24, 'iron');
+      k.segment([x1, y1, z], [x0, m0, z], 0.24, 0.24, 'iron');
+    }
+  }
+
   // --- columns from the arch up to the upper deck
   for (const z of [-RIB_Z, RIB_Z]) {
-    for (let i = 1; i < N; i += 2) {
+    for (let i = 1; i < N; i += 1) {
       const x = -af + (2 * af * i) / N;
       const y = archAt(x);
       if (y < HIGH_Y - 2) k.segment([x, y, z], [x, HIGH_Y, z], 0.9, 0.9, 'iron');
@@ -106,8 +121,17 @@ function builder(k, site) {
       }
     }
   };
-  deck(LOW_Y, 18);
-  deck(HIGH_Y, 18);
+  deck(LOW_Y, 30);
+  deck(HIGH_Y, 30);
+
+  // --- stiffening truss between the decks (portal frames on the piers)
+  for (let i = 2; i < N - 1; i += 2) {
+    const x = -af + (2 * af * i) / N;
+    k.segment([x, LOW_Y, -RIB_Z], [x, HIGH_Y, -RIB_Z], 0.28, 0.28, 'iron');
+    k.segment([x, LOW_Y, RIB_Z], [x, HIGH_Y, RIB_Z], 0.28, 0.28, 'iron');
+    k.segment([x, LOW_Y, -RIB_Z], [x, HIGH_Y - 1.2, RIB_Z], 0.2, 0.2, 'iron');
+    k.segment([x, LOW_Y, RIB_Z], [x, HIGH_Y - 1.2, -RIB_Z], 0.2, 0.2, 'iron');
+  }
 
   // --- masonry approach piers under the decks
   const inner = af + 9;

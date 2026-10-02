@@ -5,8 +5,10 @@ import { Kit, PALETTE, MAT, PROFILES, corniceProfile, archPath } from '../kit.js
 import { onEdge, polyCornice, polyBand, polyWindows, roofOver, plainBuilding } from '../metric.js';
 import { win, pediment, segPediment, bellTower, flutedColumn } from '../parts.js';
 import { edges, obb, offset, bbox, rect } from '../geom.js';
+import { fitTo } from './site-fit.js';
 
 function carmo(k, site) {
+  const done = fitTo(k, site, { w: 36.7, d: 58.9, h: 28.91, cx: 0, cz: 11.4 });
   const o = site?.footprint?.outline;
   const b = o && o.length >= 3 ? bbox(o) : { w: 18, d: 34, cx: 0, cz: -15 };
   const Wd = Math.max(12, b.w);
@@ -73,6 +75,7 @@ function carmo(k, site) {
       winArch: 'round', clock: false, urns: true, balustrade: false, cross: true,
     });
   }
+  done();
 }
 carmo.metric = true;
 carmo.rule = { note: 'Igreja do Carmo: rococo facade, twin towers, azulejo flank, 1768' };

@@ -25,7 +25,12 @@ function builder(k, site) {
   const zB = cz - D / 2;
 
   // ------------------------------------------------------------ nave mass
+  // main: the whole drawn complex (church + cloister fragment) = the extent
+  // box; height: the nave, the element that governs the reported height;
+  // mask: the church footprint used for the building-mask overlap report.
   k.begin('main');
+  k.begin('height');
+  k.begin('mask');
   k.prism(rect(cx, cz, W, D), 0, H, 'granite');
   k.prism(offset(rect(cx, cz, W, D), 0.25), 0, 1.3, 'graniteDark');
   k.corniceRing(W, D, corniceProfile('band', 0.5), 'graniteLight', cx, H - 2.4, cz);
@@ -35,7 +40,8 @@ function builder(k, site) {
   // three-part polygonal apse at the east end
   k.prism(rect(cx, zB + 2.5, W * 0.72, 6), 0, 11.5, 'granite');
   k.corniceRing(W * 0.72, 6, corniceProfile('band', 0.4), 'graniteLight', cx, 11.5, zB + 2.5);
-  k.end('main');
+  k.end('mask');
+  k.end('height');
 
   // ------------------------------------------------------- flank buttresses
   k.begin('buttress');
@@ -122,6 +128,7 @@ function builder(k, site) {
     k.column(3.4, 0.34, 'graniteLight', px, 0, pz, { smooth: true });
   }
   k.end('cloister');
+  k.end('main');
 }
 builder.metric = true;
 builder.rule = { note: 'São Francisco: Gothic nave ~24x42 m, west portal, rose window, cloister arcade fragment' };

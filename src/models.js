@@ -34,6 +34,12 @@ import dragao from './models/porto/dragao.js';
 import mercadoBolhao from './models/porto/mercado-bolhao.js';
 import carmo from './models/porto/carmo.js';
 import uportoReitoria from './models/porto/uporto-reitoria.js';
+import saoFranciscoPorto from './models/porto/sao-francisco-porto.js';
+import ribeira from './models/porto/ribeira.js';
+import felgueiras from './models/porto/felgueiras.js';
+import cavesGaia from './models/porto/caves-gaia.js';
+import aliados from './models/porto/aliados.js';
+import palacioCristal from './models/porto/palacio-cristal.js';
 
 export { PALETTE, MAT, triangleCount };
 
@@ -77,6 +83,12 @@ const DETAILED = {
   ...mercadoBolhao,
   ...carmo,
   ...uportoReitoria,
+  ...saoFranciscoPorto,
+  ...ribeira,
+  ...felgueiras,
+  ...cavesGaia,
+  ...aliados,
+  ...palacioCristal,
 };
 const BUILDERS = { ...blockBuilders(Object.keys(LANDMARK_SPECS)), ...DETAILED };
 

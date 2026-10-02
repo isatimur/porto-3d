@@ -13,6 +13,9 @@
 //     the eave, v up the wall or the roof slope.
 // createAzulejoTexture(): the blue-and-white pattern tile of the Palácio do
 // Raio façade (sRGB canvas), 8 x 8 tiles.
+// createFacadeDetailTexture(): a 64 x 64 RGBA data map for the ordinary
+// building shader (soiling, render grain, rain streaks), sampled by world
+// position in src/facades.js.
 import * as THREE from 'three';
 
 function lcg(seed) {
@@ -184,6 +187,33 @@ export function createStoneTextures(size = 512) {
     }
   }
   return { detail: dataTexture(data, size), tone: dataTexture(tone, size), normal: dataTexture(nrm, size) };
+}
+
+// Small, tileable facade-detail field for the ordinary-building shader
+// (src/buildings.js): no colour, four independent channels the material
+// samples by world position to break up flat plaster. 64 x 64 RGBA8 (16 KB),
+// so it costs one fetch, not a texture budget. None of the channels is
+// colour: the shader uses them as masks, so they stay linear data.
+//   R  broad neighbourhood soiling (large patches across a block)
+//   G  fine plaster / render grain
+//   B  vertical rain streaks (varies across the wall, constant up it)
+//   A  uneven lime-wash / render mottling
+export function createFacadeDetailTexture(size = 64) {
+  const data = new Uint8Array(size * size * 4);
+  const broad = valueNoise(size, 3, 313);
+  const mid = valueNoise(size, 7, 401);
+  const grain = valueNoise(size, 24, 509);
+  const streaks = valueNoise(size, 48, 617, 2); // many columns, few rows
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const i = (y * size + x) * 4;
+      data[i] = clamp01(broad(x, y) * 1.1) * 255;
+      data[i + 1] = clamp01(0.45 * mid(x, y) + 0.55 * grain(x, y)) * 255;
+      data[i + 2] = clamp01(Math.pow(streaks(x, y), 1.6) * 1.15) * 255;
+      data[i + 3] = clamp01(0.5 * mid(x, y) + 0.5 * broad(x, y)) * 255;
+    }
+  }
+  return dataTexture(data, size);
 }
 
 // 8 x 8 tiles of the Raio pattern (the façade reads cobalt with a white

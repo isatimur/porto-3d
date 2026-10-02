@@ -1,0 +1,142 @@
+{
+  "ribeira-pontes": {
+    "name": "Ribeira and the Bridges",
+    "subtitle": "The old waterfront, the Luís I Bridge and the Gaia wine cellars",
+    "duration": "≈ 4 hours",
+    "description": "The route starts on the Ribeira waterfront, among the colourful houses and the port-wine bars. Climb to the upper deck of the Luís I Bridge — the best viewpoint over the Douro. Cross the river to Gaia and walk down to Cais de Gaia, where the Sandeman, Graham’s and Taylor’s cellars line the quay: this is where port is tasted and explained. Ride the Teleférico de Gaia cable car back up to the bridge, and take the historic 1891 Guindais funicular down to the Ribeira. A cellar visit takes about two hours, so start in the morning to be back before sunset.",
+    "stops": [
+      {
+        "time": "10:00",
+        "note": "A walk along the Ribeira waterfront: colourful façades, rabelo boats and Ribeira Negra square. The Luís I Bridge is visible from here."
+      },
+      {
+        "time": "10:55",
+        "note": "Climb to the upper deck of the bridge. The pedestrian deck carries Gustave Eiffel’s 1886 iron arch; the view sweeps over the Ribeira and the Gaia cellars."
+      },
+      {
+        "time": "11:30",
+        "note": "Cross the river and walk down to Cais de Gaia. A tour and tasting at one of the cellars (Sandeman, Graham’s, Taylor’s). The Teleférico de Gaia cable car takes you back up to the bridge."
+      },
+      {
+        "time": "13:35",
+        "note": "Return over the upper deck of the bridge. At the Ribeira, ride the 1891 Guindais funicular down along the city wall to the bridge."
+      }
+    ],
+    "legs": [
+      {
+        "note": "From the waterfront uphill to the bridge span: by the Guindais steps or through Rua de Miragaia."
+      },
+      {
+        "note": "On foot across the upper deck of the Luís I Bridge over the Douro and down to Cais de Gaia."
+      },
+      {
+        "note": "Walk back over the upper deck; alternatively the Guindais funicular by the Ribeira."
+      }
+    ]
+  },
+  "baixa-historica": {
+    "name": "The Historic Baixa",
+    "subtitle": "São Bento, Aliados, Clérigos, Lello, Carmo, Bolhão, the Cathedral and the Exchange",
+    "duration": "≈ 6 hours",
+    "description": "A walk through Porto’s historic centre. Start at São Bento station and look at the twenty thousand azulejos by Jorge Colaço in the hall. Climb through Avenida dos Aliados to the Clérigos church and tower for a view over the whole city, then step into Livraria Lello on Rua das Carmelitas. Carmo church stands opposite, across the street. Continue to Bolhão market for produce and snacks, Porto’s oldest cathedral on the hill, and the Palácio da Bolsa with its Arab Room. Watch the clock: Lello and the Exchange keep their own hours, and the market closes in the afternoon.",
+    "stops": [
+      {
+        "time": "09:30",
+        "note": "The station hall with Jorge Colaço’s 1905–1906 azulejos: battle scenes and the history of transport."
+      },
+      {
+        "time": "10:05",
+        "note": "Avenida dos Aliados with the city-hall façade and the bank. The pedestrian Rua das Flores begins here."
+      },
+      {
+        "time": "10:30",
+        "note": "Niccolò Nasoni’s Clérigos church and tower. Climb the 1763 belfry — 225 steps and a panorama of the city."
+      },
+      {
+        "time": "11:20",
+        "note": "The 1906 Livraria Lello with its red staircase and skylight. Entry is ticketed and deducted from a book purchase."
+      },
+      {
+        "time": "11:50",
+        "note": "Carmo church opposite: a Baroque façade covered in blue-and-white azulejos."
+      },
+      {
+        "time": "12:25",
+        "note": "Bolhão market, founded in 1834: fruit, cheese, fish and snacks. The perfect spot for lunch among locals."
+      },
+      {
+        "time": "13:25",
+        "note": "The 12th-century Romanesque cathedral on the hill: Gothic cloister with azulejos and a terrace over the bishop’s palace."
+      },
+      {
+        "time": "14:20",
+        "note": "The Palácio da Bolsa on a guided tour: the glass-roofed Nations’ Courtyard and the gilded Arab Room in the style of the Alhambra."
+      },
+      {
+        "time": "15:10",
+        "note": "The Gothic church of São Francisco, with Porto’s most lavish gilded Baroque interior and its catacombs."
+      }
+    ],
+    "legs": [
+      {
+        "note": "From the station down the street to Avenida dos Aliados."
+      },
+      {
+        "note": "Through pedestrian Rua das Flores and the square to the Clérigos."
+      },
+      {
+        "note": "A couple of minutes to Rua das Carmelitas."
+      },
+      {
+        "note": "Carmo stands directly opposite, across the street."
+      },
+      {
+        "note": "East to Bolhão market beside the Conceição church."
+      },
+      {
+        "note": "Uphill to the cathedral on the Terreiro da Sé."
+      },
+      {
+        "note": "Down to Infante Henry square and the Palácio da Bolsa."
+      },
+      {
+        "note": "A few steps to the church of São Francisco."
+      }
+    ]
+  },
+  "douro-oceano": {
+    "name": "The Douro and the Ocean",
+    "subtitle": "Tram 1 along the river from the Ribeira to the Felgueiras lighthouse",
+    "duration": "≈ 4 hours",
+    "description": "The historic tram 1 runs from the Ribeira along the right bank of the Douro through Miragaia and Massarelos. It is the city’s most scenic route: the river and bridges on one side, façades and gardens on the other. Get off at the climb to the Palácio de Cristal and wander the terraces above the Douro. Then take the tram again to Lordelo and Foz, a short walk from the Serralves Foundation with its Álvaro Siza museum and park. Finish at the Felgueiras lighthouse, where the Douro meets the Atlantic. Tram 1 runs about every 20–30 minutes; check the timetable in advance, especially out of season.",
+    "stops": [
+      {
+        "time": "10:00",
+        "note": "Board tram 1 at the Ribeira (Infante stop). Historic cars from the 1920s–1930s."
+      },
+      {
+        "time": "10:35",
+        "note": "The tram passes Massarelos. Get off by the Palácio de Cristal: terraces and gardens above the Douro, with a panorama of the river and bridges."
+      },
+      {
+        "time": "11:40",
+        "note": "Continue by tram to Lordelo / Foz. The Serralves Foundation: Álvaro Siza museum, Art Deco villa and contemporary park."
+      },
+      {
+        "time": "13:15",
+        "note": "Tram to the Foz terminus, then walk to the Felgueiras lighthouse. The mouth of the Douro, the ocean horizon and sunset."
+      }
+    ],
+    "legs": [
+      {
+        "note": "Tram 1 (E1) along the Douro through Miragaia and Massarelos to the climb by the Palácio de Cristal."
+      },
+      {
+        "note": "Back on tram 1 to Foz / Lordelo; then on foot to the Serralves Foundation and park."
+      },
+      {
+        "note": "Tram 1 to the Foz terminus (Passeio Alegre), then on foot to the Felgueiras lighthouse."
+      }
+    ]
+  }
+}

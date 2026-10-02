@@ -16,10 +16,39 @@
   ],
   "tip_ru": "Бронируйте экскурсию с дегустацией заранее, особенно летом: у Sandeman, Taylor's и Ramos Pinto бывают очереди. Добраться можно пешком по нижнему ярусу моста Луиша I или на канатной дороге Гая.",
   "gallery": [
-    { "img": "assets/img/caves-gaia.jpg", "caption_ru": "Дубовые бочки в погребе портвейна в Гайе" },
-    { "img": "assets/img/caves-gaia-1.jpg", "caption_ru": "Набережная Авенида Диогу Лейте со складами" },
-    { "img": "assets/img/caves-gaia-2.jpg", "caption_ru": "Лодки-рабелу и склады портвейна на берегу Дору" },
-    { "img": "assets/img/caves-gaia-3.jpg", "caption_ru": "Дегустация портвейна в винных погребах" }
+    {
+      "img": "assets/img/caves-gaia-1.jpg",
+      "kind": "exterior",
+      "caption_ru": "Винные погреба Порту в Гайе — общий вид",
+      "credit": {
+        "author": "Véronique Mergaux",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:IMG_4054-1_Taylors_(6337585469).jpg"
+      },
+      "_commons": "File:IMG 4054-1 Taylors (6337585469).jpg"
+    },
+    {
+      "img": "assets/img/caves-gaia-2.jpg",
+      "kind": "exterior",
+      "caption_ru": "Винные погреба Порту в Гайе — общий вид",
+      "credit": {
+        "author": "Marco Varisco from Albany, New York, USA",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Peacock_at_Taylors_(3898510810)_(2).jpg"
+      },
+      "_commons": "File:Peacock at Taylors (3898510810) (2).jpg"
+    },
+    {
+      "img": "assets/img/caves-gaia-3.jpg",
+      "kind": "exterior",
+      "caption_ru": "Винные погреба Порту в Гайе — общий вид",
+      "credit": {
+        "author": "Scott Dexter from Brooklyn, US",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Porto_-i---i-_(26121982607).jpg"
+      },
+      "_commons": "File:Porto -i---i- (26121982607).jpg"
+    }
   ],
   "videos": [],
   "panorama": null,

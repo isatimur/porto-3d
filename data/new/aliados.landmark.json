@@ -26,26 +26,43 @@
   ],
   "image": "assets/img/aliados.jpg",
   "image_credit": {
-    "author": "ho visto nina volare",
+    "author": "ho visto nina volare from Italy",
     "license": "CC BY-SA 2.0",
     "source_url": "https://commons.wikimedia.org/wiki/File:Av_Aliados_5_(Porto).jpg"
   },
   "gallery": [
     {
-      "img": "assets/img/aliados.jpg",
-      "caption_ru": "Западная сторона Авениды душ Алиадуш"
-    },
-    {
       "img": "assets/img/aliados-1.jpg",
-      "caption_ru": "Вид вдоль авеню"
+      "kind": "exterior",
+      "caption_ru": "Авенида душ Алиадуш — улица и площадь",
+      "credit": {
+        "author": "User:Otourly",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:01._Avenida_dos_Aliados_-_Porto.JPG"
+      },
+      "_commons": "File:01. Avenida dos Aliados - Porto.JPG"
     },
     {
       "img": "assets/img/aliados-2.jpg",
-      "caption_ru": "Гранитная застройка авеню"
+      "kind": "exterior",
+      "caption_ru": "Авенида душ Алиадуш — общий вид",
+      "credit": {
+        "author": "Toms Sk.",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Aliados_(7218951056).jpg"
+      },
+      "_commons": "File:Aliados (7218951056).jpg"
     },
     {
       "img": "assets/img/aliados-3.jpg",
-      "caption_ru": "Авенида душ Алиадуш в сторону ратуши"
+      "kind": "exterior",
+      "caption_ru": "Авенида душ Алиадуш — вечерняя подсветка",
+      "credit": {
+        "author": "Joseolgon",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Avenida_dos_Aliados_in_2016.jpg"
+      },
+      "_commons": "File:Avenida dos Aliados in 2016.jpg"
     }
   ],
   "videos": [],

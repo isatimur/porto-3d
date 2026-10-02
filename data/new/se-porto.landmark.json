@@ -18,10 +18,39 @@
   ],
   "tip_ru": "Приходите к открытию или перед закрытием — свет в соборе особенно хорош, а туристов меньше. Обязательно загляните в готический клуатр с азулежу и поднимитесь на террасу: вид на епископский дворец, Террейру-да-Се и крыши у Дору бесплатный. Собор стоит на холме, поднимайтесь пешком от станции São Bento или на фуникулёре Guindais от Рибейры.",
   "gallery": [
-    {"img": "assets/img/se-porto.jpg", "caption_ru": "Романский фасад собора с двумя башнями и розеткой на фоне неба."},
-    {"img": "assets/img/se-porto-1.jpg", "caption_ru": "Готический клуатр XIV века со стенами, отделанными азулежу."},
-    {"img": "assets/img/se-porto-2.jpg", "caption_ru": "Главный неф собора с барочным алтарём и серебряным алтарём слева."},
-    {"img": "assets/img/se-porto-3.jpg", "caption_ru": "Вид с террасы собора на епископский дворец и исторический центр Порту."}
+    {
+      "img": "assets/img/se-porto-1.jpg",
+      "kind": "exterior",
+      "caption_ru": "Собор Порту — общий вид",
+      "credit": {
+        "author": "Deensel",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:The_Porto_Cathedral_(37008796341).jpg"
+      },
+      "_commons": "File:The Porto Cathedral (37008796341).jpg"
+    },
+    {
+      "img": "assets/img/se-porto-2.jpg",
+      "kind": "exterior",
+      "caption_ru": "Собор Порту — общий вид",
+      "credit": {
+        "author": "Luis_Alberto_Ribeiro_Oliveira",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Cedofeita,_Santo_Ildefonso,_S%C3%A9,_Miragaia,_S%C3%A3o_Nicolau_e_Vit%C3%B3ria_-_S%C3%A9_do_Porto_-_2025-10-22_00-57-30_001.JPG"
+      },
+      "_commons": "File:Cedofeita, Santo Ildefonso, Sé, Miragaia, São Nicolau e Vitória - Sé do Porto - 2025-10-22 00-57-30 001.JPG"
+    },
+    {
+      "img": "assets/img/se-porto-3.jpg",
+      "kind": "exterior",
+      "caption_ru": "Собор Порту — общий вид",
+      "credit": {
+        "author": "@Miguel A. García.🎈 from Ólvega., España",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Oporto._Portugal...._(54042254813).jpg"
+      },
+      "_commons": "File:Oporto. Portugal.... (54042254813).jpg"
+    }
   ],
   "videos": [],
   "panorama": null,

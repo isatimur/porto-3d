@@ -84,6 +84,28 @@ function casaMusica(k, site) {
   // roof rail and vents
   k.balustrade(48, 1.1, 'graniteGrey', 0, 24.6, -18, { cheap: true, d: 0.2, sp: 0.5 });
 
+  // formwork panel joints on the concrete skin (vertical seams)
+  for (const e of E) {
+    const n = Math.max(2, Math.round(e.len / 5.5));
+    onEdge(k, e, 0, 0);
+    for (let i = 1; i < n; i++) k.box(0.16, 14.6, 0.16, 'graniteGrey', -e.len / 2 + (e.len * i) / n, 0.4, 0.12);
+    k.pop();
+  }
+  // recessed storey bands and a clerestory of narrow slits on the upper volume
+  polyBand(k, P, 15.0, 0.5, 0.35, 'graniteGrey');
+  polyBand(k, offset(P, -5), 23.4, 0.45, 0.3, 'graniteGrey');
+  for (let i = 0; i < 24; i++) {
+    const a = (i / 24) * Math.PI * 2;
+    const rr = 40;
+    k.box(1.6, 2.2, 0.35, 'glass', Math.cos(a) * rr * 0.8, 18.5, Math.sin(a) * rr * 0.6, { ry: -a, emit: 0.06 });
+  }
+  // rooftop plant grilles and a rail of posts
+  for (let i = 0; i < 10; i++) {
+    const a = (i / 10) * Math.PI * 2;
+    k.box(3.2, 1.0, 0.3, 'graniteGrey', Math.cos(a) * 26, 27.2, Math.sin(a) * 20);
+  }
+  for (let i = 0; i < 14; i++) k.box(0.12, 1.0, 0.12, 'iron', -22 + i * 3.4, 24.7, -18);
+
   // plaza radial paving
   for (let i = 0; i < 12; i++) {
     const a = (i / 12) * Math.PI * 2;
@@ -99,6 +121,6 @@ function casaMusica(k, site) {
   k.lamp(6, b.cx - 30, 0, b.cz - 24);
 }
 casaMusica.metric = true;
-casaMusica.rule = { note: 'Casa da Música faceted concrete mass, OMA 2005' };
+casaMusica.rule = { note: 'Casa da Música faceted concrete mass, OMA 2005', fitTo: true };
 
 export default { 'casa-musica': casaMusica };

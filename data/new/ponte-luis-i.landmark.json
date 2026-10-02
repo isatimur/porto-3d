@@ -16,10 +16,39 @@
   ],
   "tip_ru": "Поднимитесь на верхний ярус на закате: вид на Рибейру, монастырь Серра-ду-Пилар и долину Дору особенно хорош. Верхний ярус пешеходный и занят метро, нижний — для общественного транспорта.",
   "gallery": [
-    { "img": "assets/img/ponte-luis-i.jpg", "caption_ru": "Мост Луиша I и долина Дору на фоне Серра-ду-Пилар" },
-    { "img": "assets/img/ponte-luis-i-1.jpg", "caption_ru": "Двухъярусная арка и центральный пролёт 172 метра" },
-    { "img": "assets/img/ponte-luis-i-2.jpg", "caption_ru": "Верхний ярус с линией D метро Порту" },
-    { "img": "assets/img/ponte-luis-i-3.jpg", "caption_ru": "Ночная подсветка моста над Рибейрой" }
+    {
+      "img": "assets/img/ponte-luis-i-1.jpg",
+      "kind": "exterior",
+      "caption_ru": "Мост Луиша I — вечерняя подсветка",
+      "credit": {
+        "author": "Diego Delso",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Puente_de_Don_Luis_I,_Oporto,_Portugal,_2019-06-02,_DD_29-31_HDR.jpg"
+      },
+      "_commons": "File:Puente de Don Luis I, Oporto, Portugal, 2019-06-02, DD 29-31 HDR.jpg"
+    },
+    {
+      "img": "assets/img/ponte-luis-i-2.jpg",
+      "kind": "exterior",
+      "caption_ru": "Мост Луиша I — общий вид",
+      "credit": {
+        "author": "Ralf Peter Reimann",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Portugal_April_2025_DSC_7695_(54483163454).jpg"
+      },
+      "_commons": "File:Portugal April 2025 DSC 7695 (54483163454).jpg"
+    },
+    {
+      "img": "assets/img/ponte-luis-i-3.jpg",
+      "kind": "exterior",
+      "caption_ru": "Мост Луиша I — река Дору",
+      "credit": {
+        "author": "Werner Bayer",
+        "license": "CC0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2025-Arosa_Alva_auf_dem_Douro_in_Porto_-_27_(54885786459).jpg"
+      },
+      "_commons": "File:2025-Arosa Alva auf dem Douro in Porto - 27 (54885786459).jpg"
+    }
   ],
   "videos": [],
   "panorama": null,

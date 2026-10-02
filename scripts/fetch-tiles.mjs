@@ -36,6 +36,16 @@ const ONLY = (() => {
   const i = args.indexOf('--only');
   return i >= 0 ? new Set(args[i + 1].split(',')) : null;
 })();
+// --shard i/N: fetch a deterministic 1/N slice of the jobs, with a per-shard
+// manifest, so several processes can run in parallel without racing on the
+// shared manifest. The build phase is run once afterwards (no --shard).
+const SHARD = (() => {
+  const i = args.indexOf('--shard');
+  if (i < 0) return null;
+  const [a, b] = String(args[i + 1]).split('/').map(Number);
+  if (!Number.isInteger(a) || !Number.isInteger(b) || b < 1 || a < 0 || a >= b) throw new Error(`bad --shard ${args[i + 1]}`);
+  return { i: a, n: b };
+})();
 
 const MIRRORS = [
   'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
@@ -133,7 +143,12 @@ async function overpass(query, label) {
 
 // ------------------------------------------------------------ fetch phase
 function loadManifest() {
-  return existsSync(MANIFEST) ? JSON.parse(readFileSync(MANIFEST, 'utf8')) : { grid: null, done: {} };
+  if (!existsSync(MANIFEST)) return { grid: null, done: {} };
+  try {
+    return JSON.parse(readFileSync(MANIFEST, 'utf8'));
+  } catch {
+    return { grid: null, done: {} };
+  }
 }
 const rawFile = (key) => join(RAW_DIR, `${key}.json.gz`);
 const readRaw = (key) => JSON.parse(gunzipSync(readFileSync(rawFile(key))).toString('utf8'));
@@ -146,11 +161,15 @@ async function fetchAll() {
     man.grid = gridKey;
     man.done = {};
   }
-  const save = () => writeFileSync(MANIFEST, JSON.stringify(man, null, 1));
-  const jobs = [
+  const save = () => writeFileSync(SHARD ? join(RAW_DIR, `manifest.shard-${SHARD.i}.json`) : MANIFEST, JSON.stringify(man, null, 1));
+  const allJobs = [
     ...CHUNKS.map((c) => ({ key: c.key, q: areaQuery(bstr(c.box)) })),
     ...TILES.filter((t) => !ONLY || ONLY.has(t.key)).map((t) => ({ key: t.key, q: lineQuery(bstr(tileBox(t.x, t.y), PAD)) })),
-  ].filter((j) => !(man.done[j.key]?.ok && existsSync(rawFile(j.key))));
+  ];
+  const shardJobs = SHARD ? allJobs.filter((_, i) => i % SHARD.n === SHARD.i) : allJobs;
+  // A raw file already on disk is authoritative: another shard may have fetched
+  // it, and the shared manifest may be stale. This makes shards skip-safe.
+  const jobs = shardJobs.filter((j) => !existsSync(rawFile(j.key)));
   const total = CHUNKS.length + TILES.length;
   console.log(`fetch: ${jobs.length} queries to run (${total - jobs.length} of ${total} cached)`);
   let next = 0;

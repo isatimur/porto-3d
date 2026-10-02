@@ -420,6 +420,33 @@ const lineOut = buildLines();
 // of each latitude band (offshore islets never win, being further west). The
 // result is open water: no bank foam, no fine bank subdivision downstream.
 const SEA_BIN = 0.002; // deg latitude, ~220 m
+
+// The coastline as a single-valued lon(lat) profile on the SEA_BIN grid: the
+// same "easternmost coastline point per latitude band" the synthesized ocean
+// mask uses. Written to nature.json so the water shader can compute the
+// coast distance per pixel (ocean shoaling and breakers) without a dense mesh.
+function buildCoastProfile() {
+  const rows = new Map();
+  for (const [lat, lon] of coastPts) {
+    if (lat < WIDE_BBOX.s || lat > WIDE_BBOX.n || lon < WIDE_BBOX.w || lon > WIDE_BBOX.e) continue;
+    const key = Math.round(lat / SEA_BIN);
+    const cur = rows.get(key);
+    if (!cur || lon > cur.lon) rows.set(key, { lat: key * SEA_BIN, lon });
+  }
+  if (rows.size < 2) return [];
+  const keys = [...rows.keys()].sort((a, b) => a - b);
+  const out = [];
+  let last = null;
+  for (let k = keys[0]; k <= keys[keys.length - 1]; k++) {
+    const p = rows.get(k) || last;
+    if (!p) continue;
+    last = p;
+    out.push([r5(p.lat), r5(p.lon)]);
+  }
+  return out;
+}
+const coastProfile = buildCoastProfile();
+
 function buildSeaAreas() {
   const outers = [];
   for (const s of seaPolys) {
@@ -459,6 +486,7 @@ for (const tol of [4, 6, 8, 10]) {
     bbox: BBOX,
     areas: areas.map(({ k, id, r, o }) => (o ? { k, id, r, o } : { k, id, r })),
     lines: lineOut,
+    ...(coastProfile.length >= 2 ? { coast: coastProfile } : {}),
   });
   usedTol = tol;
   const size = Buffer.byteLength(json);
@@ -491,6 +519,7 @@ console.log(`Rings with fewer than 4 points (source has < 4 unique points after 
 const seas = areas.filter(a => a.id === 'sea');
 for (const s of seas) console.log(`Ocean: ${s.r[0].length} points, ${(s._a / 1e6).toFixed(1)} km², ${seaPolys.length ? 'OSM bay/sea' : 'synthesized from coastline'} (${coastPts.length} coastline points)`);
 if (!seas.length) console.log(`Ocean: none (${coastPts.length} coastline points)`);
+console.log(`Coast profile: ${coastProfile.length} bins${coastProfile.length ? `, lat ${coastProfile[0][0]}..${coastProfile[coastProfile.length - 1][0]}` : ''}`);
 const openWater = areas.filter(a => a.k === 'water' && a.o);
 console.log(`Open water bodies (estuary / wide river / sea): ${openWater.map(a => `${a.id} ${(a._a / 1e6).toFixed(2)} km²`).join(', ') || 'none'}`);
 

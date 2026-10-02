@@ -16,10 +16,39 @@
   ],
   "tip_ru": "Пройдите к смотровой площадке у моста на закате: контраст бетонной арки и огней Порту особенно фотогеничен. Для подъёма на арку нужна предварительная запись на Porto Bridge Climb.",
   "gallery": [
-    { "img": "assets/img/ponte-arrabida.jpg", "caption_ru": "Бетонная арка моста Аррабида над Дорой" },
-    { "img": "assets/img/ponte-arrabida-1.jpg", "caption_ru": "Пролёт 270 метров — рекорд 1963 года" },
-    { "img": "assets/img/ponte-arrabida-2.jpg", "caption_ru": "Шесть полос движения между Порту и Гайей" },
-    { "img": "assets/img/ponte-arrabida-3.jpg", "caption_ru": "Мост Аррабида в вечерней подсветке" }
+    {
+      "img": "assets/img/ponte-arrabida-1.jpg",
+      "kind": "exterior",
+      "caption_ru": "Мост Аррабида — общий вид",
+      "credit": {
+        "author": "Gerry Labrijn from London, UK",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2014-P171(I)_Douro_River_Cruise_(15302257643).jpg"
+      },
+      "_commons": "File:2014-P171(I) Douro River Cruise (15302257643).jpg"
+    },
+    {
+      "img": "assets/img/ponte-arrabida-2.jpg",
+      "kind": "detail",
+      "caption_ru": "Мост Аррабида — панорамный вид",
+      "credit": {
+        "author": "Alexkom000",
+        "license": "CC BY 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2025-07-31_View_of_the_Arr%C3%A1bida_Bridge_from_Rua_do_Cabedelo.jpg"
+      },
+      "_commons": "File:2025-07-31 View of the Arrábida Bridge from Rua do Cabedelo.jpg"
+    },
+    {
+      "img": "assets/img/ponte-arrabida-3.jpg",
+      "kind": "detail",
+      "caption_ru": "Мост Аррабида — панорамный вид",
+      "credit": {
+        "author": "Francisco Restivo from Porto, Portugal",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:A_view_of_Arr%C3%A1bida_bridge_(3938894926).jpg"
+      },
+      "_commons": "File:A view of Arrábida bridge (3938894926).jpg"
+    }
   ],
   "videos": [],
   "panorama": null,

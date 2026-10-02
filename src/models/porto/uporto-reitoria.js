@@ -6,6 +6,7 @@ import { Kit, PALETTE, MAT, PROFILES, corniceProfile, archPath } from '../kit.js
 import { onEdge, polyCornice, polyBand, polyWindows, roofOver, plainBuilding } from '../metric.js';
 import { win, pediment, flutedColumn, tablet } from '../parts.js';
 import { edges, obb, offset, bbox, rect } from '../geom.js';
+import { fitTo } from './site-fit.js';
 
 function lion(k, x, z, ry) {
   k.push({ x, y: 0, z, ry });
@@ -34,6 +35,7 @@ function lion(k, x, z, ry) {
 }
 
 function uportoReitoria(k, site) {
+  const done = fitTo(k, site, { w: 130.9, d: 158.1, h: 20.89, cx: 0, cz: 32.9 });
   const o = site?.footprint?.outline;
   const b = o && o.length >= 3 ? bbox(o) : { w: 64, d: 34, cx: 0, cz: 0 };
   const W = Math.max(40, b.w);
@@ -100,6 +102,7 @@ function uportoReitoria(k, site) {
   lion(k, b.cx + 13, zFront + 7.5, -0.25);
   k.lamp(5, b.cx - W / 2 - 4, 0, zFront + 12);
   k.lamp(5, b.cx + W / 2 + 4, 0, zFront + 12);
+  done();
 }
 uportoReitoria.metric = true;
 uportoReitoria.rule = { note: 'Reitoria da Universidade do Porto: portico, pediment, lions' };

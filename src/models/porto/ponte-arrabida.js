@@ -34,7 +34,7 @@ function builder(k, site) {
   const springY = 10;
   const crownY = 58;
   const archAt = (x) => parabola(x, af, springY, crownY);
-  const N = 30;
+  const N = 40;
 
   k.begin('main');
   k.push({ ry: ang });
@@ -59,8 +59,20 @@ function builder(k, site) {
     }
   }
 
+  // --- lattice web along each rib: X bracing between consecutive nodes
+  for (const z of [-RIB_Z, RIB_Z]) {
+    for (let i = 0; i + 2 <= N; i += 2) {
+      const x0 = -af + (2 * af * i) / N;
+      const x1 = -af + (2 * af * (i + 2)) / N;
+      const y0 = archAt(x0);
+      const y1 = archAt(x1);
+      k.segment([x0, y0 - 1.5, z], [x1, y1, z], 0.4, 0.4, 'graniteGrey');
+      k.segment([x1, y1 - 1.5, z], [x0, y0, z], 0.4, 0.4, 'graniteGrey');
+    }
+  }
+
   // --- cross beams between the ribs
-  for (let i = 2; i < N; i += 3) {
+  for (let i = 1; i < N; i += 2) {
     const x = -af + (2 * af * i) / N;
     const y = archAt(x);
     k.segment([x, y, -RIB_Z], [x, y, RIB_Z], 1.2, 1.2, 'graniteGrey');
@@ -73,6 +85,16 @@ function builder(k, site) {
     const z = s * (DECK_W / 2 - 0.5);
     k.box(span, 0.45, 0.9, 'graniteGrey', 0, DECK_Y - 2, z);
     k.box(span, 0.9, 0.55, 'white', 0, DECK_Y - 1.55, s * (DECK_W / 2 - 0.25));
+  }
+  // parapet posts and under-deck ribs
+  const posts = Math.max(8, Math.round(span / 12));
+  for (let i = 0; i < posts; i++) {
+    const px = -half + ((i + 0.5) * span) / posts;
+    for (const s of [-1, 1]) k.box(0.35, 1.1, 0.35, 'graniteGrey', px, DECK_Y - 1.6, s * (DECK_W / 2 - 0.25));
+  }
+  for (let i = 1; i < posts; i++) {
+    const px = -half + (i * span) / posts;
+    k.box(1.1, 1.2, DECK_W - 2, 'graniteGrey', px, DECK_Y - 5.2, 0);
   }
 
   // --- approach viaducts: paired columns under the deck

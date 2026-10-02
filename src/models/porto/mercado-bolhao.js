@@ -5,8 +5,10 @@ import { Kit, PALETTE, MAT, PROFILES, corniceProfile, archPath } from '../kit.js
 import { onEdge, polyCornice, polyBand, polyWindows, roofOver, plainBuilding } from '../metric.js';
 import { pediment } from '../parts.js';
 import { edges, obb, offset, bbox, rect } from '../geom.js';
+import { fitTo } from './site-fit.js';
 
 function mercadoBolhao(k, site) {
+  const done = fitTo(k, site, { w: 74.4, d: 159.7, h: 19.4, cx: 0, cz: 7.75 });
   const o = site?.footprint?.outline;
   const b = o && o.length >= 3 ? bbox(o) : { w: 66, d: 34, cx: 0, cz: 0 };
   const L = Math.max(40, b.w);
@@ -73,6 +75,7 @@ function mercadoBolhao(k, site) {
     }
   }
   k.corniceRing(L, D, corniceProfile('band', 0.4), 'granite', b.cx, 8.6, cz);
+  done();
 }
 mercadoBolhao.metric = true;
 mercadoBolhao.rule = { note: 'Mercado do Bolhão: granite base, arcades, nave clerestory, 1914/2022' };

@@ -18,10 +18,39 @@
   ],
   "tip_ru": "Лучшее время — закат или шторм, когда волны эффектно разбиваются о мол. К маяку идут пешком от Avenida de D. Carlos I вдоль мола; сама башня закрыта, гулять можно по окрестностям и набережной Фош.",
   "gallery": [
-    { "img": "assets/img/felgueiras.jpg", "caption_ru": "Маяк Фельгейраш на молу" },
-    { "img": "assets/img/felgueiras-1.jpg", "caption_ru": "Гранитная башня и красный фонарь" },
-    { "img": "assets/img/felgueiras-2.jpg", "caption_ru": "Волны Атлантики у мола" },
-    { "img": "assets/img/felgueiras-3.jpg", "caption_ru": "Набережная Фош-ду-Дору" }
+    {
+      "img": "assets/img/felgueiras-1.jpg",
+      "kind": "exterior",
+      "caption_ru": "Маяк Фельгейраш — общий вид",
+      "credit": {
+        "author": "José Moutinho from Leça da Palmeira, Portugal",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Farol_(6969948663).jpg"
+      },
+      "_commons": "File:Farol (6969948663).jpg"
+    },
+    {
+      "img": "assets/img/felgueiras-2.jpg",
+      "kind": "exterior",
+      "caption_ru": "Маяк Фельгейраш — река Дору",
+      "credit": {
+        "author": "Vitor Oliveira from Torres Vedras, PORTUGAL",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Farol_da_Foz_do_Douro_-_Porto_-_Portugal_(10914201816).jpg"
+      },
+      "_commons": "File:Farol da Foz do Douro - Porto - Portugal (10914201816).jpg"
+    },
+    {
+      "img": "assets/img/felgueiras-3.jpg",
+      "kind": "exterior",
+      "caption_ru": "Маяк Фельгейраш — река Дору",
+      "credit": {
+        "author": "Ylliab Photo from Grenoble, France",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Farol_de_Felgueiras_-_Porto_-_Portugal_(14083320406).jpg"
+      },
+      "_commons": "File:Farol de Felgueiras - Porto - Portugal (14083320406).jpg"
+    }
   ],
   "videos": [],
   "panorama": null,

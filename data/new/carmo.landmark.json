@@ -24,26 +24,43 @@
   ],
   "image": "assets/img/carmo.jpg",
   "image_credit": {
-    "author": "Otourly",
+    "author": "User:Otourly",
     "license": "CC BY-SA 3.0",
     "source_url": "https://commons.wikimedia.org/wiki/File:19._Igreja_do_Carmo_(Porto).JPG"
   },
   "gallery": [
     {
-      "img": "assets/img/carmo.jpg",
-      "caption_ru": "Церковь ду Карму"
-    },
-    {
       "img": "assets/img/carmo-1.jpg",
-      "caption_ru": "Азулежу 1912 года на боковом фасаде"
+      "kind": "exterior",
+      "caption_ru": "Церковь ду Карму — общий вид",
+      "credit": {
+        "author": "artonthefly",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2024_09_13_Porto_P9132902_(54100505177).jpg"
+      },
+      "_commons": "File:2024 09 13 Porto P9132902 (54100505177).jpg"
     },
     {
       "img": "assets/img/carmo-2.jpg",
-      "caption_ru": "Сцены из истории кармелитского ордена"
+      "kind": "exterior",
+      "caption_ru": "Церковь ду Карму — общий вид",
+      "credit": {
+        "author": "Silvia Santos",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:ConjIgrejasdosCarmelitas_Descal%C3%A7oseOrdCarmo3.jpg"
+      },
+      "_commons": "File:ConjIgrejasdosCarmelitas DescalçoseOrdCarmo3.jpg"
     },
     {
       "img": "assets/img/carmo-3.jpg",
-      "caption_ru": "Детали фасада церкви ду Карму"
+      "kind": "exterior",
+      "caption_ru": "Церковь ду Карму — общий вид",
+      "credit": {
+        "author": "Fernando",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Iglesia_do_Carmo_(50741749157).jpg"
+      },
+      "_commons": "File:Iglesia do Carmo (50741749157).jpg"
     }
   ],
   "videos": [],

@@ -18,10 +18,39 @@
   ],
   "tip_ru": "Приходите к закату: с мирадора у Avenida das Tílias самый красивый вид на Дору. Вход в сады бесплатный, рядом — Museu Romântico и Solar do Vinho do Porto.",
   "gallery": [
-    { "img": "assets/img/palacio-cristal.jpg", "caption_ru": "Сады Хрустального дворца" },
-    { "img": "assets/img/palacio-cristal-1.jpg", "caption_ru": "Панорама Дору с террас парка" },
-    { "img": "assets/img/palacio-cristal-2.jpg", "caption_ru": "Аллеи и розарий садов" },
-    { "img": "assets/img/palacio-cristal-3.jpg", "caption_ru": "Pavilhão Rosa Mota на месте дворца" }
+    {
+      "img": "assets/img/palacio-cristal-1.jpg",
+      "kind": "detail",
+      "caption_ru": "Сады Хрустального дворца — панорамный вид",
+      "credit": {
+        "author": "Sergio Miranda from Maia, Portugal",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:A_view_over_the_%22Douro_River%22_(27844679311).jpg"
+      },
+      "_commons": "File:A view over the \"Douro River\" (27844679311).jpg"
+    },
+    {
+      "img": "assets/img/palacio-cristal-2.jpg",
+      "kind": "exterior",
+      "caption_ru": "Сады Хрустального дворца — общий вид",
+      "credit": {
+        "author": "Júlio Reis",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Acer_japonicum_rubra_leaves.jpg"
+      },
+      "_commons": "File:Acer japonicum rubra leaves.jpg"
+    },
+    {
+      "img": "assets/img/palacio-cristal-3.jpg",
+      "kind": "exterior",
+      "caption_ru": "Сады Хрустального дворца — общий вид",
+      "credit": {
+        "author": "José Carlos Casimiro from Maia, Portugal",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Aros_(22549071177).jpg"
+      },
+      "_commons": "File:Aros (22549071177).jpg"
+    }
   ],
   "videos": [],
   "panorama": null,

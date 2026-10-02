@@ -18,10 +18,39 @@
   ],
   "tip_ru": "Билет включает и музей, и парк — закладывайте минимум полдня. Добраться можно на автобусе до Avenida Marechal Gomes da Costa; точные часы и льготы смотрите на serralves.pt.",
   "gallery": [
-    { "img": "assets/img/serralves.jpg", "caption_ru": "Музей современного искусства Серралвеш" },
-    { "img": "assets/img/serralves-1.jpg", "caption_ru": "Casa de Serralves — вилла в стиле ар-деко" },
-    { "img": "assets/img/serralves-2.jpg", "caption_ru": "Парк Серралвеш и его аллеи" },
-    { "img": "assets/img/serralves-3.jpg", "caption_ru": "Скульптуры под открытым небом" }
+    {
+      "img": "assets/img/serralves-1.jpg",
+      "kind": "exterior",
+      "caption_ru": "Фонд Серралвеш — общий вид",
+      "credit": {
+        "author": "madras91",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:A_chance_to_recharge_our_batteries_(46745459345).jpg"
+      },
+      "_commons": "File:A chance to recharge our batteries (46745459345).jpg"
+    },
+    {
+      "img": "assets/img/serralves-2.jpg",
+      "kind": "exterior",
+      "caption_ru": "Фонд Серралвеш — общий вид",
+      "credit": {
+        "author": "Francisco Anzola from United States",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Funda%C3%A7%C3%A3o_de_Serralves_(32608595967).jpg"
+      },
+      "_commons": "File:Fundação de Serralves (32608595967).jpg"
+    },
+    {
+      "img": "assets/img/serralves-3.jpg",
+      "kind": "exterior",
+      "caption_ru": "Фонд Серралвеш — общий вид",
+      "credit": {
+        "author": "Gabriel de Andrade Fernandes from São Paulo, Brasil",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Funda%C3%A7%C3%A3o_serralves_(39740190953).jpg"
+      },
+      "_commons": "File:Fundação serralves (39740190953).jpg"
+    }
   ],
   "videos": [],
   "panorama": null,

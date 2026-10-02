@@ -1,53 +1,86 @@
-// Inland water: the Rio Este and its streams, the ponds, the Bom Jesus lake.
+// Water for porto-3d: the inland streams and ponds, the tidal Douro and its
+// estuary, and the Atlantic at the Foz.
 //
 // Adapted from the 3d-ultra-realistic-water skill (MengTo, Pirate Ship
-// Sunset) for small, sheltered water seen from a moving orbit camera:
+// Sunset) for a city seen from a moving orbit camera:
 //
-//   - wind ripples: a sum of four Gerstner waves (2.4 .. 0.42 world units,
-//     10 .. 1.7 m) shaded per pixel from their analytic derivatives. Each
-//     wave fades out once its wavelength falls below the pixel footprint,
-//     so the far water settles into a smooth sky reflection instead of
-//     boiling into grain. The phases are wrapped to [0, 2pi) on the CPU.
-//     The mesh stays flat: ripples this small only change the shading;
+//   - one Gerstner sum, shaded per pixel from its analytic derivatives. Each
+//     wave fades out once its wavelength falls below the pixel footprint, so
+//     the far water settles into sky instead of boiling into grain. Phases
+//     are wrapped to [0, 2pi) on the CPU;
+//   - three sea states share that one sum through a per-vertex kind and a
+//     per-wave weight: sheltered inland ripples, the choppier tidal river,
+//     and the long Atlantic swell (the skill's 8-wave deep-water spectrum);
+//   - the ocean swell shoals near the coast: the water shader reads the
+//     coastline profile (data/nature.json `coast`, baked from the OSM
+//     coastline) and grows the swell's amplitude and steepness as the shore
+//     nears, breaking into whitecaps on the crests at the Foz shoreline;
+//   - the Douro reverses on a slow tidal cycle and is calmer along the
+//     Ribeira walls;
 //   - a baked, tileable detail texture (micro normal, foam lattice, fbm),
-//     carried downstream by the river's flow map;
+//     carried by the flow / current, feeds the normals and the foam;
 //   - Fresnel reflection of the PMREM sky environment (MeshPhysicalMaterial,
-//     ior 1.33: F0 = 0.02, as in the skill);
-//   - sun glitter: the stock GGX sun highlight is replaced by the skill's
-//     sheen + sparkle terms, scaled so only pin-point sparkles pass the
-//     bloom threshold (no bloom blob); clamped at 2.2 linear;
-//   - a shallow, greener body near the banks and lace foam along them: the
-//     lattice is thresholded by a bank mask, so the foam breaks into lace
-//     instead of fading to grey;
+//     ior 1.33: F0 = 0.02) and the skill's sheen + sparkle sun glitter;
 //   - rain rings when it rains (WEATHER_UNIFORMS.cloudShape.w).
 //
-// One material and one draw for all the water. waterUniforms are shared,
-// so another basin (a fountain) can use createWaterMaterial() and move with
-// the same ripples, sun and time.
+// One material and one draw for all the water. waterUniforms are shared, so
+// another basin (a fountain) can use createWaterMaterial() and move with the
+// same waves, sun and time. Units are world units: 1 unit = 4 m (S = 0.25).
 import * as THREE from 'three';
 import { S } from './geo.js';
 
 const TAU = Math.PI * 2;
 
-// Light mode (main.js): one detail octave instead of the Gerstner sum and
-// two cross-faded octaves; no rain rings, no subsurface term. Set before
-// the first water material is made.
+// Light mode (main.js): one detail octave instead of the Gerstner sum; no
+// rain rings, no subsurface term. Set before the first water material is made.
 let LITE = false;
 export function setWaterLite(on) {
   LITE = !!on;
 }
-// [wavelength (world units), amplitude, heading offset from the wind (deg), steepness Q]
-// Wavelengths step by ~0.6 but not in simple ratios, headings spread, so
-// the crossings never lock into a lattice; slopes kA of 0.04 .. 0.05 keep
-// sheltered water calm. ΣQ = 0.3, far below the skill's limit of 1.
+
+// ------------------------------------------------------------ spectra
+// Inland ripples: [wavelength (world units), amplitude, heading offset from
+// the wind (deg), steepness Q]. Wavelengths 2.7 .. 0.57 u (10.8 .. 2.3 m),
+// amplitudes 8 .. 1.7 cm, ΣQ = 0.3.
 const RIPPLES = [
   [2.7, 0.02, 0, 0.1],
   [1.61, 0.011, 31, 0.08],
   [0.93, 0.0066, -43, 0.07],
   [0.57, 0.0042, 72, 0.05],
 ];
+// Atlantic swell: the skill's deep-water spectrum, 1 unit = 4 m. L 19.5 ..
+// 0.775 u (78 .. 3.1 m), A 0.2 .. 0.005 u (0.8 .. 0.02 m), ΣQ = 0.77.
+const OCEAN_SWELL = [
+  [19.5, 0.2, 0, 0.17],
+  [11.75, 0.13, 23, 0.15],
+  [7.75, 0.075, -17, 0.13],
+  [4.75, 0.045, 38, 0.11],
+  [3.075, 0.0263, -31, 0.08],
+  [1.925, 0.015, 12, 0.06],
+  [1.225, 0.0085, -49, 0.04],
+  [0.775, 0.005, 64, 0.03],
+];
+// How much of each swell wave the sheltered estuary keeps: only the shorter,
+// steeper half of the spectrum reaches the tidal river.
+const ESTUARY_KEEP = [0.2, 0.45, 0.55, 0.6, 0.6, 0.5, 0.4, 0.35];
+// [L, A, deg, Q, wInland, wTidal, wOcean]
+const WAVES = [
+  ...RIPPLES.map((w) => [w[0], w[1], w[2], w[3], 1, 1.35, 0]),
+  ...OCEAN_SWELL.map((w, i) => [w[0], w[1], w[2], w[3], 0, ESTUARY_KEEP[i], 1]),
+];
+
 const G = 9.81 * S; // gravity in world units per second squared
 const WIND_HEADING = Math.atan2(0.93, -0.37); // from the Atlantic (WSW), as weather.js
+
+// Tidal current: the Douro reverses on a slow cycle. 1 unit = 4 m.
+const TIDE_PERIOD = 180; // s, one full ebb + flood (visible, not real 12.4 h)
+const TIDE_AMP = 9; // world units (36 m) of downstream texture excursion
+// Swell drift: whitecaps and detail scroll with the dominant swell.
+const SWELL_SPEED = 0.8; // world units per second (3.2 m/s)
+const SWELL_WRAP = 220; // world units before the drift offset wraps
+// The Ribeira waterfront, in world units, from ~41.1408 N, 8.6125 W. An
+// elongated ellipse along the quay; the tidal chop is damped inside it.
+const RIBEIRA = { x: -31.4, z: 243.3, rx: 240, rz: 110 };
 
 // ------------------------------------------------------------ detail texture
 // Baked once on the CPU (the nature layer has no renderer yet), 256 x 256:
@@ -162,66 +195,88 @@ function detailTexture(size = 256) {
 }
 
 // ------------------------------------------------------------ shared uniforms
-const phases = new Float32Array(RIPPLES.length);
-const waveList = RIPPLES.map(([L, A, deg, Q], i) => {
+const phases = new Float32Array(WAVES.length);
+const waveList = WAVES.map(([L, A, deg, Q, wi, wt, wo], i) => {
   const k = TAU / L;
   const h = WIND_HEADING + (deg * Math.PI) / 180;
-  return { L, A, Q, k, omega: Math.sqrt(G * k), dx: Math.sin(h), dz: -Math.cos(h), seed: (i * 2.39) % TAU };
+  return {
+    L,
+    A,
+    Q,
+    k,
+    omega: Math.sqrt(G * k),
+    dx: Math.sin(h),
+    dz: -Math.cos(h),
+    seed: (i * 2.39) % TAU,
+    w: new THREE.Vector3(wi, wt, wo),
+  };
 });
+const SWELL_DIR = { x: waveList[RIPPLES.length].dx, z: waveList[RIPPLES.length].dz };
+const COAST_MAX = 256; // uniform coast-profile slots
 export const waterUniforms = {
   uWaveDir: { value: waveList.map((w) => new THREE.Vector4(w.dx, w.dz, w.k, w.A)) },
   uWaveQ: { value: waveList.map((w) => new THREE.Vector4(w.Q / w.k, w.L, 0, 0)) },
+  uWaveW: { value: waveList.map((w) => w.w.clone()) },
   uWavePhase: { value: phases },
   uWDetail: { value: null },
   uWTime: { value: 0 },
   uWSunDir: { value: new THREE.Vector3(0, 1, 0) },
   uWSunCol: { value: new THREE.Color(1, 1, 1) },
   uWDeep: { value: new THREE.Color(0x14302e) },
+  uWEDeep: { value: new THREE.Color(0x1c3a34) },
+  uWODeep: { value: new THREE.Color(0x0a2233) },
   uWShallow: { value: new THREE.Color(0x4a5a3a) },
   uWFoam: { value: new THREE.Color(0xd9d6cc) },
+  uWTideOff: { value: 0 },
+  uWSwellOff: { value: new THREE.Vector2() },
+  uWSwellGain: { value: 1.6 },
+  uWSwellQ: { value: 0.9 },
+  uWMaxQ: { value: 1.2 },
+  uWShoal: { value: 150 },
+  uWWall: { value: new THREE.Vector4(RIBEIRA.x, RIBEIRA.z, RIBEIRA.rx, RIBEIRA.rz) },
+  uWCoast: { value: new Float32Array(COAST_MAX) },
+  uWCoastCount: { value: 0 },
+  uWCoastZ: { value: new THREE.Vector2(0, 1) },
 };
 
 const WATER_VERT_PARS = /* glsl */ `
 attribute vec2 aFlow;
 attribute float aShore;
+attribute float aKind;
 varying vec2 vFlow;
 varying float vShore;
+varying float vKind;
 `;
 const WATER_FRAG_PARS = /* glsl */ `
-#define NW ${RIPPLES.length}
+#define NW ${WAVES.length}
+#define NCOAST ${COAST_MAX}
 uniform vec4 uWaveDir[NW];   // dx, dz, k, A
 uniform vec4 uWaveQ[NW];     // Q/k, L
+uniform vec3 uWaveW[NW];     // [inland, tidal, ocean] weight
 uniform float uWavePhase[NW];
 uniform sampler2D uWDetail;
 uniform float uWTime;
-uniform vec3 uWSunDir, uWSunCol, uWDeep, uWShallow, uWFoam;
+uniform float uWTideOff, uWSwellGain, uWSwellQ, uWMaxQ, uWShoal, uWCoastCount;
+uniform vec2 uWSwellOff, uWCoastZ;
+uniform vec4 uWWall;
+uniform float uWCoast[NCOAST];
+uniform vec3 uWSunDir, uWSunCol, uWDeep, uWEDeep, uWODeep, uWShallow, uWFoam;
 varying vec2 vFlow;
 varying float vShore;
-// Gerstner sum with analytic partial derivatives; every wave fades out
-// once it is shorter than ~2-5 pixel footprints (skill rule 1)
-vec3 wGerstner(vec2 p, float footprint, out vec3 dPdx, out vec3 dPdz) {
-  vec3 d = vec3(0.0);
-  dPdx = vec3(1.0, 0.0, 0.0);
-  dPdz = vec3(0.0, 0.0, 1.0);
-  for (int i = 0; i < NW; i++) {
-    vec4 w = uWaveDir[i];
-    float L = uWaveQ[i].y;
-    float fade = 1.0 - smoothstep(L * 0.18, L * 0.5, footprint);
-    if (fade <= 0.0) continue;
-    float A = w.w * fade;
-    float QA = uWaveQ[i].x * fade;
-    float th = w.z * dot(w.xy, p) + uWavePhase[i];
-    float s = sin(th), c = cos(th);
-    d.y += A * s;
-    float kA = w.z * A, kQA = w.z * QA;
-    dPdx.x -= kQA * w.x * w.x * s;
-    dPdx.y += kA * w.x * c;
-    dPdx.z -= kQA * w.x * w.y * s;
-    dPdz.x -= kQA * w.x * w.y * s;
-    dPdz.y += kA * w.y * c;
-    dPdz.z -= kQA * w.y * w.y * s;
-  }
-  return d;
+varying float vKind;
+vec3 wNor = vec3(0.0, 1.0, 0.0);
+float wJ = 1.0;
+float wH = 0.0;
+float wFoamK = 0.0;
+
+// Coastline x at a world z, from the baked profile (data/nature.json coast).
+// Returns a huge x (no shoaling) when the profile is missing or out of range.
+float wCoastX(float z) {
+  if (uWCoastCount < 1.5) return 1.0e9;
+  float u = clamp((z - uWCoastZ.x) / (uWCoastZ.y - uWCoastZ.x + 1e-6), 0.0, 1.0) * (uWCoastCount - 1.0);
+  int i0 = int(floor(u));
+  int i1 = min(i0 + 1, int(uWCoastCount) - 1);
+  return mix(uWCoast[i0], uWCoast[i1], fract(u));
 }
 float wHash(vec2 p) {
   vec3 q = fract(vec3(p.xyx) * 0.1031);
@@ -249,6 +304,64 @@ vec2 wRings(vec2 p, float cell, float t, float foot) {
   // strong slopes: under a flat overcast sky only the Fresnel change shows
   return slope * (1.0 - smoothstep(0.08, 0.25, foot / cell)) * 1.8;
 }
+// Gerstner sum with analytic partial derivatives; every wave fades out once
+// it is shorter than ~2-5 pixel footprints (skill rule 1). kind selects the
+// sea state through the per-wave weights; the ocean shoals near the coast and
+// the tidal river is damped inside the Ribeira shelter.
+vec3 wGerstner(vec2 p, float footprint, float kind, out float J, out float height) {
+  float kIn = 1.0 - step(0.5, kind);
+  float kTd = step(0.5, kind) * (1.0 - step(1.5, kind));
+  float kOc = step(1.5, kind);
+  float shoal = 0.0;
+  if (kOc > 0.5) {
+    float dshore = max(0.0, wCoastX(p.y) - p.x);
+    shoal = 1.0 - smoothstep(0.0, uWShoal, dshore);
+  }
+  float calm = 0.0;
+  if (kTd > 0.5) {
+    vec2 e = vec2((p.x - uWWall.x) / uWWall.z, (p.y - uWWall.y) / uWWall.w);
+    calm = 1.0 - smoothstep(0.45, 1.0, length(e));
+  }
+  vec3 dPdx = vec3(1.0, 0.0, 0.0);
+  vec3 dPdz = vec3(0.0, 0.0, 1.0);
+  height = 0.0;
+  for (int i = 0; i < NW; i++) {
+    float wgt = uWaveW[i].x * kIn + uWaveW[i].y * kTd + uWaveW[i].z * kOc;
+    if (wgt <= 0.0) continue;
+    vec4 w = uWaveDir[i];
+    vec4 q = uWaveQ[i];
+    float L = q.y;
+    float fade = 1.0 - smoothstep(L * 0.18, L * 0.5, footprint);
+    if (fade <= 0.0) continue;
+    float ampK = wgt;
+    float qK = wgt;
+    if (kOc > 0.5) {
+      // long swells shoal and steepen toward the shore
+      float sw = shoal * smoothstep(2.0, 9.0, L);
+      ampK *= 1.0 + uWSwellGain * sw;
+      qK *= min(1.0 + uWSwellQ * sw, uWMaxQ);
+    }
+    if (kTd > 0.5) {
+      // calm sheltered band along the Ribeira walls
+      ampK *= mix(1.0, 0.3, calm);
+      qK *= mix(1.0, 0.45, calm);
+    }
+    float A = w.w * fade * ampK;
+    float QA = q.x * fade * qK;
+    float th = w.z * dot(w.xy, p) + uWavePhase[i];
+    float s = sin(th), c = cos(th);
+    height += A * s;
+    float kA = w.z * A, kQA = w.z * QA;
+    dPdx.x -= kQA * w.x * w.x * s;
+    dPdx.y += kA * w.x * c;
+    dPdx.z -= kQA * w.x * w.y * s;
+    dPdz.x -= kQA * w.x * w.y * s;
+    dPdz.y += kA * w.y * c;
+    dPdz.z -= kQA * w.y * w.y * s;
+  }
+  J = dPdx.x * dPdz.z - dPdx.z * dPdz.x;
+  return normalize(cross(dPdz, dPdx));
+}
 `;
 
 // replaces #include <normal_fragment_maps>: the water normal, world space
@@ -267,27 +380,41 @@ vec3 wN = vec3(0.0, 1.0, 0.0);
   wN = normalize(wN + vec3(dn.x, 0.0, dn.y));
 }
 #else
-vec3 wDx, wDz;
-wGerstner(wP.xz, wFoot * 2.0, wDx, wDz);
-vec3 wN = normalize(cross(wDz, wDx));
+vec3 wN = wNor;
 {
-  // detail: two octaves carried downstream by the flow map, in two phases
-  // half a cycle apart and cross-faded, so they never stretch
-  float ph0 = fract(uWTime * 0.08);
-  float ph1 = fract(uWTime * 0.08 + 0.5);
-  float wf = abs(1.0 - 2.0 * ph0);
-  vec2 fA = vFlow * ph0 * 12.5;
-  vec2 fB = vFlow * ph1 * 12.5;
+  float kind = vKind;
+  float kIn = 1.0 - step(0.5, kind);
+  float kTd = step(0.5, kind) * (1.0 - step(1.5, kind));
+  float kOc = step(1.5, kind);
   vec2 s1 = uWTime * vec2(0.011, 0.007);
   vec2 s2 = uWTime * vec2(-0.008, 0.012);
-  vec2 dA = mix(texture2D(uWDetail, (wP.xz - fA) / 4.8 + s1).xy, texture2D(uWDetail, (wP.xz - fB) / 4.8 + s1 + 0.5).xy, wf) * 2.0 - 1.0;
-  vec2 dB = mix(texture2D(uWDetail, (wP.zx - fA.yx) / 1.8 + s2).xy, texture2D(uWDetail, (wP.zx - fB.yx) / 1.8 + s2 + 0.5).xy, wf) * 2.0 - 1.0;
-  float dStr = 0.3 * exp(-wDist / 160.0) + 0.06;
-  vec2 dn = (dA * 0.65 + dB.yx * 0.4) * dStr;
+  if (kIn > 0.5) {
+    // detail: two octaves carried downstream by the flow map, cross-faded
+    float ph0 = fract(uWTime * 0.08);
+    float ph1 = fract(uWTime * 0.08 + 0.5);
+    float wf = abs(1.0 - 2.0 * ph0);
+    vec2 fA = vFlow * ph0 * 12.5;
+    vec2 fB = vFlow * ph1 * 12.5;
+    vec2 dA = mix(texture2D(uWDetail, (wP.xz - fA) / 4.8 + s1).xy, texture2D(uWDetail, (wP.xz - fB) / 4.8 + s1 + 0.5).xy, wf) * 2.0 - 1.0;
+    vec2 dB = mix(texture2D(uWDetail, (wP.zx - fA.yx) / 1.8 + s2).xy, texture2D(uWDetail, (wP.zx - fB.yx) / 1.8 + s2 + 0.5).xy, wf) * 2.0 - 1.0;
+    float dStr = 0.3 * exp(-wDist / 160.0) + 0.06;
+    vec2 dn = (dA * 0.65 + dB.yx * 0.4) * dStr;
+    wN = normalize(wN + vec3(dn.x, 0.0, dn.y));
+  } else {
+    // open water: two octaves drifting with the tidal current / the swell
+    vec2 drift = (vFlow * uWTideOff) * kTd + uWSwellOff * kOc;
+    vec2 dA = texture2D(uWDetail, wP.xz / 4.8 + drift / 4.8).xy * 2.0 - 1.0;
+    vec2 dB = texture2D(uWDetail, wP.zx / 1.8 - drift / 1.8).xy * 2.0 - 1.0;
+    float dStr = 0.28 * exp(-wDist / 300.0) + 0.05;
+    vec2 dn = (dA * 0.65 + dB.yx * 0.4) * dStr;
+    wN = normalize(wN + vec3(dn.x, 0.0, dn.y));
+  }
   #ifdef USE_FOG
-  if (cloudShape.w > 0.01) dn += (wRings(wP.xz, 0.4, uWTime, wFoot) + wRings(wP.xz + 0.13, 0.27, uWTime * 1.3 + 0.5, wFoot)) * cloudShape.w;
+  if (cloudShape.w > 0.01) {
+    vec2 rg = wRings(wP.xz, 0.4, uWTime, wFoot) + wRings(wP.xz + 0.13, 0.27, uWTime * 1.3 + 0.5, wFoot);
+    wN = normalize(wN + vec3(rg.x, 0.0, rg.y) * cloudShape.w);
+  }
   #endif
-  wN = normalize(wN + vec3(dn.x, 0.0, dn.y));
 }
 #endif
 normal = normalize(mat3(viewMatrix) * wN);
@@ -324,25 +451,51 @@ reflectedLight.directSpecular *= 0.0;
 // the body and the foam, before any lighting (replaces color_fragment)
 const WATER_COLOR = /* glsl */ `
 #include <color_fragment>
-float wFoamK = 0.0;
+wFoamK = 0.0;
 {
   vec3 P = vFogWorld;
-  #ifdef BRG_WATER_OPEN
-  float shore = 99.0;
-  #else
+  float kind = vKind;
+  float kIn = 1.0 - step(0.5, kind);
+  float kTd = step(0.5, kind) * (1.0 - step(1.5, kind));
+  float kOc = step(1.5, kind);
   float shore = vShore;
+  // wave surface (normals, Jacobian, crest height) once per pixel
+  #ifndef BRG_WATER_LITE
+  vec2 wfw = fwidth(P.xz);
+  wNor = wGerstner(P.xz, max(wfw.x + wfw.y, 1e-4) * 2.0, kind, wJ, wH);
   #endif
-  // shallow within ~2 world units (8 m) of the bank: the bottom shows through
-  float shallow = 1.0 - smoothstep(0.0, 2.2, shore);
-  diffuseColor.rgb = mix(uWDeep, uWShallow, shallow * 0.75);
-  // lace foam hugging the bank: the lattice thresholded by the mask
-  vec4 ft = texture2D(uWDetail, P.xz / 2.2 - vFlow * uWTime * 0.35);
-  vec4 ft2 = texture2D(uWDetail, P.zx / 0.85 + uWTime * vec2(0.006, -0.004));
+  // body: sheltered green inland, tidal teal, deep blue ocean
+  vec3 deep = mix(mix(uWDeep, uWEDeep, kTd), uWODeep, kOc);
+  float shallow = kIn * (1.0 - smoothstep(0.0, 2.2, shore));
+  #ifndef BRG_WATER_LITE
+  shallow = max(shallow, kOc * (1.0 - smoothstep(0.0, uWShoal * 0.55, max(0.0, wCoastX(P.y) - P.x))));
+  #endif
+  diffuseColor.rgb = mix(deep, uWShallow, shallow * 0.75);
+  // foam lattice, scrolled by the flow, the reversing tide, or the swell
+  vec2 foamScroll = -vFlow * uWTime * 0.35 * kIn;
+  foamScroll += -vFlow * uWTideOff * 0.35 * kTd;
+  foamScroll += uWSwellOff * kOc;
+  vec4 ft = texture2D(uWDetail, P.xz / 2.2 + foamScroll);
+  vec4 ft2 = texture2D(uWDetail, P.zx / 0.85 + uWTime * vec2(0.006, -0.004) + uWSwellOff * kOc);
   float pattern = ft.b * 0.72 + ft2.b * 0.28;
-  // the mask stays below ~0.6 even at the bank: lace, never a solid rim
-  float m = (1.0 - smoothstep(0.0, 0.8, shore)) * 0.55;
-  // a little more foam where the river runs fast
-  m = max(m, (1.0 - smoothstep(0.0, 1.2, shore)) * clamp(length(vFlow) * 0.7, 0.0, 0.3));
+  float m = 0.0;
+  if (kIn > 0.5) {
+    // lace foam hugging the bank: the lattice thresholded by the mask
+    float bank = (1.0 - smoothstep(0.0, 0.8, shore)) * 0.55;
+    bank = max(bank, (1.0 - smoothstep(0.0, 1.2, shore)) * clamp(length(vFlow) * 0.7, 0.0, 0.3));
+    m = max(m, bank);
+  }
+  #ifndef BRG_WATER_LITE
+  {
+    // open-ocean whitecaps on the crests, plus breakers at the shoreline
+    float crestFoam = smoothstep(0.78, 0.42, wJ);
+    float dshore = max(0.0, wCoastX(P.y) - P.x);
+    float shoal = 1.0 - smoothstep(0.0, uWShoal, dshore);
+    float breaker = kOc * smoothstep(uWShoal, uWShoal * 0.15, dshore) * smoothstep(-0.02, 0.18, wH);
+    float openFoam = crestFoam * (kTd * 0.35 + kOc * (0.35 + 0.65 * shoal));
+    m = max(m, max(openFoam, breaker * 0.95));
+  }
+  #endif
   float foam = smoothstep(1.0 - m, 1.2 - m, pattern * 0.88 + m * 0.22);
   float dist = length(cameraPosition - P);
   foam *= 1.0 - smoothstep(250.0, 700.0, dist);
@@ -351,9 +504,10 @@ float wFoamK = 0.0;
 }
 `;
 
-// One program for every water surface. opts.open: no banks (a basin whose
-// rim hides the edge): no shore attribute needed.
-export function createWaterMaterial({ open = false } = {}) {
+// One program for every water surface. The sea state is read per vertex
+// (aKind), so the inland water, the tidal Douro and the ocean share one
+// material and one draw.
+export function createWaterMaterial() {
   if (!waterUniforms.uWDetail.value) waterUniforms.uWDetail.value = detailTexture();
   const mat = new THREE.MeshPhysicalMaterial({
     color: 0x0b1f24,
@@ -367,13 +521,12 @@ export function createWaterMaterial({ open = false } = {}) {
   });
   mat.name = 'water';
   mat.defines = { BRG_WATER: '' };
-  if (open) mat.defines.BRG_WATER_OPEN = '';
   if (LITE) mat.defines.BRG_WATER_LITE = '';
   mat.onBeforeCompile = (sh) => {
     Object.assign(sh.uniforms, waterUniforms);
     sh.vertexShader = sh.vertexShader
       .replace('#include <common>', `#include <common>\n${WATER_VERT_PARS}`)
-      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvFlow = aFlow;\nvShore = aShore;');
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvFlow = aFlow;\nvShore = aShore;\nvKind = aKind;');
     sh.fragmentShader = sh.fragmentShader
       .replace('#include <common>', `#include <common>\n${WATER_FRAG_PARS}`)
       .replace('#include <color_fragment>', WATER_COLOR)
@@ -404,6 +557,55 @@ function edgeDistance(x, z, rings) {
   return best;
 }
 
+// Net area of a projected area's rings (outer minus holes), world units².
+function waterArea(rings) {
+  const ringArea = (r) => {
+    let a = 0;
+    for (let i = 0, j = r.length - 1; i < r.length; j = i++) a += (r[j].x + r[i].x) * (r[j].y - r[i].y);
+    return Math.abs(a) / 2;
+  };
+  return Math.max(0, ringArea(rings[0]) - rings.slice(1).reduce((s, r) => s + ringArea(r), 0));
+}
+
+// Principal axis of a ring, oriented downstream toward the sea (west). Used
+// as the tidal-current flow direction of the Douro.
+function riverAxis(ring) {
+  let mx = 0;
+  let mz = 0;
+  for (const p of ring) {
+    mx += p.x;
+    mz += p.y;
+  }
+  mx /= ring.length;
+  mz /= ring.length;
+  let sxx = 0;
+  let sxz = 0;
+  let szz = 0;
+  for (const p of ring) {
+    const dx = p.x - mx;
+    const dz = p.y - mz;
+    sxx += dx * dx;
+    sxz += dx * dz;
+    szz += dz * dz;
+  }
+  const tr = sxx + szz;
+  const l1 = (tr + Math.sqrt(Math.max(tr * tr - 4 * (sxx * szz - sxz * sxz), 0))) / 2;
+  let ex = l1 - szz;
+  let ez = sxz;
+  if (Math.abs(ex) < 1e-6 && Math.abs(ez) < 1e-6) {
+    ex = 1;
+    ez = 0;
+  }
+  const el = Math.hypot(ex, ez) || 1;
+  ex /= el;
+  ez /= el;
+  if (ex > 0) {
+    ex = -ex;
+    ez = -ez;
+  }
+  return { x: ex, z: ez };
+}
+
 // Rivers as ribbons draped on the terrain (three vertices across: bank,
 // centre, bank, so the bank distance interpolates); ponds and reservoirs as
 // flat polygons, split until no edge is longer than MAX_EDGE so the bank
@@ -413,6 +615,7 @@ export function createWater({ data, areas, project, heightAt }) {
   const idx = [];
   const flow = [];
   const shore = [];
+  const kind = [];
   const FLOW = 0.45; // world units per second, about 1.8 m/s
   const LIFT = 0.28; // world units (1.1 m) above the terrain
   const MAX_SEG = 5;
@@ -423,9 +626,11 @@ export function createWater({ data, areas, project, heightAt }) {
   // offshore.
   const VERT_CAP = 20000;
   // Open water (a.open): the tidal estuary, a wide river, the ocean. No bank
-  // foam, no bank-distance attribute, and no fine subdivision — the source
-  // ring is already dense enough and the surface is flat-shaded anyway.
+  // foam and no fine subdivision — the source ring is dense enough and the
+  // surface is flat-shaded anyway. The ocean is identified by area (the only
+  // open body of hundreds of km²); the rest is the tidal Douro.
   const SHORE_OPEN = 99.0;
+  const OCEAN_AREA = 1.0e6; // world units² (about 16 km²)
   for (const l of data.lines || []) {
     if (!Array.isArray(l.p) || l.p.length < 2) continue;
     const half = ((l.w || 3) * S) / 2;
@@ -455,6 +660,7 @@ export function createWater({ data, areas, project, heightAt }) {
         pos.push(x, heightAt(x, z) + LIFT, z);
         flow.push(dx * FLOW, dz * FLOW);
         shore.push(side ? 0 : half);
+        kind.push(0);
       }
     }
     for (let i = 0; i < pts.length - 1; i++) {
@@ -477,6 +683,9 @@ export function createWater({ data, areas, project, heightAt }) {
     const all = outer.concat(...holes);
     const rings = [outer, ...holes];
     const open = !!a.open;
+    const bodyArea = a.area || waterArea(rings);
+    const kindVal = open ? (bodyArea > OCEAN_AREA ? 2 : 1) : 0;
+    const axis = kindVal === 1 ? riverAxis(rings[0]) : { x: 0, z: 0 };
     const hs = all.map((p) => heightAt(p.x, p.y));
     let lo = Infinity;
     let hi = -Infinity;
@@ -531,8 +740,9 @@ export function createWater({ data, areas, project, heightAt }) {
     }
     verts.forEach((v, i) => {
       pos.push(v.x, (flat ? lo : heightAt(v.x, v.z)) + LIFT * 0.7, v.z);
-      flow.push(0, 0);
+      flow.push(axis.x, axis.z);
       shore.push(open ? SHORE_OPEN : tiny ? 3 : dist[i]);
+      kind.push(kindVal);
     });
     for (const [i, j, k] of tris) idx.push(base + i, base + j, base + k);
   }
@@ -559,7 +769,21 @@ export function createWater({ data, areas, project, heightAt }) {
   geo.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
   geo.setAttribute('aFlow', new THREE.Float32BufferAttribute(flow, 2));
   geo.setAttribute('aShore', new THREE.Float32BufferAttribute(shore, 1));
+  geo.setAttribute('aKind', new THREE.Float32BufferAttribute(kind, 1));
   geo.computeBoundingSphere();
+
+  // The coastline profile (data/nature.json coast, ascending latitude): the
+  // ocean shader reads it to shoal and break at the shore. Shared uniforms,
+  // so it is baked once for this water body.
+  if (Array.isArray(data.coast) && data.coast.length >= 2) {
+    const world = data.coast.map(([lat, lon]) => project(lat, lon));
+    const n = Math.min(world.length, COAST_MAX);
+    const arr = waterUniforms.uWCoast.value;
+    for (let i = 0; i < n; i++) arr[i] = world[i].x;
+    waterUniforms.uWCoastCount.value = n;
+    waterUniforms.uWCoastZ.value.set(world[0].z, world[n - 1].z);
+  }
+
   const mesh = new THREE.Mesh(geo, createWaterMaterial());
   mesh.name = 'water';
   mesh.receiveShadow = true;
@@ -567,6 +791,8 @@ export function createWater({ data, areas, project, heightAt }) {
 
   let sunSource = null; // the visible sun (scene.js skySunDir), when set
   let time = 0;
+  let tideT = 0;
+  let swell = 0;
   return {
     mesh,
     triangles: idx.length / 3,
@@ -576,7 +802,8 @@ export function createWater({ data, areas, project, heightAt }) {
     },
     // dt: 0 under reduced motion (a still surface); light: { dir, color }
     update(dt, light) {
-      time += Math.min(dt, 1 / 20);
+      const step = Math.min(dt, 1 / 20);
+      time += step;
       waterUniforms.uWTime.value = time;
       // phases wrapped on the CPU (skill rule): no large sin() arguments
       for (let i = 0; i < waveList.length; i++) {
@@ -585,6 +812,13 @@ export function createWater({ data, areas, project, heightAt }) {
         if (ph < 0) ph += TAU;
         phases[i] = ph;
       }
+      // the Douro reverses on a slow tidal cycle
+      tideT += step;
+      waterUniforms.uWTideOff.value = TIDE_AMP * Math.sin((TAU * tideT) / TIDE_PERIOD);
+      // whitecaps and detail drift with the dominant swell
+      swell += step * SWELL_SPEED;
+      if (swell > SWELL_WRAP) swell -= SWELL_WRAP;
+      waterUniforms.uWSwellOff.value.set(swell * SWELL_DIR.x, swell * SWELL_DIR.z);
       if (light) {
         waterUniforms.uWSunDir.value.copy(sunSource || light.dir);
         waterUniforms.uWSunCol.value.copy(light.color);

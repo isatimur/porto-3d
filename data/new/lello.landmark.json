@@ -32,20 +32,37 @@
   },
   "gallery": [
     {
-      "img": "assets/img/lello.jpg",
-      "caption_ru": "Неоготический фасад Ливрарии Лелло на Руа-даш-Кармелиташ"
-    },
-    {
       "img": "assets/img/lello-1.jpg",
-      "caption_ru": "Вход в магазин с улицы Руа-даш-Кармелиташ"
+      "kind": "exterior",
+      "caption_ru": "Книжный магазин Лелло — общий вид",
+      "credit": {
+        "author": "Ray Swi-hymn from Sijhih-Taipei, Taiwan",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:20200130_Livraria_Lello_3298_(49650948426).jpg"
+      },
+      "_commons": "File:20200130 Livraria Lello 3298 (49650948426).jpg"
     },
     {
       "img": "assets/img/lello-2.jpg",
-      "caption_ru": "Интерьер с деревянными арками и витражом-кларабойей"
+      "kind": "exterior",
+      "caption_ru": "Книжный магазин Лелло — общий вид",
+      "credit": {
+        "author": "Werner Bayer",
+        "license": "CC0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2025-b-Libreria_Lello_-_3_(54884634867).jpg"
+      },
+      "_commons": "File:2025-b-Libreria Lello - 3 (54884634867).jpg"
     },
     {
       "img": "assets/img/lello-3.jpg",
-      "caption_ru": "Книжные полки под неоготическими арками"
+      "kind": "detail",
+      "caption_ru": "Книжный магазин Лелло — панорамный вид",
+      "credit": {
+        "author": "John Samuel",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Exterior_view_of_Livraria_Lello_01.jpg"
+      },
+      "_commons": "File:Exterior view of Livraria Lello 01.jpg"
     }
   ],
   "videos": [],

@@ -5,6 +5,7 @@ import { Kit, PALETTE, MAT, PROFILES, corniceProfile, archPath, pointedPath } fr
 import { onEdge, polyCornice, polyBand, polyWindows, roofOver, plainBuilding } from '../metric.js';
 import { edges, obb, offset, bbox } from '../geom.js';
 import { win, pediment, punchedWindows } from '../parts.js';
+import { fitTo } from './site-fit.js';
 
 const rectPts = (cx, cz, w, d) => [
   [cx - w / 2, cz - d / 2], [cx + w / 2, cz - d / 2],
@@ -12,6 +13,7 @@ const rectPts = (cx, cz, w, d) => [
 ];
 
 function builder(k, site) {
+  const done = fitTo(k, site, { w: 70.2, d: 56.9, h: 24, cx: 0, cz: 1.35 });
   const OW = 68;
   const OD = 52;
   const outer = rectPts(0, 0, OW, OD);
@@ -79,12 +81,15 @@ function builder(k, site) {
   k.end('court');
 
   // glass roof over the Pátio das Nações
+  k.begin('height');
   k.hipRoof(28, 28, 3.2, 'glass', 0, 20.4, 3, { glass: true, over: 0.2 });
   for (let i = -2; i <= 2; i++) {
     k.box(0.14, 0.2, 28, 'iron', i * 5.2, 21.2, 3);
     k.box(28, 0.2, 0.14, 'iron', 0, 21.2, 3 + i * 5.2);
   }
   k.lathe(PROFILES.finial, 6, 'lead', 0, 22.4, 3, { sr: 0.5, sh: 1.6, flat: true });
+  k.end('height');
+  done();
 }
 
 builder.metric = true;

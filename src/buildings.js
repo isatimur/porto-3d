@@ -10,6 +10,7 @@
 // the facade shader live in src/facades.js.
 import * as THREE from 'three';
 import { S } from './geo.js';
+import { createFacadeDetailTexture } from './textures.js';
 import { setFacadeConfig, facadeStyle, wallBase, roofBase, roofPlan, extrudeRoofed, STYLE, FACADE_VERT_PARS, FACADE_VERT, FACADE_FRAG_PARS, FACADE_FRAG } from './facades.js';
 
 const TILE_M = 1000; // 1 km: about 60 draw calls for the city, not 230
@@ -33,6 +34,9 @@ export const BUILDING_UNIFORMS = {
   uNight: { value: 0 },
   // seconds, for the streamed tiles' fade-in (src/tiles.js advances it)
   uClock: { value: 0 },
+  // 64 x 64 RGBA data map (src/textures.js), sampled by world position for
+  // soiling, render grain and rain streaks on the ordinary facades
+  uGrime: { value: null },
 };
 
 // Ray-cast point in polygon; poly = [{x, z}].
@@ -62,16 +66,18 @@ export function hash(i) {
 
 // Facade style, wall and roof colour of one building (linear rgb arrays)
 // and the aWall.w its walls carry: style * 2 + seed (churches: -1, no
-// windows). x, z: its centre (world); hM: wall height (m); a: OSM extras.
-export function buildingColors(seed, k, areaM2, x = 0, z = 0, hM = 7, a = null) {
+// windows). x, z: its centre (world); hM: wall height (m); a: OSM extras;
+// groundM: ground height under it (m, 0 at the centre's terrain), which
+// picks the riverfront arcades.
+export function buildingColors(seed, k, areaM2, x = 0, z = 0, hM = 7, a = null, groundM = null) {
   const h1 = hash(seed);
   const h2 = hash(seed + 7919);
   const h4 = hash(seed + 31337);
   const tint = 0.9 + h2 * 0.2;
   const church = k === 'church';
-  const style = church ? STYLE.LEGACY : facadeStyle(x, z, k, areaM2, hM, a, h1);
+  const style = church ? STYLE.LEGACY : facadeStyle(x, z, k, areaM2, hM, a, h1, groundM);
   const shed = k === 'industrial' || style === STYLE.IND || style === STYLE.MODERN || (k === 'commercial' && areaM2 > 300) || areaM2 > 1600;
-  const wb = church ? CHURCH_WALL : wallBase(style, h4, a);
+  const wb = church ? CHURCH_WALL : wallBase(style, h4, a, x, z);
   const wk = tint * WALL_DIM;
   const rb = roofBase(shed, h2, a);
   const rk = 0.92 + h1 * 0.16;
@@ -117,7 +123,7 @@ export function extrudeBuilding(T, pts, h, k, areaM2, seedIndex, heightAt, roofO
   }
   cx /= n;
   cz /= n;
-  const { wc, rc, win: seed, style, h2 } = buildingColors(seedIndex, k, areaM2, cx, cz, hM, attrs);
+  const { wc, rc, win: seed, style, h2 } = buildingColors(seedIndex, k, areaM2, cx, cz, hM, attrs, gmin / S);
 
   if (!roofOnly) {
     const plan = attrs?.far ? FLAT : roofPlan(pts, areaM2, k, hM, style, top, attrs, h2, hash(seedIndex + 104729));
@@ -203,6 +209,7 @@ export function setBuildingsLite(on) {
 }
 
 export function createBuildingMaterial({ fade = false } = {}) {
+  if (!BUILDING_UNIFORMS.uGrime.value) BUILDING_UNIFORMS.uGrime.value = createFacadeDetailTexture();
   const material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.9, metalness: 0 });
   material.name = fade ? 'buildings-tiles' : 'buildings';
   material.defines = {};
@@ -251,7 +258,8 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
   // the historic centre the facade zones count from (scripts/fetch-buildings.mjs
   // writes it; older files: the map origin)
   const hist = Array.isArray(data.hist) ? data.hist : data.origin ? [data.origin.lat, data.origin.lon] : null;
-  setFacadeConfig({ centre: hist ? project(hist[0], hist[1]) : null, lite: WIN_LITE });
+  const centre = hist ? project(hist[0], hist[1]) : null;
+  setFacadeConfig({ centre, lite: WIN_LITE, centreGroundM: centre ? heightAt(centre.x, centre.z) / S : 0 });
 
   const outlineBoxes = masks.outlines.map((poly) => {
     const xs = poly.map((p) => p.x);

@@ -18,10 +18,39 @@
   ],
   "tip_ru": "Приходите в вестибюль рано утром или вечером, когда меньше пассажиров и лучше виден свет на азулежу; вход бесплатный, это действующий вокзал. Панели удобнее рассматривать с верхнего уровня галереи. Отсюда пешком пять минут до башни Клеригуш и собора. Сан-Бенту — пересадочный узел метро (линии D и G), что удобно для поездок по городу.",
   "gallery": [
-    {"img": "assets/img/sao-bento.jpg", "caption_ru": "Фасад вокзала Сан-Бенту с башнями и часами на площади Алмейды Гарретт."},
-    {"img": "assets/img/sao-bento-1.jpg", "caption_ru": "Вестибюль, облицованный азулежу Жоржи Коласу со сценами истории."},
-    {"img": "assets/img/sao-bento-2.jpg", "caption_ru": "Панель азулежу с изображением въезда Жуана I и Филипы Ланкастерской в Порту."},
-    {"img": "assets/img/sao-bento-3.jpg", "caption_ru": "Перрон под металлическими фермами перекрытия вокзала."}
+    {
+      "img": "assets/img/sao-bento-1.jpg",
+      "kind": "exterior",
+      "caption_ru": "Вокзал Сан-Бенту — общий вид",
+      "credit": {
+        "author": "Diego Delso",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Estaci%C3%B3n_de_tren_S%C3%A3o_Bento,_Oporto,_Portugal,_2019-06-02,_DD_05.jpg"
+      },
+      "_commons": "File:Estación de tren São Bento, Oporto, Portugal, 2019-06-02, DD 05.jpg"
+    },
+    {
+      "img": "assets/img/sao-bento-2.jpg",
+      "kind": "exterior",
+      "caption_ru": "Вокзал Сан-Бенту — вечерняя подсветка",
+      "credit": {
+        "author": "K1008",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Bahnhof_Porto_S%C3%A3o_Bento_-_am_Abend.jpg"
+      },
+      "_commons": "File:Bahnhof Porto São Bento - am Abend.jpg"
+    },
+    {
+      "img": "assets/img/sao-bento-3.jpg",
+      "kind": "detail",
+      "caption_ru": "Вокзал Сан-Бенту — азулежу",
+      "credit": {
+        "author": "Peter K Burian",
+        "license": "CC BY 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Azuelo_and_mural,_S%C3%A3o_Bento_railway_station,_Porto,_Portugal.jpg"
+      },
+      "_commons": "File:Azuelo and mural, São Bento railway station, Porto, Portugal.jpg"
+    }
   ],
   "videos": [],
   "panorama": null,

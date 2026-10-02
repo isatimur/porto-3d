@@ -27,24 +27,41 @@
   "image_credit": {
     "author": "Petnog",
     "license": "CC BY-SA 4.0",
-    "source_url": "https://commons.wikimedia.org/wiki/File:Bolhão2023.jpg"
+    "source_url": "https://commons.wikimedia.org/wiki/File:Bolh%C3%A3o2023.jpg"
   },
   "gallery": [
     {
-      "img": "assets/img/mercado-bolhao.jpg",
-      "caption_ru": "Меркаду ду Больяу после реставрации"
-    },
-    {
       "img": "assets/img/mercado-bolhao-1.jpg",
-      "caption_ru": "Неоклассический фасад рынка"
+      "kind": "exterior",
+      "caption_ru": "Рынок Больяу — общий вид",
+      "credit": {
+        "author": "GualdimG",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Exterior_of_Mercado_do_Bolh%C3%A3o_01.jpg"
+      },
+      "_commons": "File:Exterior of Mercado do Bolhão 01.jpg"
     },
     {
       "img": "assets/img/mercado-bolhao-2.jpg",
-      "caption_ru": "Торговые ряды внутри рынка"
+      "kind": "exterior",
+      "caption_ru": "Рынок Больяу — общий вид",
+      "credit": {
+        "author": "René Hourdry",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Mercado_do_Bolhao_20.jpg"
+      },
+      "_commons": "File:Mercado do Bolhao 20.jpg"
     },
     {
       "img": "assets/img/mercado-bolhao-3.jpg",
-      "caption_ru": "Уличные магазины по периметру"
+      "kind": "exterior",
+      "caption_ru": "Рынок Больяу — общий вид",
+      "credit": {
+        "author": "Maragato1976",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Mercado_do_Bolh%C3%A3o_(Porto).jpg"
+      },
+      "_commons": "File:Mercado do Bolhão (Porto).jpg"
     }
   ],
   "videos": [],

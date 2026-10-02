@@ -31,20 +31,37 @@
   },
   "gallery": [
     {
-      "img": "assets/img/uporto-reitoria.jpg",
-      "caption_ru": "Здание ректората Университета Порту"
-    },
-    {
       "img": "assets/img/uporto-reitoria-1.jpg",
-      "caption_ru": "Площадь Гомеша Тейшейры и фонтан со львами"
+      "kind": "exterior",
+      "caption_ru": "Университет Порту (ректорат) — общий вид",
+      "credit": {
+        "author": "Alegna13",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Edif%C3%ADcio_da_Reitoria_da_Universidade_do_Porto.jpg"
+      },
+      "_commons": "File:Edifício da Reitoria da Universidade do Porto.jpg"
     },
     {
       "img": "assets/img/uporto-reitoria-2.jpg",
-      "caption_ru": "Фонтан со львами перед ректоратом"
+      "kind": "exterior",
+      "caption_ru": "Университет Порту (ректорат) — общий вид",
+      "credit": {
+        "author": "Dafema",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Fonte_dos_le%C3%B5es_e_reitoria.jpg"
+      },
+      "_commons": "File:Fonte dos leões e reitoria.jpg"
     },
     {
       "img": "assets/img/uporto-reitoria-3.jpg",
-      "caption_ru": "Историческое здание ректората"
+      "kind": "exterior",
+      "caption_ru": "Университет Порту (ректорат) — общий вид",
+      "credit": {
+        "author": "Joseolgon",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Museu_de_Hist%C3%B3ria_Natural_e_da_Ci%C3%AAncia_da_Universidade_do_Porto_(3).jpg"
+      },
+      "_commons": "File:Museu de História Natural e da Ciência da Universidade do Porto (3).jpg"
     }
   ],
   "videos": [],

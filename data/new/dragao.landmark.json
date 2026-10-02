@@ -18,10 +18,39 @@
   ],
   "tip_ru": "Лучший вид на внешний облик — у главного фасада, а расписание туров и музея ФК «Порту» смотрите на fcporto.pt. Удобнее всего приехать на метро до станции Estádio do Dragão.",
   "gallery": [
-    { "img": "assets/img/dragao.jpg", "caption_ru": "Стадион Драгау, домашняя арена ФК «Порту»" },
-    { "img": "assets/img/dragao-1.jpg", "caption_ru": "Трибуны стадиона во время матча" },
-    { "img": "assets/img/dragao-2.jpg", "caption_ru": "Азулежу на каркасе арены" },
-    { "img": "assets/img/dragao-3.jpg", "caption_ru": "Вид на поле и трибуны" }
+    {
+      "img": "assets/img/dragao-1.jpg",
+      "kind": "exterior",
+      "caption_ru": "Стадион Драгау — общий вид",
+      "credit": {
+        "author": "Threeohsix",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Away_team_locker_rooms_at_Est%C3%A1dio_do_Drag%C3%A3o.jpg"
+      },
+      "_commons": "File:Away team locker rooms at Estádio do Dragão.jpg"
+    },
+    {
+      "img": "assets/img/dragao-2.jpg",
+      "kind": "exterior",
+      "caption_ru": "Стадион Драгау — общий вид",
+      "credit": {
+        "author": "su ro",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Bandeiras_(55702235).jpg"
+      },
+      "_commons": "File:Bandeiras (55702235).jpg"
+    },
+    {
+      "img": "assets/img/dragao-3.jpg",
+      "kind": "exterior",
+      "caption_ru": "Стадион Драгау — общий вид",
+      "credit": {
+        "author": "Pdrogon",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Call_for_a_Win,_Ask_for_Glory.jpg"
+      },
+      "_commons": "File:Call for a Win, Ask for Glory.jpg"
+    }
   ],
   "videos": [],
   "panorama": null,

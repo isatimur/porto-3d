@@ -18,10 +18,39 @@
   ],
   "tip_ru": "Вход платный, билет включает катакомбы и музей; лучше приходить в первой половине дня, пока не начались группы. Церковь стоит в двух шагах от дворца биржи, поэтому смотрите их вместе. Внутри темно и много золота — не пользуйтесь вспышкой и дайте глазам привыкнуть. Ближайшая станция метро — São Bento, далее пешком в сторону Рибейры.",
   "gallery": [
-    {"img": "assets/img/sao-francisco-porto.jpg", "caption_ru": "Готический западный фасад церкви с розеткой и барочным порталом."},
-    {"img": "assets/img/sao-francisco-porto-1.jpg", "caption_ru": "Готическая розетка и портал с колоннами и статуей святого Франциска."},
-    {"img": "assets/img/sao-francisco-porto-2.jpg", "caption_ru": "Золочёный барочный интерьер: алтари, колонны и резьба по дереву."},
-    {"img": "assets/img/sao-francisco-porto-3.jpg", "caption_ru": "Катакомбы под церковью, где покоятся останки монахов."}
+    {
+      "img": "assets/img/sao-francisco-porto-1.jpg",
+      "kind": "exterior",
+      "caption_ru": "Церковь Святого Франциска — общий вид",
+      "credit": {
+        "author": "Lídia Maria Faria",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:IGREJA_DE_S.FRANCISCO_1.jpg"
+      },
+      "_commons": "File:IGREJA DE S.FRANCISCO 1.jpg"
+    },
+    {
+      "img": "assets/img/sao-francisco-porto-2.jpg",
+      "kind": "exterior",
+      "caption_ru": "Церковь Святого Франциска — общий вид",
+      "credit": {
+        "author": "Allison Meier from Brooklyn, United States",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_de_Sao_Francisco_(28502018058).jpg"
+      },
+      "_commons": "File:Igreja de Sao Francisco (28502018058).jpg"
+    },
+    {
+      "img": "assets/img/sao-francisco-porto-3.jpg",
+      "kind": "exterior",
+      "caption_ru": "Церковь Святого Франциска — общий вид",
+      "credit": {
+        "author": "John Samuel",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_de_S%C3%A3o_Francisco_(Porto)_01.jpg"
+      },
+      "_commons": "File:Igreja de São Francisco (Porto) 01.jpg"
+    }
   ],
   "videos": [],
   "panorama": null,

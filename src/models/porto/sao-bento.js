@@ -6,6 +6,7 @@ import { Kit, PALETTE, MAT, PROFILES, corniceProfile, archPath, pointedPath } fr
 import { onEdge, polyCornice, polyBand, polyWindows, roofOver, plainBuilding } from '../metric.js';
 import { edges, obb, offset, bbox } from '../geom.js';
 import { win, pediment } from '../parts.js';
+import { fitTo } from './site-fit.js';
 
 const rectPts = (cx, cz, w, d) => [
   [cx - w / 2, cz - d / 2], [cx + w / 2, cz - d / 2],
@@ -17,6 +18,7 @@ function disc(k, r, th, color, x, y, z, o = {}) {
 }
 
 function builder(k, site) {
+  const done = fitTo(k, site, { w: 73.8, d: 26.8, h: 24.4, cx: 0, cz: 1.5 }, { w: 73.8, d: 26.8, cx: 0, cz: 1.5 });
   const W = 72;
   const D = 22;
   const H = 13;
@@ -50,6 +52,7 @@ function builder(k, site) {
 
   // ------------------------------------------------------- monumental pavilion
   k.begin('pavilion');
+  k.begin('height');
   const pz = D / 2 - 1.2;
   k.prism(rectPts(0, pz, 20, 5), 0, 17, 'granite');
   k.box(21, 1.4, 6, 'graniteDark', 0, 0, pz);
@@ -76,11 +79,13 @@ function builder(k, site) {
     k.box(6.8, 5.0, 0.3, 'graniteLight', sx * 14, 1.9, 11.0, {});
     k.box(6.0, 4.2, 0.35, 'azulejo', sx * 14, 2.3, 11.15, { mat: MAT.azulejo });
   }
+  k.end('height');
   k.end('pavilion');
 
   // iron and glass entrance canopy
   k.box(13, 0.25, 3.0, 'iron', 0, 8.2, pz + 3.6);
   for (const sx of [-1, 1]) k.segment([sx * 6, 8.3, pz + 5.0], [sx * 6, 1.0, pz + 4.6], 0.1, 0.1, 'iron', { round: true, seg: 4 });
+  done();
 }
 
 builder.metric = true;

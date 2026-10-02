@@ -69,12 +69,107 @@ export function shrinkCheck(fit) {
 //           { box: { x0, x1, z0, z1 } } (an explicit local box, metres);
 //           optional margin (m, default 2) and fall (falloff, m)
 //   extent: OSM set the whole model must match: 'outline' (default) |
-//           [RegExp] (outline plus the parts whose name or tag matches)
+  //           [RegExp] (outline plus the parts whose name or tag matches) |
+  //           { box: { x0, x1, z0, z1 } } (an explicit local-metre box, for a
+  //           model that stands for part of the OSM outline: a bridge deck,
+  //           a station head building; documents the approved deviation) |
+  //           { part: RegExp } (the box of that OSM part)
 //   view:   camera bearing offset from the front, radians (default 0.6)
 //   heightRel: measure the height on the builder's 'height' group from its
 //           own floor (draped sites whose y carries the slope)
 //   note:   why the rule exists (goes into the report)
-export const FIT_RULES = {};
+// deviationNote: why a model's plan may not match the OSM outline (the
+//   approved deviation; shown in the report, not a blanket disable).
+// Explicit per-landmark rules. Each one is narrow: it names the part of the
+// OSM footprint the model actually stands for (see data/dimensions.json
+// notes for the source). Everything else is left to the builder + outline.
+export const FIT_RULES = {
+  // OSM way 211337881 is the whole Clérigos complex (church, tower and the
+  // Casa da Irmandade, 74 m). The model is the church + tower only.
+  clerigos: {
+    extent: { box: { x0: -16.3, x1: 16.3, z0: -17.8, z1: 17.8 } },
+    fitTo: true,
+    deviationNote: 'model is the church + 75.6 m tower; the outline also holds the Casa da Irmandade',
+  },
+  // OSM way 1159533444 is the whole station (head building, torreões and the
+  // 182.6 m platform trainshed). The model is the head building.
+  'sao-bento': {
+    extent: { box: { x0: -36.9, x1: 36.9, z0: -11.9, z1: 14.9 } },
+    deviationNote: 'model is the head building; the outline also holds the platform trainshed',
+  },
+  // The bridges are mapped as long thin OSM corridors; the built decks are
+  // wider (parapets, ribs, pylons, abutments). These are the real structure
+  // boxes the models stand for (length from the OSM outline).
+  'ponte-luis-i': {
+    extent: { box: { x0: -9, x1: 9, z0: -205.1, z1: 205.1 } },
+    deviationNote: 'OSM outline is the deck corridor; the model spans the 18 m pylon structure',
+  },
+  'ponte-arrabida': {
+    extent: { box: { x0: -12, x1: 12, z0: -251.3, z1: 251.3 } },
+    deviationNote: 'OSM outline includes the approach embankments; the model is the 24 m deck structure',
+  },
+  'ponte-maria-pia': {
+    extent: { box: { x0: -5.3, x1: 5.3, z0: -185.1, z1: 185.1 } },
+    deviationNote: 'OSM outline is the 4.2 m rail centreline; the model spans the 10.5 m lattice deck',
+  },
+  // Serralves: the outline is the Casa de Serralves villa; the model is the
+  // whole estate (villa + Siza museum + gardens), all mapped as OSM parts.
+  serralves: {
+    extent: [/./],
+    deviationNote: 'model is the whole Serralves estate (villa + museum + gardens), not the villa alone',
+  },
+  // São Francisco: OSM way 210681249 is the Gothic church alone (28.4 x 51.6 m).
+  // The model is the church plus the lost-cloister arcade fragment drawn on its
+  // east side (the Palácio da Bolsa now occupies the convent). Box = the drawn
+  // church + cloister fragment: the 28 m nave + buttresses, z 51 m, with the
+  // 13 m arcade extending +x.
+  'sao-francisco-porto': {
+    extent: { box: { x0: -15.3, x1: 27.7, z0: -24.9, z1: 26.1 } },
+    heightRel: true,
+    deviationNote: 'model is the church + the cloister arcade fragment east of it; the outline is the church alone',
+  },
+  // Cais da Ribeira: OSM way 239012587 is the quay area (22.5 x 70.6 m); the
+  // model is the continuous arcaded terrace row on the quay, with its granite
+  // quay and a strip of the Douro drawn in front. Box = the drawn row (70 m)
+  // plus quay and river frontage.
+  ribeira: {
+    extent: { box: { x0: -64.9, x1: 9.2, z0: -65.1, z1: 65.7 } },
+    deviationNote: 'model is the ~70 m arcaded terrace row plus its quay and drawn Douro frontage; the outline is the quay area only',
+  },
+  // Molhe de Felgueiras: OSM way 446589339 is the 236 m breakwater, with the
+  // 10 m light mapped only as a node. The model is the breakwater mole + the
+  // lighthouse + the ocean/rocks around it. heightRel measures the light on the
+  // 'height' group from the mole crown, so the real ~10 m tower governs.
+  felgueiras: {
+    extent: { box: { x0: -65.0, x1: 70.8, z0: -157.1, z1: 156.9 } },
+    heightRel: true,
+    deviationNote: 'model is the breakwater mole + ~10 m lighthouse + the drawn ocean/rocks; the outline is the breakwater line only',
+  },
+  // Caves de Gaia: OSM way 382530398 is the Sandeman lodge (32.8 x 29.9 m); the
+  // model is the whole port-wine lodge row (Sandeman, Graham's, Taylor's) with
+  // its casks, yards, quay and the Douro. Box = the drawn lodge row + quay.
+  'caves-gaia': {
+    extent: { box: { x0: -25.5, x1: 88.1, z0: -78.6, z1: 73.8 } },
+    deviationNote: 'model is the port-wine lodge row (three lodges, casks, quay); the outline is one lodge building',
+  },
+  // Aliados: OSM relation 3012085 is the Câmara Municipal block (63.8 x 51.6 m);
+  // the model is the granite avenue axis closing on the Câmara. Box = the drawn
+  // avenue (with its flanking blocks) + the Câmara. The tower height is fixed in
+  // data/dimensions.json (70 m, Wikipedia), never by scaling this axis.
+  aliados: {
+    extent: { box: { x0: -49.6, x1: 29.6, z0: -52.3, z1: 47.1 } },
+    deviationNote: 'model is the avenue axis + flanking blocks closing on the Câmara; the outline is the Câmara block alone',
+  },
+  // Jardins do Palácio de Cristal: OSM way 244599647 is the whole garden
+  // (403.8 x 335.9 m); the model is the terraced gardens, the Super Bock Arena
+  // dome and the Douro mirador/water. Box = the drawn gardens + arena + water.
+  // The arena height is the real dome apex (~39 m), set in data/dimensions.json.
+  'palacio-cristal': {
+    extent: { box: { x0: -214.1, x1: 220.1, z0: -219.2, z1: 193.9 } },
+    fitTo: true,
+    deviationNote: 'model is the gardens + the ~30 m domed arena + the Douro mirador/water; the outline is the garden boundary',
+  },
+};
 
 export function dimsFor(id) {
   return DIMS[id] || null;
@@ -228,11 +323,48 @@ export function fitLandmark(l, ctx) {
     partsOf: (re) => frame.parts.filter((p) => matches(p, re)),
   };
 
+  // --- the OSM extent the model must match (rule.extent), resolved before
+  // the build so a builder can be sized to it (rule.fitTo)
+  let extentPts = [...frame.outline];
+  if (Array.isArray(rule.extent)) {
+    for (const p of frame.parts) if (rule.extent.some((re) => matches(p, re))) extentPts.push(...p.pts);
+  } else if (rule.extent?.box) {
+    const B = rule.extent.box;
+    extentPts = [[B.x0, B.z0], [B.x1, B.z0], [B.x1, B.z1], [B.x0, B.z1]];
+  } else if (rule.extent?.part) {
+    const p = frame.parts.find((q) => matches(q, rule.extent.part));
+    if (p) extentPts = p.pts.slice();
+  }
+  const eb = bbox(extentPts);
+  const ob = bbox(frame.outline);
+
   // --- build (metric builders draw in metres on this footprint)
   let g = buildModel(l.model, l.id, { footprint, dims });
   let glass = g.userData.glass || null;
   const groundLine = g.userData.groundLine || null;
-  const groups = g.userData.groups || {};
+  let groups = g.userData.groups || {};
+  // rule.fitTo: map the authored model onto the OSM extent (plan) and the
+  // real height, so a builder authored in its own metres still stands at the
+  // size of the footprint it represents. Opt-in per landmark.
+  if (rule.fitTo && g.userData.metric) {
+    g.computeBoundingBox();
+    const a = g.boundingBox;
+    const aw = Math.max(1e-3, a.max.x - a.min.x);
+    const ad = Math.max(1e-3, a.max.z - a.min.z);
+    const ah = Math.max(1e-3, a.max.y);
+    const dimsH = dims?.height_m?.total;
+    const sx = eb.w > 0.5 ? eb.w / aw : 1;
+    const sz = eb.d > 0.5 ? eb.d / ad : 1;
+    const sy = dimsH ? dimsH / ah : 1;
+    const acx = (a.min.x + a.max.x) / 2;
+    const acz = (a.min.z + a.max.z) / 2;
+    const m = new THREE.Matrix4()
+      .makeTranslation(eb.cx, 0, eb.cz)
+      .multiply(new THREE.Matrix4().makeScale(sx, sy, sz))
+      .multiply(new THREE.Matrix4().makeTranslation(-acx, 0, -acz));
+    g.applyMatrix4(m);
+    if (glass) glass.applyMatrix4(m);
+  }
   if (!g.userData.metric) {
     // legacy: uniform scale to the real height, centred on the outline
     g.computeBoundingBox();
@@ -342,10 +474,6 @@ export function fitLandmark(l, ctx) {
   }
 
   // --- report: real size vs the OSM extent it stands for
-  const extentPts = [...frame.outline];
-  if (Array.isArray(rule.extent)) for (const p of frame.parts) if (rule.extent.some((re) => matches(p, re))) extentPts.push(...p.pts);
-  const eb = bbox(extentPts);
-  const ob = bbox(frame.outline);
   const dev = (m, t) => (t > 0.5 ? Math.abs(m - t) / t : 0);
   const size = { x: mb.max.x - mb.min.x, z: mb.max.z - mb.min.z };
   const main = groups.main || null;
@@ -360,7 +488,7 @@ export function fitLandmark(l, ctx) {
   const dimsH = dims?.height_m?.total ?? null;
   const deviation = {
     site: Math.max(dev(size.x, eb.w), dev(size.z, eb.d)),
-    main: main ? Math.max(dev(main.max.x - main.min.x, ob.w), dev(main.max.z - main.min.z, ob.d)) : null,
+    main: main ? Math.max(dev(main.max.x - main.min.x, eb.w), dev(main.max.z - main.min.z, eb.d)) : null,
     height: dimsH ? dev(H, dimsH) : null,
   };
   const worst = Math.max(deviation.site, deviation.main ?? 0, deviation.height ?? 0);

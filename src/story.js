@@ -38,6 +38,17 @@ const VIEWS = {
   sameiro: { az: -0.2, elev: 0.28, k: 1.25, primary: true },
   stadium: { az: 0.25, elev: 0.42, k: 1.1 },
   unesco: { az: -0.35, elev: 0.3, k: 0.9, frame: 2 },
+  // Porto chapters (data/story.json). Same id keys as the chapters.
+  'portus-cale': { az: 0.3, elev: 0.45, k: 1.6, frame: 2 },
+  'porto-suebi': { az: 0, elev: 0.35, k: 1.1, primary: true },
+  episcopal: { az: -0.2, elev: 0.4, k: 1.15, primary: true },
+  condado: { az: 0.15, elev: 0.38, k: 1.2, primary: true },
+  ceuta: { az: -0.3, elev: 0.4, k: 1.5, frame: 2 },
+  vinho: { az: 0.2, elev: 0.5, k: 1.8, frame: 2 },
+  cerco: { az: -0.1, elev: 0.42, k: 1.3, frame: 2 },
+  pontes: { az: 0.4, elev: 0.55, k: 2.6, frame: 3 },
+  republica: { az: -0.4, elev: 0.4, k: 1.9, frame: 2 },
+  'porto-unesco': { az: -0.25, elev: 0.3, k: 0.95, frame: 2 },
 };
 
 const clamp01 = (x) => Math.min(1, Math.max(0, x));

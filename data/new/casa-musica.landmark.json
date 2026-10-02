@@ -18,10 +18,39 @@
   ],
   "tip_ru": "Фойе и открытую террасу можно осмотреть бесплатно, а афиша и билеты — на casadamusica.com. Удобнее всего доехать на метро до станции Casa da Música.",
   "gallery": [
-    { "img": "assets/img/casa-musica.jpg", "caption_ru": "Casa da Música на Ротонде Боавишта" },
-    { "img": "assets/img/casa-musica-1.jpg", "caption_ru": "Бетонный многогранник в вечерней подсветке" },
-    { "img": "assets/img/casa-musica-2.jpg", "caption_ru": "Зал Suggia — главный концертный зал" },
-    { "img": "assets/img/casa-musica-3.jpg", "caption_ru": "Азулежу и фойе Дома музыки" }
+    {
+      "img": "assets/img/casa-musica-1.jpg",
+      "kind": "exterior",
+      "caption_ru": "Дом музыки — общий вид",
+      "credit": {
+        "author": "António Alves Tedim",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:A_escada_para_a_m%C3%BAsica.jpg"
+      },
+      "_commons": "File:A escada para a música.jpg"
+    },
+    {
+      "img": "assets/img/casa-musica-2.jpg",
+      "kind": "exterior",
+      "caption_ru": "Дом музыки — общий вид",
+      "credit": {
+        "author": "Joseolgon",
+        "license": "CC BY 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Casa_da_M%C3%BAsica_2026_1.jpg"
+      },
+      "_commons": "File:Casa da Música 2026 1.jpg"
+    },
+    {
+      "img": "assets/img/casa-musica-3.jpg",
+      "kind": "exterior",
+      "caption_ru": "Дом музыки — общий вид",
+      "credit": {
+        "author": "Dale Cruse - 10M views from San Francisco, CA, USA",
+        "license": "CC BY 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Casa_da_M%C3%BAsica,_Porto,_Portugal_(54828599094).jpg"
+      },
+      "_commons": "File:Casa da Música, Porto, Portugal (54828599094).jpg"
+    }
   ],
   "videos": [],
   "panorama": null,

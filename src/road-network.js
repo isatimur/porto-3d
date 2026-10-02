@@ -198,6 +198,11 @@ function build(roads, project, heightAt) {
   // of the way's direction), measured over the way's half width: on a
   // hillside the surface and the vehicles follow it (surfaceY below)
   const SL = new Float32Array(NP);
+  // unit vector to the left of the way at each point: surfaceY samples the
+  // terrain at the real lateral offset with it, so a lane on a bump or in a
+  // hollow rides the ground instead of a straight cross-slope estimate.
+  const LX = new Float32Array(NP);
+  const LZ = new Float32Array(NP);
   for (const w of ways) {
     const d = Math.max(0.75, (w.widthM / 2) * S);
     const end = w.start + w.n - 1;
@@ -210,6 +215,8 @@ function build(roads, project, heightAt) {
       if (L < 1e-6) continue;
       const lx = tz / L;
       const lz = -tx / L;
+      LX[i] = lx;
+      LZ[i] = lz;
       const s = (heightAt(PX[i] + lx * d, PZ[i] + lz * d) - heightAt(PX[i] - lx * d, PZ[i] - lz * d)) / (2 * d);
       SL[i] = Math.max(-0.6, Math.min(0.6, s));
     }
@@ -614,11 +621,14 @@ function build(roads, project, heightAt) {
     SL,
     CAP,
     NL,
+    heightAt,
     // the surface at point i, `left` world units left of the way's direction:
-    // the way's height, or the hillside where it rises above it
+    // the way's height, or the real terrain at that lateral offset where the
+    // ground rises across the road (roads.js draws with this same call, so
+    // the mesh and the vehicles sit on one surface)
     surfaceY(i, left) {
-      const h = G[i] + SL[i] * left;
-      return h > Y[i] ? h : Y[i];
+      const g = heightAt(PX[i] + LX[i] * left, PZ[i] + LZ[i] * left);
+      return g > Y[i] ? g : Y[i];
     },
     nNodes,
     nodeWays,
@@ -957,6 +967,11 @@ export function createFlow(net, { N = 600, rnd = Math.random, blocked = null } =
     const left = st > 0 ? -o : o;
     const ya = net.surfaceY(a, left);
     out.y = ya + (net.surfaceY(b, left) - ya) * u;
+    // a bump between two densified points can still rise above the
+    // interpolated surface: put the wheels on the real ground at the exact
+    // position, never below it (a bridge deck stays higher, so it wins)
+    const gy = net.heightAt(out.x, out.z);
+    if (gy > out.y) out.y = gy;
     out.hidden = u < 0.5 ? HID[a] : HID[b];
     // the body turns smoothly through the polyline's joints
     if (dt > 0) {

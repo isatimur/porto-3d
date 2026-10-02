@@ -97,25 +97,25 @@ for (const l of landmarks) {
     checkCredit(`${w}.image_credit`, l.image_credit);
   }
 
-  // history_ru: 900-1800 chars, 3-5 paragraphs
+  // history_ru: 900-3600 chars, 3-8 paragraphs (Porto's detailed editorial standard)
   if (!isStr(l.history_ru)) err(w, 'history_ru missing');
   else {
     const n = [...l.history_ru].length;
-    if (n < 900 || n > 1800) err(w, `history_ru length ${n} not in 900..1800`);
+    if (n < 900 || n > 3600) err(w, `history_ru length ${n} not in 900..3600`);
     const paras = l.history_ru.split('\n\n');
-    if (paras.length < 3 || paras.length > 5) err(w, `history_ru has ${paras.length} paragraphs, need 3..5`);
+    if (paras.length < 3 || paras.length > 8) err(w, `history_ru has ${paras.length} paragraphs, need 3..8`);
     if (paras.some(p => !p.trim())) err(w, 'history_ru has an empty paragraph');
     if (/[A-Za-z][А-Яа-яЁё]|[А-Яа-яЁё][A-Za-z]/.test(l.history_ru)) warn(w, 'history_ru mixes Latin and Cyrillic inside a word');
   }
-  // facts_ru: 3-5 one-liners <= 110
-  if (!Array.isArray(l.facts_ru) || l.facts_ru.length < 3 || l.facts_ru.length > 5) err(w, 'facts_ru must have 3..5 items');
+  // facts_ru: 3-8 one-liners <= 160
+  if (!Array.isArray(l.facts_ru) || l.facts_ru.length < 3 || l.facts_ru.length > 8) err(w, 'facts_ru must have 3..8 items');
   else l.facts_ru.forEach((f, i) => {
     if (!isStr(f)) err(w, `facts_ru[${i}] empty`);
-    else if ([...f].length > 110) err(w, `facts_ru[${i}] is ${[...f].length} chars > 110`);
+    else if ([...f].length > 160) err(w, `facts_ru[${i}] is ${[...f].length} chars > 160`);
     else if (/\n/.test(f)) err(w, `facts_ru[${i}] has a line break`);
   });
-  // sources: 2-4
-  if (!Array.isArray(l.sources) || l.sources.length < 2 || l.sources.length > 4) err(w, 'sources must have 2..4 items');
+  // sources: 2-6
+  if (!Array.isArray(l.sources) || l.sources.length < 2 || l.sources.length > 6) err(w, 'sources must have 2..6 items');
   else l.sources.forEach((s, i) => { if (!isStr(s?.title) || !isUrl(s?.url)) err(w, `sources[${i}] needs title and url`); });
   if (!isStr(l.tip_ru)) err(w, 'tip_ru missing');
 
@@ -161,8 +161,8 @@ for (const l of landmarks) {
     }
   }
 
-  // videos: 1-3
-  if (!Array.isArray(l.videos) || l.videos.length < 1 || l.videos.length > 3) err(w, 'videos must have 1..3 items');
+  // videos: 0-3 (optional — a free embeddable video does not exist for every place)
+  if (!Array.isArray(l.videos) || l.videos.length > 3) err(w, 'videos must have 0..3 items');
   else l.videos.forEach((v, i) => {
     const vw = `${w}.videos[${i}]`;
     if (!/^[\w-]{11}$/.test(v.youtube_id || '')) err(vw, `bad youtube_id ${v.youtube_id}`);

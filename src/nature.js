@@ -28,14 +28,19 @@ const DENSITY = { forest: 1, scrub: 0.45, park: 0.8, garden: 0.4, orchard: 0.8, 
 const HILLS = () => CITY.nature?.hills || [];
 const HILL_BOOST = 6;
 
-// species: 0 maritime pine, 1 eucalyptus, 2 broadleaf (oak, plane),
-// 3 shrub, 4 a patch of closed woodland canopy (seven crowns)
+// species: 0 maritime/stone pine, 1 eucalyptus, 2 broadleaf (oak, plane),
+// 3 shrub (laurel, agapanthus), 4 a patch of closed woodland canopy (seven
+// crowns), 5 cypress, 6 linden (avenue), 7 palm (Foz), 8 vine (Gaia bank)
 const SPECIES = [
   { h: [14, 22], w: 0.95, tint: 0x334221, trunk: 0x5a4030 },
   { h: [20, 32], w: 0.7, tint: 0x4d5a3a, trunk: 0x8c806c },
   { h: [10, 18], w: 1.05, tint: 0x42592a, trunk: 0x54443a },
   { h: [2.5, 4.5], w: 1.7, tint: 0x4d5a2c, trunk: 0x4a3e30 },
   { h: [15, 24], w: 1.9, tint: 0x384d24, trunk: 0x4f3d30 },
+  { h: [9, 16], w: 0.42, tint: 0x2f4a2b, trunk: 0x5c4a36 },
+  { h: [12, 20], w: 0.95, tint: 0x54702f, trunk: 0x6b5a44 },
+  { h: [7, 13], w: 0.85, tint: 0x4a6132, trunk: 0x8a7a5e },
+  { h: [1.6, 3.2], w: 1.5, tint: 0x3f5a24, trunk: 0x4a3e30 },
 ];
 // Seasons (src/seasons.js, WEATHER_UNIFORMS.seasonW), per species:
 //   pal:   crown colours, sRGB: spring, summer, autumn A, autumn B, winter
@@ -52,6 +57,14 @@ const SEASON_CROWNS = [
   { pal: [0x587e38, 0x3c5625, 0xa87530, 0x874626, 0x5e5249], share: 1, bare: 1, bloom: 0.6 },
   { pal: [0x607e33, 0x4a5829, 0x7e6a2e, 0x6a4a24, 0x524c36], share: 0.5, bare: 0.5, bloom: 0.4 },
   { pal: [0x52722c, 0x33491f, 0x86682e, 0x684824, 0x4f473b], share: 0.4, bare: 0.4, bloom: 0.12 },
+  // cypress: evergreen, a touch darker and bluer than the pines
+  { pal: [0x31492c, 0x2f4a2b, 0x2f4a2b, 0x2d452a, 0x2a3f28], share: 1, bare: 0, bloom: 0 },
+  // linden: spring lime, summer green, gold autumn, bare grey twigs; blooms
+  { pal: [0x7a9a44, 0x4e6a2e, 0xac8a34, 0x8a5a26, 0x5e5249], share: 1, bare: 1, bloom: 0.7 },
+  // palm: evergreen, stays green through the year
+  { pal: [0x45602c, 0x3f5a2c, 0x3f5a2c, 0x3d572b, 0x39512a], share: 1, bare: 0, bloom: 0 },
+  // vine / agapanthus hint: green, red autumn, thin in winter
+  { pal: [0x5f7f36, 0x46602a, 0x9a4a2a, 0x7a3a22, 0x554d3d], share: 1, bare: 0.7, bloom: 0.1 },
 ];
 const MIX = {
   forest: [0.14, 0.12, 0.04, 0, 0.7],
@@ -76,6 +89,56 @@ function pickSpecies(mix, r) {
     if (r < acc) return i;
   }
   return 2;
+}
+
+const hash2 = (x, y) => {
+  const s = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+  return s - Math.floor(s);
+};
+
+// Porto-native planting. This fork shows one city, so its districts live
+// here; `CITY.nature.regions` overrides them (same shape). Each region
+// remaps the *tree* species inside a circle, blending out over its radius,
+// and never touches shrubs (3) or closed canopy (4): every species it can
+// choose uses the same clump-footprint factor, so the budget (and the tree
+// count, to a handful) is unchanged. `b` shifts the budget toward the
+// district so its species actually read there.
+//   Gaia bank and lodges: stone/maritime pine, cypress, vine hints.
+//   Serra do Pilar: pine and cypress on the sanctuary hill.
+//   Parque da Cidade: umbrella pines with cypress.
+//   Foz: palms at the mouth, pines behind.
+//   Aliados / Cordoaria: plane and linden along the avenues.
+const PORTO_REGIONS = [
+  { lat: 41.1375, lon: -8.614, r: 1600, b: 2.2, sp: [[0, 0.45], [5, 0.35], [8, 0.2]] },
+  { lat: 41.1579, lon: -8.6291, r: 900, b: 1.4, sp: [[0, 0.55], [5, 0.45]] },
+  { lat: 41.163, lon: -8.677, r: 2000, b: 2.4, sp: [[0, 0.7], [5, 0.3]] },
+  { lat: 41.149, lon: -8.678, r: 1700, b: 4, sp: [[7, 0.6], [0, 0.4]] },
+  { lat: 41.1487, lon: -8.6125, r: 1000, b: 6, sp: [[6, 0.8], [2, 0.2]] },
+];
+
+function regionSpecies(s, x, z, regions) {
+  if (!regions.length || s === 3 || s === 4) return s; // keep shrubs and canopy
+  let best = null;
+  let bw = 0;
+  for (const g of regions) {
+    const d = Math.hypot(x - g.x, z - g.z);
+    if (d < g.r) {
+      const w = 1 - d / g.r;
+      if (w > bw) {
+        bw = w;
+        best = g;
+      }
+    }
+  }
+  if (!best) return s;
+  if (hash2(x * 0.13 + 7.1, z * 0.13 - 3.7) > bw) return s; // soft edge
+  const roll = hash2(x * 0.71 - 11.3, z * 0.37 + 5.9);
+  let acc = 0;
+  for (const [sp, w] of best.sp) {
+    acc += w;
+    if (roll < acc) return sp;
+  }
+  return best.sp[best.sp.length - 1][0];
 }
 
 // Ray-cast point in polygon with holes; rings = [[{x,z}]].
@@ -211,6 +274,31 @@ function clumpGeometry(species) {
     crown(geos, 0, 0.45, 0, 0.5, 0.45, r() * 1e6, white);
     crown(geos, 0.55, 0.32, 0.2, 0.36, 0.32, r() * 1e6, white);
     crown(geos, -0.3, 0.3, -0.45, 0.34, 0.3, r() * 1e6, white);
+  } else if (species === 5) {
+    // cypress: a narrow dark column, two stacked crowns on a short trunk
+    trunk(geos, 0, 0, 0.26, 0.018, bark);
+    crown(geos, 0, 0.36, 0, 0.15, 0.22, r() * 1e6, white);
+    crown(geos, 0.02, 0.68, -0.01, 0.12, 0.32, r() * 1e6, white);
+  } else if (species === 6) {
+    // linden: a tall, rounded avenue crown and two shoulders
+    trunk(geos, 0, 0, 0.34, 0.03, bark);
+    crown(geos, 0, 0.66, 0, 0.4, 0.34, r() * 1e6, white);
+    crown(geos, 0.24, 0.56, 0.16, 0.24, 0.22, r() * 1e6, white);
+    crown(geos, -0.2, 0.53, -0.14, 0.22, 0.2, r() * 1e6, white);
+  } else if (species === 7) {
+    // palm: bare trunk, a fan of flat fronds at the top
+    trunk(geos, 0, 0, 0.68, 0.024, bark);
+    const N = 7;
+    for (let i = 0; i < N; i++) {
+      const a = (i / N) * Math.PI * 2 + 0.35;
+      crown(geos, Math.cos(a) * 0.17, 0.82, Math.sin(a) * 0.17, 0.22, 0.05, r() * 1e6, white);
+    }
+    crown(geos, 0, 0.9, 0, 0.17, 0.06, r() * 1e6, white);
+  } else if (species === 8) {
+    // vine / agapanthus hint: low, wide, spreading blobs
+    crown(geos, 0, 0.5, 0, 0.46, 0.46, r() * 1e6, white);
+    crown(geos, 0.5, 0.36, 0.2, 0.3, 0.32, r() * 1e6, white);
+    crown(geos, -0.4, 0.34, -0.3, 0.3, 0.3, r() * 1e6, white);
   } else {
     // closed canopy: seven crowns of mixed height on a disc; the trunks
     // are hidden under it, two short ones show at the edge
@@ -224,7 +312,7 @@ function clumpGeometry(species) {
   return merge(geos);
 }
 
-// Billboard atlas: four cells (one per species), grey shading with alpha;
+// Billboard atlas: one cell per species, grey shading with alpha;
 // the instance tint colours it in the shader.
 function billboardAtlas() {
   const W = 128;
@@ -294,6 +382,30 @@ function billboardAtlas() {
       blob(x, H - H * h * 0.68, rx, H * h * 0.3);
     }
   });
+  cell(5, () => {
+    // cypress: a slender column
+    stem(64, H, H - 30, 2, 110);
+    blob(64, H - 58, 15, 44);
+    blob(64, H - 96, 11, 24);
+  });
+  cell(6, () => {
+    // linden: a tall rounded avenue crown
+    stem(64, H, H - 44, 4, 120);
+    blob(64, H - 84, 40, 42);
+    blob(92, H - 66, 24, 26);
+    blob(38, H - 62, 22, 24);
+  });
+  cell(7, () => {
+    // palm: a bare stem under a fan of fronds
+    stem(64, H, H - 68, 4, 170);
+    for (const [x, y, rx, ry] of [[40, 62, 24, 7], [64, 56, 26, 7], [88, 62, 24, 7], [52, 76, 18, 6], [78, 76, 18, 6]]) blob(x, H - y, rx, ry);
+  });
+  cell(8, () => {
+    // vine / agapanthus: low wide mounds
+    blob(64, H - 26, 40, 24);
+    blob(100, H - 18, 24, 17);
+    blob(30, H - 16, 24, 16);
+  });
   const tex = new THREE.CanvasTexture(cv);
   tex.colorSpace = THREE.NoColorSpace;
   tex.generateMipmaps = true;
@@ -314,7 +426,7 @@ export function buildNature(opts) {
   const { data, project, heightAt } = opts;
   const group = new THREE.Group();
   group.name = 'nature';
-  const stats = { areas: 0, trees: 0, near: 0, far: 0, water: 0, rejected: 0, landPx: '', stream: 0 };
+  const stats = { areas: 0, trees: 0, near: 0, far: 0, water: 0, rejected: 0, landPx: '', stream: 0, species: [] };
   const uniforms = {
     uTime: { value: 0 },
     uSunView: { value: new THREE.Vector3(0, 1, 0) },
@@ -489,11 +601,18 @@ export function buildNature(opts) {
 
   // ---- scatter
   const hills = HILLS().map((h) => ({ ...project(h.lat, h.lon), r: h.r * S }));
+  // Porto-native district planting, projected once (CITY.nature.regions wins).
+  // `b` biases the tree budget toward the district so its species read there.
+  const regions = (CITY.nature?.regions || PORTO_REGIONS).map((g) => ({ ...project(g.lat, g.lon), r: g.r * S, b: g.b ?? 1.8, sp: g.sp }));
   const boostAt = (x, z) => {
     let k = 1;
     for (const h of hills) {
       const d = Math.hypot(x - h.x, z - h.z);
       if (d < h.r) k = Math.max(k, 1 + (HILL_BOOST - 1) * (1 - d / h.r));
+    }
+    for (const g of regions) {
+      const d = Math.hypot(x - g.x, z - g.z);
+      if (d < g.r) k = Math.max(k, 1 + (g.b - 1) * (1 - d / g.r));
     }
     return k;
   };
@@ -546,7 +665,7 @@ export function buildNature(opts) {
         }
       }
       if (close) continue;
-      const s = pickSpecies(mix, rnd());
+      const s = regionSpecies(pickSpecies(mix, rnd()), x, z, regions);
       const sp = SPECIES[s];
       const hM = sp.h[0] + rnd() * (sp.h[1] - sp.h[0]);
       // the whole clump keeps clear, not only its centre
@@ -577,6 +696,7 @@ export function buildNature(opts) {
   // ---- tree meshes (near) and billboards (far)
   const bySpecies = SPECIES.map(() => []);
   for (const t of trees) bySpecies[t.s].push(t);
+  stats.species = bySpecies.map((list) => list.length);
   const near = bySpecies.map((list, s) => {
     const geo = clumpGeometry(s);
     const cap = Math.max(1, list.length + STREAM);

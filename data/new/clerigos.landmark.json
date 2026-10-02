@@ -18,10 +18,39 @@
   ],
   "tip_ru": "Поднимайтесь на башню к открытию, до 10 утра, пока нет очереди; билет лучше купить онлайн. Лестница узкая, винтовая, всего 225 ступеней, поэтому выбирайте удобную обувь. Лучший вид на закате, когда Порту и Дору подсвечены. Ближайшая станция метро — São Bento (линия D), примерно пять минут пешком.",
   "gallery": [
-    {"img": "assets/img/clerigos.jpg", "caption_ru": "Церковь и башня Клеригуш с фронтального сада на улице Клеригуш."},
-    {"img": "assets/img/clerigos-1.jpg", "caption_ru": "Колокольня крупным планом: гранитный фасад, ниша со статуей и ярусы звонницы."},
-    {"img": "assets/img/clerigos-2.jpg", "caption_ru": "Овальный интерьер церкви с барочным алтарём, кафедрами и органами."},
-    {"img": "assets/img/clerigos-3.jpg", "caption_ru": "Панорама Порту и реки Дору с верхнего яруса башни."}
+    {
+      "img": "assets/img/clerigos-1.jpg",
+      "kind": "exterior",
+      "caption_ru": "Церковь и башня Клеригуш — колокольня",
+      "credit": {
+        "author": "Deensel",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Cl%C3%A9rigos_Tower_(37151256565).jpg"
+      },
+      "_commons": "File:Clérigos Tower (37151256565).jpg"
+    },
+    {
+      "img": "assets/img/clerigos-2.jpg",
+      "kind": "exterior",
+      "caption_ru": "Церковь и башня Клеригуш — общий вид",
+      "credit": {
+        "author": "Phil",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Clerigos_(3581166170).jpg"
+      },
+      "_commons": "File:Clerigos (3581166170).jpg"
+    },
+    {
+      "img": "assets/img/clerigos-3.jpg",
+      "kind": "exterior",
+      "caption_ru": "Церковь и башня Клеригуш — общий вид",
+      "credit": {
+        "author": "Alegna13",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Clerigos_igreja.jpg"
+      },
+      "_commons": "File:Clerigos igreja.jpg"
+    }
   ],
   "videos": [],
   "panorama": null,

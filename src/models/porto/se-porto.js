@@ -5,6 +5,7 @@ import { Kit, PALETTE, MAT, PROFILES, corniceProfile, archPath, pointedPath } fr
 import { onEdge, polyCornice, polyBand, polyWindows, roofOver, plainBuilding } from '../metric.js';
 import { edges, obb, offset, bbox } from '../geom.js';
 import { win, pediment, bell } from '../parts.js';
+import { fitTo } from './site-fit.js';
 
 const rectPts = (cx, cz, w, d) => [
   [cx - w / 2, cz - d / 2], [cx + w / 2, cz - d / 2],
@@ -16,6 +17,7 @@ function disc(k, r, th, color, x, y, z, o = {}) {
 }
 
 function builder(k, site) {
+  const done = fitTo(k, site, { w: 48.6, d: 58, h: 29, cx: -9.75, cz: -12 });
   const body = rectPts(0, -12, 20, 44);
 
   // -------------------------------------------------------------- nave body
@@ -32,7 +34,8 @@ function builder(k, site) {
   }
   // apse volume at the east end
   k.prism(rectPts(0, -36, 16, 10), 0, 11, 'granite');
-  k.end('main');
+  // main = the whole cathedral composition (nave, front, cloister): the fit
+  // report checks it against the OSM footprint.
 
   // ------------------------------------------------------------ west front
   k.begin('front');
@@ -56,6 +59,7 @@ function builder(k, site) {
   k.pop();
 
   // twin towers
+  k.begin('height');
   for (const sx of [-1, 1]) {
     const bx = sx * 10.5;
     k.box(7.5, 26, 7.5, 'granite', bx, 0, 9);
@@ -76,6 +80,7 @@ function builder(k, site) {
     k.lathe(PROFILES.finial, 6, 'graniteLight', 0, 27.6, 0, { sr: 0.4, sh: 1.4, flat: true });
     k.pop();
   }
+  k.end('height');
   k.end('front');
 
   // ---------------------------------------------------------------- cloister
@@ -109,6 +114,8 @@ function builder(k, site) {
   k.box(13.4, 0.5, 1.4, 'graniteLight', 0, 7.8, 0.7);
   k.pop();
   k.end('cloister');
+  k.end('main');
+  done();
 }
 
 builder.metric = true;

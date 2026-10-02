@@ -631,4 +631,145 @@ export const landmarks = {
   }
 };
 
-export const routes = {};
+export const routes = {
+  "ribeira-pontes": {
+    "name": "A Ribeira e as pontes",
+    "subtitle": "O cais antigo, a Ponte Luís I e as caves de Gaia",
+    "duration": "≈ 4 horas",
+    "description": "O percurso começa na Ribeira, entre casas coloridas e bares de vinho do Porto. Suba ao tabuleiro superior da Ponte Luís I — o melhor miradouro sobre o Douro. Atravesse o rio até Gaia e desça ao Cais de Gaia, onde se alinham as caves Sandeman, Graham’s e Taylor’s: é aqui que o vinho do Porto se prova e se explica. O Teleférico de Gaia leva-o de volta à ponte, e o histórico elevador dos Guindais, de 1891, desce até à Ribeira. A visita a uma cave leva cerca de duas horas, por isso comece de manhã para regressar antes do pôr do sol.",
+    "stops": [
+      {
+        "time": "10:00",
+        "note": "Um passeio pela Ribeira: fachadas coloridas, barcos rabelos e a praça da Ribeira Negra. Daqui vê-se a Ponte Luís I."
+      },
+      {
+        "time": "10:55",
+        "note": "Suba ao tabuleiro superior da ponte. O piso pedonal assenta no arco de ferro de Gustave Eiffel, de 1886; a vista abrange a Ribeira e as caves de Gaia."
+      },
+      {
+        "time": "11:30",
+        "note": "Atravesse o rio e desça ao Cais de Gaia. Visita e prova numa das caves (Sandeman, Graham’s, Taylor’s). O Teleférico de Gaia sobe de volta à ponte."
+      },
+      {
+        "time": "13:35",
+        "note": "Regresso pelo tabuleiro superior da ponte. Na Ribeira, desça no elevador dos Guindais, de 1891, ao longo da muralha até à ponte."
+      }
+    ],
+    "legs": [
+      {
+        "note": "Do cais em subida até ao vão da ponte: pelas escadas dos Guindais ou pela Rua de Miragaia."
+      },
+      {
+        "note": "A pé pelo tabuleiro superior da Ponte Luís I sobre o Douro e descida ao Cais de Gaia."
+      },
+      {
+        "note": "Regresso a pé pelo tabuleiro superior; em alternativa, o elevador dos Guindais, junto à Ribeira."
+      }
+    ]
+  },
+  "baixa-historica": {
+    "name": "A Baixa histórica",
+    "subtitle": "São Bento, Aliados, Clérigos, Lello, Carmo, Bolhão, a Sé e a Bolsa",
+    "duration": "≈ 6 horas",
+    "description": "Um percurso a pé pelo centro histórico do Porto. Comece na estação de São Bento e veja os vinte mil azulejos de Jorge Colaço no vestíbulo. Suba pela Avenida dos Aliados até à igreja e torre dos Clérigos, com vista sobre toda a cidade, e entre na Livraria Lello, na Rua das Carmelitas. A igreja do Carmo fica em frente, do outro lado da rua. Continue até ao Mercado do Bolhão, à Sé, a catedral mais antiga do Porto, no alto, e ao Palácio da Bolsa, com o Salão Árabe. Atenção ao horário: a Lello e a Bolsa têm horas próprias, e o mercado fecha à tarde.",
+    "stops": [
+      {
+        "time": "09:30",
+        "note": "O vestíbulo da estação com os azulejos de Jorge Colaço, de 1905–1906: cenas de batalha e a história dos transportes."
+      },
+      {
+        "time": "10:05",
+        "note": "A Avenida dos Aliados, com a fachada dos Paços do Concelho e o banco. Aqui começa a Rua das Flores, pedonal."
+      },
+      {
+        "time": "10:30",
+        "note": "A igreja e torre dos Clérigos, de Niccolò Nasoni. Suba ao campanário de 1763 — 225 degraus e um panorama da cidade."
+      },
+      {
+        "time": "11:20",
+        "note": "A Livraria Lello, de 1906, com a escadaria vermelha e o vitral. A entrada é paga e deduzida numa compra de livro."
+      },
+      {
+        "time": "11:50",
+        "note": "A igreja do Carmo em frente: fachada barroca revestida de azulejos azuis e brancos."
+      },
+      {
+        "time": "12:25",
+        "note": "O Mercado do Bolhão, de 1834: fruta, queijo, peixe e petiscos. O lugar certo para almoçar entre os locais."
+      },
+      {
+        "time": "13:25",
+        "note": "A catedral românica do século XII, no alto: claustro gótico com azulejos e terraço sobre o Paço Episcopal."
+      },
+      {
+        "time": "14:20",
+        "note": "O Palácio da Bolsa em visita guiada: o Pátio das Nações, coberto de vidro, e o dourado Salão Árabe ao gosto da Alhambra."
+      },
+      {
+        "time": "15:10",
+        "note": "A igreja gótica de São Francisco, com o interior barroco mais rico do Porto e as catacumbas."
+      }
+    ],
+    "legs": [
+      {
+        "note": "Da estação, rua abaixo até à Avenida dos Aliados."
+      },
+      {
+        "note": "Pela pedonal Rua das Flores e pela praça até aos Clérigos."
+      },
+      {
+        "note": "Dois minutos até à Rua das Carmelitas."
+      },
+      {
+        "note": "O Carmo fica mesmo em frente, do outro lado da rua."
+      },
+      {
+        "note": "Para leste, até ao Mercado do Bolhão, junto à igreja da Conceição."
+      },
+      {
+        "note": "Em subida até à Sé, no Terreiro da Sé."
+      },
+      {
+        "note": "Em descida até à praça do Infante D. Henrique e ao Palácio da Bolsa."
+      },
+      {
+        "note": "Poucos passos até à igreja de São Francisco."
+      }
+    ]
+  },
+  "douro-oceano": {
+    "name": "O Douro e o oceano",
+    "subtitle": "O elétrico 1 ao longo do rio, da Ribeira ao farol de Felgueiras",
+    "duration": "≈ 4 horas",
+    "description": "O histórico elétrico 1 parte da Ribeira e segue a margem direita do Douro por Miragaia e Massarelos. É o percurso mais cénico da cidade: o rio e as pontes de um lado, fachadas e jardins do outro. Saia na subida para o Palácio de Cristal e percorra os terraços sobre o Douro. Volte ao elétrico até Lordelo e ao Foz, a poucos passos da Fundação de Serralves, com o museu de Álvaro Siza e o parque. Termine no farol de Felgueiras, onde o Douro encontra o Atlântico. O elétrico 1 passa a cada 20–30 minutos; confirme os horários com antecedência, sobretudo fora de época.",
+    "stops": [
+      {
+        "time": "10:00",
+        "note": "Embarque no elétrico 1 na Ribeira (paragem Infante). Carros históricos dos anos 1920–1930."
+      },
+      {
+        "time": "10:35",
+        "note": "O elétrico passa em Massarelos. Saia junto ao Palácio de Cristal: terraços e jardins sobre o Douro, com panorama do rio e das pontes."
+      },
+      {
+        "time": "11:40",
+        "note": "Continue de elétrico até Lordelo / Foz. A Fundação de Serralves: museu de Álvaro Siza, vila art déco e parque contemporâneo."
+      },
+      {
+        "time": "13:15",
+        "note": "Elétrico até ao terminal do Foz e a pé até ao farol de Felgueiras. A foz do Douro, o horizonte do oceano e o pôr do sol."
+      }
+    ],
+    "legs": [
+      {
+        "note": "Elétrico 1 (E1) ao longo do Douro por Miragaia e Massarelos até à subida do Palácio de Cristal."
+      },
+      {
+        "note": "De novo no elétrico 1 até ao Foz / Lordelo; depois a pé até à Fundação de Serralves e ao parque."
+      },
+      {
+        "note": "Elétrico 1 até ao terminal do Foz (Passeio Alegre), depois a pé até ao farol de Felgueiras."
+      }
+    ]
+  }
+};

@@ -1,0 +1,200 @@
+{
+  "title_ru": "Порту: две тысячи лет",
+  "title_en": "Porto: Two Thousand Years",
+  "title_pt": "Porto: dois mil anos",
+  "subtitle_ru": "От Порта Кале до всемирного наследия — в десяти главах.",
+  "subtitle_en": "From Portus Cale to World Heritage, in ten chapters.",
+  "subtitle_pt": "De Portus Cale ao Património Mundial, em dez capítulos.",
+  "chapters": [
+    {
+      "id": "portus-cale",
+      "era_ru": "I–III вв.",
+      "era_en": "1st–3rd c. AD",
+      "era_pt": "séc. I–III",
+      "title_ru": "Порт Кале",
+      "title_en": "Portus Cale",
+      "title_pt": "Portus Cale",
+      "text_ru": "В устье Дору римляне основали порт, который назвали Portus Cale. От этого имени, как считают, произошло слово «Португалия». Город стоял на двух уровнях: торговый порт у воды, в районе нынешней Рибейры, и укреплённое поселение на высоком холме, где позже поднялся собор. Через Дору и вдоль берега шла дорога из Бракары Августы; по реке сплавляли вино, масло и рыбу. На холме Се археологи находят следы римских построек и городских стен. Уже тогда Порту был местом, где встречались река и море, — эта двойная природа определит всю его историю.",
+      "text_en": "At the mouth of the Douro the Romans founded a port they called Portus Cale. From that name, it is thought, the word “Portugal” derives. The town stood on two levels: a trading port by the water, around today’s Ribeira, and a fortified settlement on the high hill where the cathedral would later rise. A road from Bracara Augusta ran along the bank and across the Douro; wine, oil and fish moved on the river. On the Sé hill archaeologists find traces of Roman buildings and town walls. Even then Porto was a meeting place of river and sea, a double nature that would shape its whole history.",
+      "text_pt": "Na foz do Douro os romanos fundaram um porto a que chamaram Portus Cale. Desse nome, pensa-se, deriva a palavra «Portugal». A povoação tinha dois níveis: um porto comercial junto à água, na atual Ribeira, e um núcleo fortificado no alto, onde mais tarde se ergueu a catedral. Uma estrada vinda de Bracara Augusta seguia a margem e atravessava o Douro; pelo rio circulavam vinho, azeite e peixe. No monte da Sé, os arqueólogos encontram vestígios de construções e muralhas romanas. Já então o Porto era um lugar de encontro entre o rio e o mar — uma dupla natureza que marcaria toda a sua história.",
+      "focus": ["ribeira", "se-porto"],
+      "time": "morning",
+      "sources": [
+        { "title": "Portus Cale — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Portus_Cale" },
+        { "title": "Porto — Wikipedia", "url": "https://en.wikipedia.org/wiki/Porto" },
+        { "title": "History of Porto — Wikipedia", "url": "https://en.wikipedia.org/wiki/History_of_Porto" }
+      ]
+    },
+    {
+      "id": "porto-suebi",
+      "era_ru": "V–VI вв.",
+      "era_en": "5th–6th c.",
+      "era_pt": "séc. V–VI",
+      "title_ru": "Свевы и вестготы",
+      "title_en": "Suebi and Visigoths",
+      "title_pt": "Suevos e visigodos",
+      "text_ru": "В 409 году через Пиренеи пришли свевы, вандалы и аланы. Свевы сделали своей столицей Бракару, а Порту оказался на границе их королевства и христианского мира. Уже в IV–V веках здесь была епископская кафедра: епископ Порту упоминается среди участников церковных соборов. В 585 году королевство свевов пало под ударами вестготов Леовигильда, и город вошёл в состав вестготского государства. От этой эпохи почти не осталось зданий, но именно тогда укрепилась роль епископа как главы города — она будет определять облик Порту на столетия вперёд.",
+      "text_en": "In 409 the Suebi, Vandals and Alans crossed the Pyrenees. The Suebi made Bracara their capital, and Porto stood on the edge of their kingdom and of the Christian world. By the 4th–5th centuries there was already a bishopric here: the bishop of Porto appears among those attending church councils. In 585 the Suebic kingdom fell to the Visigothic king Leovigild, and the town passed into the Visigothic state. Almost no buildings survive from this age, yet it was then that the bishop’s role as head of the city took root — a role that would shape Porto for centuries.",
+      "text_pt": "Em 409, Suevos, Vândalos e Alanos atravessaram os Pirenéus. Os Suevos fizeram de Bracara a sua capital, e o Porto ficou na fronteira do seu reino e do mundo cristão. Já nos séculos IV–V havia aqui uma sé episcopal: o bispo do Porto figura entre os que participam em concílios. Em 585 o reino suevo caiu perante o visigodo Leovigildo, e a vila passou para o Estado visigótico. Quase nada resta desta época em edifícios, mas foi então que se firmou o papel do bispo como senhor da cidade — um papel que marcaria o Porto durante séculos.",
+      "focus": ["se-porto"],
+      "time": "morning",
+      "sources": [
+        { "title": "Kingdom of the Suebi — Wikipedia", "url": "https://en.wikipedia.org/wiki/Kingdom_of_the_Suebi" },
+        { "title": "Leovigild — Wikipedia", "url": "https://en.wikipedia.org/wiki/Leovigild" },
+        { "title": "Diocese do Porto — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Diocese_do_Porto" }
+      ]
+    },
+    {
+      "id": "episcopal",
+      "era_ru": "868",
+      "era_en": "868",
+      "era_pt": "868",
+      "title_ru": "Епископский город",
+      "title_en": "The Episcopal City",
+      "title_pt": "A cidade episcopal",
+      "text_ru": "В 868 году Вимара Перес отвоевал Порту у мусульман и положил начало графству Портукаленсе. Город стали отстраивать вокруг собора на холме: епископы были его сеньорами, владели землями, судом и пошлинами. В XII–XIII веках поднялся романский собор Порту — массивный, похожий на крепость, с двумя башнями и розеткой. Вокруг него сложился лабиринт улиц, который и сегодня называют «епископским». Порту оставался прежде всего церковным и торговым городом: власть делили епископ, знать и купцы, а река давала ему хлеб.",
+      "text_en": "In 868 Vímara Peres took Porto from the Muslims and founded the County of Portugal. The town was rebuilt around the cathedral on the hill: the bishops were its lords, holding land, courts and tolls. In the 12th–13th centuries the Romanesque cathedral of Porto rose — massive, fortress-like, with two towers and a rose window. Around it grew the maze of streets still called the bishop’s quarter. Porto remained above all a church town and a trading town: bishop, nobles and merchants shared power, and the river gave it bread.",
+      "text_pt": "Em 868, Vímara Peres reconquistou o Porto aos muçulmanos e deu origem ao Condado Portucalense. A cidade foi reconstruída em torno da catedral, no alto: os bispos eram os seus senhores, detendo terras, justiça e portagens. Nos séculos XII–XIII ergueu-se a catedral românica do Porto — maciça, semelhante a uma fortaleza, com duas torres e uma rosácea. Em volta nasceu o labirinto de ruas ainda hoje chamado bairro episcopal. O Porto continuou sobretudo uma cidade da Igreja e do comércio: bispo, nobreza e mercadores dividiam o poder, e o rio dava-lhe o pão.",
+      "focus": ["se-porto"],
+      "time": "day",
+      "sources": [
+        { "title": "Vímara Peres — Wikipédia", "url": "https://pt.wikipedia.org/wiki/V%C3%ADmara_Peres" },
+        { "title": "County of Portugal — Wikipedia", "url": "https://en.wikipedia.org/wiki/County_of_Portugal" },
+        { "title": "Sé do Porto — Wikipédia", "url": "https://pt.wikipedia.org/wiki/S%C3%A9_do_Porto" }
+      ]
+    },
+    {
+      "id": "condado",
+      "era_ru": "1096–1143",
+      "era_en": "1096–1143",
+      "era_pt": "1096–1143",
+      "title_ru": "Графство и королевство",
+      "title_en": "County and Kingdom",
+      "title_pt": "Condado e reino",
+      "text_ru": "Около 1096 года бургундский рыцарь Генрих женился на Терезе, дочери короля Леона Альфонсо VI, и получил в правление графство Портукаленсе. Порту стал одним из его главных городов — наряду с Гимарайншем, и епископ Порту играл всё более заметную роль. Их сын Афонсу Энрикеш в 1128 году взял власть в свои руки, а после 1139 года стал называть себя королём. В 1143 году по договору в Самору Португалия была признана королевством. Так маленькое графство на Дору превратилось в самостоятельное государство, и Порту вошёл в его историю как один из старейших и важнейших городов.",
+      "text_en": "Around 1096 the Burgundian knight Henry married Teresa, a daughter of King Alfonso VI of León, and received the County of Portugal to rule. Porto became one of his main towns, alongside Guimarães, and its bishop played an ever more visible role. Their son Afonso Henriques seized power in 1128 and, after 1139, styled himself king. In 1143, by the Treaty of Zamora, Portugal was recognised as a kingdom. So a small county on the Douro became an independent state, and Porto entered its history as one of its oldest and most important cities.",
+      "text_pt": "Por volta de 1096, o cavaleiro borgonhês D. Henrique casou com D. Teresa, filha do rei Afonso VI de Leão, e recebeu o governo do Condado Portucalense. O Porto tornou-se uma das suas principais cidades, a par de Guimarães, e o seu bispo ganhou um papel cada vez mais visível. O filho, D. Afonso Henriques, tomou o poder em 1128 e, depois de 1139, passou a intitular-se rei. Em 1143, pelo Tratado de Zamora, Portugal foi reconhecido como reino. Assim um pequeno condado no Douro se tornou um Estado independente, e o Porto entrou na sua história como uma das cidades mais antigas e importantes.",
+      "focus": ["se-porto"],
+      "time": "day",
+      "sources": [
+        { "title": "Henry, Count of Portugal — Wikipedia", "url": "https://en.wikipedia.org/wiki/Henry,_Count_of_Portugal" },
+        { "title": "Afonso Henriques — Wikipedia", "url": "https://en.wikipedia.org/wiki/Afonso_I_of_Portugal" },
+        { "title": "Treaty of Zamora — Wikipedia", "url": "https://en.wikipedia.org/wiki/Treaty_of_Zamora" }
+      ]
+    },
+    {
+      "id": "ceuta",
+      "era_ru": "1394–1415",
+      "era_en": "1394–1415",
+      "era_pt": "1394–1415",
+      "title_ru": "Инфант и море",
+      "title_en": "The Prince and the Sea",
+      "title_pt": "O Infante e o mar",
+      "text_ru": "В 1394 году в Порту родился инфант Энрике, которого позже назовут Мореплавателем. Он вырос среди купцов и моряков, а в 1415 году возглавил экспедицию, взявшую у мавров Сеуту на африканском берегу. Это был первый шаг португальской морской экспансии. Порту дал ей корабли, людей и деньги: в Рибейре стояли верфи, а купцы снаряжали каравеллы. В вокзале Сан-Бенту одна из азулежу Жоржи Коласу изображает именно взятие Сеуты — память о том дне, когда город у Дору отправил Португалию в океан.",
+      "text_en": "In 1394 Prince Henry, later called the Navigator, was born in Porto. He grew up among merchants and sailors, and in 1415 he led the expedition that took Ceuta from the Moors on the African shore. It was the first step of Portuguese maritime expansion. Porto supplied ships, men and money: shipyards lined the Ribeira and merchants fitted out caravels. In São Bento station one of Jorge Colaço’s azulejos shows the conquest of Ceuta itself — a memory of the day the city on the Douro sent Portugal out to sea.",
+      "text_pt": "Em 1394 nasceu no Porto o infante D. Henrique, mais tarde chamado o Navegador. Cresceu entre mercadores e marinheiros e, em 1415, chefiou a expedição que tomou Ceuta aos mouros, na costa africana. Foi o primeiro passo da expansão marítima portuguesa. O Porto deu-lhe navios, homens e dinheiro: na Ribeira havia estaleiros e os mercadores armavam caravelas. Na estação de São Bento, um dos azulejos de Jorge Colaço representa precisamente a conquista de Ceuta — memória do dia em que a cidade do Douro lançou Portugal ao mar.",
+      "focus": ["ribeira", "sao-francisco-porto"],
+      "time": "day",
+      "sources": [
+        { "title": "Henry the Navigator — Wikipedia", "url": "https://en.wikipedia.org/wiki/Henry_the_Navigator" },
+        { "title": "Conquista de Ceuta — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Conquista_de_Ceuta" },
+        { "title": "Estação de São Bento — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Esta%C3%A7%C3%A3o_Ferrovi%C3%A1ria_de_Porto-S%C3%A3o_Bento" }
+      ]
+    },
+    {
+      "id": "vinho",
+      "era_ru": "1756",
+      "era_en": "1756",
+      "era_pt": "1756",
+      "title_ru": "Вино, покорившее океан",
+      "title_en": "The Wine That Crossed the Ocean",
+      "title_pt": "O vinho que atravessou o oceano",
+      "text_ru": "С XVII века английские купцы в Порту полюбили креплёное вино из долины Верхнего Дору и стали вывозить его через город. В 1756 году по указу маркиза де Помбала была создана Всеобщая компания виноградников Верхнего Дору — Companhia Geral da Agricultura das Vinhas do Alto Douro. Она впервые в мире установила границы винодельческого региона и правила торговли. Винные погреба выросли на другом берегу, в Гайе, где влажный воздух у реки помогал выдержке. До сих пор портвейн стареет в бочках над Дору, а дворец биржи в Порту напоминает о времени, когда вино сделало город богатым.",
+      "text_en": "From the 17th century English merchants in Porto took a liking to the fortified wine of the Upper Douro and shipped it through the city. In 1756, by order of the Marquis of Pombal, the General Company of the Vineyards of the Upper Douro was created — the Companhia Geral da Agricultura das Vinhas do Alto Douro. It was the first body in the world to lay down the boundaries of a wine region and rules for its trade. The lodges grew on the far bank, in Gaia, where the damp riverside air helped the wine mature. Port is still aged in casks above the Douro, and the Palácio da Bolsa recalls the age when wine made the city rich.",
+      "text_pt": "Desde o século XVII, os mercadores ingleses do Porto afeiçoaram-se ao vinho fortificado do Alto Douro e passaram a exportá-lo pela cidade. Em 1756, por ordem do marquês de Pombal, foi criada a Companhia Geral da Agricultura das Vinhas do Alto Douro. Foi a primeira instituição do mundo a fixar os limites de uma região vinhateira e as regras do seu comércio. As caves cresceram na margem oposta, em Gaia, onde o ar húmido do rio ajudava a envelhecer o vinho. O vinho do Porto continua a estagiar em pipas sobre o Douro, e o Palácio da Bolsa recorda o tempo em que o vinho enriqueceu a cidade.",
+      "focus": ["caves-gaia", "bolsa"],
+      "time": "sunset",
+      "sources": [
+        { "title": "Companhia Geral da Agricultura das Vinhas do Alto Douro — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Companhia_Geral_da_Agricultura_das_Vinhas_do_Alto_Douro" },
+        { "title": "Port wine — Wikipedia", "url": "https://en.wikipedia.org/wiki/Port_wine" },
+        { "title": "Douro DOC — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Vinho_do_Douro" }
+      ]
+    },
+    {
+      "id": "cerco",
+      "era_ru": "1832–1833",
+      "era_en": "1832–1833",
+      "era_pt": "1832–1833",
+      "title_ru": "Осада Порту",
+      "title_en": "The Siege of Porto",
+      "title_pt": "O Cerco do Porto",
+      "text_ru": "Летом 1832 года король Педру IV, отстаивая конституционное правление, высадился с войском недалеко от Порту и занял город. Войска его брата, абсолютиста Мигела, окружили Порту и держали его в осаде больше года. Город жил под обстрелами, страдал от холеры, но так и не сдался; решающим стал морской прорыв у Кайш-да-Алфандега. В 1833 году осада была снята. Во время боёв сгорел монастырь Святого Франциска — на его месте позже построили дворец биржи. Осада Порту вошла в историю как поворотный момент либеральных войн, из которых родилась современная Португалия.",
+      "text_en": "In the summer of 1832 King Pedro IV, defending constitutional rule, landed with an army near Porto and took the city. The troops of his brother, the absolutist Miguel, surrounded Porto and kept it under siege for more than a year. The city lived under bombardment, suffered cholera, and never surrendered; the decisive moment was the naval breakout at Cais da Alfândega. In 1833 the siege was lifted. During the fighting the convent of São Francisco burned down — the Palácio da Bolsa was later built on its site. The Siege of Porto became a turning point of the Liberal Wars, from which modern Portugal was born.",
+      "text_pt": "No verão de 1832, o rei D. Pedro IV, em defesa do governo constitucional, desembarcou com um exército perto do Porto e tomou a cidade. As tropas do seu irmão, o absolutista D. Miguel, cercaram o Porto e mantiveram-no sob cerco mais de um ano. A cidade viveu sob bombardeamento, sofreu com a cólera, e nunca se rendeu; o momento decisivo foi a saída naval no Cais da Alfândega. Em 1833 o cerco foi levantado. Durante os combates ardeu o convento de São Francisco — no seu lugar se ergueu depois o Palácio da Bolsa. O Cerco do Porto tornou-se um momento decisivo das guerras liberais, de que nasceu o Portugal moderno.",
+      "focus": ["sao-francisco-porto", "bolsa"],
+      "time": "night",
+      "sources": [
+        { "title": "Siege of Porto — Wikipedia", "url": "https://en.wikipedia.org/wiki/Siege_of_Porto" },
+        { "title": "Liberal Wars — Wikipedia", "url": "https://en.wikipedia.org/wiki/Liberal_Wars" },
+        { "title": "Palácio da Bolsa — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Pal%C3%A1cio_da_Bolsa" }
+      ]
+    },
+    {
+      "id": "pontes",
+      "era_ru": "1877–1963",
+      "era_en": "1877–1963",
+      "era_pt": "1877–1963",
+      "title_ru": "Три моста",
+      "title_en": "Three Bridges",
+      "title_pt": "Três pontes",
+      "text_ru": "XIX век превратил Дору в рабочую артерию Порту, и город перекинул через реку железные мосты. В 1877 году Гюстав Эйфель построил ажурный мост Марии Пии — на тот момент одну из самых смелых железных арок Европы. В 1886 году открылся двухъярусный мост Луиша I, работа Теофиля Сейрига, ученика и соратника Эйфеля; его верхняя палуба до сих пор служит и трамваю, и пешеходам. В 1963 году Эдгар Кардозу соединил берега бетонной аркой моста Аррабида — крупнейшей в мире на тот момент. Три моста трёх поколений выстроились вдоль реки и стали силуэтом Порту.",
+      "text_en": "The 19th century turned the Douro into Porto’s working artery, and the city threw iron bridges across the river. In 1877 Gustave Eiffel built the lace-like Maria Pia bridge — then one of the boldest iron arches in Europe. In 1886 the two-tiered Luís I bridge opened, the work of Théophile Seyrig, Eiffel’s pupil and partner; its upper deck still carries a tram and pedestrians. In 1963 Edgar Cardoso joined the banks with the concrete arch of the Arrábida bridge — the largest in the world at the time. Three bridges of three generations lined the river and became Porto’s silhouette.",
+      "text_pt": "O século XIX fez do Douro a artéria laboriosa do Porto, e a cidade lançou pontes de ferro sobre o rio. Em 1877, Gustave Eiffel construiu a rendilhada ponte Maria Pia — então um dos mais arrojados arcos de ferro da Europa. Em 1886 abriu a ponte Luís I, de dois tabuleiros, obra de Théophile Seyrig, discípulo e parceiro de Eiffel; o tabuleiro superior ainda transporta um elétrico e peões. Em 1963, Edgar Cardoso uniu as margens com o arco de betão da ponte da Arrábida — o maior do mundo na época. Três pontes de três gerações alinharam-se ao longo do rio e tornaram-se a silhueta do Porto.",
+      "focus": ["ponte-maria-pia", "ponte-luis-i", "ponte-arrabida"],
+      "time": "sunset",
+      "sources": [
+        { "title": "Ponte Maria Pia — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Ponte_de_Maria_Pia" },
+        { "title": "Dom Luís I Bridge — Wikipedia", "url": "https://en.wikipedia.org/wiki/Dom_Lu%C3%ADs_I_Bridge" },
+        { "title": "Arrábida Bridge — Wikipedia", "url": "https://en.wikipedia.org/wiki/Arr%C3%A1bida_Bridge" }
+      ]
+    },
+    {
+      "id": "republica",
+      "era_ru": "1891–2005",
+      "era_en": "1891–2005",
+      "era_pt": "1891–2005",
+      "title_ru": "Республика и новый Порту",
+      "title_en": "Republic and a New Porto",
+      "title_pt": "República e um novo Porto",
+      "text_ru": "В конце XIX века Порту был промышленным и республиканским городом. 31 января 1891 года здесь вспыхнуло восстание против монархии — первая серьёзная попытка республиканцев. В 1910 году республика была провозглашена уже по всей стране, и Порту стал одним из её оплотов. В XX веке город менялся: прорубались новые проспекты, рос порт, строились больницы и школы. Ближе к нашему времени Порту получил новую архитектуру — музей Фонда Серралвеш по проекту Алвару Сиза и Дом музыки (Casa da Música), открытый в 2005 году. Старый торговый город стал городом культуры и дизайна.",
+      "text_en": "In the late 19th century Porto was an industrial and republican city. On 31 January 1891 a revolt against the monarchy broke out here — the republicans’ first serious attempt. In 1910 the republic was proclaimed across the country, and Porto became one of its strongholds. The 20th century changed the city: new avenues were cut, the port grew, hospitals and schools were built. More recently Porto gained a new architecture — the Serralves Foundation museum by Álvaro Siza and the Casa da Música, opened in 2005. The old merchant city became a city of culture and design.",
+      "text_pt": "Em finais do século XIX, o Porto era uma cidade industrial e republicana. A 31 de janeiro de 1891 rebentou aqui uma revolta contra a monarquia — a primeira tentativa séria dos republicanos. Em 1910 a república foi proclamada em todo o país, e o Porto tornou-se um dos seus bastiões. O século XX mudou a cidade: abriram-se novas avenidas, o porto cresceu, construíram-se hospitais e escolas. Mais recentemente, o Porto ganhou arquitetura nova — o museu da Fundação de Serralves, de Álvaro Siza, e a Casa da Música, aberta em 2005. A velha cidade mercantil tornou-se cidade de cultura e design.",
+      "focus": ["serralves", "casa-musica"],
+      "time": "day",
+      "sources": [
+        { "title": "Revolta de 31 de janeiro de 1891 — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Revolta_de_31_de_janeiro_de_1891" },
+        { "title": "Fundação de Serralves — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Funda%C3%A7%C3%A3o_de_Serralves" },
+        { "title": "Casa da Música — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Casa_da_M%C3%BAsica" }
+      ]
+    },
+    {
+      "id": "porto-unesco",
+      "era_ru": "1996–2001",
+      "era_en": "1996–2001",
+      "era_pt": "1996–2001",
+      "title_ru": "Всемирное наследие",
+      "title_en": "World Heritage",
+      "title_pt": "Património Mundial",
+      "text_ru": "В 1996 году исторический центр Порту был внесён в Список всемирного наследия ЮНЕСКО. Комитет отметил две тысячи лет непрерывной истории, гранитные дома под черепицей, лабиринт средневековых улиц и панораму Рибейры над Дору. В 2001 году Порту стал одной из Культурных столиц Европы: тогда отремонтировали фасады, открыли музеи и вернули городу его реку. Сегодня Порту — университетский и туристический центр, но его узнаваемый образ по-прежнему держится на старом холме, башне Клеригуш и набережной, где всё началось.",
+      "text_en": "In 1996 the historic centre of Porto was inscribed on the UNESCO World Heritage List. The committee noted two thousand years of continuous history, granite houses under tile, the maze of medieval streets and the Ribeira panorama over the Douro. In 2001 Porto became one of Europe’s Capitals of Culture: façades were restored, museums opened, and the city turned back to its river. Today Porto is a university and tourist centre, yet its recognisable image still rests on the old hill, the Clérigos tower and the waterfront where it all began.",
+      "text_pt": "Em 1996, o centro histórico do Porto foi inscrito na Lista do Património Mundial da UNESCO. O comité assinalou dois mil anos de história contínua, as casas de granito sob telha, o labirinto de ruas medievais e o panorama da Ribeira sobre o Douro. Em 2001, o Porto foi uma das Capitais Europeias da Cultura: recuperaram-se fachadas, abriram-se museus e a cidade voltou-se de novo para o seu rio. Hoje o Porto é um centro universitário e turístico, mas a sua imagem reconhecível assenta ainda no velho monte, na torre dos Clérigos e no cais onde tudo começou.",
+      "focus": ["ribeira", "clerigos"],
+      "time": "morning",
+      "sources": [
+        { "title": "Historic Centre of Porto — UNESCO World Heritage Centre", "url": "https://whc.unesco.org/en/list/755/" },
+        { "title": "Porto 2001 — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Capital_Europeia_da_Cultura" },
+        { "title": "Centro Histórico do Porto — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Centro_Hist%C3%B3rico_do_Porto" }
+      ]
+    }
+  ]
+}

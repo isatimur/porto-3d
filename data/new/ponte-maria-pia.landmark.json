@@ -16,10 +16,39 @@
   ],
   "tip_ru": "Лучший вид на мост открывается с набережной Рибейры и с моста Луиша I, откуда видна вся арка. Мост закрыт для движения, поэтому любоваться им стоит издалека.",
   "gallery": [
-    { "img": "assets/img/ponte-maria-pia.jpg", "caption_ru": "Серповидная арка моста Марии Пии над Дорой" },
-    { "img": "assets/img/ponte-maria-pia-1.jpg", "caption_ru": "Пролёт 160 метров — рекорд 1877 года" },
-    { "img": "assets/img/ponte-maria-pia-2.jpg", "caption_ru": "Мост в панораме Порту и Вила-Нова-де-Гайя" },
-    { "img": "assets/img/ponte-maria-pia-3.jpg", "caption_ru": "Железная конструкция и опоры из гранита" }
+    {
+      "img": "assets/img/ponte-maria-pia-1.jpg",
+      "kind": "exterior",
+      "caption_ru": "Мост Марии Пии — общий вид",
+      "credit": {
+        "author": "Ponte D. Maria Pia, in Diário Ilustrado, 1877, 3 Nov.",
+        "license": "Public domain",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Ponte_d_maria_pia.jpg"
+      },
+      "_commons": "File:Ponte d maria pia.jpg"
+    },
+    {
+      "img": "assets/img/ponte-maria-pia-2.jpg",
+      "kind": "exterior",
+      "caption_ru": "Мост Марии Пии — общий вид",
+      "credit": {
+        "author": "Vimacopeca",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Bonfim_-_Ponte_de_D._Maria_Pia_-_2025-10-29_23-12-46_001.jpg"
+      },
+      "_commons": "File:Bonfim - Ponte de D. Maria Pia - 2025-10-29 23-12-46 001.jpg"
+    },
+    {
+      "img": "assets/img/ponte-maria-pia-3.jpg",
+      "kind": "exterior",
+      "caption_ru": "Мост Марии Пии — общий вид",
+      "credit": {
+        "author": "Thomas Dahlstrøm Nielsen",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Full_moon_over_D._Maria_Pia_brigde_July_2023.jpg"
+      },
+      "_commons": "File:Full moon over D. Maria Pia brigde July 2023.jpg"
+    }
   ],
   "videos": [],
   "panorama": null,

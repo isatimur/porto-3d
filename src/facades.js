@@ -6,14 +6,19 @@
 //   historic  <= 900 m   granite ground floor, plaster or azulejo above,
 //                        tall narrow windows with wooden shutters, iron
 //                        balconies, shop fronts on the main streets;
+//   riverfront<= 1300 m  and low ground: granite arcades and shop fronts at
+//                        street level (the Ribeira / Douro waterfront);
 //   ring      <= 2200 m  19th-20th c. plaster in Braga's palette, regular
 //                        windows, a granite plinth;
 //   outer                houses (<= 300 m2, low): plaster, sparse windows;
 //                        apartment blocks and anything tall: concrete and
 //                        glass bands; sheds: metal with a high window strip.
+// Wall palettes drift per 1 km tile (wallBase), so a block reads as one
+// palette with subtle building-to-building colour and value variation.
 // The style and a seed ride in the wall attribute aWall.w (style * 2 +
 // seed), a shop-front edge in aWall.z (+1000); the fragment shader below
-// draws everything from those, no textures.
+// draws everything from those, no textures bar a small procedural detail
+// map (src/textures.js) sampled by world position.
 //
 // Roofs: OSM roof:shape when tagged; otherwise houses and small buildings
 // get gabled or hipped roofs on their oriented minimum-area rectangle
@@ -28,26 +33,43 @@ import { S } from './geo.js';
 
 // ------------------------------------------------------------ config
 // ?facades=0: flat roofs and the old window grid everywhere (A/B, escape hatch)
-const CFG = { cx: 0, cz: 0, has: false, lite: false, off: new URLSearchParams(globalThis.location?.search || '').get('facades') === '0' };
+const CFG = { cx: 0, cz: 0, grefM: 0, has: false, lite: false, off: new URLSearchParams(globalThis.location?.search || '').get('facades') === '0' };
 // centre: world {x, z} of the historic centre (null: no historic zone)
-export function setFacadeConfig({ centre = undefined, lite = undefined, off = undefined } = {}) {
+export function setFacadeConfig({ centre = undefined, lite = undefined, off = undefined, centreGroundM = undefined } = {}) {
   if (centre !== undefined) {
     CFG.has = !!centre;
     CFG.cx = centre ? centre.x : 0;
     CFG.cz = centre ? centre.z : 0;
   }
+  if (centreGroundM !== undefined) CFG.grefM = Number.isFinite(centreGroundM) ? centreGroundM : 0;
   if (lite !== undefined) CFG.lite = !!lite;
   if (off !== undefined) CFG.off = !!off;
 }
-export const getFacadeConfig = () => ({ centre: CFG.has ? { x: CFG.cx, z: CFG.cz } : null, lite: CFG.lite, off: CFG.off });
+export const getFacadeConfig = () => ({ centre: CFG.has ? { x: CFG.cx, z: CFG.cz } : null, centreGroundM: CFG.grefM, lite: CFG.lite, off: CFG.off });
 
 export const HIST_M = 900;
 export const RING_M = 2200;
-export const STYLE = { LEGACY: 0, HIST: 1, AZUL: 2, RING: 3, MODERN: 4, HOUSE: 5, IND: 6 };
+// Ribeira / Douro waterfront: ground this far below the centre, this close
+// to it, reads as the old riverfront and gets arcaded ground floors.
+export const OLD_M = 1300;
+export const OLD_DROP_M = 45;
+export const STYLE = { LEGACY: 0, HIST: 1, AZUL: 2, RING: 3, MODERN: 4, HOUSE: 5, IND: 6, ARCADE: 7 };
 
 // metres from the historic centre (Infinity without one)
 export function centreDist(x, z) {
   return CFG.has ? Math.hypot(x - CFG.cx, z - CFG.cz) / S : Infinity;
+}
+
+// Coherent random in [0, 1) per 1 km tile (world units), so a neighbourhood
+// picks one palette and drifts together instead of a per-building patchwork.
+function tileHash(x, z, salt = 0) {
+  const tx = Math.floor(x / (1000 * S));
+  const tz = Math.floor(z / (1000 * S));
+  let h = Math.imul(tx ^ (0x9e3779b9 + salt), 0x85ebca6b) ^ Math.imul(tz ^ 0x27d4eb2f, 0xc2b2ae35);
+  h ^= h >>> 13;
+  h = Math.imul(h, 0xc2b2ae35);
+  h ^= h >>> 16;
+  return (h >>> 0) / 4294967295;
 }
 
 // ------------------------------------------------------------ colours
@@ -62,9 +84,10 @@ const L = (list) => list.map(hexLinear);
 // Braga's plaster: white and cream most, then ochre, pale pink, pale blue;
 // a few granite fronts in the centre
 const PAL = {
-  [STYLE.HIST]: L([0xece7dc, 0xe8dfcc, 0xe4d4b2, 0xd9b26a, 0xdcb5a9, 0xbccad3, 0xb3aa9b, 0xe9e4da]),
+  [STYLE.HIST]: L([0xece7dc, 0xe8dfcc, 0xe0d0ad, 0xd9b26a, 0xd8b8a8, 0xbccad3, 0xb0a693, 0xe9e4da, 0x9fa2a0, 0xc9b79a]),
   [STYLE.AZUL]: L([0xe9e6de]),
-  [STYLE.RING]: L([0xe9e3d6, 0xe4d6b9, 0xdbb577, 0xdcbaab, 0xc2ced4, 0xe6dfcf, 0xcfd2bd]),
+  [STYLE.ARCADE]: L([0xece7dc, 0xe6ddcb, 0xd9cfb6, 0xc4b79e, 0xd8c6ab]),
+  [STYLE.RING]: L([0xe9e3d6, 0xe4d6b9, 0xdbb577, 0xdcbaab, 0xc2ced4, 0xe6dfcf, 0xcfd2bd, 0xd7c4a2]),
   [STYLE.MODERN]: L([0xd8d5ce, 0xcac6bd, 0xe2ded4, 0xbab5ab, 0xd3cab9]),
   [STYLE.HOUSE]: L([0xefe9de, 0xece4d2, 0xe6d6b4, 0xe2c99e, 0xdfc4b8, 0xd5d5cc]),
   [STYLE.IND]: L([0xaaa9a4, 0xa0a6aa, 0xb7b0a0, 0x929a9e]),
@@ -77,14 +100,18 @@ const FLAT_ROOF = L([0x7d786f, 0x8f8a80, 0x6f6c66]);
 const CLUTTER = hexLinear(0xa5a39d);
 
 // ------------------------------------------------------------ style
-// k: OSM kind (or 'ms'); hM: wall height (m); a: attrs ({ m, wc, ... })
-export function facadeStyle(x, z, k, areaM2, hM, a, h1) {
+// k: OSM kind (or 'ms'); hM: wall height (m); a: attrs ({ m, wc, ... });
+// groundM: ground height at the building (m, 0 at the centre's terrain)
+export function facadeStyle(x, z, k, areaM2, hM, a, h1, groundM = null) {
   if (CFG.off) return STYLE.LEGACY;
   const d = centreDist(x, z);
   const m = a?.m;
   if (k === 'industrial' || m === 'metal') return STYLE.IND;
   if (k === 'commercial' && areaM2 > 1500 && hM <= 14) return STYLE.IND;
   if (m === 'glass') return STYLE.MODERN;
+  // the Douro waterfront (Ribeira, Bolsa, the low riverfront): granite
+  // arcades and shop fronts at street level, plaster or azulejo above
+  if (CFG.has && groundM != null && hM <= 26 && m !== 'glass' && m !== 'concrete' && d <= OLD_M && groundM - CFG.grefM < -OLD_DROP_M) return STYLE.ARCADE;
   if (d <= HIST_M) {
     if (hM > 22) return STYLE.MODERN;
     if (m === 'concrete') return STYLE.RING;
@@ -100,15 +127,21 @@ export function facadeStyle(x, z, k, areaM2, hM, a, h1) {
   return k === 'commercial' || k === 'public' ? STYLE.MODERN : STYLE.RING;
 }
 
-// wall rgb (linear, before dimming) for a style, a seed and the tags
-export function wallBase(style, h1, a) {
+// wall rgb (linear, before dimming) for a style, a seed and the tags.
+// x, z (world) pick a per-tile palette drift so a block reads as one
+// palette with subtle building-to-building colour and value variation.
+export function wallBase(style, h1, a, x = 0, z = 0) {
   if (a?.wc) {
     const c = hexLinear(a.wc);
     if (c) return c;
   }
   if (a?.m && MATERIAL[a.m]) return hexLinear(MATERIAL[a.m]);
   const p = PAL[style] || PAL[STYLE.LEGACY];
-  return p[Math.floor(h1 * p.length) % p.length];
+  const t = tileHash(x, z, 11);
+  const c = p[Math.floor(((h1 * 0.72 + t * 0.28) % 1) * p.length) % p.length];
+  const v = 0.94 + 0.12 * (0.5 * tileHash(x, z, 23) + 0.5 * h1);
+  const warm = (tileHash(x, z, 37) - 0.5) * 0.05;
+  return [c[0] * v * (1 + warm), c[1] * v, c[2] * v * (1 - warm)];
 }
 export function roofBase(flat, h2, a) {
   if (a?.rc) {
@@ -220,7 +253,7 @@ export function roofPlan(pts, areaM2, k, hM, style, top, a, h2, h3) {
   const R = n >= 3 ? minRect(pts) : null;
   if (!R) return flat(false);
   const fill = (areaM2 * S * S) / R.area;
-  const hist = style === STYLE.HIST || style === STYLE.AZUL;
+  const hist = style === STYLE.HIST || style === STYLE.AZUL || style === STYLE.ARCADE;
   // regular footprints: the roof on the rectangle (cheap, with eaves);
   // irregular ones: a hip clipped to the outline (centre only) or flat
   const regular = fill >= REGULAR_FILL;
@@ -260,7 +293,7 @@ export function roofPlan(pts, areaM2, k, hM, style, top, a, h2, h3) {
   if (shape === 'auto') {
     // gabled along the long axis for elongated, regular footprints; hipped
     // otherwise (a hip clips cleanly to an irregular outline)
-    const hist = style === STYLE.HIST || style === STYLE.AZUL;
+    const hist = style === STYLE.HIST || style === STYLE.AZUL || style === STYLE.ARCADE;
     const gabledShare = hist ? 0.35 : 0.55;
     shape = len / wid >= 1.3 && fill >= 0.85 && h2 < gabledShare ? 'gabled' : 'hipped';
   }
@@ -484,13 +517,24 @@ export function extrudeRoofed(T, pts, plan, g) {
     nx /= nl;
     ny /= nl;
     nz /= nl;
-    const v0 = T.pos.length / 3;
+    // the facet's own slope extent (plane height), so the shader can draw an
+    // eave shadow at the low edge and a ridge cap at the high one: aWall.z
+    // carries 0 at the eave .. 1 at the ridge
+    let ymin = Infinity;
+    let ymax = -Infinity;
     for (const p of poly) {
       const y = planeY(P, p.x, p.z);
-      T.pos.push(p.x, plan.poly ? y : Math.max(top, y), p.z);
+      if (y < ymin) ymin = y;
+      if (y > ymax) ymax = y;
+    }
+    const yr = Math.max(ymax - ymin, 1e-6);
+    const v0 = T.pos.length / 3;
+    for (const p of poly) {
+      const y0 = planeY(P, p.x, p.z);
+      T.pos.push(p.x, plan.poly ? y0 : Math.max(top, y0), p.z);
       T.nor.push(nx, ny, nz);
       T.col.push(rc[0], rc[1], rc[2]);
-      T.wall.push(0, -1, 0, w);
+      T.wall.push(0, -1, (y0 - ymin) / yr, w);
     }
     for (const [ia, ib, ic] of faces) {
       const A = poly[ia];
@@ -635,6 +679,7 @@ vBW = (modelMatrix * vec4(transformed, 1.0)).xyz;
 `;
 export const FACADE_FRAG_PARS = /* glsl */ `
 uniform float uNight;
+uniform sampler2D uGrime;
 varying vec4 vWall;
 varying vec3 vBW;
 float bHash(vec2 p) {
@@ -649,6 +694,19 @@ float bRect(vec2 f, vec4 r) {
 // soft 1 inside [a, b] of u, edges w wide (w: about a pixel)
 float bBand(float u, float a, float b, float w) {
   return smoothstep(a - w, a + w, u) - smoothstep(b - w, b + w, u);
+}
+// the blue-and-white azulejo motif on a wall plane, p in metres: an inked
+// ground through a white lattice, a little glossier than plaster
+vec3 bAzulejo(vec2 p, vec3 ground, vec3 ink, float nearK) {
+  vec2 t = p / 0.14;
+  vec2 tf = fract(t);
+  vec2 ti = floor(t);
+  float d = abs(tf.x - 0.5) + abs(tf.y - 0.5);
+  float motif = clamp(step(d, 0.3) + step(0.62, d) * step(0.5, mod(ti.x + ti.y, 2.0)), 0.0, 1.0);
+  float tw = fwidth(t.x);
+  float tk = (1.0 - smoothstep(0.18, 0.45, tw)) * nearK;
+  float grout = 1.0 - 0.18 * (1.0 - smoothstep(0.0, 0.06, min(min(tf.x, 1.0 - tf.x), min(tf.y, 1.0 - tf.y)))) * tk;
+  return mix(ground, mix(ground, ink, motif) * grout, tk);
 }
 `;
 
@@ -679,7 +737,14 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
   float bY = vWall.y;
   float bX = vWall.x;
   float bAo = 0.62 + 0.38 * clamp(bY / max(bH, 3.0), 0.0, 1.0);
-  bool bHist = bSt > 0.5 && bSt < 2.5;
+  bool bHist = (bSt > 0.5 && bSt < 2.5) || bSt == 7.0;
+#ifndef BRG_WIN_LITE
+  // world-plan facade detail: broad soiling (R), fine render grain (G) and
+  // vertical rain streaks (B) that vary across the wall, not up it
+  vec4 bGr = texture2D(uGrime, vec2(vBW.x, vBW.z) * 0.055);
+  float bGrime = bGr.r;
+  float bStreak = bGr.b;
+#endif
   // per style: cell width, floor height, first window floor, window rect, lit share
   float cw = 3.4;
   float fh = 3.1;
@@ -715,23 +780,56 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
     #ifdef BRG_WIN_LITE
     col = mean * bAo;
     #else
-    vec2 t = vec2(bX, bY) / 0.14;
-    vec2 tf = fract(t);
-    vec2 ti = floor(t);
-    float d = abs(tf.x - 0.5) + abs(tf.y - 0.5);
-    float motif = step(d, 0.3) + step(0.62, d) * step(0.5, mod(ti.x + ti.y, 2.0));
-    motif = clamp(motif, 0.0, 1.0);
-    float tw = fwidth(t.x);
-    float tk = (1.0 - smoothstep(0.18, 0.45, tw)) * bNear;
-    float grout = 1.0 - 0.18 * (1.0 - smoothstep(0.0, 0.06, min(min(tf.x, 1.0 - tf.x), min(tf.y, 1.0 - tf.y)))) * tk;
-    col = mix(mean, mix(ground, ink, motif) * grout, tk) * bAo;
+    col = bAzulejo(vec2(bX, bY), ground, ink, bNear) * bAo;
     // glazed: a little glossier
     roughnessFactor = mix(roughnessFactor, 0.45, 0.6);
     #endif
   }
+#ifndef BRG_WIN_LITE
+  // occasional azulejo panels on the historic plaster, blue-and-white in the
+  // Porto manner: a small share of houses wear a tiled upper facade
+  if (bSt == 1.0 && bY > g0 && bNear > 0.0 && bHash(vec2(bSd * 451.0, 3.0)) > 0.84) {
+    float azi = bHash(vec2(bSd * 91.0, 7.0));
+    vec3 ink = azi < 0.6 ? vec3(0.03, 0.09, 0.36) : azi < 0.85 ? vec3(0.03, 0.2, 0.12) : vec3(0.55, 0.34, 0.05);
+    col = mix(col, bAzulejo(vec2(bX, bY), vec3(0.62, 0.63, 0.62) * 0.8, ink, bNear), 0.85 * bNear);
+    roughnessFactor = mix(roughnessFactor, 0.45, 0.5 * bNear);
+  }
+#endif
 
   // ---- ground floor and plinth
   if (bY < g0 && bSt != 5.0 && bSt != 6.0) {
+    if (bSt == 7.0) {
+      // Ribeira / old waterfront: a round-arched granite arcade with shops
+      // and passages behind it, the piers and spandrels in stone
+      float bw = 3.0;
+      float abay = bX / bw;
+      float abi = floor(abay);
+      float abf = fract(abay);
+      float ahb = bHash(vec2(abi, bSd * 77.0));
+      float spring = min(2.7, g0 - 0.6);
+      float arcW = 0.3;               // opening half-width, as a bay fraction
+      float r = arcW * bw;            // ~0.9 m
+      float dxm = (0.5 - abf) * bw;   // m from the arch centre
+      float ym = bY - spring;
+      float rect = bRect(vec2(abf, bY), vec4(0.5 - arcW, 0.0, 0.5 + arcW, spring));
+      float arch = step(dxm * dxm + ym * ym, r * r) * step(0.0, ym);
+      float open = clamp(rect + arch, 0.0, 1.0);
+      float oa = 1.0 - smoothstep(0.15, 0.45, fwidth(abay));
+      col = B_STONE * (0.82 + 0.16 * bSd) * bAo;
+      // the archivolt ring just outside the opening
+      float ring = clamp(step(dxm * dxm + ym * ym, (r + 0.16) * (r + 0.16)) * step(0.0, ym) - arch, 0.0, 1.0);
+      col = mix(col, B_STONE * 1.08, ring * oa * bNear);
+      // behind the arch: a lit shop window or a dark passage
+      vec3 inner = ahb < 0.55 ? B_GLASS * 1.25 : vec3(0.015, 0.012, 0.01);
+      col = mix(col, inner, open * oa);
+      shopK = open * oa * step(ahb, 0.55);
+      glassK = max(glassK, open * oa);
+      // a keystone at the crown on the wider piers
+      float key = bRect(vec2(abf, bY), vec4(0.44, spring + r - 0.02, 0.56, spring + r + 0.22)) * step(0.72, ahb);
+      col = mix(col, B_STONE * 1.12, key * oa * bNear);
+      // a granite kerb at the foot
+      col *= 1.0 - 0.2 * bBand(bY, 0.0, 0.18, fwidth(bY)) * bNear;
+    } else {
     if (bHist) col = B_GRANITE * (0.92 + 0.16 * bSd) * bAo;
     else if (bSt == 3.0 && bY < 0.9) col = B_GRANITE * bAo;
     else if (bSt == 4.0) col *= 0.82;
@@ -771,6 +869,7 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
       col = mix(col, B_GLASS * 1.4, o * oa);
       shopK = o * step(hb, 0.5) * step(0.5, bShop + step(0.5, bSd));
       glassK = max(glassK, o * oa);
+    }
     }
     // granite courses up close
     #ifndef BRG_WIN_LITE
@@ -819,7 +918,27 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
       }
     }
     #endif
-    col = mix(col, glass, gk * 0.85);
+#ifndef BRG_WIN_LITE
+    // recessed reveal: a shadow under the lintel and down each jamb, and a
+    // light stone sill with its own shadow line below the opening
+    if (bNear > 0.0 && bSt != 6.0) {
+      float fw = max(fwidth(f.x), fwidth(f.y));
+      float sK = bNear * (1.0 - smoothstep(0.15, 0.45, fw));
+      float sill = bRect(f, vec4(wr.x - 0.075, wr.y - 0.085, wr.z + 0.075, wr.y - 0.015)) * inside;
+      float sillUnder = bRect(f, vec4(wr.x - 0.08, wr.y - 0.12, wr.z + 0.08, wr.y - 0.085)) * inside;
+      float lintel = bRect(f, vec4(wr.x - 0.02, wr.w, wr.z + 0.02, wr.w + 0.055)) * inside;
+      float jamb = (bRect(f, vec4(wr.x - 0.03, wr.y, wr.x + 0.008, wr.w)) + bRect(f, vec4(wr.z - 0.008, wr.y, wr.z + 0.03, wr.w))) * inside;
+      col = mix(col, B_STONE * (bHist ? 1.12 : 1.02), sill * sK);
+      col *= 1.0 - clamp(lintel + jamb * 0.7, 0.0, 1.0) * 0.45 * sK;
+      col *= 1.0 - 0.5 * sillUnder * sK;
+    }
+#endif
+    // glass is not flat black: a per-pane value, a skyward gradient and a
+    // faint diagonal sheen so the grid reads as glazing, not holes
+    vec3 glassLit = glass * (0.72 + 0.75 * hw) + vec3(0.02, 0.028, 0.036) * smoothstep(0.25, 1.0, f.y);
+    float sheen = smoothstep(0.8, 1.0, sin(6.2831 * (f.x * 0.6 + f.y * 0.9) + hw * 6.0));
+    glassLit += vec3(0.05, 0.06, 0.07) * sheen;
+    col = mix(col, glassLit, gk * 0.9);
     glassK = max(glassK, gk);
     roughnessFactor = mix(roughnessFactor, 0.35, gk);
     #ifndef BRG_WIN_LITE
@@ -853,6 +972,14 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
 
   // the far grid: darken by the window share, fading in as the grid fades out
   col *= 1.0 - 0.3 * bFar * (1.0 - aa) * step(bSt, 5.5);
+#ifndef BRG_WIN_LITE
+  // soiling: broad neighbourhood grime plus rain streaks, stronger low on
+  // the wall, so plaster never reads as a flat untextured plane
+  if (bNear > 0.0) {
+    float low = 1.0 - clamp(bY / max(bH, 3.0), 0.0, 1.0);
+    col *= 1.0 - 0.09 * bGrime * bNear - 0.11 * bStreak * low * bNear;
+  }
+#endif
   diffuseColor.rgb = col;
 
   // the lights only after dusk (a uniform branch: by day no hashes run)
@@ -888,6 +1015,13 @@ else if (bNear > 0.0) {
     float sd = vWall.w - 2.0 * floor(vWall.w * 0.5);
     float mott = 0.9 + 0.2 * bHash(floor(vec2(u, v)) + sd * 31.0);
     diffuseColor.rgb *= mix(1.0, (1.0 - 0.3 * course - 0.14 * ch * ch) * mott, k);
+    // aWall.z carries 0 at the eave .. 1 at the ridge: a shadowed eave and a
+    // lighter ridge cap so the slope reads as tiled, capped and overhanging
+    float hN = clamp(vWall.z, 0.0, 1.0);
+    float eave = 1.0 - smoothstep(0.0, 0.045, hN);
+    float ridge = smoothstep(0.955, 1.0, hN);
+    diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * 0.6, eave * k);
+    diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * 1.12 + vec3(0.015), ridge * k);
   }
 }
 #endif
