@@ -11,11 +11,11 @@
 //   - close range only: lane markings (dashed centre lines on two-way roads,
 //     lane lines and edge lines on the motorways), sidewalks in the centre,
 //     the islands of the roundabouts;
-//   - calçada portuguesa (streetscape.js calcadaMaterial): the pedestrian
-//     streets of the centre and the sidewalks are white limestone and black
-//     basalt cobbles, in the same meshes (no extra draw): a per-vertex
-//     pattern attribute picks waves, a diagonal net, a border band or
-//     plain stone; 0 keeps the vertex colour;
+//   - calçada portuguesa (streetscape.js calcadaMaterial, textures.js calçada
+//     maps): the pedestrian streets of the centre and the sidewalks are white
+//     limestone and black basalt cobbles, in the same meshes (no extra draw):
+//     a per-vertex pattern attribute picks the wave, net, sidewalk or street
+//     map, UV-tiled by world position; 0 keeps the vertex colour;
 //   - a LineSegments2 at a constant pixel width on top: the glowing line
 //     that keeps the network readable from far away, where a ribbon a few
 //     metres wide is thinner than a pixel. It runs on the decks; over a

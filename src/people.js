@@ -9,10 +9,12 @@
 //     the café terraces, someone on a bench.
 // One instanced draw: a low-poly figure (light mode: 28 triangles) with the
 // walk cycle in the vertex shader (legs and arms swing about the hip and
-// the shoulder; seated figures fold their legs). Shirt, trousers and skin
-// vary per person. How many are out follows the hour (pedestrianDemand):
-// busy at lunch and in the evening, nearly empty at 3 am, the São João night
-// fuller still. Only within about 600 m of the point the camera looks at.
+// the shoulder; seated figures fold their legs). Shirt, trousers, skin,
+// height and build vary per person; two to four may walk as a group, and a
+// few stop to look across the street (iteration 19). How many are out follows
+// the hour (pedestrianDemand): busy at lunch and in the evening, nearly empty
+// at 3 am, the São João night fuller still. Only within about 600 m of the
+// point the camera looks at.
 import * as THREE from 'three';
 import { S } from './geo.js';
 
@@ -86,8 +88,8 @@ function figure(lite) {
   return g;
 }
 
-const SHIRTS = [0xf2efe8, 0x23324f, 0x1c1c1e, 0x9b2c2c, 0xc99a2e, 0x2f7f7a, 0x8b8f94, 0xc9b79a, 0x5c6b3a, 0x7fa6c9, 0x6b2737, 0xd78ca0, 0x3d6fb0, 0xe2d37a].map((h) => new THREE.Color(h));
-const PANTS = [0x2c3e5c, 0x1b1c1f, 0xb9a98a, 0x55585c, 0x4a3b2e, 0x3b4f70, 0x262a33].map((h) => new THREE.Color(h));
+const SHIRTS = [0xf2efe8, 0x23324f, 0x1c1c1e, 0x9b2c2c, 0xc99a2e, 0x2f7f7a, 0x8b8f94, 0xc9b79a, 0x5c6b3a, 0x7fa6c9, 0x6b2737, 0xd78ca0, 0x3d6fb0, 0xe2d37a, 0x4b5563, 0xb5651d, 0x2f4f4f, 0xd9d9d9, 0x7b6a58, 0x4682b4, 0x8e5a9e, 0xcf6b3c].map((h) => new THREE.Color(h));
+const PANTS = [0x2c3e5c, 0x1b1c1f, 0xb9a98a, 0x55585c, 0x4a3b2e, 0x3b4f70, 0x262a33, 0x2f3b46, 0x6b7280, 0x3d2b1f].map((h) => new THREE.Color(h));
 
 function peopleMaterial(uniforms) {
   const mat = new THREE.MeshLambertMaterial({ color: 0xffffff });
@@ -192,6 +194,19 @@ export function createPeople({ lanes, spots, max, lite, shadows = false }) {
   const wpants = new Uint8Array(NW);
   const wskin = new Uint8Array(NW);
   const wsc = new Float32Array(NW);
+  const wht = new Float32Array(NW); // height factor
+  const wbd = new Float32Array(NW); // build / girth factor
+  // small groups: a follower keeps its leader's lane and pace
+  const wlead = new Int32Array(NW).fill(-1);
+  const wgarc = new Float32Array(NW); // world units behind the leader
+  const wglat = new Float32Array(NW); // lateral offset across the lane
+  const wset = new Uint8Array(NW); // placed this gather
+  // people who stop and look: pause timer, next look, head turn, side
+  const wpause = new Uint8Array(NW);
+  const wstop = new Float32Array(NW);
+  const wnext = new Float32Array(NW);
+  const wlook = new Float32Array(NW);
+  const wside = new Float32Array(NW);
   // a hop between lanes: from (hx, hz, hy) to sample wt, t in world units left
   const whop = new Uint8Array(NW);
   const whx = new Float32Array(NW);
@@ -209,7 +224,24 @@ export function createPeople({ lanes, spots, max, lite, shadows = false }) {
     wpants[i] = Math.floor(rnd() * PANTS.length);
     wskin[i] = rnd() < 0.78 ? 0 : rnd() < 0.6 ? 1 : 2;
     wsc[i] = 0.92 + rnd() * 0.16;
+    wht[i] = 0.88 + rnd() * 0.24;
+    wbd[i] = 0.84 + rnd() * 0.32;
   }
+  // small groups: two to four people who walk together
+  {
+    let i = 0;
+    while (i < NW) {
+      const r = rnd();
+      const gs = r < 0.52 ? 1 : r < 0.78 ? 2 : r < 0.92 ? 3 : 4;
+      for (let j = 1; j < gs && i + j < NW; j++) {
+        wlead[i + j] = i;
+        wgarc[i + j] = j * (0.55 + rnd() * 0.9) * S;
+        wglat[i + j] = (rnd() * 2 - 1) * 0.5 * S;
+      }
+      i += gs;
+    }
+  }
+  const rrnd = lcg(77001); // runtime only: stops and looks
 
   // ---- spawning near the focus: the samples within R, weighted by type
   const CELL = 16;
@@ -241,6 +273,34 @@ export function createPeople({ lanes, spots, max, lite, shadows = false }) {
     candN = cand.length;
   }
   function place(i) {
+    const li = wlead[i];
+    // a follower joins its leader: same lane, slightly behind, same pace
+    if (li >= 0 && wset[li]) {
+      const l = wl[li];
+      wl[i] = l;
+      wd[i] = wd[li];
+      wv[i] = wv[li] * (0.97 + rnd() * 0.06);
+      let s = ws[li] - wd[i] * (wgarc[i] / STEP);
+      if (s < 0) s = 0;
+      if (s > LN[l] - 1) s = LN[l] - 1;
+      ws[i] = s;
+      wf[i] = Math.max(-1, Math.min(1, wf[li] + wglat[i]));
+      whop[i] = 0;
+      wht[i] = 0.9 + rnd() * 0.2;
+      wbd[i] = 0.86 + rnd() * 0.28;
+      wshirt[i] = Math.floor(rnd() * SHIRTS.length);
+      wpants[i] = Math.floor(rnd() * PANTS.length);
+      wskin[i] = wskin[li];
+      wsc[i] = 0.94 + rnd() * 0.12;
+      wph[i] = rnd() * 6.283;
+      wcad[i] = 0.88 + rnd() * 0.28;
+      wpause[i] = 0;
+      wstop[i] = 0;
+      wlook[i] = 0;
+      wnext[i] = 0;
+      wset[i] = 1;
+      return true;
+    }
     if (!candN) return false;
     // rejection by the lane's weight (pedestrian streets 3, squares 2.5 ...)
     let k = cand[Math.floor(rnd() * candN)];
@@ -254,6 +314,12 @@ export function createPeople({ lanes, spots, max, lite, shadows = false }) {
     if (ws[i] > LN[l] - 1) ws[i] = LN[l] - 1;
     wd[i] = rnd() < 0.5 ? 1 : -1;
     whop[i] = 0;
+    wpause[i] = rnd() < 0.18 ? 1 : 0;
+    wside[i] = rnd() < 0.5 ? 1 : -1;
+    wstop[i] = 0;
+    wlook[i] = 0;
+    wnext[i] = 2 + rnd() * 18;
+    wset[i] = 1;
     return true;
   }
 
@@ -277,6 +343,21 @@ export function createPeople({ lanes, spots, max, lite, shadows = false }) {
     ws[i] = end ? LN[l] - 1 : 0;
   }
   function step(i, dt) {
+    if (wpause[i]) {
+      if (wstop[i] > 0) {
+        // stopped to look: hold position, turn toward the side, hug the kerb
+        wstop[i] -= dt;
+        wlook[i] = Math.min(1, wlook[i] + dt * 0.8);
+        wf[i] += (wside[i] * 0.7 - wf[i]) * Math.min(1, dt * 0.6);
+        return;
+      }
+      wnext[i] -= dt;
+      if (wlook[i] > 0) wlook[i] = Math.max(0, wlook[i] - dt * 0.6);
+      if (wnext[i] <= 0) {
+        wstop[i] = 1.5 + rrnd() * 4.5;
+        wnext[i] = 9 + rrnd() * 20;
+      }
+    }
     if (whop[i]) {
       const k = wt[i];
       const dx = X[k] - whx[i];
@@ -343,12 +424,16 @@ export function createPeople({ lanes, spots, max, lite, shadows = false }) {
   const sSkin = new Uint8Array(NSP);
   const sPh = new Float32Array(NSP);
   const sSc = new Float32Array(NSP);
+  const sHt = new Float32Array(NSP);
+  const sBd = new Float32Array(NSP);
   for (let i = 0; i < NSP; i++) {
     sShirt[i] = Math.floor(rnd() * SHIRTS.length);
     sPants[i] = Math.floor(rnd() * PANTS.length);
     sSkin[i] = rnd() < 0.78 ? 0 : rnd() < 0.6 ? 1 : 2;
     sPh[i] = rnd() * 6.283;
     sSc[i] = 0.92 + rnd() * 0.16;
+    sHt[i] = 0.88 + rnd() * 0.24;
+    sBd[i] = 0.84 + rnd() * 0.32;
   }
   const spotCells = new Map();
   for (let i = 0; i < NSP; i++) {
@@ -362,20 +447,21 @@ export function createPeople({ lanes, spots, max, lite, shadows = false }) {
   const C = mesh.instanceColor.array;
   const IA = iAnim.array;
   const IL = iLook.array;
-  function write(n, x, y, z, hx, hz, sc, shirt, pants, skin, ph, walk, sit, cad) {
+  function write(n, x, y, z, hx, hz, sc, ht, bd, shirt, pants, skin, ph, walk, sit, cad) {
     const o = n * 16;
-    // +z of the figure along (hx, hz); uniform scale
-    E[o] = hz * sc;
+    // +z of the figure along (hx, hz); height and build vary per person
+    const rw = sc * bd;
+    E[o] = hz * rw;
     E[o + 1] = 0;
-    E[o + 2] = -hx * sc;
+    E[o + 2] = -hx * rw;
     E[o + 3] = 0;
     E[o + 4] = 0;
-    E[o + 5] = sc;
+    E[o + 5] = sc * ht;
     E[o + 6] = 0;
     E[o + 7] = 0;
-    E[o + 8] = hx * sc;
+    E[o + 8] = hx * rw;
     E[o + 9] = 0;
-    E[o + 10] = hz * sc;
+    E[o + 10] = hz * rw;
     E[o + 11] = 0;
     E[o + 12] = x;
     E[o + 13] = y;
@@ -425,6 +511,7 @@ export function createPeople({ lanes, spots, max, lite, shadows = false }) {
     const want = Math.min(NW, Math.round((NW * demand) / DEMAND_MAX));
     // after a jump (or the first time) everyone is placed anew
     if (!wasOn || moved > R * R * 0.25) {
+      wset.fill(0);
       for (let i = 0; i < want; i++) place(i);
     } else for (let i = active; i < want; i++) place(i);
     active = want;
@@ -445,7 +532,19 @@ export function createPeople({ lanes, spots, max, lite, shadows = false }) {
         continue;
       }
       if (n >= max || (p.x - cx) ** 2 + (p.z - cz) ** 2 > RV2 * 1.6 || !inView(frustum, p.x, p.y + 0.2, p.z, 0.6)) continue;
-      write(n++, p.x, p.y, p.z, p.hx, p.hz, wsc[i], wshirt[i], wpants[i], wskin[i], wph[i], 1, 0, wcad[i]);
+      // a stopped pauser turns to look across the street
+      let hx = p.hx;
+      let hz = p.hz;
+      if (wpause[i] && wlook[i] > 0.001) {
+        const a = wlook[i] * 1.15 * wside[i];
+        const c = Math.cos(a);
+        const s = Math.sin(a);
+        const nx = hx * c - hz * s;
+        hz = hx * s + hz * c;
+        hx = nx;
+      }
+      const walking = wpause[i] && wstop[i] > 0 ? 0 : 1;
+      write(n++, p.x, p.y, p.z, hx, hz, wsc[i], wht[i], wbd[i], wshirt[i], wpants[i], wskin[i], wph[i], walking, 0, wcad[i]);
       shownWalkers++;
     }
     // the people who stay, nearest cells first is not needed: the cap is high
@@ -463,7 +562,7 @@ export function createPeople({ lanes, spots, max, lite, shadows = false }) {
           if (spots.t[i] > share * 1.25 || !spotOk(i)) continue;
           if (!inView(frustum, x, spots.y[i] + 0.2, z, 0.6)) continue;
           const yaw = spots.yaw[i];
-          write(n++, x, spots.y[i], z, Math.sin(yaw), Math.cos(yaw), sSc[i], sShirt[i], sPants[i], sSkin[i], sPh[i], 0, spots.sit[i], 1);
+          write(n++, x, spots.y[i], z, Math.sin(yaw), Math.cos(yaw), sSc[i], sHt[i], sBd[i], sShirt[i], sPants[i], sSkin[i], sPh[i], 0, spots.sit[i], 1);
           shownStaying++;
         }
       }
@@ -522,7 +621,21 @@ export function createPeople({ lanes, spots, max, lite, shadows = false }) {
 // road network, so Porto's street life is alive even before
 // streetscape.json / pois.json land. One instanced draw, the same figure and
 // walk shader as the lane walkers; culled by distance and by the hour.
-// paths: [{ x, z, y: Float32Array, half: world units, ped: bool }]
+//
+// Richer life (iteration 19):
+//   - every person has their own height and build (and shirt / trousers /
+//     skin / pace), so a crowd reads as people, not clones;
+//   - some walk alone, two to four walk together as a small group that keeps
+//     the leader's path and pace;
+//   - a few stop now and then, step to the side and turn to look across the
+//     promenade (the monument / river view);
+//   - along the quay paths some sit on the wall / low benches, and small
+//     queues wait at the path ends — the boarding points the tram poles
+//     stand at.
+// How many are out follows the hour (pedestrianDemand, thinned in rain);
+// everything stands still under reduced motion (the caller passes dt = 0).
+// paths: [{ x, z, y: Float32Array, half: world units, ped: bool,
+//           name, district }]
 export function createCrowd({ paths, max, lite, reducedMotion = false }) {
   const list = (paths || []).filter((p) => p && p.x && p.x.length >= 2);
   if (!list.length || max < 1) return null;
@@ -557,31 +670,94 @@ export function createCrowd({ paths, max, lite, reducedMotion = false }) {
   });
   const total = cum.map((c) => c[c.length - 1] || 1);
   const rnd = lcg(90210);
-  const base = reducedMotion ? 0.45 : 1;
+  const rrnd = lcg(1301); // runtime only: stops and looks
+  const clamp1 = (v) => (v < -1 ? -1 : v > 1 ? 1 : v);
 
-  const P = new Int32Array(cap); // path
-  const SS = new Float32Array(cap); // arc length along it
-  const D = new Int8Array(cap);
-  const V = new Float32Array(cap); // world units / s
-  const F = new Float32Array(cap); // lateral -1..1
-  const PH = new Float32Array(cap);
-  const CAD = new Float32Array(cap);
-  const SH = new Uint8Array(cap);
-  const PA = new Uint8Array(cap);
-  const SK = new Uint8Array(cap);
-  const SC = new Float32Array(cap);
+  // ---- walkers -----------------------------------------------------
+  const WALK_MAX = Math.max(1, Math.round(cap * 0.82));
+  const P = new Int32Array(WALK_MAX); // path
+  const SS = new Float32Array(WALK_MAX); // arc length along it
+  const D = new Int8Array(WALK_MAX);
+  const V = new Float32Array(WALK_MAX); // world units / s
+  const F = new Float32Array(WALK_MAX); // lateral -1..1
+  const PH = new Float32Array(WALK_MAX);
+  const CAD = new Float32Array(WALK_MAX);
+  const SH = new Uint8Array(WALK_MAX);
+  const PA = new Uint8Array(WALK_MAX);
+  const SK = new Uint8Array(WALK_MAX);
+  const SC = new Float32Array(WALK_MAX);
+  const HT = new Float32Array(WALK_MAX); // height factor
+  const BD = new Float32Array(WALK_MAX); // build factor
+  // small groups: a follower keeps its leader's path and pace
+  const LEAD = new Int32Array(WALK_MAX).fill(-1);
+  const GARC = new Float32Array(WALK_MAX); // world units behind the leader
+  const GLAT = new Float32Array(WALK_MAX); // lateral offset across the path
+  const WSET = new Uint8Array(WALK_MAX); // placed this gather
+  // people who stop and look
+  const PAUSER = new Uint8Array(WALK_MAX);
+  const STOP = new Float32Array(WALK_MAX);
+  const NEXT = new Float32Array(WALK_MAX);
+  const LOOK = new Float32Array(WALK_MAX);
+  const LSIDE = new Float32Array(WALK_MAX);
+  {
+    let i = 0;
+    while (i < WALK_MAX) {
+      const r = rnd();
+      const gs = r < 0.52 ? 1 : r < 0.78 ? 2 : r < 0.92 ? 3 : 4;
+      for (let j = 1; j < gs && i + j < WALK_MAX; j++) {
+        LEAD[i + j] = i;
+        GARC[i + j] = j * (0.55 + rnd() * 0.9) * S; // ~2-6 m behind
+        GLAT[i + j] = (rnd() * 2 - 1) * 0.5 * S;
+      }
+      i += gs;
+    }
+  }
+
   const place = (i, pi) => {
+    const li = LEAD[i];
+    if (li >= 0 && WSET[li]) {
+      P[i] = P[li];
+      D[i] = D[li];
+      V[i] = V[li] * (0.97 + rnd() * 0.06);
+      SS[i] = SS[li] - D[li] * GARC[i];
+      const t = total[P[i]];
+      if (SS[i] < 0) SS[i] = 0;
+      if (SS[i] > t) SS[i] = t;
+      F[i] = clamp1(F[li] + GLAT[i]);
+      PH[i] = rnd() * 6.283;
+      SH[i] = Math.floor(rnd() * SHIRTS.length);
+      PA[i] = Math.floor(rnd() * PANTS.length);
+      SK[i] = SK[li];
+      SC[i] = 0.94 + rnd() * 0.12;
+      HT[i] = 0.9 + rnd() * 0.2;
+      BD[i] = 0.86 + rnd() * 0.28;
+      CAD[i] = 0.88 + rnd() * 0.28;
+      PAUSER[i] = 0;
+      STOP[i] = 0;
+      LOOK[i] = 0;
+      NEXT[i] = 0;
+      WSET[i] = 1;
+      return;
+    }
     P[i] = pi;
     SS[i] = rnd() * total[pi];
     D[i] = rnd() < 0.5 ? 1 : -1;
-    V[i] = (1.05 + rnd() * 0.5) * S * base;
+    V[i] = (1.05 + rnd() * 0.55) * S;
     F[i] = rnd() * 2 - 1;
     PH[i] = rnd() * 6.283;
     SH[i] = Math.floor(rnd() * SHIRTS.length);
     PA[i] = Math.floor(rnd() * PANTS.length);
     SK[i] = rnd() < 0.78 ? 0 : rnd() < 0.6 ? 1 : 2;
     SC[i] = 0.92 + rnd() * 0.16;
-    CAD[i] = (0.9 + rnd() * 0.2) * base;
+    HT[i] = 0.88 + rnd() * 0.24;
+    BD[i] = 0.84 + rnd() * 0.32;
+    CAD[i] = 0.84 + rnd() * 0.32;
+    PAUSER[i] = rnd() < 0.18 ? 1 : 0;
+    LSIDE[i] = rnd() < 0.5 ? 1 : -1;
+    STOP[i] = 0;
+    LOOK[i] = 0;
+    NEXT[i] = 2 + rnd() * 18;
+    WSET[i] = 1;
   };
 
   // paths near the focus (their samples within R)
@@ -639,6 +815,21 @@ export function createCrowd({ paths, max, lite, reducedMotion = false }) {
     return pos;
   }
   function step(i, dt) {
+    if (PAUSER[i]) {
+      if (STOP[i] > 0) {
+        // stopped to look: hold position, turn aside, drift to the edge
+        STOP[i] -= dt;
+        LOOK[i] = Math.min(1, LOOK[i] + dt * 0.8);
+        F[i] += (LSIDE[i] * 0.72 - F[i]) * Math.min(1, dt * 0.6);
+        return;
+      }
+      NEXT[i] -= dt;
+      if (LOOK[i] > 0) LOOK[i] = Math.max(0, LOOK[i] - dt * 0.6);
+      if (NEXT[i] <= 0) {
+        STOP[i] = 1.5 + rrnd() * 4.5;
+        NEXT[i] = 9 + rrnd() * 20;
+      }
+    }
     const L = total[P[i]];
     let s = SS[i] + D[i] * V[i] * dt;
     if (s < 0) {
@@ -658,23 +849,108 @@ export function createCrowd({ paths, max, lite, reducedMotion = false }) {
     return true;
   }
 
+  // ---- people who stay: sitters on the quay edges, queues at path ends
+  const quayRe = /cais|ribeira|gaia|douro|miragaia|infante|foz|alf[âa]ndega/i;
+  const RX = [];
+  const RZ = [];
+  const RY = [];
+  const RYAW = [];
+  const RSIT = [];
+  const RPH = [];
+  const RTH = []; // demand threshold: who is out now
+  const RSH = [];
+  const RPA = [];
+  const RSK = [];
+  const RSC = [];
+  const RHT = [];
+  const RBD = [];
+  const addRest = (x, z, y, yaw, sit) => {
+    RX.push(x);
+    RZ.push(z);
+    RY.push(y);
+    RYAW.push(yaw);
+    RSIT.push(sit);
+    RPH.push(rnd() * 6.283);
+    RTH.push(rnd() * 0.9);
+    RSH.push(Math.floor(rnd() * SHIRTS.length));
+    RPA.push(Math.floor(rnd() * PANTS.length));
+    RSK.push(rnd() < 0.78 ? 0 : rnd() < 0.6 ? 1 : 2);
+    RSC.push(0.92 + rnd() * 0.16);
+    RHT.push(0.88 + rnd() * 0.24);
+    RBD.push(0.84 + rnd() * 0.32);
+  };
+  for (let pi = 0; pi < list.length && RX.length < 900; pi++) {
+    const p = list[pi];
+    const n = p.x.length;
+    if (n < 6) continue;
+    const quay = p.district === 'ribeira' || p.district === 'cais-gaia' || quayRe.test(p.name || '');
+    // sitters along the quay paths: one every few metres at the outer edge
+    if (quay) {
+      for (let k = 3; k < n - 3 && RX.length < 900; k += 6 + Math.floor(rnd() * 18)) {
+        const ax = p.x[k];
+        const az = p.z[k];
+        let tx = p.x[k + 1] - p.x[k];
+        let tz = p.z[k + 1] - p.z[k];
+        const L = Math.hypot(tx, tz) || 1;
+        tx /= L;
+        tz /= L;
+        const side = rnd() < 0.5 ? 1 : -1;
+        const h = p.half * 0.92;
+        const nx = -tz * side;
+        const nz = tx * side;
+        addRest(ax + nx * h, az + nz * h, p.y[k], Math.atan2(nx, nz), 1);
+      }
+    }
+    // queues at the path ends (the boarding points / tram poles)
+    if (rnd() < 0.5) continue;
+    for (const end of [0, 1]) {
+      if (RX.length >= 900) break;
+      const k = end ? n - 1 : 0;
+      const o = end ? n - 2 : 1;
+      let tx = p.x[k] - p.x[o];
+      let tz = p.z[k] - p.z[o];
+      const L = Math.hypot(tx, tz) || 1;
+      tx /= L;
+      tz /= L;
+      const nx = -tz;
+      const nz = tx;
+      const yaw = Math.atan2(tx, tz);
+      const m = 2 + Math.floor(rnd() * 3);
+      for (let j = 0; j < m && RX.length < 900; j++) {
+        const lat = (j - (m - 1) / 2) * 0.45 * S;
+        const back = (j % 2) * 0.5 * S;
+        addRest(p.x[k] - tx * (0.6 + back) * S + nx * lat, p.z[k] - tz * (0.6 + back) * S + nz * lat, p.y[k], yaw, 0);
+      }
+    }
+  }
+  const RCELL = 16;
+  const restCells = new Map();
+  for (let i = 0; i < RX.length; i++) {
+    const key = Math.floor(RX[i] / RCELL) * 65536 + Math.floor(RZ[i] / RCELL);
+    let c = restCells.get(key);
+    if (!c) restCells.set(key, (c = []));
+    c.push(i);
+  }
+  const REST_N = RX.length;
+
   const E = mesh.instanceMatrix.array;
   const C = mesh.instanceColor.array;
   const IA = iAnim.array;
   const IL = iLook.array;
-  function write(n, x, y, z, hx, hz, sc, shirt, pants, skin, ph, walk, cad) {
+  function write(n, x, y, z, hx, hz, sc, ht, bd, shirt, pants, skin, ph, walk, sit, cad) {
     const o = n * 16;
-    E[o] = hz * sc;
+    const rw = sc * bd;
+    E[o] = hz * rw;
     E[o + 1] = 0;
-    E[o + 2] = -hx * sc;
+    E[o + 2] = -hx * rw;
     E[o + 3] = 0;
     E[o + 4] = 0;
-    E[o + 5] = sc;
+    E[o + 5] = sc * ht;
     E[o + 6] = 0;
     E[o + 7] = 0;
-    E[o + 8] = hx * sc;
+    E[o + 8] = hx * rw;
     E[o + 9] = 0;
-    E[o + 10] = hz * sc;
+    E[o + 10] = hz * rw;
     E[o + 11] = 0;
     E[o + 12] = x;
     E[o + 13] = y;
@@ -691,12 +967,14 @@ export function createCrowd({ paths, max, lite, reducedMotion = false }) {
     IL[n * 4 + 3] = skin;
     IA[n * 4] = ph;
     IA[n * 4 + 1] = walk;
-    IA[n * 4 + 2] = 0;
+    IA[n * 4 + 2] = sit;
     IA[n * 4 + 3] = cad;
   }
 
   let active = 0;
   let shown = 0;
+  let shownWalkers = 0;
+  let shownStaying = 0;
   let wasOn = false;
   let time = 0;
   function update(dt, camera, frustum, { fx, fz, R, on, demand = 1 }) {
@@ -715,12 +993,10 @@ export function createCrowd({ paths, max, lite, reducedMotion = false }) {
       shown = 0;
       return;
     }
-    const want = Math.min(cap, Math.max(0, Math.round((cap * demand) / DEMAND_MAX)));
-    if (!wasOn || moved > R * R * 0.25) {
-      for (let i = 0; i < want; i++) place(i, near[Math.floor(rnd() * near.length)]);
-    } else {
-      for (let i = active; i < want; i++) place(i, near[Math.floor(rnd() * near.length)]);
-    }
+    const want = Math.min(WALK_MAX, Math.max(0, Math.round((WALK_MAX * demand) / DEMAND_MAX)));
+    const reall = !wasOn || moved > R * R * 0.25;
+    if (reall) WSET.fill(0);
+    for (let i = 0; i < want; i++) if (reall || !WSET[i]) place(i, near[Math.floor(rnd() * near.length)]);
     active = want;
     wasOn = true;
     const cx = camera.position.x;
@@ -728,6 +1004,7 @@ export function createCrowd({ paths, max, lite, reducedMotion = false }) {
     const R2 = R * R;
     const RV2 = (R * 1.05) ** 2;
     let n = 0;
+    shownWalkers = 0;
     for (let i = 0; i < active; i++) {
       if (dt > 0) step(i, dt);
       const p = locate(i);
@@ -736,7 +1013,40 @@ export function createCrowd({ paths, max, lite, reducedMotion = false }) {
         continue;
       }
       if (n >= cap || (p.x - cx) ** 2 + (p.z - cz) ** 2 > RV2 * 1.6 || !inView(frustum, p.x, p.y + 0.2, p.z, 0.6)) continue;
-      write(n++, p.x, p.y, p.z, p.hx, p.hz, SC[i], SH[i], PA[i], SK[i], PH[i], reducedMotion ? 0.4 : 1, CAD[i]);
+      // a stopped pauser turns to look across the promenade
+      let hx = p.hx;
+      let hz = p.hz;
+      if (PAUSER[i] && LOOK[i] > 0.001) {
+        const a = LOOK[i] * 1.15 * LSIDE[i];
+        const c = Math.cos(a);
+        const s = Math.sin(a);
+        const nx = hx * c - hz * s;
+        hz = hx * s + hz * c;
+        hx = nx;
+      }
+      const walking = reducedMotion || (PAUSER[i] && STOP[i] > 0) ? 0 : 1;
+      write(n++, p.x, p.y, p.z, hx, hz, SC[i], HT[i], BD[i], SH[i], PA[i], SK[i], PH[i], walking, 0, CAD[i]);
+      shownWalkers++;
+    }
+    // the people who stay: sitters on the quay, queues at the ends
+    shownStaying = 0;
+    const share = demand / DEMAND_MAX;
+    for (let gx = Math.floor((fx - R) / RCELL); gx <= Math.floor((fx + R) / RCELL) && n < cap; gx++) {
+      for (let gz = Math.floor((fz - R) / RCELL); gz <= Math.floor((fz + R) / RCELL) && n < cap; gz++) {
+        const c = restCells.get(gx * 65536 + gz);
+        if (!c) continue;
+        for (const i of c) {
+          if (n >= cap) break;
+          const x = RX[i];
+          const z = RZ[i];
+          if ((x - fx) ** 2 + (z - fz) ** 2 > R2) continue;
+          if (RTH[i] > share * 1.1) continue;
+          if (!inView(frustum, x, RY[i] + 0.2, z, 0.6)) continue;
+          const yaw = RYAW[i];
+          write(n++, x, RY[i], z, Math.sin(yaw), Math.cos(yaw), RSC[i], RHT[i], RBD[i], RSH[i], RPA[i], RSK[i], RPH[i], 0, RSIT[i], 1);
+          shownStaying++;
+        }
+      }
     }
     shown = n;
     mesh.count = n;
@@ -758,9 +1068,25 @@ export function createCrowd({ paths, max, lite, reducedMotion = false }) {
   return {
     object: mesh,
     update,
-    stats: { paths: list.length, max: cap, reducedMotion, trianglesEach: geo.attributes.position.count / 3 },
+    stats: {
+      paths: list.length,
+      max: cap,
+      walkers: WALK_MAX,
+      rest: REST_N,
+      reducedMotion,
+      trianglesEach: geo.attributes.position.count / 3,
+    },
+    get active() {
+      return active;
+    },
     get shown() {
       return shown;
+    },
+    get shownWalkers() {
+      return shownWalkers;
+    },
+    get shownStaying() {
+      return shownStaying;
     },
   };
 }

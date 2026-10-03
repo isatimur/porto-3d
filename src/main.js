@@ -97,7 +97,7 @@ if (LITE) {
 
 // Exposed for tests and debugging: renderer.info, ready flags, flight count.
 const debug = (window.__porto = { ready: false, flights: 0, dataStatus: null });
-debug.tier = { ...TIER, dprCap: DPR.cap };
+debug.tier = { ...TIER, dprCap: DPR.cap, mobile: MOBILE, reducedMotion };
 // Load phases in ms since navigation (docs/perf, /tmp/perf/measure.mjs)
 debug.timing = {};
 let stopBoot = null; // set while the boot view runs (start)
@@ -207,24 +207,13 @@ async function start() {
   ground.userData.applyPads();
   mark('pads');
 
-  loader.set(0.6, t('Прокладываем улицы'));
-  await nextFrame();
-  const roadLayer = buildRoads(roads, project, heightAt, { waterRibbon: !loaded.nature, lite: LITE });
-  scene.add(roadLayer.group);
-  debug.roadSegments = roadLayer.counts;
-  mark('roads');
-
-  loader.set(0.72, t('Возводим здания'));
+  // The landmark massing and labels land first, straight after the fits: the
+  // boot view already has the sky, the terrain and one pin per landmark, and
+  // these give it the city's silhouette and names while the heavier layers
+  // (roads, buildings) still build. Progressive start, never a blank screen.
+  loader.set(0.58, t('Ставим достопримечательности'));
   await nextFrame();
   const outlines = landmarks.map((l) => footprints?.[l.id]?.outline?.map((q) => project(q[0], q[1])) ?? null);
-  const city = buildBuildings(buildings, project, heightAt, {
-    outlines: outlines.filter(Boolean),
-    plans: fits.filter((f) => !f.fallback).map((f) => f.plan),
-  });
-  scene.add(city.group);
-  debug.buildings = city.stats;
-  mark('buildings');
-
   const marks = buildLandmarks(landmarks, fits, heightAt, outlines, (i) => select(i), { lite: LITE, massing: true });
   scene.add(marks.group);
   debug.landmarks = marks.items.map((it) => ({
@@ -242,6 +231,24 @@ async function start() {
   }));
 
   mark('landmarks');
+
+  loader.set(0.66, t('Прокладываем улицы'));
+  await nextFrame();
+  const roadLayer = buildRoads(roads, project, heightAt, { waterRibbon: !loaded.nature, lite: LITE });
+  scene.add(roadLayer.group);
+  debug.roadSegments = roadLayer.counts;
+  mark('roads');
+
+  loader.set(0.74, t('Возводим здания'));
+  await nextFrame();
+  const city = buildBuildings(buildings, project, heightAt, {
+    outlines: outlines.filter(Boolean),
+    plans: fits.filter((f) => !f.fallback).map((f) => f.plan),
+  });
+  scene.add(city.group);
+  debug.buildings = city.stats;
+  mark('buildings');
+
   // Woods, parks and water from OSM, the streamed tiles around the core, and
   // life and the seasons on top: built after the first full frame, when the
   // browser is idle (deferLayers below). Until then they are null.
@@ -277,9 +284,11 @@ async function start() {
     // the city around the core, streamed in once the core is on screen (tiles.js)
     tiles = createTiles({ renderer, scene, camera, terrain, heightAt, proj, roadLayer, nature, ground, mobile: LITE, debug });
   }
-  // Microsoft footprints in the OSM gaps, core and ring (buildings-ms.js; ?ms=0 off)
+  // Microsoft footprints in the OSM gaps, core and ring (buildings-ms.js;
+  // ?ms=0 off). Built with the deferred layers below: it is the heaviest of
+  // the core passes, so the first interactive frame does not wait on it.
   const msPlans = fits.filter((f) => !f.fallback).map((f) => f.plan);
-  const ms = createMsBuildings({ scene, camera, terrain, heightAt, proj, footprints, plans: msPlans, osm: city.footprints, mobile: LITE, lite: LITE, debug });
+  let ms = null;
   const lightInfo = { dir: atmosphere.sunDir, color: new THREE.Color(), ambient: new THREE.Color() };
   const _amb = new THREE.Color();
 
@@ -1368,7 +1377,7 @@ async function start() {
     // nature, tiles, life and seasons are null until deferLayers built them
     nature?.update(reducedMotion ? 0 : dt, camera, lightInfo); // no sway or ripples under reduced motion
     tiles?.update(rawDt);
-    ms.update(rawDt);
+    ms?.update(rawDt);
     life?.update(dt, camDist); // traffic, birds, funicular, fountains, weather (life.js)
     seasons?.update(rawDt); // season blend, leaves, snow, quality (seasons.js)
     marks.updatePins(clock, !reducedMotion, camera.position);
@@ -1487,6 +1496,24 @@ async function start() {
       tiles: tiles?.stats ?? debug.tilesStats ?? null,
       ms: ms?.stats ?? debug.msStats ?? null,
       nature: nature?.stats ?? null,
+      life: life?.stats ?? null,
+      streetscape: life?.stats?.streetscape ?? debug.streetscape?.stats ?? null,
+      // the street-life caps and furniture totals (porto-streetscape.js /
+      // people.js, reported through streetscape.stats.porto)
+      people: life?.stats?.streetscape?.porto?.people ?? null,
+      furniture: life?.stats?.streetscape?.porto
+        ? Object.values(life.stats.streetscape.porto.furniture || {}).reduce((a, n) => a + n, 0)
+        : null,
+      vehicles: life?.traffic ? { vehicles: life.traffic.stats.vehicles, visible: life.traffic.visible, lanes: life.traffic.stats.lanes } : null,
+      transit: {
+        air: life?.air ? { status: life.air.status, total: life.air.total, drawn: life.air.drawn, src: life.air.src } : null,
+        buses: life?.buses?.stats ?? null,
+      },
+      weather: life?.weather?.name ?? null,
+      seasons: seasons ? debug.seasons ?? null : null,
+      routes: routes.length,
+      routeLines: routeLayer.group.children.filter((c) => c.isLine2).length,
+      pins: marks.items.length,
       lamps: roadLayer.counts.lamps,
       fx: fx.enabled,
       time: atmosphere.time,
@@ -1497,6 +1524,9 @@ async function start() {
     debug.stats = stats;
     console.info(
       `[porto] stats: ${stats.drawCalls} draw calls, ${stats.frameTriangles} triangles this frame; scene ${stats.sceneTriangles} triangles in ${meshes} meshes; buildings ${city.stats.built} in ${city.stats.tiles} tiles (${city.stats.triangles} tris), skipped ${city.stats.skippedOutline + city.stats.skippedPlan} under landmarks`,
+    );
+    console.info(
+      `[porto] layers: tier ${stats.tier}, routes ${stats.routes} (${stats.routeLines} lines), pins ${stats.pins}, weather ${stats.weather ?? '—'}, people ${stats.people?.max ?? 0}, furniture ${stats.furniture ?? 0}, vehicles ${stats.vehicles?.vehicles ?? 0} (${stats.vehicles?.visible ?? 0} shown), streetscape ${stats.streetscape?.status ?? '—'}, nature ${stats.nature ? 'on' : '—'}, seasons ${stats.seasons?.season ?? '—'}`,
     );
     console.table(marks.report);
   }
@@ -1543,9 +1573,10 @@ async function start() {
     requestAnimationFrame(() => requestAnimationFrame(() => logStats()));
   };
 
-  // Nature, the streamed tiles, life and the seasons: after the full loop
-  // runs, when the browser is idle (each one is a long task on a phone, so
-  // they wait for the intro to land, 6 s at most). __porto.ready after them.
+  // Nature, the streamed tiles, the MS ring, life and the seasons: after the
+  // full loop runs, when the browser is idle (each one is a long task on a
+  // phone, so they wait for the intro to land, 6 s at most). __porto.ready
+  // after them, then the counts are re-reported with every layer present.
   async function deferLayers() {
     const idle = () => new Promise((r) => (window.requestIdleCallback ? requestIdleCallback(() => r(), { timeout: 300 }) : setTimeout(r, 60)));
     const t0 = performance.now();
@@ -1559,6 +1590,10 @@ async function start() {
       }
     };
     await step('nature', buildNatureLayer);
+    await step('ms', () => {
+      ms = createMsBuildings({ scene, camera, terrain, heightAt, proj, footprints, plans: msPlans, osm: city.footprints, mobile: LITE, lite: LITE, debug });
+      mark('ms');
+    });
     await step('life', () => {
       // footprints, outlines: where the people of streetscape.js may not walk
       life = createLife({ renderer, scene, camera, atmosphere, project, heightAt, roads, items: marks.items, nature, fx, reducedMotion, mobile: LITE, lite: LITE, debug, setHash: () => setHash(currentHash()), footprints: city.footprints, outlines });
@@ -1570,6 +1605,10 @@ async function start() {
     await nextFrame();
     mark('ready');
     debug.ready = true;
+    // the deferred layers changed what the scene holds: re-report the counts
+    // (the first logStats ran before they existed) so logStats always ends
+    // with the full picture, including life, streetscape, people and buses.
+    requestAnimationFrame(() => requestAnimationFrame(() => logStats()));
   }
 
   loader.set(0.95, t('Первый кадр'));

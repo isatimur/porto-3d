@@ -1,7 +1,8 @@
 // The street level of the centre, close up ("Город вблизи"):
 //
 //   - calçada portuguesa: white limestone and black basalt cobbles, drawn by
-//     a procedural shader (calcadaMaterial) on the pedestrian streets and the
+//     a texture-sampled shader (calcadaMaterial: textures.js calçada maps) on
+//     the pedestrian streets and the
 //     sidewalks (roads.js uses it in its own meshes) and here on the
 //     pedestrian squares (<data_dir>/streetscape.json, OSM highway=pedestrian
 //     areas and place=square): waves on the main squares (Praça da
@@ -33,6 +34,8 @@ import { buildNetwork } from './road-network.js';
 import { RIBBON_LIFT, SIDEWALK_R, WALKED, sidewalkM, lampSites, lampGlow, LAMP_HEIGHT_M } from './roads.js';
 import { loadPois, createPoiSigns, isOpenAtHour, guessOpen } from './pois.js';
 import { createPeople, pedestrianDemand } from './people.js';
+import { createCalcadaTextures, createWetDryTexture } from './textures.js';
+import { WEATHER_UNIFORMS } from './scene.js';
 import { buildPortoStreetLife } from './porto-streetscape.js';
 
 // ------------------------------------------------------------ calçada
@@ -48,82 +51,93 @@ export function calcadaPatternOf(name = '', kind = 'street') {
 }
 
 // p: metres (x east, y south); pat: pattern, metres across the strip from
-// its middle, half width (metres). Returns the linear albedo.
+// its middle, half width (metres). Returns the linear albedo. The stone comes
+// from textures.js (createCalcadaTextures): RGB albedo, sampled in world
+// space and UV-tiled; A (the sett height) is left to the mip chain. The wave,
+// net and sett scales below put the drawn stones at their real size (~8 cm
+// setts, a 3.2 m "mar largo" band, a 2.2 m net).
 const CALCADA_GLSL = /* glsl */ `
-float cHash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-float cNoise(vec2 p) {
-  vec2 i = floor(p);
-  vec2 f = fract(p);
-  f = f * f * (3.0 - 2.0 * f);
-  return mix(mix(cHash(i), cHash(i + vec2(1.0, 0.0)), f.x), mix(cHash(i + vec2(0.0, 1.0)), cHash(i + vec2(1.0, 1.0)), f.x), f.y);
-}
-vec3 calcada(vec2 p, vec3 pat) {
+uniform sampler2D tCalWaves;
+uniform sampler2D tCalNet;
+uniform sampler2D tCalSide;
+uniform sampler2D tCalStreet;
+uniform sampler2D tWetDry;
+uniform vec4 uWet; // z wetness 0..1 (rain), w rain intensity
+const float CAL_WAVES = 0.0625; // uv tiles per metre (1 / 16 m)
+const float CAL_NET = 0.0758;   // 1 / 13.2 m
+const float CAL_SETTS = 0.893;  // 1 / 1.12 m
+vec3 calCalcada(vec2 p, vec3 pat) {
   float px = max(length(fwidth(p)), 1e-4); // metres per pixel
   float k = pat.x;
-  float m = 0.0;   // share of black basalt
-  float avg = 0.0; // the pattern's mean, for the far view
-  float P = 1.0;
-  if (k < 1.5) {
-    // waves ("mar largo"): bands 1.6 m wide
-    P = 3.2;
-    float w = p.y + 1.15 * sin(p.x * 0.6) + 0.3 * sin(p.x * 1.7 + 1.3);
-    float d = abs(fract(w / P) - 0.5);
-    float aa = 1.2 * px / P;
-    m = 1.0 - smoothstep(0.2 - aa, 0.2 + aa, d);
-    avg = 0.4;
-  } else if (k < 2.5) {
-    // a diagonal net of thin black lines
-    P = 2.2;
-    vec2 q = vec2(p.x + p.y, p.x - p.y) * 0.70710678;
-    vec2 d = abs(fract(q / P) - 0.5);
-    float aa = 1.2 * px / P;
-    float b = 0.43;
-    m = max(smoothstep(b - aa, b + aa, d.x), smoothstep(b - aa, b + aa, d.y));
-    avg = 0.26;
-  }
-  m = mix(m, avg, smoothstep(P * 0.12, P * 0.35, px));
-  // the streets: a black band along both edges
-  if (k > 3.5) {
-    float e = pat.z - abs(pat.y);
-    float band = 1.0 - smoothstep(0.4 - px, 0.4 + px, e);
-    m = max(m, mix(band, 0.4 / max(pat.z, 0.4) * 0.5, smoothstep(0.15, 0.5, px)));
-  }
-  vec3 lime = vec3(0.56, 0.54, 0.48);
+  vec4 c;
+  if (k < 1.5) c = texture2D(tCalWaves, p * CAL_WAVES);
+  else if (k < 2.5) c = texture2D(tCalNet, p * CAL_NET);
+  else if (k < 3.5) c = texture2D(tCalSide, p * CAL_SETTS);
+  else c = texture2D(tCalStreet, p * CAL_SETTS);
+  // the pattern mean: the far view flattens to it, so the paving reads as a
+  // tone, not a shimmer of texels
+  vec3 lime = k < 2.5 ? vec3(0.56, 0.54, 0.48) : k < 3.5 ? vec3(0.47, 0.455, 0.41) : vec3(0.448, 0.432, 0.384);
   vec3 bas = vec3(0.075, 0.075, 0.08);
-  // the sidewalks: a little greyer, worn
-  if (k > 2.5 && k < 3.5) lime = vec3(0.47, 0.455, 0.41);
-  vec3 col = mix(lime, bas, m);
-  // a soft mottling up to the middle distance
-  col *= mix(1.0, 0.86 + 0.26 * cNoise(p * 1.3), 1.0 - smoothstep(0.08, 0.45, px));
-#ifndef CALCADA_LITE
-  // the stones: about 8 cm, laid on the diagonal in staggered rows, with
-  // dark joints; only close up
-  float kc = 1.0 - smoothstep(0.012, 0.035, px);
-  if (kc > 0.0) {
-    float c = 0.08;
-    vec2 r = vec2(p.x + p.y, p.y - p.x) * 0.70710678 / c;
-    r.x += floor(r.y) * 0.5;
-    vec2 ci = floor(r);
-    vec2 cf = fract(r) - 0.5;
-    float h = cHash(ci);
-    float edge = max(abs(cf.x) + 0.08 * (h - 0.5), abs(cf.y));
-    float joint = smoothstep(0.34, 0.47, edge);
-    col *= mix(1.0, (0.84 + 0.3 * h) * (1.0 - 0.55 * joint), kc);
+  float avg = k < 1.5 ? 0.4 : k < 2.5 ? 0.26 : 0.0;
+  vec3 col = mix(c.rgb, mix(lime, bas, avg), smoothstep(0.28, 0.7, px));
+  // the streets: a black basalt band along both edges, over the setts
+  if (k > 3.5) {
+    float e = pat.z - abs(pat.y); // metres from the edge
+    float band = 1.0 - smoothstep(0.4 - px, 0.4 + px, e);
+    col = mix(col, bas, band * 0.92);
   }
-#endif
   return col;
 }`;
+
+// The calçada maps are built once per quality tier and shared by every mesh
+// (one texture set, UV-tiled), so the sampled paving adds no per-street draw.
+const CAL_MAPS = {};
+function calcadaMaps(lite) {
+  const key = lite ? 'lite' : 'full';
+  let m = CAL_MAPS[key];
+  if (!m) {
+    const size = lite ? 128 : 256;
+    m = CAL_MAPS[key] = { ...createCalcadaTextures(size), wet: createWetDryTexture(lite ? 64 : 128) };
+  }
+  return m;
+}
 
 export function calcadaMaterial({ polygonOffsetUnits = -2, roughness = 0.9, lite = false } = {}) {
   const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness, metalness: 0, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits });
   mat.customProgramCacheKey = () => `calcada:${lite ? 1 : 0}`;
   mat.onBeforeCompile = (sh) => {
+    const maps = calcadaMaps(lite);
+    sh.uniforms.tCalWaves = { value: maps.waves };
+    sh.uniforms.tCalNet = { value: maps.net };
+    sh.uniforms.tCalSide = { value: maps.sidewalk };
+    sh.uniforms.tCalStreet = { value: maps.street };
+    sh.uniforms.tWetDry = { value: maps.wet };
+    // live weather wetness (src/weather.js >= scene.js WEATHER_UNIFORMS);
+    // shared by reference, so the uniforms need no per-frame update here
+    sh.uniforms.uWet = WEATHER_UNIFORMS.cloudShape;
     sh.vertexShader = sh.vertexShader
       .replace('#include <common>', '#include <common>\nattribute vec3 aPat;\nvarying vec3 vPat;\nvarying vec2 vCalW;')
       .replace('#include <begin_vertex>', '#include <begin_vertex>\nvPat = aPat;\nvCalW = (modelMatrix * vec4(position, 1.0)).xz;');
     sh.fragmentShader = sh.fragmentShader
-      .replace('#include <common>', `#include <common>\n${lite ? '#define CALCADA_LITE\n' : ''}varying vec3 vPat;\nvarying vec2 vCalW;\n${CALCADA_GLSL}`)
-      .replace('#include <color_fragment>', `#include <color_fragment>\nif (vPat.x > 0.5) diffuseColor.rgb = calcada(vCalW * ${(1 / S).toFixed(1)}, vPat);`);
+      .replace('#include <common>', `#include <common>\nvarying vec3 vPat;\nvarying vec2 vCalW;\n${CALCADA_GLSL}`)
+      .replace('#include <color_fragment>', `#include <color_fragment>\nif (vPat.x > 0.5) diffuseColor.rgb = calCalcada(vCalW * ${(1 / S).toFixed(1)}, vPat);`)
+      .replace(
+        '#include <lights_physical_fragment>',
+        `#include <lights_physical_fragment>
+#ifdef USE_FOG
+// Wet paving, on top of the scene's shared wet patch: the wet/dry map
+// (textures.js createWetDryTexture) gives the calçada its own puddle mask and
+// damp grain, so the setts gloss in patches while dry stone stays rough.
+if (uWet.z > 0.001 && vPat.x > 0.5) {
+  vec3 wn = (vec4(normal, 0.0) * viewMatrix).xyz;
+  float up = smoothstep(0.5, 0.9, wn.y);
+  vec2 wd = texture2D(tWetDry, vCalW * 0.09).rg;
+  float vWet = uWet.z * up;
+  material.roughness = mix(material.roughness, 0.12, vWet * smoothstep(0.5, 0.85, wd.r));
+  material.roughness = mix(material.roughness, material.roughness * (0.72 + 0.55 * wd.g), vWet * 0.4);
+}
+#endif`,
+      );
   };
   return mat;
 }
