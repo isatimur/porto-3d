@@ -28,6 +28,8 @@ const API = 'https://commons.wikimedia.org/w/api.php';
 const UA = 'porto-3d photo fetcher (https://github.com/isatimur/porto-3d)';
 const MAX_BYTES = 600 * 1024;
 const MAX_GALLERY = 3;
+// --images-only cap: main <id>.jpg plus <id>-1.jpg and <id>-2.jpg.
+const MAX_IMAGES = 3;
 
 // Commons category + search query per landmark, plus a relevance pattern used
 // to keep only files that actually name the landmark (required for search
@@ -54,18 +56,67 @@ const COMMONS = {
   carmo: { category: 'Igreja do Carmo (Porto)', search: 'Igreja do Carmo Porto', match: /carmo/i },
   'palacio-cristal': { category: 'Jardins do Palácio de Cristal (Porto)', search: 'Palácio de Cristal Porto', match: /pal[aá]cio de cristal|cristal/i },
   'uporto-reitoria': { category: 'Reitoria da Universidade do Porto', search: 'Reitoria Universidade Porto', match: /reitoria|universidade/i },
+
+  // --- Porto 3D roster expansion: 40 new landmarks ---
+  'ponte-sao-joao': { category: 'Ponte de São João', search: 'Ponte de São João Porto Douro', match: /s[ãa]o jo[ãa]o/i },
+  'ponte-infante': { category: 'Ponte do Infante D. Henrique', search: 'Ponte do Infante D. Henrique Porto', match: /infante/i },
+  'ponte-freixo': { category: 'Ponte do Freixo', search: 'Ponte do Freixo Porto', match: /freixo/i },
+  'serra-do-pilar': { category: 'Mosteiro da Serra do Pilar', search: 'Serra do Pilar Vila Nova de Gaia', match: /serra do pilar|mosteiro/i },
+  'jardim-do-morro': { category: 'Jardim do Morro', search: 'Jardim do Morro Vila Nova de Gaia', match: /morro/i },
+  'cais-gaia': { category: 'Cais de Gaia', search: 'Cais de Gaia Vila Nova de Gaia', match: /gaia|cais/i },
+  'convento-corpus-christi': { category: 'Convento de Corpus Christi', search: 'Convento Corpus Christi Vila Nova de Gaia', match: /corpus christi/i },
+  'estacao-general-torres': { category: '', search: 'General Torres station', match: /general torres/i },
+  trindade: { category: 'Igreja da Trindade (Porto)', search: 'Igreja da Trindade Porto', match: /trindade/i },
+  congregados: { category: 'Igreja dos Congregados (Porto)', search: 'Igreja dos Congregados Porto', match: /congregados/i, avoid: /braga/i },
+  lapa: { category: 'Igreja da Lapa (Porto)', search: 'Igreja da Lapa Porto', match: /lapa/i, avoid: /D\. Manuel|1908|prociss[ãa]o|b[êe]n[çc][ãa]o|cortejo|festividade/i },
+  'santa-clara': { category: 'Igreja de Santa Clara (Porto)', search: '', match: /santa clara/i, avoid: /tapete|ma[çc]aroca|painel de padr|\bImage \d+|bordado|paramento/i },
+  'sao-nicolau': { category: 'Igreja de São Nicolau (Porto)', search: 'Igreja de São Nicolau Porto', match: /nicolau/i },
+  'sao-bento-vitoria': { category: 'Mosteiro de São Bento da Vitória', search: 'Igreja de São Bento da Vitória Porto', match: /bento da vit[óo]ria|vit[óo]ria/i },
+  cedofeita: { category: 'Igreja de Cedofeita', search: 'Igreja de Cedofeita Porto', match: /cedofeita/i },
+  'santo-ildefonso': { category: 'Igreja de Santo Ildefonso (Porto)', search: 'Igreja de Santo Ildefonso Porto', match: /ildefonso/i },
+  'miragaya-sao-pedro': { category: 'Igreja de São Pedro de Miragaia', search: 'Igreja de São Pedro de Miragaia Porto', match: /miragaia|s[ãa]o pedro/i },
+  'capela-almas': { category: 'Capela das Almas (Porto)', search: 'Capela das Almas Porto', match: /almas|santa catarina/i },
+  'foz-sao-joao-baptista': { category: 'Igreja de São João Baptista (Porto)', search: 'Igreja de São João Baptista Foz Porto', match: /jo[ãa]o baptista|foz/i },
+  ramalde: { category: 'Igreja de Ramalde', search: 'Igreja de Ramalde Porto', match: /ramalde/i },
+  campanha: { category: 'Estação Ferroviária de Porto-Campanhã', search: 'Estação de Campanhã Porto', match: /campanh[ãa]/i },
+  coliseu: { category: 'Coliseu do Porto', search: 'Coliseu do Porto', match: /coliseu/i },
+  'museu-soares-dos-reis': { category: 'Museu Nacional de Soares dos Reis', search: 'Museu Nacional Soares dos Reis Porto', match: /soares dos reis/i },
+  'casa-do-infante': { category: 'Casa do Infante', search: 'Casa do Infante Porto', match: /casa do infante|infante/i },
+  'alfandega-nova': { category: 'Alfândega Nova do Porto', search: 'Alfândega Nova Porto', match: /alf[âa]ndega/i },
+  'museu-romantico': { category: 'Museu Romântico (Porto)', search: 'Museu Romântico Porto Quinta da Macieirinha', match: /rom[âa]ntico|macieirinha/i },
+  'casa-guerra-junqueiro': { category: 'Casa de Guerra Junqueiro', search: 'Casa Guerra Junqueiro Porto', match: /guerra junqueiro/i },
+  'teatro-rivoli': { category: 'Teatro Rivoli (Porto)', search: 'Teatro Rivoli Porto', match: /rivoli/i },
+  'cinema-batalha': { category: 'Cinema Batalha', search: 'Cinema Batalha Porto', match: /batalha/i },
+  'cadeia-relacao': { category: 'Cadeia da Relação (Porto)', search: 'Cadeia da Relação Porto', match: /rela[çc][ãa]o/i },
+  'almeida-garrett': { category: 'Rua de Almeida Garrett (Porto)', search: 'Rua Almeida Garrett Porto', match: /almeida garrett/i, avoid: /clock|rel[óo]gio|automaton|santa catarina/i },
+  'museu-misericordia': { category: 'Museu da Misericórdia do Porto', search: 'Museu da Misericórdia Porto', match: /miseric[óo]rdia/i },
+  'parque-cidade': { category: 'Parque da Cidade do Porto', search: 'Parque da Cidade Porto', match: /parque da cidade/i },
+  cordoaria: { category: 'Jardim da Cordoaria', search: 'Jardim da Cordoaria Porto', match: /cordoaria/i },
+  'sao-lazaro': { category: 'Jardim de São Lázaro', search: 'Jardim de São Lázaro Porto', match: /l[áa]zaro/i },
+  'passeio-alegre': { category: 'Passeio Alegre', search: 'Passeio Alegre Foz Porto', match: /passeio alegre/i, avoid: /\bbus\b|schedule|hor[áa]rio|autocarro/i },
+  'praca-batalha': { category: 'Praça da Batalha', search: 'Praça da Batalha Porto', match: /batalha/i },
+  'castelo-queijo': { category: 'Castelo do Queijo', search: 'Castelo do Queijo Porto', match: /castelo do queijo|queijo|francisco xavier/i },
+  'praia-ingleses': { category: 'Praia dos Ingleses (Porto)', search: 'Praia dos Ingleses Porto', match: /ingleses|foz do douro|beach|praia/i },
+  'sealife-porto': { category: 'Sea Life Porto', search: 'Sea Life Porto', match: /sea ?life/i },
 };
 
 const args = process.argv.slice(2);
 const force = args.includes('--force');
 const captionsOnly = args.includes('--captions');
+// --images-only: download photos for the given ids straight from Commons
+// category/search into assets/img/ and record credits in assets/img/credits.json.
+// It never reads or writes data/new/<id>.landmark.json, so the parallel content
+// agents stay the sole owners of those fragments.
+const imagesOnly = args.includes('--images-only');
 const only = args.filter((a) => !a.startsWith('-'));
 
 const landmarksFile = join(ROOT, 'data', 'landmarks.json');
 const ids = existsSync(landmarksFile)
   ? JSON.parse(readFileSync(landmarksFile, 'utf8')).map((l) => l.id)
   : readdirSync(NEW).filter((f) => f.endsWith('.landmark.json')).map((f) => f.replace('.landmark.json', ''));
-const targets = (only.length ? only : ids).filter((id) => existsSync(join(NEW, `${id}.landmark.json`)));
+const targets = imagesOnly
+  ? (only.length ? only : Object.keys(COMMONS))
+  : (only.length ? only : ids).filter((id) => existsSync(join(NEW, `${id}.landmark.json`)));
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const norm = (t) => String(t || '').replace(/_/g, ' ').trim();
@@ -84,9 +135,22 @@ function stripHtml(s) {
 class CommonsError extends Error {}
 
 async function get(url) {
-  const res = await fetch(url, { headers: { 'User-Agent': UA } });
-  if (!res.ok) throw new CommonsError(`HTTP ${res.status} for ${url}`);
-  return res.json();
+  let last = null;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    try {
+      const res = await fetch(url, { headers: { 'User-Agent': UA } });
+      if (res.ok) {
+        const text = await res.text();
+        return JSON.parse(text);
+      }
+      last = new CommonsError(`HTTP ${res.status} for ${url}`);
+      if (res.status !== 429 && res.status < 500) throw last;
+    } catch (e) {
+      last = e;
+    }
+    await sleep(1200 * (attempt + 1));
+  }
+  throw last || new CommonsError(`failed ${url}`);
 }
 
 function fileFromUrl(u) {
@@ -227,9 +291,118 @@ function captionFor(nameRu, ru) {
   return re && re.test(n) ? 'общий вид' : ru;
 }
 
+// Gather free-licensed candidates for a landmark config, score them, and
+// return the sorted list. Used by both the fragment path (main image already
+// recorded) and the --images-only path.
+async function gatherScored(cfg, excludeTitles = []) {
+  const candidates = [];
+  for (const t of await listCategory(cfg.category)) candidates.push({ title: t, from: 'category' });
+  await sleep(200);
+  for (const t of await searchFiles(cfg.search)) candidates.push({ title: t, from: 'search' });
+
+  const seen = new Set(excludeTitles.map(norm));
+  const dedup = [];
+  for (const cand of candidates) {
+    const t = norm(cand.title);
+    if (seen.has(t) || !usableName(t)) continue;
+    seen.add(t);
+    dedup.push({ ...cand, title: t });
+  }
+
+  await sleep(200);
+  const infos = await imageInfo(dedup.map((d) => d.title));
+  const scored = [];
+  for (const cand of dedup) {
+    const info = infos.get(cand.title);
+    if (!info || !licenseOk(info.license)) continue;
+    if (info.width && info.width < 800) continue;
+    const text = `${info.title} ${info.description}`;
+    if (NON_PHOTO.test(text)) continue;
+    if (cfg.avoid && cfg.avoid.test(text)) continue;
+    const match = cfg.match ? cfg.match.test(text) : true;
+    if (cand.from === 'search' && !match) continue;
+    const desc = describe(text);
+    const score = (cand.from === 'category' ? 1000 : 0) + (match ? 500 : 0) +
+      (isJpg(info.title) ? 100 : 0) + (info.width > info.height ? 25 : 0) +
+      Math.min(info.width || 0, 2400) / 20 - (OLD.test(text) ? 400 : 0);
+    scored.push({ info, desc, from: cand.from, prefix: prefixOf(info.title), score });
+  }
+  scored.sort((a, b) => b.score - a.score);
+  return scored;
+}
+
+// Pick up to `max` candidates, preferring distinct filename prefixes (avoids
+// three frames of the same photo series) and then filling from the rest.
+function pickDiverse(scored, max) {
+  const picked = [];
+  const usedPrefix = new Set();
+  for (const s of scored) {
+    if (picked.length >= max) break;
+    if (usedPrefix.has(s.prefix)) continue;
+    usedPrefix.add(s.prefix);
+    picked.push(s);
+  }
+  for (const s of scored) {
+    if (picked.length >= max) break;
+    if (!picked.includes(s)) picked.push(s);
+  }
+  return picked;
+}
+
 const summary = [];
+const manifests = {};
 
 if (!captionsOnly) for (const id of targets) {
+  const cfg = COMMONS[id] || {};
+
+  // --- images-only: download from Commons without touching any fragment ---
+  if (imagesOnly) {
+    if (!force && existsSync(join(IMG, `${id}.jpg`))) {
+      console.log(`${id}: images exist, skipped`);
+      continue;
+    }
+    let count = 0;
+    let bytes = 0;
+    const licenses = [];
+    try {
+      const scored = await gatherScored(cfg, []);
+      if (!scored.length) throw new CommonsError('no free-licensed candidates');
+      const picked = pickDiverse(scored, MAX_IMAGES);
+      for (const f of readdirSync(IMG)) {
+        if (f.startsWith(`${id}-`) && f.endsWith('.jpg')) rmSync(join(IMG, f), { force: true });
+      }
+      const manifest = { main: null, gallery: [] };
+      for (let i = 0; i < picked.length; i++) {
+        const { info, desc } = picked[i];
+        const name = i === 0 ? `${id}.jpg` : `${id}-${i}.jpg`;
+        const dest = join(IMG, name);
+        const size = await download(info.thumb, dest);
+        const entry = {
+          file: `assets/img/${name}`,
+          kind: desc.kind,
+          author: info.author,
+          license: info.license || 'see source',
+          source_url: info.source_url,
+          commons: info.title,
+        };
+        if (i === 0) manifest.main = entry;
+        else manifest.gallery.push(entry);
+        count++;
+        bytes += size;
+        licenses.push(info.license);
+        console.log(`${id}: ${name} ${info.title} -> ${(size / 1024).toFixed(0)} KB [${info.license}]`);
+        await sleep(120);
+      }
+      manifests[id] = manifest;
+      summary.push({ id, count, bytes, licenses });
+      console.log(`${id}: ${count} image${count === 1 ? '' : 's'}`);
+    } catch (e) {
+      console.error(`${id}: FAILED — ${e.message}`);
+      process.exitCode = 1;
+    }
+    continue;
+  }
+
   const path = join(NEW, `${id}.landmark.json`);
   const c = JSON.parse(readFileSync(path, 'utf8'));
   if (galleryComplete(c, id)) {
@@ -238,7 +411,6 @@ if (!captionsOnly) for (const id of targets) {
   }
 
   const nameRu = c.name_ru || id;
-  const cfg = COMMONS[id] || {};
   const mainTitle = fileFromUrl(c.image_credit?.source_url);
   let count = 0;
   let bytes = 0;
@@ -261,50 +433,8 @@ if (!captionsOnly) for (const id of targets) {
     }
 
     // --- gallery: category files first, then search fallback ---
-    const candidates = [];
-    for (const t of await listCategory(cfg.category)) candidates.push({ title: t, from: 'category' });
-    for (const t of await searchFiles(cfg.search)) candidates.push({ title: t, from: 'search' });
-
-    const seen = new Set(mainTitle ? [mainTitle] : []);
-    const dedup = [];
-    for (const cand of candidates) {
-      const t = norm(cand.title);
-      if (seen.has(t) || !usableName(t)) continue;
-      seen.add(t);
-      dedup.push({ ...cand, title: t });
-    }
-
-    const infos = await imageInfo(dedup.map((d) => d.title));
-    const scored = [];
-    for (const cand of dedup) {
-      const info = infos.get(cand.title);
-      if (!info || !licenseOk(info.license)) continue;
-      if (info.width && info.width < 800) continue;
-      const text = `${info.title} ${info.description}`;
-      if (NON_PHOTO.test(text)) continue;
-      if (cfg.avoid && cfg.avoid.test(text)) continue;
-      const match = cfg.match ? cfg.match.test(text) : true;
-      if (cand.from === 'search' && !match) continue;
-      const desc = describe(text);
-      const score = (cand.from === 'category' ? 1000 : 0) + (match ? 500 : 0) +
-        (isJpg(info.title) ? 100 : 0) + (info.width > info.height ? 25 : 0) +
-        Math.min(info.width || 0, 2400) / 20 - (OLD.test(text) ? 400 : 0);
-      scored.push({ info, desc, from: cand.from, prefix: prefixOf(info.title), score });
-    }
-    scored.sort((a, b) => b.score - a.score);
-
-    const picked = [];
-    const usedPrefix = new Set();
-    for (const s of scored) {
-      if (picked.length >= MAX_GALLERY) break;
-      if (usedPrefix.has(s.prefix)) continue;
-      usedPrefix.add(s.prefix);
-      picked.push(s);
-    }
-    for (const s of scored) {
-      if (picked.length >= MAX_GALLERY) break;
-      if (!picked.includes(s)) picked.push(s);
-    }
+    const scored = await gatherScored(cfg, mainTitle ? [mainTitle] : []);
+    const picked = pickDiverse(scored, MAX_GALLERY);
 
     const gallery = [];
     for (let i = 0; i < picked.length; i++) {
@@ -335,12 +465,21 @@ if (!captionsOnly) for (const id of targets) {
   }
 }
 
+// --images-only: persist the real author / licence / Commons file page URL for
+// every file just downloaded, so the merge step (or a human) can credit them.
+if (imagesOnly && Object.keys(manifests).length) {
+  const creditsPath = join(IMG, 'credits.json');
+  const existing = existsSync(creditsPath) ? JSON.parse(readFileSync(creditsPath, 'utf8')) : {};
+  writeFileSync(creditsPath, JSON.stringify({ ...existing, ...manifests }, null, 2) + '\n');
+  console.log(`wrote ${creditsPath} (${Object.keys(manifests).length} landmarks)`);
+}
+
 const totalBytes = summary.reduce((a, s) => a + s.bytes, 0);
 const mix = {};
 for (const s of summary) for (const l of s.licenses) mix[l || 'unknown'] = (mix[l || 'unknown'] || 0) + 1;
 console.log(`\ndownloaded ${summary.reduce((a, s) => a + s.count, 0)} images, ${(totalBytes / 1024 / 1024).toFixed(2)} MB`);
 console.log('licenses:', JSON.stringify(mix));
-for (const s of summary) if (s.count < 4) console.log(`  ${s.id}: ${s.count} image(s)`);
+for (const s of summary) if (!imagesOnly && s.count < 4) console.log(`  ${s.id}: ${s.count} image(s)`);
 
 // --captions: recompute gallery kind/caption from the stored Commons title
 // without re-downloading anything.

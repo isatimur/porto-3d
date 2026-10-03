@@ -1,0 +1,23 @@
+{
+  "name": "Museu Casa do Infante",
+  "year": "1325",
+  "short": "Alfândega régia medieval na Ribeira e um dos edifícios mais antigos do Porto; segundo a tradição, aqui nasceu o Infante D. Henrique em 1394.",
+  "long": "A Casa do Infante é a antiga alfândega régia medieval (Alfândega Velha) e um dos edifícios mais antigos do Porto, junto à Ribeira. Segundo a tradição, aqui nasceu o Infante D. Henrique, patrono dos descobrimentos, em 1394. Começou por ser um conjunto de duas torres altas em torno de um pátio central; foi depois remodelada e, no século XVII, a fachada avançou e as torres foram truncadas. Hoje alberga um museu e o arquivo histórico da cidade, e as escavações revelaram mosaicos romanos.",
+  "history": "Em 1325, o rei D. Afonso IV, contra a vontade do bispo, mandou construir neste local o armazém régio — a Alfândega do Porto —, para onde eram encaminhadas todas as mercadorias que aportavam à cidade, a fim de cobrar o respetivo imposto. O edifício primitivo era formado por duas torres altas e um pátio central; os pisos superiores da torre norte serviam de habitação.\n\nJá no século XV, com D. João I, foi acrescentado um corpo avançado, cujo pórtico rematava por um lintel com inscrição e um nicho com a imagem da Virgem, protetora das alfândegas. A oriente do edifício principal funcionava a Casa da Moeda, com origens também no século XIV; nas imediações ficavam a Contadoria da Fazenda e o Paço dos Tabeliães.\n\nA velha alfândega está intimamente ligada ao Infante D. Henrique, que, segundo a tradição, aqui nasceu em 1394. A origem portuense do Infante é conhecida pela crónica de Fernão Lopes, e o arquivo municipal guarda o documento com as despesas das festas do seu baptizado, em 1394.\n\nNo século XVII todo o conjunto foi remodelado: a fachada avançou sobre a rua, o topo das torres foi demolido e substituído por dois amplos cobertos; uma inscrição de 1677 assinala a obra. Os serviços aduaneiros funcionaram aqui até ao século XIX, quando passaram para a Alfândega Nova, em Miragaia; depois disso o edifício serviu de armazém.\n\nEm 1924 a Casa do Infante foi classificada como Monumento Nacional. Restaurada no fim dos anos 1950, acolheu em 1980 o Arquivo Histórico Municipal do Porto. As escavações arqueológicas dos anos 1990 revelaram mosaicos romanos e objetos do quotidiano; hoje o edifício integra um núcleo museológico do Museu da Cidade.",
+  "facts": [
+    "Em 1325 D. Afonso IV mandou construir aqui a alfândega régia do Porto.",
+    "Originalmente, duas torres altas e um pátio central.",
+    "Com D. João I, no século XV, foi acrescentado um corpo com nicho da Virgem.",
+    "Segundo a tradição, o Infante D. Henrique nasceu aqui em 1394.",
+    "No século XVII as torres foram truncadas; a inscrição de 1677 regista a obra.",
+    "Monumento Nacional desde 1924.",
+    "Desde 1980 acolhe o Arquivo Histórico Municipal do Porto.",
+    "As escavações dos anos 1990 revelaram mosaicos romanos."
+  ],
+  "tip": "A Casa do Infante fica na Rua da Alfândega, perto da Ribeira; a estação de metro mais próxima é São Bento (linha D). A entrada no museu é geralmente barata e muitas vezes gratuita ao domingo. Espreite o pátio interior e a exposição de mosaicos romanos — é a melhor forma de perceber como era o Porto medieval.",
+  "gallery": [
+    {"caption": "A Casa do Infante, a antiga alfândega junto à Ribeira."},
+    {"caption": "A fachada da Casa do Infante com o seu portal de pedra."}
+  ],
+  "panorama": null
+}

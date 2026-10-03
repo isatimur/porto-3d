@@ -628,6 +628,1099 @@ export const landmarks = {
       }
     ],
     "panorama": null
+  },
+  "ponte-sao-joao": {
+    "name": "Ponte de São João",
+    "year": "1991",
+    "short": "A ponte ferroviária sobre o Douro aberta a 24 de junho de 1991 para substituir a centenária ponte de D. Maria Pia: cerca de 1147 metros, vão principal de 250 metros, uma estrutura contínua de betão sobre pilares verticais.",
+    "long": "A Ponte de São João transporta a Linha do Norte sobre o Douro entre o Porto e Vila Nova de Gaia. Ao contrário da maioria das travessias da cidade, não é em arco, mas em pórtico múltiplo contínuo de pilares verticais: um vão central de 250 metros e dois vãos laterais de 125 metros, apoiados em dois pilares no leito do rio. Com os viadutos de acesso tem cerca de 1147 metros. Concebida pelo engenheiro Edgar Cardoso em betão armado e pré-esforçado, substituiu a ponte de via única de D. Maria Pia, de 1877, e tornou-se a obra mais importante da nova geração de pontes ferroviárias portuguesas de betão.",
+    "history": "Já em 1934 a Companhia dos Caminhos de Ferro Portugueses planeava uma segunda travessia do Douro no Porto, para desafogar a única ligação ferroviária de então, a ponte de via única de D. Maria Pia, de 1877. Lenta e de uma só via, causava graves estrangulamentos. Em 1966 a companhia decidiu duplicar a via entre General Torres e Porto-Campanhã e entregou o anteprojeto de uma nova travessia de via dupla ao engenheiro Edgar Cardoso, construtor do viaduto da Arrábida. Mas o orçamento de cerca de 120 milhões de escudos era demasiado pesado e a obra ficou adiada para o III Plano de Fomento (1968–1973).\n\nA ideia só foi retomada nos anos 1980. O Decreto-Lei n.º 307/81 criou o Gabinete da Ponte Ferroviária sobre o Rio Douro, e o Decreto-Lei n.º 347, de 15 de outubro de 1986, alargou-o a Gabinete do Nó Ferroviário do Porto. O Projeto 1 abrangia a nova travessia de via dupla e os acessos: na margem sul, a remodelação da estação de Gaia com novos cais, o Viaduto das Devesas, a nova estação de General Torres, um túnel na Serra do Pilar e um viaduto de 360 m junto à ponte; na margem norte, um viaduto de acesso de 170 m.\n\nA construção coube ao consórcio FERDOURO-ACE, formado por Soares da Costa, Teixeira Duarte e OPCA, com fiscalização da Bratex-Agrupamento. Estruturalmente, a ponte é uma peça contínua em pórtico de pilares verticais: três vãos (250 + 125 + 125 m) e dois pilares no leito do rio. A viga principal é uma caixa trapezoidal bicelular, com altura que varia dos 4 metros nos viadutos aos 14 metros sobre os pilares do rio e 7 metros a meio do vão central. As duas vias assentam diretamente na laje superior, e a faixa entre e ao lado dos carris é revestida de betão poroso, que serve de travão em caso de descarrilamento. Cada fundação dos pilares principais é reforçada com 130 microestacas de betão com cinco varões A500NR de 50 mm e 12 m, cravadas no fundo rochoso do rio.\n\nA ponte foi inaugurada no dia de São João, 24 de junho de 1991, junto à ponte de D. Maria Pia, encerrada nesse mesmo ano. O programa terminou oficialmente no início de 1994, com a nova estação de General Torres. O projeto custou 30 milhões de contos, dos quais 12 milhões só para a ponte. Pelas dimensões e formas, a São João foi considerada a mais importante da nova geração de pontes ferroviárias portuguesas em betão armado e pré-esforçado.\n\nNo século XXI a ponte continua em serviço: em 2020 substituiu-se betão delaminado por 0,843 milhões de euros, sem interromper a circulação. Prevê-se que os serviços de alta velocidade a utilizem em direção ao terminal de Porto-Campanhã, o que exigirá alterações nas vias.",
+    "facts": [
+      "Inaugurada a 24 de junho de 1991, dia de São João; transporta a Linha do Norte em via dupla.",
+      "Comprimento total de cerca de 1147 metros (a caixa da Wikipédia indica 1140 m): vão central de 250 m e dois laterais de 125 m.",
+      "Não é em arco, mas um pórtico múltiplo contínuo de pilares verticais, em betão armado e pré-esforçado.",
+      "A viga-caixa varia dos 4 m de altura nos viadutos aos 14 m sobre os pilares do rio e 7 m a meio vão.",
+      "Cada um dos dois pilares do rio assenta em 130 microestacas A500NR cravadas no fundo rochoso do Douro.",
+      "Construída pelo consórcio FERDOURO-ACE (Soares da Costa, Teixeira Duarte, OPCA); projeto do engenheiro Edgar Cardoso.",
+      "Só a ponte custou cerca de 12 milhões de contos, num programa de 30 milhões.",
+      "Substituiu a ponte de via única de D. Maria Pia, de 1877."
+    ],
+    "tip": "As melhores vistas são do cais da Ribeira, do mosteiro da Serra do Pilar e do tabuleiro superior da ponte Luís I. Os comboios atravessam a São João quase todos os dias e ficam mais bonitos ao pôr do sol, quando a luz incide no betão do lado do Porto. O acesso mais simples é de metro até São Bento ou de comboio até Campanhã, seguido de uma descida a pé até ao rio.",
+    "gallery": [
+      {
+        "caption": "A Ponte de São João vista do ar, entre as pontes ferroviárias do Porto."
+      },
+      {
+        "caption": "A Ponte de São João a partir da margem de Vila Nova de Gaia."
+      },
+      {
+        "caption": "A Ponte de São João sobre o Douro."
+      }
+    ],
+    "panorama": null
+  },
+  "ponte-infante": {
+    "name": "Ponte Infante Dom Henrique",
+    "year": "2003",
+    "short": "A ponte em arco de betão sobre o Douro aberta a 30 de março de 2003: arco de 280 metros, até 75 metros de altura, 20 metros de largura; substituiu o tabuleiro superior da ponte Luís I.",
+    "long": "A Ponte Infante Dom Henrique, também conhecida como Ponte do Infante, é a mais recente das pontes rodoviárias entre o Porto e Vila Nova de Gaia. Foi baptizada em honra do Infante D. Henrique, nascido no Porto. Fica pouco a montante da ponte Luís I, em plena zona histórica, ligando as Fontainhas (Porto) à Serra do Pilar (Gaia). Um tabuleiro à cota alta com cerca de 371 metros de extensão (cerca de 405 m com os acessos) e 20 metros de largura assenta num arco de betão armado com 280 metros de vão; a altura máxima é de 75 metros sobre o Douro. A relação vão/flecha de 11,2 constituiu um recorde mundial para esta tipologia.",
+    "history": "A Ponte do Infante foi construída para substituir o tabuleiro superior da ponte Luís I, entretanto convertido para uso da Linha Amarela do Metro do Porto (Hospital de São João – Santo Ovídio). A nova travessia devia manter ligados os bairros históricos das Fontainhas e da Serra do Pilar e aliviar a ponte de 1886.\n\nO projeto é da empresa espanhola IDEAM, sob a direção de José Antonio Fernández Ordóñez; os engenheiros foram António Adão da Fonseca e Francisco Millanes Mato, com a Afassociados a assegurar a adequação aos regulamentos portugueses. A construção demorou 27 meses e custou 14 milhões de euros.\n\nA estrutura é uma viga-caixa com 4,5 metros de altura apoiada num arco flexível com apenas 1,5 metro de espessura. A ponte à cota alta tem cerca de 371 metros de extensão e 20 metros de largura. Leva duas vias em cada sentido, um separador central de 1 metro e passeios laterais de 3 metros com guardas de segurança. A iluminação está colocada à cota baixa, para iluminar a via de forma uniforme, sem sombras. O arco retoma a solução do engenheiro suíço Robert Maillart nas suas pontes alpinas: flecha de 25 metros entre o fecho e o arranque para um vão de 280 metros, ou seja, uma relação de 11,2.\n\nA ponte foi inaugurada a 30 de março de 2003. Como as restantes travessias Porto–Gaia, tornou-se um recorde da sua tipologia e serviu de referência a muitas pontes em arco construídas depois.",
+    "facts": [
+      "Inaugurada a 30 de março de 2003.",
+      "Arco de betão armado com 280 metros de vão; extensão total de cerca de 371 m (405,6 m com acessos, segundo o OSM), 20 metros de largura.",
+      "Altura máxima de 75 metros sobre o Douro.",
+      "Uma flecha de 25 metros dá a relação vão/flecha de 11,2, recorde mundial da tipologia.",
+      "O tabuleiro principal é uma viga-caixa de 4,5 m apoiada num arco flexível de 1,5 m de espessura.",
+      "Projeto de António Adão da Fonseca e Francisco Millanes (IDEAM, José Antonio Fernández Ordóñez); 27 meses, 14 milhões de euros.",
+      "Substituiu o tabuleiro superior da ponte Luís I, hoje Linha Amarela do Metro.",
+      "Liga as Fontainhas, no Porto, à Serra do Pilar, em Gaia."
+    ],
+    "tip": "Os melhores miradouros para ver o novo arco são os tabuleiros superior e inferior da ponte Luís I e o miradouro da Serra do Pilar. Ao pôr do sol o arco fica iluminado e reflete-se na água, sendo fácil fotografá-lo do cais da Ribeira. O acesso mais simples é a pé a partir da estação de metro de São Bento (cerca de 15 minutos), ou atravessando a própria ponte do Infante de autocarro.",
+    "gallery": [
+      {
+        "caption": "A Ponte Infante Dom Henrique, vista geral."
+      },
+      {
+        "caption": "A Ponte Infante Dom Henrique sobre o Douro."
+      },
+      {
+        "caption": "A Ponte do Infante vista do cais."
+      }
+    ],
+    "panorama": null
+  },
+  "ponte-freixo": {
+    "name": "Ponte do Freixo",
+    "year": "1995",
+    "short": "A ponte rodoviária sobre o Douro aberta em setembro de 1995: duas estruturas paralelas em pórtico afastadas 10 cm, oito vãos, vão principal de 150 metros, tabuleiro baixo; a mais a montante das pontes do Porto.",
+    "long": "A Ponte do Freixo liga o Porto a Vila Nova de Gaia pela autoestrada A20 / IP1 / E01. De todas as pontes que ligam a cidade à margem sul, é a que está mais a montante do Douro, ou seja, mais a oriente. Na verdade são duas pontes construídas em pórtico lado a lado, afastadas apenas 10 centímetros uma da outra. Tem oito vãos, sendo o principal de 150 metros, e oito vias de trânsito (quatro em cada lado). O seu tabuleiro assenta a cotas muito inferiores às de todas as outras pontes entre o Porto e Gaia.",
+    "history": "A Ponte do Freixo foi projetada para desafogar as pontes da Arrábida e Luís I, onde os congestionamentos se tinham tornado particularmente graves desde o final da década de 1980. O projeto é do professor António Reis. A ponte foi inaugurada em setembro de 1995 pela então Junta Autónoma das Estradas (JAE).\n\nEstruturalmente são duas estruturas em pórtico quase encostadas: duas pontes paralelas afastadas 10 centímetros, com oito vãos e vão principal de 150 metros. A ponte leva oito vias de trânsito, quatro em cada sentido. O tabuleiro está a cotas muito mais baixas do que todas as outras travessias Porto–Gaia, o que facilita a passagem das embarcações por baixo.\n\nA ponte passou a integrar a circular oriental A20, ligando as zonas norte e sul da Área Metropolitana do Porto. Em 2011 passavam por ela, em média, 95 mil carros por dia, um dos troços mais movimentados da cidade.\n\nA ponte deve o nome à zona do Freixo, na margem do Porto, onde se ergue o Palácio do Freixo — uma casa barroca do século XVIII, outrora moagem e hoje hotel, com um antigo mosteiro ao lado. A travessia liga a A20 aos subúrbios orientais e ao acesso à A1, pelo que o trânsito nunca abrandou, e continua a ser a ponte Porto–Gaia com maior número de vãos.",
+    "facts": [
+      "Inaugurada em setembro de 1995.",
+      "Constituída por duas pontes paralelas em pórtico, afastadas apenas 10 centímetros.",
+      "Oito vãos, com vão principal de 150 metros.",
+      "Oito vias de trânsito: quatro em cada metade.",
+      "Transporta a A20 / IP1 / E01; cerca de 95 000 veículos por dia em 2011.",
+      "Projeto do engenheiro e professor António Reis.",
+      "O tabuleiro está a cotas muito mais baixas do que todas as outras pontes Porto–Gaia.",
+      "A mais a montante (mais a oriente) das seis pontes do Porto sobre o Douro."
+    ],
+    "tip": "A Ponte do Freixo não é muito acessível a pé, mas vê-se bem do comboio entre Campanhã e Gaia e do cais mais a montante. Para a vista clássica da travessia baixa, apanhe o metro até Campanhã e desça ao rio junto ao Freixo. Ao pôr do sol a luz vem do lado do Porto e realça a longa linha de vãos.",
+    "gallery": [
+      {
+        "caption": "A Ponte do Freixo vista a montante."
+      },
+      {
+        "caption": "A Ponte do Freixo vista da água."
+      },
+      {
+        "caption": "A Ponte do Freixo a partir da margem de Vila Nova de Gaia."
+      }
+    ],
+    "panorama": null
+  },
+  "serra-do-pilar": {
+    "name": "Mosteiro da Serra do Pilar",
+    "year": "1672",
+    "short": "Mosteiro renascentista no monte de Gaia em frente ao Porto: igreja circular e claustro circular com o mesmo diâmetro, sob cúpula hemisférica; Monumento Nacional e Património Mundial desde 1996.",
+    "long": "O Mosteiro da Serra do Pilar, ou Mosteiro de Santo Agostinho da Serra do Pilar, ergue-se numa elevação da margem sul do Douro, em frente ao centro histórico do Porto e à ponte Luís I. Pertencia à Ordem dos Cónegos Regrantes de Santo Agostinho. A construção começou em 1538 (algumas fontes indicam 1537) e prolongou-se por mais de um século e meio; a igreja foi reinaugurada a 17 de julho de 1672. O conjunto é considerado um dos mais notáveis edifícios da arquitetura clássica europeia pelo desenho singular: tanto a igreja como o claustro são circulares e têm o mesmo diâmetro. É o único mosteiro em Portugal com igreja e claustro de planta circular.",
+    "history": "O projeto remonta a 1527, quando o rei D. João III e Frei Brás de Barros procuraram unir todas as casas dos cónegos regrantes numa só congregação com sede em Santa Cruz de Coimbra, transferindo a comunidade do degradado mosteiro de Grijó para um local proeminente perto do Porto. Escolheu-se a serra de São Nicolau, na margem sul do Douro. A construção começou em 1538 e quatro anos depois os religiosos mudaram-se para instalações ainda provisórias; a igreja primitiva foi sagrada em 1544. O essencial ficou pronto em 1564 e o claustro foi terminado em 1583. Desconhece-se o autor do projeto inicial; os documentos referem Diogo de Castilho e João de Ruão, tratando-se provavelmente de uma obra conjunta segundo um esquema geral de Frei Brás de Barros.\n\nA configuração original durou pouco: em 1597 arrancou a construção de uma nova igreja, maior, por a inicial parecer acanhada, e em 1599 a invocação passou a Santo Agostinho. As obras arrastaram-se e a cúpula ficou anos por terminar. O corpo principal foi concluído entre 1669 e 1672, com a nova inauguração a 17 de julho de 1672. Em 1690 assinaram-se dois contratos de pedraria para um retrocoro (traça de Domingos Lopes), o que obrigou a desmontar e reconstruir de novo o claustro renascentista; no ano seguinte Filipe Silva foi contratado para o retábulo-mor. Estas últimas obras deram ao mosteiro a configuração atual.\n\nA relevância geo-militar do mosteiro, na sua altura dominante, manifestou-se nas invasões francesas (1807–1814), no Cerco do Porto (1832–1833) e na Maria da Fonte (1846–1847), levando à construção de um sistema fortificado. Em 1835, após a extinção das ordens religiosas (1834) e a incorporação do edifício no património do Estado, a Serra do Pilar foi elevada a Praça de Guerra de 1.ª classe. As guerras deixaram vários edifícios arruinados, em especial a ala sul, cuja reconstrução começou em 1927. Em 1947 parte das instalações foi cedida ao Regimento de Artilharia Pesada n.º 2 para um pequeno museu, e dez anos depois a igreja reabriu ao culto.\n\nNa arquitetura, o mosteiro é um exemplar raro da adaptação de modelos civis à construção monástica, conjugando elementos do Renascimento e do Maneirismo. O núcleo central reúne a igreja circular com cúpula, a capela-mor e o retrocoro retangulares e o claustro circular de um piso; alas a norte e a sul do núcleo acolhem as restantes dependências. O claustro, conhecido como Claustro do Silêncio, é rodeado por uma galeria abobadada com 36 colunas jónicas dispostas em grupos de nove, com quatro capelas circulares, um fontanário ao centro e 72 sepulturas no pavimento. A platibanda ostenta a inscrição ANNO/DOMINI/NOSTRI/1692.\n\nA igreja tem o mesmo diâmetro do claustro; é coberta por uma abóbada semiesférica com lanterna e os seus alçados são ritmados por pilastras. Oito grandes nichos em baixo formam capelas, com grandes janelas acima. Entre a sobriedade renascentista e o maneirismo ornamental de influência nórdica típico do Porto seiscentista cria-se um diálogo tenso, bem visível no portal de colunas jónicas e edícula maneirista.\n\nA igreja e o claustro foram classificados Monumento Nacional em 1910; a sala do capítulo, o refeitório, a cozinha, a torre e a capela são imóveis de interesse público desde 1935. Em 1996 o mosteiro foi inscrito como Património Mundial da UNESCO, com o centro histórico do Porto e a ponte Luís I. Desde 2012 está aberto ao público com um espaço de promoção do património, gerido com a Irmandade que mantém o templo e com o Exército português, que ocupa parte do edifício.",
+    "facts": [
+      "A construção começou em 1538 (algumas fontes indicam 1537); a nova igreja arrancou em 1597 e foi reinaugurada a 17 de julho de 1672.",
+      "A igreja e o claustro são circulares e têm o mesmo diâmetro — caso único em Portugal.",
+      "O claustro tem 36 colunas jónicas em quatro grupos de nove, quatro capelas circulares e 72 sepulturas no pavimento; a platibanda data de 1692.",
+      "A igreja é coberta por cúpula semiesférica com lanterna (cúpula construída entre 1660 e 1672); o retrocoro é de 1690–1693.",
+      "Monumento Nacional desde 1910; outras partes são imóveis de interesse público desde 1935.",
+      "Património Mundial da UNESCO desde 1996, com o centro histórico do Porto e a ponte Luís I.",
+      "Foi Praça de Guerra de 1.ª classe durante o Cerco do Porto (1832–1833) e as invasões francesas.",
+      "Pertenceu aos cónegos regrantes de Santo Agostinho; em 1599 passou à invocação de Santo Agostinho."
+    ],
+    "tip": "A melhor altura para subir ao mosteiro é de manhã cedo ou ao pôr do sol, quando o terraço oferece uma panorâmica do Porto, da Ribeira e da ponte Luís I. O acesso mais fácil é pelo tabuleiro superior da ponte Luís I, a partir da estação de metro de São Bento, subindo depois a pé ou de teleférico. A entrada na igreja é gratuita, mas está cheia no verão e aos fins de semana.",
+    "gallery": [
+      {
+        "caption": "A igreja da Serra do Pilar, a rotunda circular com cúpula."
+      },
+      {
+        "caption": "O Mosteiro da Serra do Pilar visto do ar."
+      },
+      {
+        "caption": "O claustro circular do mosteiro."
+      }
+    ],
+    "panorama": null
+  },
+  "jardim-do-morro": {
+    "name": "Jardim do Morro",
+    "year": "1927",
+    "short": "Jardim-miradouro em socalcos em Gaia, construído em 1927 no sopé da Serra do Pilar, junto ao tabuleiro superior da ponte Luís I: lago, coreto, 22 tílias e a estação do teleférico de Gaia.",
+    "long": "O Jardim do Morro é um espaço verde na freguesia de Santa Marinha, em Vila Nova de Gaia. Fica no sopé da Serra do Pilar, junto ao tabuleiro superior da ponte Luís I, e constitui um dos melhores miradouros sobre o centro histórico do Porto. Tem um lago, um coreto e uma vasta variedade de espécies vegetais; ao longo do tramo final da Avenida da República estão alinhadas 22 tílias. O jardim foi construído em 1927 e o seu desenho pouco mudou desde então, apesar de hoje ser vizinho de uma estação de metro e local de passagem de milhares de turistas.",
+    "history": "O Jardim do Morro foi construído em 1927, em Gaia. Desde então o desenho pouco mudou, mas em 2016 o jardim histórico tinha vindo a perder vivacidade: restavam tocos de árvores cortadas, papeleiras velhas, bancos grafitados e um lago sem água a envolver a gruta. O jardim tornara-se vizinho da estação de metro e local de passagem de milhares de turistas.\n\nNo verão de 2016 o jardim foi requalificado: as obras custaram cerca de meio milhão de euros e foram suportadas pela Câmara. No espaço verde, que atrai muitos turistas, foram criados um anfiteatro ao livre, um parque geriátrico e uma cafetaria, tendo a gruta e o lago sido preservados.\n\nO jardim é conhecido sobretudo como miradouro: dos seus socalcos há uma panorâmica do centro histórico do Porto, da Ribeira e do Douro. É também um ponto cómodo para subir ao mosteiro da Serra do Pilar e ao tabuleiro superior da ponte Luís I.\n\nPerto fica o Teleférico de Vila Nova de Gaia. Liga a Praça Super Bock, no Cais de Gaia, ao Jardim do Morro e foi inaugurado a 1 de abril de 2011, numa distância de 560 metros. No inverno funciona entre as 10:00 e as 18:00, no verão entre as 10:00 e as 20:00.",
+    "facts": [
+      "Construído em 1927, em Gaia.",
+      "22 tílias alinhadas ao longo do tramo final da Avenida da República.",
+      "Fica no sopé da Serra do Pilar, junto ao tabuleiro superior da ponte Luís I.",
+      "É um dos melhores miradouros sobre o centro histórico do Porto.",
+      "Requalificado em 2016 por cerca de 500 000 euros: anfiteatro ao livre, parque geriátrico e cafetaria, com lago e gruta preservados.",
+      "O Teleférico de Gaia (inaugurado a 1 de abril de 2011, 560 m) liga o Cais de Gaia ao jardim.",
+      "Tem lago, coreto e uma vasta variedade de espécies vegetais."
+    ],
+    "tip": "Venha ao pôr do sol: dos socalcos do jardim tem-se a melhor vista de Gaia sobre o Porto, a ponte Luís I e o sol poente. O acesso mais fácil é pelo tabuleiro superior da ponte Luís I, a partir da estação de metro de São Bento, descendo depois ao jardim; pode regressar de teleférico ao Cais de Gaia. No verão, aos fins de semana, está cheio, por isso convém garantir lugar na amurada cedo.",
+    "gallery": [
+      {
+        "caption": "O Jardim do Morro, o jardim e miradouro."
+      },
+      {
+        "caption": "Os socalcos do Jardim do Morro."
+      },
+      {
+        "caption": "O Mosteiro da Serra do Pilar e o Jardim do Morro."
+      }
+    ],
+    "panorama": null
+  },
+  "cais-gaia": {
+    "name": "Cais de Gaia",
+    "year": "2003",
+    "short": "O cais de Vila Nova de Gaia em frente ao Porto histórico: durante séculos porto vinícola, requalificado em 2000–2003 numa esplanada de restaurantes, caves, teleférico e cais de cruzeiros do Douro.",
+    "long": "O Cais de Gaia é a frente ribeirinha turística da margem esquerda do Douro, em Gaia, em frente à Ribeira histórica do Porto, património mundial da UNESCO. Aqui encontram-se as caves de vinho do Porto, restaurantes, bares e os cais de embarque dos cruzeiros do Alto Douro, ao longo de mais de 900 metros de frente de rio. Requalificado entre 2000 e 2003 segundo projeto do arquiteto Tasso de Sousa com Eduardo Cabral dos Santos, é hoje um dos principais passeios do Porto e de Gaia, com a melhor vista sobre a ponte Luís I e as duas cidades.",
+    "history": "Durante muitos séculos aqui se localizou um porto fluvial de onde eram exportadas mercadorias, com especial relevo para o vinho do Porto. Os toneis chegavam ao cais em barcos rabelos, e as caves na encosta de Gaia guardavam e envelheciam o vinho antes de descer o Douro ou seguir para os navios.\n\nO assoreamento da barra do Douro e a construção do porto de Leixões levaram à sucessiva decadência do cais acostável e de toda a zona envolvente. O antigo Cais de Gaia degradou-se, embora as caves acima continuassem a laborar.\n\nA renovação começou por volta de 2000: o projeto do novo cais é obra do arquiteto Tasso de Sousa com Eduardo Cabral dos Santos. As obras iniciaram-se em 2000 e terminaram três anos depois; o empreendimento, orçado em cerca de 15 milhões de euros, foi distinguido com o prémio \"Turismo — Valorização do Espaço Público\" do Instituto de Turismo de Portugal.\n\nLogo no ano da inauguração, em 2003, cerca de 2,4 milhões de pessoas visitaram o Cais de Gaia. No ano seguinte tornou-se o primeiro espaço público ao ar livre em Portugal com rede wireless. É gerido pela Douro Cais por concessão da Administração dos Portos do Douro e Leixões (APDL); conta com 28 concessionários, 23 dos quais ligados à restauração. Há ainda uma praça acústica, com atuações musicais nas noites de verão.\n\nHoje partem daqui numerosos cruzeiros fluviais para a região vinhateira do Alto Douro, funciona a estação baixa do Teleférico de Gaia e cruzam-se as pontes Luís I e Infante. É o melhor lugar para ver o Porto e Gaia ao mesmo tempo — sobretudo ao pôr do sol.",
+    "facts": [
+      "Requalificado em 2000–2003 segundo projeto de Tasso de Sousa com Eduardo Cabral dos Santos, por cerca de 15 milhões de euros.",
+      "Cerca de 2,4 milhões de visitantes no primeiro ano, em 2003.",
+      "Tem 28 concessionários, 23 dos quais restaurantes e bares, gerido pela Douro Cais sob concessão da APDL.",
+      "Em 2004 foi o primeiro espaço público ao ar livre em Portugal com internet sem fios.",
+      "Durante séculos foi o porto fluvial de exportação do vinho do Porto; o assoreamento da barra e o porto de Leixões ditaram o declínio.",
+      "Aqui ficam a estação baixa do Teleférico de Gaia e os cais de embarque dos cruzeiros do Alto Douro.",
+      "Fica em frente à Ribeira histórica do Porto, património mundial da UNESCO."
+    ],
+    "tip": "Venha ao pôr do sol: o sol põe-se atrás do Porto e as fachadas da Ribeira ficam cor de laranja. O mais fácil é o metro até Jardim do Morro ou São Bento e depois uma caminhada pelo tabuleiro superior ou inferior da ponte Luís I. As mesas dos restaurantes ficam junto à água, mas na época alta convém reservar; o teleférico dá a melhor vista do cais e da ponte.",
+    "gallery": [
+      {
+        "caption": "Cais de Gaia — o cais com os restaurantes e as caves de vinho do Porto."
+      },
+      {
+        "caption": "A fila de restaurantes do Cais de Gaia, com o teleférico por cima."
+      },
+      {
+        "caption": "A Avenida Diogo Leite, a frente ribeirinha de Gaia."
+      }
+    ],
+    "panorama": null
+  },
+  "convento-corpus-christi": {
+    "name": "Convento de Corpus Christi",
+    "year": "1345",
+    "short": "Convento dominicano junto ao Cais de Gaia, fundado em 1345 por D. Maria Mendes Petite e aberto só em 1354; igreja do século XVII com cúpula e quarenta e nove caixotões pintados, hoje espaço cultural.",
+    "long": "O Convento de Corpus Christi, também referido como Mosteiro de São Domingos das Donas e Instituto do Bom Pastor, situa-se junto ao Cais de Gaia, em Vila Nova de Gaia. Fundado em 1345 e aberto em 1354, pertenceu à Ordem de São Domingos. A sua igreja barroca de planta centralizada, com cúpula, nave octogonal abobadada e teto de 49 caixotões pintados, é uma das mais interessantes da região. Classificado Imóvel de Interesse Público em 2012, foi reabilitado no início dos anos 2000 e alberga hoje o Espaço Corpus Christi e um pólo de mestrado da Faculdade de Belas-Artes da Universidade do Porto.",
+    "history": "O mosteiro foi fundado em 1345 por D. Maria Mendes Petite, fidalga de Gaia, viúva do trovador Estevão Coelho e mãe de Pero Coelho, um dos responsáveis pelo assassínio de D. Inês de Castro. A família estava ligada ao poderoso Mosteiro de Grijó. A fundadora dedicou a casa ao Augusto Sacramento da Eucaristia, dotou-a de avultados bens e entregou-a à Ordem de São Domingos.\n\nUm conflito jurídico com o Bispo do Porto, que à época se opôs à fundação, atrasou significativamente a abertura, que só veio em 1354. Estão aqui sepultadas D. Leonor de Alvim, esposa do Condestável D. Nuno Álvares Pereira, e sua avó D. Maria Mendes Aboim, falecida em 1355 e fundadora; encontra-se também a arca tumular de Álvaro Anes de Cernache, primeiro senhor de Gaia.\n\nA primitiva igreja degradou-se com as cheias do Douro. Na segunda metade do século XVII iniciou-se um novo templo com traça do padre Pantaleão da Rocha de Magalhães, seguindo o modelo do Mosteiro do Bom Sucesso, com os coros ajustados por Gregório Fernandes. No século XVIII ergueu-se a fachada barroca diante do portal, onde é patente a influência de Nicolau Nasoni.\n\nDurante o Cerco do Porto, as freiras de Corpus Christi refugiaram-se no Mosteiro de São Salvador de Vairão. As funções conventuais extinguiram-se em 1894 com a morte da última freira, Marcelina Cândida Viana. Em 1930 o edifício foi entregue às irmãs do Instituto do Bom Pastor, que criaram um instituto feminino de educação; o aumento das internadas levou, em 1940, à construção da ala poente em estilo Estado Novo.\n\nNo início dos anos 1990, retiradas as religiosas, o conjunto foi entregue à Ordem Soberana e Militar de Malta, através da Fundação Frei Manuel Pinto da Fonseca. Em 2003 reverteu para a Câmara Municipal de Vila Nova de Gaia e, após obras, passou a albergar o Espaço Corpus Christi e um pólo de mestrado da FBAUP. Em 2012 foi classificado Imóvel de Interesse Público.",
+    "facts": [
+      "Fundado em 1345 por D. Maria Mendes Petite e aberto só em 1354, após conflito com o Bispo do Porto.",
+      "Pertenceu à Ordem de São Domingos e esteve filiado ao Mosteiro de São Domingos das Donas de Santarém.",
+      "A nave da igreja tem planta octogonal abobadada, rematada por cúpula.",
+      "O teto é formado por 49 caixotões pintados a óleo.",
+      "O cadeiral em U, de dois níveis, da primeira metade do século XVII, tem uma carranca diferente em cada assento.",
+      "Aqui estão sepultadas D. Leonor de Alvim, esposa de Nuno Álvares Pereira, e a arca de Álvaro Anes de Cernache.",
+      "A vida conventual terminou em 1894 com a morte da última freira.",
+      "Desde 2012 é Imóvel de Interesse Público; alberga o Espaço Corpus Christi e um pólo de mestrado da FBAUP."
+    ],
+    "tip": "O convento fica a dois passos do Cais de Gaia, pelo que se combina bem com um passeio no cais e uma subida no teleférico. Entre no pátio interior: emoldura a fachada barroca da igreja e o volume octogonal da nave. Verifique a programação do Espaço Corpus Christi com antecedência, pois a igreja fecha por vezes entre exposições; as estações de metro mais próximas são Jardim do Morro e General Torres.",
+    "gallery": [
+      {
+        "caption": "A igreja do Convento de Corpus Christi — a fachada."
+      },
+      {
+        "caption": "O pátio interior e a fachada da igreja."
+      },
+      {
+        "caption": "O Convento de Corpus Christi, em Vila Nova de Gaia."
+      }
+    ],
+    "panorama": null
+  },
+  "estacao-general-torres": {
+    "name": "Estação Ferroviária de General Torres",
+    "year": "1877",
+    "short": "Estação da Linha do Norte em Vila Nova de Gaia: a ligação Campanhã–Gaia abriu a 5 de novembro de 1877, em 1902 foi instalado um abrigo, em inícios de 1994 a estação foi reconstruída e em 2018 ganhou escadas e elevadores.",
+    "long": "A estação de General Torres situa-se na Linha do Norte, no centro de Vila Nova de Gaia, junto à Rua General Torres. Originalmente o apeadeiro \"da Rua do General Torres\", só em inícios de 1994 passou a estação, com a construção de uma nova interface no âmbito do programa do Nó Ferroviário do Porto. É hoje um interface importante: quatro vias, plataformas longas, edifício de passageiros do lado poente e ligação ao metro. É servida por comboios Regionais, Interregionais e suburbanos da Comboios de Portugal.",
+    "history": "A ligação entre as estações de Porto-Campanhã e Vila Nova de Gaia foi inaugurada a 5 de novembro de 1877. O novo interface tomou o nome da Rua General Torres e tinha, ao início, apenas a categoria de apeadeiro.\n\nEm 1902, a pedido da Câmara Municipal do Porto, foi instalado um abrigo na gare de General Torres. Ainda em 1988 este interface tinha categoria de apeadeiro.\n\nNa década de 1990, o Gabinete do Nó Ferroviário do Porto iniciou o programa de alteração do traçado da Linha do Norte e construção da Ponte de São João. A última empreitada foi a construção de uma nova interface em General Torres, já com categoria de estação, concluída em inícios de 1994. O custo total foi de trinta milhões de contos, dos quais doze na ponte e o restante nas estruturas de acesso e na estação. Modernizou-se também a sinalização, com semáforos eletrónicos entre Gaia e Campanhã.\n\nA estação tem quatro vias, numeradas I a IV: duas com 216 m e duas com 217 m, servidas por plataformas de 232 a 235 m de extensão e 90 cm de altura. O edifício de passageiros situa-se do lado poente da via, à esquerda no sentido ascendente, para Campanhã.\n\nEm 2018 a estação foi remodelada, com novas escadas e elevadores. A intervenção, orçada em cerca de 480 mil euros (479 208 euros), foi adjudicada ao consórcio Conduril Engenharia / Pinto & Cruz e visou melhorar as acessibilidades e criar intermodalidade com o metro e outros transportes públicos. De 2019 a 2022 a tipologia da estação foi também reclassificada. Hoje General Torres é servida por comboios Regionais, Interregionais e suburbanos da CP, com uma estação de metro com o mesmo nome ao lado.",
+    "facts": [
+      "A ligação Porto-Campanhã–Gaia abriu a 5 de novembro de 1877.",
+      "Era originalmente o apeadeiro da Rua do General Torres; o abrigo foi instalado em 1902.",
+      "Passou a estação em inícios de 1994, reconstruída no programa do Nó Ferroviário do Porto e da Ponte de São João.",
+      "Tem quatro vias, I a IV: duas com 216 m e duas com 217 m.",
+      "As plataformas têm 232 e 235 m de extensão e 90 cm de altura.",
+      "O edifício de passageiros fica do lado poente, à esquerda no sentido para Campanhã.",
+      "Em 2018, obras de 479 208 euros acrescentaram escadas e elevadores para o metro.",
+      "É servida por comboios Regionais, Interregionais e suburbanos da CP."
+    ],
+    "tip": "General Torres é um interface prático entre o comboio e o metro: fica na Linha do Norte, com ligações fáceis a Campanhã, Gaia e ao centro do Porto. Os comboios para o Porto seguem ao longo do Douro, pelo que um lugar à janela do lado direito dá vistas do rio e das pontes. Se vai para o Cais de Gaia, saia aqui e desça a pé até ao cais.",
+    "gallery": [
+      {
+        "caption": "Estação de General Torres — um comboio do metro na plataforma."
+      },
+      {
+        "caption": "Estação de General Torres — plataforma e cobertura."
+      },
+      {
+        "caption": "O interface de General Torres com um comboio do Metro do Porto."
+      }
+    ],
+    "panorama": null
+  },
+  "trindade": {
+    "name": "Igreja da Trindade",
+    "year": "1841",
+    "short": "Grande igreja do século XIX atrás da Câmara Municipal do Porto, construída segundo projeto de Carlos Amarante e aberta ao culto a 5 de junho de 1841; fachada de granito com duas torres e painel do Batismo de Cristo, de José de Brito.",
+    "long": "A Igreja da Trindade situa-se na Praça da Trindade, mesmo atrás do edifício da Câmara Municipal do Porto. Foi construída ao longo de todo o século XIX segundo projeto do arquiteto Carlos Amarante, autor do santuário do Bom Jesus do Monte, aqui sepultado. Abriu ao culto a 5 de junho de 1841. É um grande edifício neoclássico de granito, com fachada alta e duas torres sineiras; na capela-mor destaca-se o painel do Batismo de Cristo, de José de Brito. Ao lado encontra-se o conjunto da Ordem Terceira da Santíssima Trindade e o seu hospital.",
+    "history": "A Igreja da Trindade situa-se na Praça da Trindade, atrás do edifício da Câmara Municipal do Porto. Foi construída durante todo o século XIX segundo projeto do arquiteto Carlos Amarante — autor do célebre santuário do Bom Jesus do Monte —, que está sepultado nesta igreja. Foi aberta ao culto a 5 de junho de 1841.\n\nA arquitetura é neoclássica: uma fachada severa de granito, com duas torres sineiras, rematada por frontão. Na capela-mor destaca-se o painel de grandes dimensões do Batismo de Cristo, do pintor José de Brito.\n\nConta-se que aqui ocorreu uma visão da Santíssima Trindade e de anjos cantando o Tantum Ergo, à vidente e taumaturga Guilhermina, que também teve visões de Nossa Senhora em Argoncilhe.\n\nÀ igreja está anexo o conjunto da Ordem Terceira da Santíssima Trindade (Igreja e Hospital da Ordem Terceira da Santíssima Trindade): a igreja da ordem terceira e o seu hospital, com os quais a Trindade forma um conjunto com quase oitenta metros de comprimento.\n\nA igreja integra o conjunto classificado da Praça da Liberdade, Avenida dos Aliados e Praça do General Humberto Delgado. A estação de metro da Trindade, um dos principais interfaces da cidade, fica mesmo ao lado, tornando a igreja de fácil acesso.",
+    "facts": [
+      "Construída segundo projeto do arquiteto Carlos Amarante ao longo do século XIX.",
+      "Aberta ao culto a 5 de junho de 1841.",
+      "Carlos Amarante, autor do projeto, está sepultado nesta igreja.",
+      "Na capela-mor há um grande painel do Batismo de Cristo, de José de Brito.",
+      "A fachada neoclássica de granito é rematada por duas torres sineiras.",
+      "Situa-se mesmo atrás da Câmara Municipal do Porto, na Praça da Trindade.",
+      "É anexa ao conjunto da Ordem Terceira da Santíssima Trindade e ao seu hospital.",
+      "Integra o conjunto classificado Praça da Liberdade — Avenida dos Aliados."
+    ],
+    "tip": "A Igreja da Trindade fica a dois passos da estação de metro da Trindade, pelo que se integra facilmente num passeio pelos Aliados e pela Praça da Liberdade. Vê-se melhor de manhã cedo, quando a fachada de granito está uniformemente iluminada. Entre para ver o painel do Batismo de Cristo; a entrada é habitualmente livre, mas em horas de culto pode pedir-se aos visitantes que esperem.",
+    "gallery": [
+      {
+        "caption": "Igreja da Trindade — a fachada de granito."
+      },
+      {
+        "caption": "A Igreja da Trindade, no Porto."
+      },
+      {
+        "caption": "A Igreja da Trindade vista da praça."
+      }
+    ],
+    "panorama": null
+  },
+  "congregados": {
+    "name": "Igreja dos Congregados",
+    "year": "1703",
+    "short": "Igreja barroca na Praça de Almeida Garrett, junto aos Aliados, construída em 1703 no local de uma capela de 1662; duas torres e fachada de azulejos azuis e brancos de Jorge Colaço, e no interior o corpo mumificado do papa Clemente I.",
+    "long": "A Igreja dos Congregados situa-se na Praça de Almeida Garrett, entre a estação de São Bento e a Avenida dos Aliados. Foi construída em 1703 no local de uma capela dedicada a Santo António, erguida em 1662 mas demolida em 1694 por já não comportar os fiéis. Estava anexa ao Convento da Congregação do Oratório. A fachada barroca, com duas torres, está coberta de azulejos azuis e brancos de Jorge Colaço; os vitrais são de Robert Léone, de 1920. Na capela da Sagrada Família repousa o corpo mumificado do papa Clemente I — o único pontífice sepultado longe do Vaticano.",
+    "history": "A Igreja dos Congregados situa-se na Praça de Almeida Garrett, no centro do Porto. Foi construída em 1703 num local onde existia uma capela dedicada a Santo António: a capela fora erguida em 1662 e demolida em 1694, por já não comportar a quantidade de fiéis que assistiam às missas. A nova igreja estava anexa ao Convento da Congregação do Oratório.\n\nA história da construção da Casa e Igreja da Congregação do Oratório do Porto (1680–1703) é estudada pelo historiador Joaquim Jaime B. Ferreira-Alves, num trabalho publicado pela Faculdade de Letras da Universidade do Porto.\n\nA fachada é revestida de azulejos azuis e brancos de Jorge Colaço, e os vitrais são de Robert Léone, de 1920. A capela-mor foi reconstruída no século XIX e recebeu pinturas murais do pintor Acácio Lino. Estas camadas — do barroco setecentista à decoração do início do século XX — fazem da igreja uma das mais reconhecíveis da cidade.\n\nO que dá particular fama à igreja é a capela da Sagrada Família, onde repousa o corpo mumificado, ricamente vestido com paramentos papais, do papa Clemente I — mártir e o único pontífice sepultado longe do Vaticano. Foi identificado pelo professor Paulo de Souza Pinto, historiador e licenciado pela Universidade do Porto.\n\nA igreja confronta a Praça de Almeida Garrett e a Praça da Liberdade, integrando o conjunto classificado da Avenida dos Aliados. Fica em frente à estação de São Bento, junto de parte da mais antiga malha urbana, e é vista por todos os que chegam ao centro do Porto de comboio.",
+    "facts": [
+      "Construída em 1703 no local de uma capela de Santo António de 1662, demolida em 1694.",
+      "Estava anexa ao Convento da Congregação do Oratório.",
+      "A fachada é revestida de azulejos azuis e brancos de Jorge Colaço.",
+      "Os vitrais são de Robert Léone, de 1920.",
+      "A capela da Sagrada Família guarda o corpo mumificado do papa Clemente I, o único papa sepultado fora do Vaticano.",
+      "A capela-mor foi reconstruída no século XIX, com pinturas murais de Acácio Lino.",
+      "Fica em frente à estação de São Bento, na Avenida dos Aliados."
+    ],
+    "tip": "A Igreja dos Congregados fica mesmo em frente à estação de São Bento, pelo que se vê em poucos minutos ao sair do comboio ou do metro. A melhor luz para fotografar a fachada azul e branca é por volta do meio-dia, quando os azulejos brilham. Entre para ver a capela da Sagrada Família, mas lembre-se de que é uma igreja ativa; o acesso pode ser limitado durante os cultos.",
+    "gallery": [
+      {
+        "caption": "Igreja dos Congregados — a fachada barroca de azulejos."
+      },
+      {
+        "caption": "A Igreja dos Congregados na Praça da Liberdade."
+      },
+      {
+        "caption": "Os azulejos azuis e brancos da fachada dos Congregados."
+      }
+    ],
+    "panorama": null
+  },
+  "lapa": {
+    "name": "Igreja da Lapa",
+    "year": "1863",
+    "short": "Igreja neobarroca da Irmandade da Lapa, com duas torres, o coração do rei D. Pedro IV e um dos primeiros cemitérios públicos do Porto.",
+    "long": "A Igreja de Nossa Senhora da Lapa pertence a uma irmandade fundada em 1755. Construída ao longo de mais de um século, entre 1756 e 1863, reúne formas rococós e neoclássicas. A sua principal relíquia é o coração do rei D. Pedro IV, doado à irmandade e aqui guardado desde 1835. Ao lado fica o Cemitério da Lapa (1833), um dos primeiros cemitérios públicos da cidade, e no interior ergue-se um dos melhores órgãos de tubos da Península Ibérica.",
+    "history": "A Irmandade de Nossa Senhora da Lapa foi fundada em 1755 pelo sacerdote brasileiro Padre Ângelo Sequeira, natural de São Paulo (1707-1776); os primeiros estatutos datam de 1757. A 29 de julho de 1755 a irmandade recebeu a bula do papa Bento XIV e, com as esmolas dos fiéis, começou a construir-se a capela de Nossa Senhora da Lapa das Confissões. Dois anos depois, a mesa administrativa decidiu erguer uma igreja em vez da capela.\n\nA primeira pedra foi lançada a 17 de julho de 1756. O primeiro projeto foi encomendado ao arquiteto João Glama Ströberle, mas já em 1756 surgiu um novo desenho de José de Figueiredo Seixas, que dirigiu as obras até à sua morte, em 1773. A falta de recursos e as invasões napoleónicas prolongaram a construção por mais de cem anos: a igreja foi consagrada em 1779 e só ficou concluída em 1863.\n\nMuito da sua fama vem do coração do rei D. Pedro IV: o monarca, protetor da irmandade, deixou-lhe o coração em testamento, e desde 1835 este é guardado na igreja. Desde 1837 a relíquia repousa num mausoléu de Costa Lima, na capela-mor, do lado do Evangelho.\n\nA irmandade não se limitou ao culto: fundou o Seminário-Colégio da Lapa, criou o cemitério da Irmandade, aberto em 1833, e construiu um hospital. De meados de oitocentos aos princípios do século XX concretizaram-se os sonhos do fundador, que queria achar 'todos os remédios para o corpo, para a alma e para a vida'.\n\nEm maio de 1991 a irmandade assinou o contrato do monumental órgão de tubos, inaugurado a 7 de julho de 1995. O instrumento pesa cerca de 32 toneladas, tem 15 metros de altura, 10,5 metros de largura e 5 metros de profundidade, e o maior tubo de madeira mede 10,12 metros. No Largo da Lapa, a igreja continua a ser um dos conjuntos mais reconhecíveis da cidade.",
+    "facts": [
+      "A Irmandade da Lapa foi fundada em 1755 por Padre Ângelo Sequeira; os primeiros estatutos são de 1757.",
+      "A primeira pedra foi lançada a 17 de julho de 1756; a igreja foi consagrada em 1779 e concluída em 1863.",
+      "Desde 1835 guarda o coração do rei D. Pedro IV, desde 1837 no mausoléu de Costa Lima.",
+      "O Cemitério da Lapa abriu em 1833, um dos primeiros cemitérios públicos do Porto.",
+      "O órgão de 1995 pesa cerca de 32 toneladas e tem 15 metros de altura.",
+      "O maior tubo de madeira do órgão mede 10,12 metros.",
+      "A mesma irmandade mantinha ainda uma escola e um hospital junto à igreja."
+    ],
+    "tip": "Entre para ver o coração de D. Pedro IV na capela-mor e depois visite o Cemitério da Lapa ao lado, um museu ao ar livre com capela e alameda de ciprestes. Informe-se sobre os concertos de órgão: vale a pena ouvir ao vivo o instrumento de 1995. A estação de metro mais próxima é Lapa (linha C), a cinco minutos a pé, com autocarros de São Bento até ao Largo da Lapa.",
+    "gallery": [
+      {
+        "caption": "A fachada da Igreja da Lapa e as suas duas torres sineiras."
+      },
+      {
+        "caption": "Vista geral da Igreja da Lapa, no Largo da Lapa."
+      },
+      {
+        "caption": "O Cemitério da Lapa e a sua capela, ao lado da igreja."
+      }
+    ],
+    "panorama": null
+  },
+  "santa-clara": {
+    "name": "Igreja de Santa Clara",
+    "year": "1457",
+    "short": "Igreja gótica de 1457 junto às Muralhas Fernandinas, com um dos melhores interiores de talha dourada do país.",
+    "long": "A Igreja de Santa Clara, concluída em 1457 com o mosteiro das clarissas, foi construída ao lado do mais visível lanço das Muralhas Fernandinas do Porto. Por fora é um edifício gótico sóbrio, com uma porta barroca de 1697; por dentro está coberta de alto a baixo por talha dourada da primeira metade do século XVIII, do tempo de D. João V. É uma das mais belas expressões do barroco português.",
+    "history": "O mosteiro não nasceu do nada: as clarissas vieram para aqui de um mosteiro anterior do século XIII, em Entre Ambos-os-Rios, atual Torrão. A nova igreja e o mosteiro junto às Muralhas Fernandinas ficaram concluídos em 1457. Com a supressão de vários mosteiros pequenos nos séculos XV e XVI, as freiras foram-se agregando em Santa Clara e levaram consigo as suas rendas, entre elas uma portagem sobre todas as mercadorias que passavam pelo Douro.\n\nEm finais do século XIX, com a morte da última freira, o mosteiro foi extinto e o edifício começou a degradar-se. Mais tarde, já património do Estado, foi reparado e adaptado para centro de saúde e outras instituições.\n\nA entrada da igreja faz-se por uma porta barroca datada de 1697 e reformulada no século XVIII, com elementos renascentistas, colunas salomónicas e capitéis coríntios. No interior, todo o templo está coberto de talha dourada da primeira metade do século XVIII, um dos melhores exemplos do barroco joanino no país.\n\nEntre 2016 e 2021 decorreu a 'Operação Igreja de Santa Clara do Porto', orçada em cerca de 2,5 milhões de euros. Cerca de uma centena de especialistas de diferentes áreas interveio na estrutura e em todo o espólio artístico: talha dourada e policromada, escultura, pintura de cavalete e mural, pedra, azulejo, metais e património organístico. A intervenção revelou pormenores até então desconhecidos: pinturas em madeira do século XVII com santos, nomeadamente Santa Clara; uma lápide de granito de 1645, que informa da missa diária pela alma do abade de Vandoma ali sepultado; e pinturas de anjos alados escondidas sob a talha.\n\nHoje Santa Clara é igreja ativa e museu, a poucos passos da Sé do Porto. Pequena, impressiona sobretudo pelo interior: o ouro da talha na penumbra, as capelas laterais e os retábulos dão-lhe o ar de um cofre precioso.",
+    "facts": [
+      "A igreja e o mosteiro das clarissas ficaram concluídos em 1457.",
+      "No interior está um dos melhores exemplos de talha dourada joanina.",
+      "A porta barroca é de 1697 e foi reformulada no século XVIII.",
+      "O mosteiro foi extinto em finais do século XIX, com a morte da última freira.",
+      "A restauração de 2016-2021 custou cerca de 2,5 milhões de euros.",
+      "A intervenção descobriu uma lápide de 1645 e pinturas do século XVII.",
+      "Fica junto às Muralhas Fernandinas, na freguesia da Sé, perto da Sé."
+    ],
+    "tip": "Entre para ver a talha dourada, que é o motivo da visita, e reserve tempo para observar a obra de perto. A entrada costuma ser paga e abre em horários limitados, por isso confirme o horário com antecedência. A igreja fica a caminho entre a Sé e a Ribeira, fácil de incluir num passeio pelo centro histórico. Ao fim do dia há menos gente e a luz no interior é mais quente.",
+    "gallery": [
+      {
+        "caption": "O portal barroco da Igreja de Santa Clara, de 1697."
+      },
+      {
+        "caption": "Vista geral da Igreja de Santa Clara, no Porto."
+      },
+      {
+        "caption": "O interior dourado da nave e das capelas laterais."
+      }
+    ],
+    "panorama": null
+  },
+  "sao-nicolau": {
+    "name": "Igreja de São Nicolau",
+    "year": "1762",
+    "short": "Igreja barroca na Ribeira, reconstruída depois do incêndio de 1758, com uma espadana e azulejos na frontaria.",
+    "long": "A Igreja de São Nicolau fica na Ribeira, junto à Rua do Infante D. Henrique. A freguesia data de finais do século XVI, quando o bispo Marcos de Lisboa dividiu a única freguesia da cidade em quatro. A antiga ermida do século XIII foi demolida e, em 1671, deu lugar à igreja; depois de um incêndio em 1758 foi reconstruída e concluída em 1762. A frontaria de dois corpos com um nicho do padroeiro, o interior de uma só nave com abóbada e o retábulo de talha dourada rococó fazem dela uma típica igreja barroca da Ribeira.",
+    "history": "Em finais do século XVI, para melhorar a administração da cidade, a única freguesia então existente, Santa Maria da Sé, foi dividida pelo bispo Marcos de Lisboa em quatro: Sé, Vitória, São Nicolau e São João Baptista de Belomonte. Esta última acabou extinta e repartida entre Vitória e São Nicolau. Os serviços religiosos eram primeiro feitos numa pequena ermida do século XIII, que se tornou pequena demais; em 1671 foi demolida para dar lugar à Igreja de São Nicolau.\n\nEm 1758 a igreja sofreu um incêndio. A reconstrução, concluída em 1762, foi feita em estilo misto neoclássico e barroco; é da autoria de Frei Manuel de Jesus Maria e foi executada durante o bispado de D. Frei António de Sousa.\n\nNo alto da fachada encontra-se um frontão cortado por um nicho, com a imagem calcária do padroeiro. O interior, de uma só nave, é coberto com abóbada em tijolo. O retábulo, em talha dourada rococó, é da autoria de Frei Manuel de Jesus Monteiro, e o painel é do pintor João Glama.\n\nNa sacristia encontram-se várias obras de arte e valiosas peças de ourivesaria. Os arcazes, que vieram de Hamburgo em 1817, têm os puxadores em bronze; entre a prata destacam-se um cálice do século XVI, com campainhas, uma píxide rococó de prata com legenda na base, um cálice em prata dourada da mesma época e dois gomis com as respetivas salvas, do século XVIII, da autoria do ourives portuense Domingos Sousa Coelho. Em 1832 foi acrescentado um adro gradeado para proteção das sepulturas e, em 1861, cobriu-se a frontaria com azulejos.\n\nA igreja fica no bairro ribeirinho, entre as ruas estreitas da Ribeira, e encaixa naturalmente num passeio até ao cais do Douro, ao Palácio da Bolsa e à Igreja de São Francisco.",
+    "facts": [
+      "A freguesia de São Nicolau foi criada em finais do século XVI pelo bispo Marcos de Lisboa.",
+      "A antiga ermida do século XIII deu lugar à igreja em 1671.",
+      "Depois do incêndio de 1758, a igreja foi reconstruída e concluída em 1762.",
+      "Um nicho na fachada guarda uma imagem calcária do padroeiro.",
+      "O retábulo de talha dourada rococó é de Frei Manuel de Jesus Monteiro.",
+      "Em 1861 a frontaria foi coberta de azulejos; em 1832 fez-se o adro gradeado.",
+      "A sacristia guarda um cálice do século XVI e prata do século XVIII."
+    ],
+    "tip": "A igreja fica a dois minutos do cais da Ribeira e do Palácio da Bolsa, pelo que se inclui facilmente num passeio até à ponte Luís I. Repare nos azulejos de 1861 e no nicho com o padroeiro, no frontão cortado. A entrada costuma ser livre durante o dia, embora a missa possa ocupar o espaço aos domingos. Há muitos cafés por perto; as melhores vistas do bairro são do cais e da ponte.",
+    "gallery": [
+      {
+        "caption": "A frontaria da Igreja de São Nicolau, na Ribeira."
+      },
+      {
+        "caption": "Vista geral da Igreja de São Nicolau, no Porto."
+      },
+      {
+        "caption": "A nave única e o retábulo rococó dourado."
+      }
+    ],
+    "panorama": null
+  },
+  "sao-bento-vitoria": {
+    "name": "Igreja e Mosteiro de São Bento da Vitória",
+    "year": "1604",
+    "short": "Grande mosteiro beneditino no monte acima da Ribeira, construído de finais do século XVI até cerca de 1707.",
+    "long": "O conjunto de São Bento da Vitória cresceu no Morro do Olival, no local da antiga Judiaria do Olival. Os monges beneditinos vieram de Tibães e começaram a construir em finais do século XVI; a igreja, desenhada por Diogo Marques Lucas, discípulo do italiano Filipe Terzi, só foi sagrada por volta de 1707. É um dos maiores complexos monásticos do Porto: uma igreja alta de granito com torre e um mosteiro four-square com pátio interior e claustro. Hoje alberga um arquivo e salas de concerto.",
+    "history": "Os beneditinos entraram no Porto vindos do Mosteiro de Tibães para fundar uma casa na cidade. Escolheram o Morro do Olival, onde antes existira a Judiaria do Olival; resolvidos alguns entraves, a construção começou em finais do século XVI. As obras arrastaram-se por quase um século e terminaram apenas por volta de 1707.\n\nA Igreja de São Bento da Vitória foi desenhada pelo arquiteto Diogo Marques Lucas, discípulo do italiano Filipe Terzi. Foi erguida em estilo clássico já deturpado pela Contrarreforma, com harmonia, solidez e proporções equilibradas. Com a igreja, o mosteiro formava um vasto conjunto quadrangular com pátio interior e claustro.\n\nDurante a Guerra Peninsular, parte do mosteiro foi ocupada primeiro por tropas francesas e depois por portuguesas, que o usaram como hospital militar. Mais tarde serviu de quartel, o que lhe causou danos consideráveis.\n\nNo século XX, a administração da igreja e de parte do mosteiro foi confiada aos beneditinos do Mosteiro de Singeverga. Em 1995 instalou-se ali o Arquivo Distrital do Porto e, mais tarde, a orquestra. O velho mosteiro tornou-se assim um centro cultural e arquivístico sem perder a função religiosa.\n\nHoje São Bento da Vitória é um dos monumentos mais imponentes da cidade. As suas paredes de granito elevam-se acima das ruas íngremes que sobem da Ribeira para a Sé, e a frontaria clássica com torre vê-se de longe. No interior e nas antigas salas monásticas realizam-se concertos e exposições.",
+    "facts": [
+      "O mosteiro foi fundado por beneditinos de Tibães no local da Judiaria do Olival.",
+      "A construção começou em finais do século XVI e terminou por volta de 1707.",
+      "A igreja foi desenhada por Diogo Marques Lucas, discípulo de Filipe Terzi.",
+      "Durante a Guerra Peninsular o mosteiro serviu de hospital militar.",
+      "Em 1995 instalou-se no mosteiro o Arquivo Distrital do Porto.",
+      "É um dos maiores complexos monásticos da cidade.",
+      "O conjunto fica no Morro do Olival, entre a Ribeira e a Sé."
+    ],
+    "tip": "Suba ao mosteiro a partir da Ribeira: a subida é íngreme, mas as vistas sobre os telhados valem a pena. Consulte a programação, pois há frequentemente concertos e exposições nas antigas salas monásticas, e a entrada na igreja costuma ser livre. Perto ficam a Sé, o Paço Episcopal e vários miradouros. O mais fácil é descer, da Sé para a Ribeira, terminando o passeio junto ao rio.",
+    "gallery": [
+      {
+        "caption": "Vista geral do Mosteiro de São Bento da Vitória."
+      },
+      {
+        "caption": "A fachada da Igreja de São Bento da Vitória."
+      },
+      {
+        "caption": "O pátio do mosteiro e as antigas salas monásticas."
+      }
+    ],
+    "panorama": null
+  },
+  "cedofeita": {
+    "name": "Igreja de São Martinho de Cedofeita",
+    "year": "1087",
+    "short": "Igreja românica considerada a mais antiga do Porto, com origens ligadas a um rei suevo do século VI.",
+    "long": "A Igreja de São Martinho de Cedofeita é a igreja mais antiga do Porto. A tradição atribui a sua fundação a um rei suevo, no século V ou VI, e o nome viria do latim Cito Facta, 'feita cedo'. O atual templo românico data do início do século XIII, quando aqui se estabeleceu um mosteiro de cónegos regrantes. Igreja baixa de granito, de paredes espessas, ábside semicircular e portal com arquivoltas, é Monumento Nacional desde 1910.",
+    "history": "Não se sabe ao certo quando foi construída a primeira igreja, mas a maioria dos historiadores liga-a à povoação sueva de Cedofeita. Uma versão atribui-a ao rei Reciário, em 446; outra ao rei Teodomiro, em 559, que ali teria sido batizado com o filho Ariamiro. O nome prende-se à mesma lenda: o templo teria sido erguido tão depressa que se disse dele Cito Facta, 'feita cedo', origem de 'Cedofeita'.\n\nO documento mais antigo que refere a igreja data de 1087 e indica dotação e sagração. O atual templo românico data do início do século XIII, quando no mesmo local se ergueu o Mosteiro de Cedofeita. Era regido por cónegos regrantes de Santo Agostinho, e a igreja guardava uma relíquia de São Martinho de Tours, trazida para aqui com outras relíquias pelo bispo de Braga e Dume, evangelizador dos suevos.\n\nEm 1742 o prior D. Luís de Sousa Carvalho ordenou várias modificações, que definiram o aspeto do edifício até ao século XX. Em 1910, porém, a igreja foi classificada Monumento Nacional e, nos anos 1930, a Direção dos Edifícios e Monumentos Nacionais, procurando devolver-lhe a originalidade, eliminou muitos elementos ornamentais acrescentados ao longo do tempo. Depois dessa campanha, do antigo conjunto sobraram sobretudo a venerável fachada e a torre, e o carácter românico foi novamente posto em evidência.\n\nHoje a pequena igreja está encerrada entre os edifícios da cidade que cresceu. A nave baixa de granito, a ábside semicircular, as paredes espessas e o portal com arquivoltas recordam a sua idade românica, e ao lado ergue-se a nova igreja paroquial: o seu projeto foi preparado a partir de 1899 pelo arquiteto José Marques da Silva, embora o plano completo nunca tenha sido executado.",
+    "facts": [
+      "É considerada a igreja mais antiga do Porto.",
+      "O nome viria de Cito Facta, 'feita cedo'.",
+      "O documento mais antigo que a refere data de 1087.",
+      "É Monumento Nacional desde 1910.",
+      "A restauração dos anos 1930 removeu acrescentos dos séculos XVII e XVIII.",
+      "Guardou outrora uma relíquia de São Martinho de Tours.",
+      "Uma nova igreja paroquial, projetada desde 1899, fica 50 metros a sul."
+    ],
+    "tip": "Venha ver a mais antiga cantaria românica da cidade: repare no portal com arquivoltas, na ábside e nas paredes maciças de granito. A igreja é ativa e a entrada costuma ser livre, mas não durante a missa. Fica fora dos circuitos turísticos, por isso é sossegada; combina bem com um passeio pela freguesia de Cedofeita, com os seus cafés e lojas. A estação de metro mais próxima é Lapa ou Casa da Música, depois a pé.",
+    "gallery": [
+      {
+        "caption": "Vista geral da Igreja Românica de Cedofeita."
+      },
+      {
+        "caption": "A fachada da Igreja de Cedofeita, a mais antiga do Porto."
+      },
+      {
+        "caption": "A nave baixa de granito e a ábside semicircular."
+      }
+    ],
+    "panorama": null
+  },
+  "santo-ildefonso": {
+    "name": "Igreja de Santo Ildefonso",
+    "year": "1739",
+    "short": "Igreja granítica proto-barroca na Praça da Batalha, com duas torres sineiras e fachada revestida em 1932 por azulejos de Jorge Colaço.",
+    "long": "A Igreja de Santo Ildefonso ergue-se na Praça da Batalha, no centro do Porto. O seu ex-líbris é a grande fachada de azulejo azul e branco executada em 1932 pelo pintor Jorge Colaço: cenas da vida de Santo Ildefonso de Toledo e alegorias da Eucaristia cobrem toda a frontaria. Duas esbeltas torres sineiras, com cornijas denticuladas, esferas e frontões de fantasia, ladeiam o corpo central e o nicho do padroeiro. A nave é poligonal e proto-barroca, com tecto de madeira, estuques ornamentais e altares de talha. Está classificada como Imóvel de Interesse Público desde 1977.",
+    "history": "A primitiva capela do local, conhecida como Santo Alifon, precedeu largamente a igreja actual. A referência mais antiga surge num documento do bispo do Porto Vicente Mendes, datado de 1296.\n\nEm 1709 a capela, em risco de ruir, foi demolida e nesse mesmo ano começou a construção da nova igreja. A obra durou quase trinta anos. Por volta de 1730 o corpo principal estava concluído e foi colocado o tímpano com a data MDCCXXX (1730); entre 1730 e 1739 ergueram-se as duas torres sineiras e concluíram-se a fachada e o nártex. A igreja foi inaugurada e abençoada a 18 de Julho de 1739.\n\nO nome do arquitecto é desconhecido: nos registos sobrevivem apenas os nomes dos carpinteiros, pedreiros e serralheiros que trabalharam na obra. Após uma forte tempestade em 1819 a igreja foi amplamente reparada e, a 21 de Julho de 1833, durante o Cerco do Porto, sofreu danos com fogo de artilharia.\n\nEm 1932 a fachada e as paredes foram revestidas com painéis de azulejo de Jorge Colaço, com cenas da vida de Santo Ildefonso e alegorias da Eucaristia — a obra que tornou a igreja numa das mais reconhecíveis da cidade. Em 1967 os vitrais foram substituídos; os novos foram criados pelo artista Isolino Vaz. Durante as obras no nártex, em 1996, descobriram-se dezanove sepulturas sob o pavimento.\n\nA nave poligonal é proto-barroca, com tecto de madeira e estuques ornamentais repetidos nas paredes, altares laterais neoclássicos e colaterais de talha rococó. O retábulo da segunda metade do século XVIII é atribuído ao mestre italiano Nicolau Nasoni. Desde 1977 a igreja está classificada como Imóvel de Interesse Público.",
+    "facts": [
+      "A obra decorreu de 1709 a 1739 e a igreja foi sagrada a 18 de Julho de 1739.",
+      "A célebre fachada de azulejo foi executada em 1932 pelo pintor Jorge Colaço.",
+      "O tímpano ostenta a data MDCCXXX (1730), ano da conclusão do corpo principal.",
+      "O nome do arquitecto é desconhecido; subsistem apenas os nomes dos mestres da obra.",
+      "Em 1833, durante o Cerco do Porto, a igreja sofreu danos de artilharia.",
+      "Os vitrais de 1967 foram criados pelo artista Isolino Vaz.",
+      "É Imóvel de Interesse Público desde 1977."
+    ],
+    "tip": "A igreja fica na Praça da Batalha, ao lado do Teatro de São João. A fachada de azulejo fotografa-se melhor de manhã, quando o sol bate na frontaria. As estações de metro de São Bento e Bolhão ficam a cerca de dez minutos a pé. Entre no interior: a entrada é livre e a nave poligonal, com os seus altares de talha e estuques, merece ser vista.",
+    "gallery": [
+      {
+        "caption": "A fachada de azulejo de Jorge Colaço (1932) e as duas torres sineiras."
+      },
+      {
+        "caption": "A Igreja de Santo Ildefonso na Praça da Batalha, vista da praça."
+      }
+    ],
+    "panorama": null
+  },
+  "miragaya-sao-pedro": {
+    "name": "Igreja de São Pedro de Miragaia",
+    "year": "1740",
+    "short": "Igreja matriz do antigo bairro piscatório de Miragaia, no Douro, reconstruída em 1740 e com as paredes revestidas de azulejo entre 1863 e 1876.",
+    "long": "A Igreja de São Pedro de Miragaia ergue-se sobre o rio Douro, num dos bairros mais antigos do Porto. Miragaia nasceu como terra de pescadores, e o seu orago é o santo pescador São Pedro. A igreja actual é a mais recente de várias que aqui existiram desde a Idade Média: em 1672 o bispo Nicolau Monteiro reformou-a e, em 1740, foi parcialmente demolida e reconstruída, conservando apenas a capela-mor e o transepto. A fachada de granito termina num frontão triangular com a legenda 'Divo Petro Dicata' ('Dedicada a São Pedro') e encimado por uma cruz. As paredes foram revestidas de azulejo entre 1863 e 1876.",
+    "history": "Miragaia foi, na origem, terra de pescadores, e o seu orago é o santo pescador São Pedro. A igreja do local é conhecida desde a Idade Média; o edifício actual é o mais recente dos vários que aqui se ergueram.\n\nEm 1453, após a queda de Constantinopla, um grupo de cristãos de origem arménia fugiu através do Mediterrâneo e aportou ao Douro. Trouxeram consigo as relíquias de São Pantaleão, salvas dos turcos, e entregaram-nas à igreja de Miragaia. A relíquia tornou-se objecto de devoção popular até que, décadas depois, o bispo Diogo de Sousa a transladou para a Sé; em Miragaia ficou apenas um braço do santo. As famílias arménias fixaram-se nas redondezas, na depois chamada Rua dos Arménios.\n\nEm 1672 o bispo Nicolau Monteiro reformou a igreja. Em 1740 o templo foi parcialmente demolido: conservaram-se a capela-mor e o transepto, e o restante foi reconstruído, dando origem ao aspecto actual.\n\nA fachada ganhou um portal com frontão e um grande janelão gradeado, rematada por um frontão triangular com a legenda 'Divo Petro Dicata' e uma cruz. Entre 1863 e 1876 as paredes exteriores foram revestidas de azulejo.\n\nA nave única é enriquecida por um altar de talha dourada dedicado a Nossa Senhora do Carmo, trazido do arruinado Convento de Monchique, e por um altar de Santa Rita do século XVII. A capela-mor é revestida de talha reforçada com elementos vindos de Monchique. A igreja continua a ser a matriz de Miragaia.",
+    "facts": [
+      "Há igreja neste local desde a Idade Média; a actual foi reconstruída em 1740.",
+      "Em 1672 foi reformada pelo bispo Nicolau Monteiro.",
+      "A fachada termina num frontão com a legenda 'Divo Petro Dicata' ('Dedicada a São Pedro').",
+      "As paredes foram revestidas de azulejo entre 1863 e 1876.",
+      "Em 1453 chegaram aqui as relíquias de São Pantaleão, trazidas por arménios fugidos de Constantinopla.",
+      "Conserva um altar de Santa Rita do século XVII e talha vinda do Convento de Monchique.",
+      "Situa-se sobre o Douro, no antigo bairro piscatório de Miragaia."
+    ],
+    "tip": "A igreja fica na Rua de Miragaia, sobre o rio, a poucos minutos da Ribeira. Suba a pé pelas ruas antigas dos pescadores e desça depois ao Douro para a panorâmica; a luz da manhã valoriza os azulejos das paredes. Os transportes param perto da Ribeira; o melhor acesso é a pé, da ponte Luís I ou da Sé.",
+    "gallery": [
+      {
+        "caption": "A Igreja de São Pedro de Miragaia sobre o Douro."
+      },
+      {
+        "caption": "A fachada de granito, com frontão e portal."
+      }
+    ],
+    "panorama": null
+  },
+  "capela-almas": {
+    "name": "Capela das Almas",
+    "year": "1801",
+    "short": "Capela na esquina da Rua de Santa Catarina, integralmente revestida por 15 947 azulejos azuis e brancos (1929, Eduardo Leite).",
+    "long": "A Capela das Almas, ou Capela de Santa Catarina, fica na esquina da Rua de Santa Catarina com a Rua de Fernandes Tomás, na rua comercial mais movimentada do Porto. Está coberta por 15 947 azulejos azuis e brancos, desenhados em 1929 por Eduardo Leite e executados pela fábrica lisboeta Viúva Lamego; os azulejos cobrem cerca de 360 metros quadrados e representam cenas da vida de São Francisco de Assis e de Santa Catarina de Alexandria. A fachada remata num frontão circular com o brasão dos dois santos, uma torre sineira de dois andares ergue-se à esquerda e a cúpula é coroada por uma cruz de ferro.",
+    "history": "A capela tem origem numa antiga capela de madeira erguida em louvor de Santa Catarina de Alexandria. O edifício actual remonta aos finais do século XVIII, altura em que a Irmandade das Almas e das Chagas de São Francisco passou do Mosteiro de Santa Clara para a Capela de Santa Catarina.\n\nCom a anexação da irmandade cresceu também a fama e o culto de Santa Catarina, atraindo grande número de fiéis, o que obrigou os responsáveis, que superintendiam o culto, a pensar numa nova construção. Em 1801 a capela foi ampliada e restaurada, o que alterou o estilo original. O edifício tem dois corpos, sendo o segundo mais baixo.\n\nAté 1929 as superfícies exteriores da capela estavam rebocadas e caídas de branco, sem azulejos. Foi então que as paredes foram integralmente revestidas: 15 947 azulejos da autoria de Eduardo Leite, executados pela Fábrica de Cerâmica Viúva Lamego, em Lisboa, cobrem cerca de 360 metros quadrados e representam os passos da vida de São Francisco de Assis e de Santa Catarina.\n\nA fachada principal tem uma porta emoldurada e rematada por um frontão circular. No tímpano fixa-se um brasão bipartido com as armas de São Francisco de Assis e de Santa Catarina de Alexandria. À esquerda ergue-se a torre sineira, de dois andares: o primeiro tem uma porta com uma pequena janela e o segundo quatro janelas rematadas por um varandim. A cúpula é rematada por uma cruz de ferro. Destaque ainda para o vitral das Almas, executado em 1964 pelo pintor Amândio Silva.",
+    "facts": [
+      "A fachada está revestida por 15 947 azulejos que cobrem cerca de 360 m² de parede.",
+      "Os azulejos de 1929 são da autoria de Eduardo Leite e foram feitos pela Viúva Lamego, em Lisboa.",
+      "Até 1929 as paredes exteriores estavam rebocadas e caídas de branco.",
+      "O edifício actual é de finais do século XVIII; a capela foi ampliada em 1801.",
+      "A Irmandade das Almas e das Chagas de São Francisco veio do Mosteiro de Santa Clara.",
+      "O vitral das Almas foi executado em 1964 pelo pintor Amândio Silva.",
+      "O tímpano ostenta as armas de São Francisco e de Santa Catarina."
+    ],
+    "tip": "A capela fica na esquina da Rua de Santa Catarina, a principal rua comercial do Porto, junto à estação de metro do Bolhão. É um dos locais mais fotografados da cidade, por isso venha cedo: há menos gente e os azulejos azuis e brancos não têm reflexos fortes. Espreite o interior se a porta estiver aberta — o vitral de 1964 vale a pena. O mercado do Bolhão e os cafés ficam ao lado para uma pausa depois das compras.",
+    "gallery": [
+      {
+        "caption": "A esquina da capela, integralmente coberta de azulejos azuis e brancos."
+      },
+      {
+        "caption": "Painéis de azulejo com os passos de São Francisco e de Santa Catarina."
+      }
+    ],
+    "panorama": null
+  },
+  "foz-sao-joao-baptista": {
+    "name": "Igreja de São João Baptista da Foz",
+    "year": "1646",
+    "short": "Igreja matriz da Foz do Douro, dentro das muralhas do Forte de São João Baptista; a sua antecessora foi a primeira igreja renascentista do norte de Portugal (1527).",
+    "long": "A Igreja de São João Baptista ergue-se na foz do Douro, no bairro da Foz Velha, dentro das muralhas do Forte de São João Baptista. A sua história começa em 1527, quando o bispo D. Miguel da Silva e o arquitecto Francesco de Cremona aqui edificaram uma igreja e um paço abacial — uma das primeiras obras do Renascimento no norte de Portugal. Entre 1642 e 1653 o forte foi reconstruído segundo o projecto do engenheiro francês Charles Lassart e, em 1646, a igreja velha foi demolida: a sua abóbada renascentista, a primeira do país, passou a servir de praça de armas. A actual igreja matriz da Foz é do século XVII e continua dentro das muralhas, voltada ao mar.",
+    "history": "O Forte de São João Baptista, também conhecido como Castelo de São João da Foz, foi iniciado em 1570, no reinado de D. Sebastião, sob a supervisão de João Gomes da Silva, com Simão de Ruão como mestre de fortificações. Era, ao princípio, uma simples estrutura abaluartada que envolvia o hospício e a igreja dos beneditinos de Santo Tirso — a antiga Igreja Velha.\n\nO bispo de Viseu, D. Miguel da Silva, edificou aqui uma igreja e um paço abacial anexo, recorrendo aos projectos do arquitecto Francesco de Cremona, recrutado em Itália. Juntamente com o Farol de São Miguel-o-Anjo (concluído em 1527), estas obras foram a primeira manifestação da arquitectura renascentista no norte de Portugal. A capela-mor e a nave da igreja, envolvidas pela estrutura abaluartada e despidas da cobertura, funcionaram depois como praça de armas do forte.\n\nCom a Guerra da Restauração impôs-se a remodelação da fortificação. Em 1642 chegou ao Porto o novo engenheiro-mor do reino, o francês Charles Lassart; elaborou um projecto que ampliava e reforçava o forte, e as obras decorreram sob a direcção do beneditino João Turriano. A igreja velha foi demolida em 1646: desapareceu a parte central da fachada, abriram-se as torres, as lajes das campas foram reaproveitadas na alvenaria e a abóbada — a primeira em estilo renascentista do país — foi apeada. As obras ficaram concluídas em 1653.\n\nNo início do século XIX, durante a Guerra Peninsular, a 6 de Junho de 1808 o sargento-mor Raimundo José Pinheiro ocupou o forte e, na madrugada seguinte, hasteou no seu mastro a bandeira das Quinas — o primeiro acto de reacção portuguesa à ocupação napoleónica. Mais tarde o forte serviu de prisão para presos políticos e, no século XX, aqui viveu a poetisa Florbela Espanca.\n\nDesde 1967 o forte está classificado como Imóvel de Interesse Público; actualmente sedia o Instituto da Defesa Nacional. A igreja matriz de São João Baptista, do século XVII, continua a ser o templo da Foz, dentro dos baluartes, voltada à foz do Douro.",
+    "facts": [
+      "A primeira igreja do local foi erguida em 1527 pelo bispo D. Miguel da Silva com o arquitecto Francesco de Cremona.",
+      "A sua abóbada renascentista foi a primeira de Portugal.",
+      "A construção do Forte de São João Baptista começou em 1570, no reinado de D. Sebastião.",
+      "A igreja velha foi demolida em 1646 e a sua nave passou a praça de armas do forte.",
+      "A 6 de Junho de 1808 hasteou-se aqui pela primeira vez a bandeira portuguesa contra Napoleão.",
+      "O forte é Imóvel de Interesse Público desde 1967.",
+      "Hoje o forte sedia o Instituto da Defesa Nacional."
+    ],
+    "tip": "O melhor acesso é de autocarro ou eléctrico até à Foz e depois uma curta caminhada pelo bairro da Foz Velha. Passe o portão do forte: a igreja fica dentro das muralhas, junto à água. A melhor hora é à tarde, quando o sol ilumina a fachada do lado do mar. Depois desça até ao oceano, onde o Douro encontra o Atlântico — os pores-do-sol são os mais belos do Porto.",
+    "gallery": [
+      {
+        "caption": "A Igreja de São João Baptista dentro das muralhas do forte, na foz do Douro."
+      },
+      {
+        "caption": "A fachada e a torre sineira da igreja matriz da Foz."
+      }
+    ],
+    "panorama": null
+  },
+  "ramalde": {
+    "name": "Igreja de Ramalde",
+    "year": "século XVIII",
+    "short": "Igreja matriz de São Salvador de Ramalde, reconstruída no século XVIII, com interior de azulejo e talha dourada e um campanário de empena sobre a fachada.",
+    "long": "A Igreja de Ramalde, dedicada ao Salvador (São Salvador), é a igreja matriz de uma antiga localidade do noroeste do Porto. A freguesia é mencionada pela primeira vez com o nome arcaico de Rianhaldy nas Inquirições de D. Afonso III (1258) e, como lugar, num documento de 1222, quando a rainha D. Mafalda fez uma doação ao Mosteiro de Arouca. O edifício actual foi reconstruído no século XVIII. A nave única é revestida de painéis de azulejo e enriquecida com talha dourada, e sobre a fachada de granito ergue-se um campanário de empena com arcos e uma cruz. Ao lado fica a Casa de Ramalde, remodelada a partir de 1746 pelo arquitecto italiano Nicolau Nasoni.",
+    "history": "A freguesia de São Salvador de Ramalde é mencionada pela primeira vez com o nome arcaico de Rianhaldy nas Inquirições de D. Afonso III, redigidas em 1258. O lugar é conhecido ainda antes: num documento de 1222 a rainha D. Mafalda faz uma doação ao Mosteiro de Arouca. O povoamento terá crescido entre 920 e 944, quando chegaram os monges de São Bento.\n\nAs terras de Ramalde pertenciam ao Padroado Real de D. Sancho I, que em 1196 as doou à sua filha D. Mafalda. No tempo de D. Sancho II a área chamava-se Ramunhaldy e era constituída por cinco lugares: Francos, Requezende e as três partes de Ramalde. Entre 1230 e 1835 pertenceu ao extinto concelho de Bouças e, em 1895, foi integrada no município do Porto como freguesia.\n\nA igreja actual foi reconstruída no século XVIII. É um templo de nave única, com cobertura facetada e retábulo-mor de talha dourada; as paredes da nave são revestidas de azulejos que formam um tapete decorativo contínuo. Sobre a fachada de granito ergue-se um campanário de empena (espadaña) com três arcos para os sinos, rematado por uma cruz de pedra.\n\nA igreja fica ao lado da Casa de Ramalde, o solar da família Leite Pereira. O edifício actual foi construído a partir de 1746 segundo planos do arquitecto italiano Nicolau Nasoni, por encomenda de Florência Leite Pereira de Melo e seus filhos. Nasoni integrou na nova casa a torre antiga e transferiu para aqui a primitiva capela, ligando-a ao solar. Em 1809 as tropas francesas do general Soult saquearam e incendiaram a casa e a capela, recuperadas em 1870.\n\nHoje a Igreja de Ramalde continua a ser uma igreja matriz activa, e o solar alberga a Direcção Regional de Cultura do Norte. Em conjunto, recordam o passado rural desta parte do Porto, ainda fora da cidade no século XIX.",
+    "facts": [
+      "A freguesia de São Salvador de Ramalde é citada como Rianhaldy nas Inquirições de 1258.",
+      "Como lugar, Ramalde consta de um documento de 1222 — uma doação da rainha D. Mafalda a Arouca.",
+      "A igreja actual foi reconstruída no século XVIII.",
+      "A nave é revestida de azulejo e enriquecida com talha dourada.",
+      "A fachada é rematada por um campanário de empena (espadaña) com arcos e uma cruz.",
+      "Ao lado fica a Casa de Ramalde, remodelada por Nicolau Nasoni a partir de 1746.",
+      "Ramalde pertence ao município do Porto desde 1895."
+    ],
+    "tip": "A igreja fica junto à praça e ao solar de Ramalde, longe do centro turístico; chega-se facilmente de metro até à estação de Ramalde e a pé em poucos minutos. Contemple a fachada sóbria de granito com o campanário de empena e espreite o pátio senhorial de Nasoni ao lado. Este é o Porto discreto, sem postal — um bom lugar para ver como vivia o subúrbio no século XVIII. A luz da manhã é a melhor para fotografar.",
+    "gallery": [
+      {
+        "caption": "A Casa de Ramalde, o solar de Nicolau Nasoni ao lado da igreja (desde 1746)."
+      },
+      {
+        "caption": "A igreja nova de Ramalde, que substituiu a antiga."
+      }
+    ],
+    "panorama": null
+  },
+  "campanha": {
+    "name": "Estação Ferroviária de Porto-Campanhã",
+    "year": "1875",
+    "short": "A principal estação do norte de Portugal, inaugurada a 21 de maio de 1875: um longo edifício oitocentista com a sua gare de ferro, nó das linhas do Norte e do Minho.",
+    "long": "Campanhã é a principal estação ferroviária do Porto e a porta de entrada de todo o norte de Portugal. Inaugurada a 21 de maio de 1875 como estação terminal da Linha do Norte, foi desde o início um centro de passageiros, mercadorias e gestão. O longo edifício oitocentista ergue-se do lado poente das vias, com a ampla gare metálica e envidraçada sobre as plataformas. Hoje partem daqui os comboios Alfa Pendular e Intercidades para todo o país e o serviço internacional Celta até Vigo.",
+    "history": "A primeira estação de Campanhã abriu a 21 de maio de 1875; chamava-se então apenas Porto e, antes disso, Pinheiro. O local ribeirinho foi escolhido pelo traçado curto e acessível da Linha do Norte, mas ficava longe do centro e era difícil de alcançar. O problema só se resolveu em 1896, com a inauguração da Estação de São Bento.\n\nCampanhã tornou-se um grande nó ferroviário: aqui encontravam-se a Linha do Norte (PK 336+079) e a Linha do Minho (PK 0+000), com oficinas e parques de material. Na década de 1900, Contumil assumiu parte do movimento, nos anos 1930 chegou a iluminação elétrica e nos anos 1960 as vias foram eletrificadas.\n\nO edifício de passageiros situa-se do lado poente das vias. É uma longa construção oitocentista, com corpos-pavilhão, janelas em arco e uma gare metálica sobre as plataformas. Em 2004, a estação tinha 16 vias de circulação e plataformas entre 220 e 510 metros.\n\nNos anos 1990 o complexo foi ampliado e reorganizado. Hoje Campanhã serve comboios Alfa Pendular, Intercidades e o Celta até Vigo, além de serviços suburbanos e regionais. Um túnel pedonal e a estação de metro, servida pelas linhas A, B, C, E e F, ligam-na à cidade.",
+    "facts": [
+      "Inaugurada a 21 de maio de 1875, na Linha do Norte.",
+      "Fica na Linha do Norte (PK 336+079) e na Linha do Minho (PK 0+000).",
+      "Em 2004 tinha 16 vias e plataformas de 220 a 510 m.",
+      "A estação de metro de Campanhã é servida pelas linhas A, B, C, E e F.",
+      "São Bento abriu em 1896 para aliviar a distante Campanhã.",
+      "As vias foram eletrificadas nos anos 1960.",
+      "Daqui parte o comboio internacional Celta para Vigo."
+    ],
+    "tip": "Chegue cedo: Campanhã é um grande interface com longas distâncias entre plataformas. Compre os bilhetes Alfa Pendular e Intercidades online. A forma mais fácil de chegar ao centro é o metro (linhas A, B, C, E, F) ou o comboio até São Bento.",
+    "gallery": [
+      {
+        "caption": "O edifício da estação de Campanhã visto do lado da cidade."
+      },
+      {
+        "caption": "Comboios nas plataformas da estação de Campanhã."
+      }
+    ],
+    "panorama": null
+  },
+  "coliseu": {
+    "name": "Coliseu do Porto",
+    "year": "1941",
+    "short": "Sala de espetáculos Arte Deco inaugurada a 19 de dezembro de 1941: fachada branca curva, sala em ferradura para cerca de 4000 pessoas e torre assimétrica com pala sobre a entrada.",
+    "long": "O Coliseu do Porto é uma das principais salas de espetáculos da cidade e uma obra maior do Arte Deco português. Projetado por Cassiano Branco e Júlio de Brito, abriu a 19 de dezembro de 1941 com um concerto da Sinfónica Nacional. A sua identidade está na fachada branca curva, na torre de canto e na pala sobre a entrada; no interior, a sala em ferradura recebe cerca de 4000 espetadores. Ópera, ballet, cinema, variedades e circo passaram pelo seu palco.",
+    "history": "O primeiro esboço de uma grande casa de espetáculos no Porto data de 1911, quando cidadãos influentes liderados por João José da Silva se juntaram em torno da ideia. A construção começou em 1937, com os primeiros desenhos do arquiteto José Porto; seguiram-se projetos do holandês Jan Wils e de Júlio José de Brito, recusados pela Comissão de Estética da Câmara.\n\nEm 1939, Cassiano Branco assumiu a direção do projeto. Reutilizou a caixa muraria já construída em torno da sala, do palco e dos corredores, reorganizou a articulação vertical e desenhou a sucessão dos espaços de entrada. Com Júlio de Brito compôs uma fachada assimétrica com torre e pala sobre a entrada, enquanto a sala em ferradura reforçava a ideia de dinamismo.\n\nO Coliseu demorou apenas 22 meses a ser construído e abriu a 19 de dezembro de 1941, ao custo de 11 mil contos, uma soma enorme para a época. Entre 1941 e 1991, as suas \"décadas de glória\", passaram pelo palco artistas de todo o mundo: ópera, ballet, música clássica e popular, variedades, circo e cinema.\n\nEm 1995, a venda do edifício a uma igreja ameaçou o Coliseu, mas a cidade e personalidades da cultura defenderam-no, criando uma associação sem fins lucrativos. A 28 de setembro de 1996 um incêndio destruiu o palco; a 12 de dezembro desse ano a sala reabriu com o circo de Natal e, a 24 de novembro de 1998, o Coliseu totalmente recuperado reabriu com a ópera Carmen.\n\nEm 2012 o edifício foi classificado como Monumento de Interesse Público e, desde 2018, adotou o nome Coliseu Porto Ageas.",
+    "facts": [
+      "Inaugurado a 19 de dezembro de 1941 com um concerto da Sinfónica Nacional.",
+      "Projeto Arte Deco de Cassiano Branco e Júlio de Brito.",
+      "A sala em ferradura recebe cerca de 4000 espetadores.",
+      "Construído em apenas 22 meses, ao custo de 11 000 contos.",
+      "Um incêndio a 28 de setembro de 1996 destruiu o palco.",
+      "Totalmente recuperado, reabriu a 24 de novembro de 1998 com Carmen.",
+      "Monumento de Interesse Público desde 2012.",
+      "Chama-se Coliseu Porto Ageas desde 2018."
+    ],
+    "tip": "Veja a programação e compre bilhetes em coliseu.pt; a bilheteira e a entrada ficam na Rua de Passos Manuel. As melhores vistas da fachada branca curva são do lado oposto da rua, sobretudo à noite, com a iluminação. A estação de metro mais próxima é Bolhão (linhas A, B, C, E, F), a cerca de sete minutos a pé.",
+    "gallery": [
+      {
+        "caption": "A fachada branca curva do Coliseu do Porto."
+      },
+      {
+        "caption": "O Coliseu do Porto ao anoitecer."
+      }
+    ],
+    "panorama": null
+  },
+  "museu-soares-dos-reis": {
+    "name": "Museu Nacional Soares dos Reis",
+    "year": "1833",
+    "short": "O mais antigo museu público de arte de Portugal, fundado em 1833 e instalado desde 1942 no Palácio dos Carrancas, em Miragaia.",
+    "long": "O Museu Nacional Soares dos Reis é o mais antigo museu público de arte de Portugal, fundado em 1833 por iniciativa do regente D. Pedro. Desde 1942 ocupa o Palácio dos Carrancas, em Miragaia, construído no final do século XVIII. O acervo reúne mais de 18 000 peças: pintura, escultura, gravura, artes decorativas e arqueologia. A obra maior é o mármore O Desterrado (1872), do escultor Soares dos Reis, que dá nome ao museu.",
+    "history": "O museu foi oficialmente criado entre 9 e 11 de abril de 1833, por iniciativa do regente D. Pedro, duque de Bragança. Chamou-se Museu Portuense, ou Ateneu D. Pedro IV, e tornou-se o primeiro museu público de arte do país. Instalou-se primeiro no Convento de Santo António da Cidade, hoje Biblioteca Pública Municipal, no antigo refeitório dos monges.\n\nEm 1911 o museu passou a designar-se em homenagem ao escultor António Soares dos Reis, natural do Porto, cuja obra constitui o núcleo da coleção. A peça mais conhecida é o mármore O Desterrado (1872), símbolo do museu.\n\nO Palácio dos Carrancas, onde hoje se encontra, pertenceu a Manuel Mendes de Morais e Castro e foi depois vendido à Santa Casa da Misericórdia. Em 1940 o Estado adquiriu o palácio; após a adaptação projetada pelo engenheiro Fernandes de Sá, o museu abriu ali em 1942. As antigas oficinas deram lugar a uma galeria de pintura com iluminação zenital e a uma galeria de escultura.\n\nEm 1940–42 o acervo foi enriquecido com as coleções do Museu Municipal do Porto, e o museu passou de clássico a misto, incorporando as artes decorativas. Nos anos 1950, sob a direção do escultor Salvador Barata Feyo, foram adquiridas obras de jovens artistas.\n\nEm 1992 começou a remodelação e ampliação projetada pelo arquiteto Fernando Távora, concluída em 2001. Hoje o acervo ultrapassa as 18 000 peças, das quais cerca de 3000 são desenho e pintura.",
+    "facts": [
+      "Criado entre 9 e 11 de abril de 1833, por iniciativa do regente D. Pedro.",
+      "O primeiro museu público de arte de Portugal.",
+      "Passou a chamar-se Soares dos Reis em 1911.",
+      "Instalado no Palácio dos Carrancas desde 1942; o Estado comprou-o em 1940.",
+      "Mais de 18 000 peças, cerca de 3000 de pintura e desenho.",
+      "A obra emblemática é O Desterrado (1872).",
+      "A remodelação de Fernando Távora decorreu entre 1992 e 2001."
+    ],
+    "tip": "O museu fica na Rua de Dom Manuel II, 44, em Miragaia; a estação de metro mais próxima é Palácio de Cristal (linha F). Reserve pelo menos duas horas: a coleção é grande e a entrada é muitas vezes gratuita nas tardes de domingo. Não perca O Desterrado, de Soares dos Reis, e as salas de artes decorativas.",
+    "gallery": [
+      {
+        "caption": "O Palácio dos Carrancas, onde está instalado o museu."
+      },
+      {
+        "caption": "A fachada do Museu Nacional Soares dos Reis."
+      }
+    ],
+    "panorama": null
+  },
+  "casa-do-infante": {
+    "name": "Museu Casa do Infante",
+    "year": "1325",
+    "short": "Alfândega régia medieval na Ribeira e um dos edifícios mais antigos do Porto; segundo a tradição, aqui nasceu o Infante D. Henrique em 1394.",
+    "long": "A Casa do Infante é a antiga alfândega régia medieval (Alfândega Velha) e um dos edifícios mais antigos do Porto, junto à Ribeira. Segundo a tradição, aqui nasceu o Infante D. Henrique, patrono dos descobrimentos, em 1394. Começou por ser um conjunto de duas torres altas em torno de um pátio central; foi depois remodelada e, no século XVII, a fachada avançou e as torres foram truncadas. Hoje alberga um museu e o arquivo histórico da cidade, e as escavações revelaram mosaicos romanos.",
+    "history": "Em 1325, o rei D. Afonso IV, contra a vontade do bispo, mandou construir neste local o armazém régio — a Alfândega do Porto —, para onde eram encaminhadas todas as mercadorias que aportavam à cidade, a fim de cobrar o respetivo imposto. O edifício primitivo era formado por duas torres altas e um pátio central; os pisos superiores da torre norte serviam de habitação.\n\nJá no século XV, com D. João I, foi acrescentado um corpo avançado, cujo pórtico rematava por um lintel com inscrição e um nicho com a imagem da Virgem, protetora das alfândegas. A oriente do edifício principal funcionava a Casa da Moeda, com origens também no século XIV; nas imediações ficavam a Contadoria da Fazenda e o Paço dos Tabeliães.\n\nA velha alfândega está intimamente ligada ao Infante D. Henrique, que, segundo a tradição, aqui nasceu em 1394. A origem portuense do Infante é conhecida pela crónica de Fernão Lopes, e o arquivo municipal guarda o documento com as despesas das festas do seu baptizado, em 1394.\n\nNo século XVII todo o conjunto foi remodelado: a fachada avançou sobre a rua, o topo das torres foi demolido e substituído por dois amplos cobertos; uma inscrição de 1677 assinala a obra. Os serviços aduaneiros funcionaram aqui até ao século XIX, quando passaram para a Alfândega Nova, em Miragaia; depois disso o edifício serviu de armazém.\n\nEm 1924 a Casa do Infante foi classificada como Monumento Nacional. Restaurada no fim dos anos 1950, acolheu em 1980 o Arquivo Histórico Municipal do Porto. As escavações arqueológicas dos anos 1990 revelaram mosaicos romanos e objetos do quotidiano; hoje o edifício integra um núcleo museológico do Museu da Cidade.",
+    "facts": [
+      "Em 1325 D. Afonso IV mandou construir aqui a alfândega régia do Porto.",
+      "Originalmente, duas torres altas e um pátio central.",
+      "Com D. João I, no século XV, foi acrescentado um corpo com nicho da Virgem.",
+      "Segundo a tradição, o Infante D. Henrique nasceu aqui em 1394.",
+      "No século XVII as torres foram truncadas; a inscrição de 1677 regista a obra.",
+      "Monumento Nacional desde 1924.",
+      "Desde 1980 acolhe o Arquivo Histórico Municipal do Porto.",
+      "As escavações dos anos 1990 revelaram mosaicos romanos."
+    ],
+    "tip": "A Casa do Infante fica na Rua da Alfândega, perto da Ribeira; a estação de metro mais próxima é São Bento (linha D). A entrada no museu é geralmente barata e muitas vezes gratuita ao domingo. Espreite o pátio interior e a exposição de mosaicos romanos — é a melhor forma de perceber como era o Porto medieval.",
+    "gallery": [
+      {
+        "caption": "A Casa do Infante, a antiga alfândega junto à Ribeira."
+      },
+      {
+        "caption": "A fachada da Casa do Infante com o seu portal de pedra."
+      }
+    ],
+    "panorama": null
+  },
+  "alfandega-nova": {
+    "name": "Alfândega Nova do Porto",
+    "year": "1859",
+    "short": "A enorme alfândega de granito do século XIX (1859–1879) no Douro, em Miragaia, hoje Museu dos Transportes e centro de congressos.",
+    "long": "A Alfândega Nova é um vasto edifício de granito na frente ribeirinha de Miragaia, construído na segunda metade do século XIX segundo projeto do arquiteto francês Jean-François Colson. A ordem de construção foi assinada a 25 de setembro de 1859, o primeiro núcleo abriu em 1869 e a obra ficou concluída dez anos mais tarde. O edifício ocupa cerca de 36 000 m², em três corpos principais em torno de pátios interiores. Desde os anos 1990, reabilitado segundo projeto de Eduardo Souto de Moura, alberga um centro de congressos e o Museu dos Transportes e Comunicações.",
+    "history": "A nova alfândega foi mandada edificar a 25 de setembro de 1859, no local da antiga praia de Miragaia. O projeto foi do arquiteto francês Jean-François Colson. O primeiro núcleo abriu em 1869 e a construção terminou dez anos depois, em 1879. Sob o edifício foi criada uma enorme plataforma de pedra, que substituiu a antiga praia ribeirinha.\n\nO conjunto foi pensado não só para a entrada e saída de mercadorias, mas como uma verdadeira máquina de trabalho: armazéns, vias-férreas, plataformas giratórias para vagões e guindastes. Em 1888 foi ligado à estação de Campanhã pelo Ramal da Alfândega, e abriu-se a Rua Nova da Alfândega. Estas obras são consideradas uma das mais profundas transformações urbanísticas e paisagísticas do Porto no século XIX.\n\nA alfândega velha, junto à Casa do Infante, já não respondia ao fluxo de mercadorias, e a transferência do serviço para Miragaia era necessária. Construído com técnicas inovadoras para a época, o novo edifício tornou-se um dos mais robustos e simbólicos da cidade: cerca de 36 000 m² e três corpos principais cujas fachadas refletem claramente as suas funções.\n\nNos anos 1990 começou o restauro e a reconversão do edifício, com projeto do arquiteto Eduardo Souto de Moura. Passou a albergar um centro de congressos, o Museu dos Transportes e Comunicações e a sede da Associação do Museu dos Transportes e Comunicações (AMTC), criada em fevereiro de 1992. Em 2023, a Alfândega Nova foi classificada como Monumento Nacional.",
+    "facts": [
+      "A ordem de construção foi assinada a 25 de setembro de 1859.",
+      "Projeto do arquiteto francês Jean-François Colson.",
+      "O primeiro núcleo abriu em 1869; a obra terminou em 1879.",
+      "Cerca de 36 000 m² e três corpos principais.",
+      "Ligada a Campanhã por via férrea em 1888.",
+      "Reabilitada desde os anos 1990 com projeto de Eduardo Souto de Moura.",
+      "Alberga o Museu dos Transportes e Comunicações e um centro de congressos.",
+      "Monumento Nacional desde 2023."
+    ],
+    "tip": "A Alfândega Nova fica na Rua Nova da Alfândega, junto ao rio em Miragaia; a estação de metro mais próxima é São Bento, a cerca de quinze minutos a pé, a descer até ao Douro. Visite o terraço ribeirinho e o Museu dos Transportes — os bilhetes são geralmente baratos, com tarifas de família aos fins de semana. Ao anoitecer, a fachada é lindamente iluminada do lado do rio.",
+    "gallery": [
+      {
+        "caption": "A Alfândega Nova e o seu cais no Douro."
+      },
+      {
+        "caption": "A fachada de granito da Alfândega Nova."
+      }
+    ],
+    "panorama": null
+  },
+  "museu-romantico": {
+    "name": "Museu Romântico da Quinta da Macieirinha",
+    "year": "1972",
+    "short": "Museu intimista numa casa de campo oitocentista da Quinta da Macieirinha: interiores da burguesia romântica portuguesa e último refúgio do rei Carlos Alberto da Sardenha.",
+    "long": "O Museu Romântico é um dos núcleos do Museu da Cidade do Porto, instalado na casa da Quinta da Macieirinha (também chamada Quinta da Macieira ou do Sacramento). A casa, do século XIX, pertenceu à família Pinto Basto e recria o quotidiano de uma família burguesa abastada do Romantismo. Aqui, no exílio, passou os últimos dias e faleceu a 28 de julho de 1849 o rei Carlos Alberto do Piemonte e da Sardenha, em cuja memória foram reconstituídas a capela, o quarto e a sala de estar.",
+    "history": "A Quinta da Macieirinha é uma antiga propriedade rural na encosta sobre o Douro, junto aos atuais Jardins do Palácio de Cristal. A casa data do século XIX; pertenceu à abastada família Pinto Basto e teve vários nomes — Quinta da Macieira, ou do Sacramento. Em meados do século XIX era um lugar tranquilo nos arredores do Porto, entre vinhas e jardins.\n\nEm 1849 a quinta tornou-se o último refúgio de Carlos Alberto, rei da Sardenha. Após a derrota da revolução em Itália, abdicou em favor do filho Vítor Emanuel II e partiu para o exílio. No Porto adoeceu gravemente e faleceu a 28 de julho de 1849 na casa da Quinta da Macieirinha. Em sua memória foram depois reconstituídas várias dependências — a capela, o quarto de dormir e a sala de estar — com o recheio reconstruído a partir de aguarelas e litografias da época.\n\nO museu abriu em 1972 como núcleo do Museu da Cidade do Porto. O seu propósito era mostrar o interior de uma casa abastada de Oitocentos: mobiliário, porcelanas, prataria, pintura e objetos do quotidiano. Parte da propriedade foi durante muito tempo ocupada pelo Solar do Vinho do Porto, que usava dependências da quinta.\n\nRodeia a casa um pequeno jardim com fonte e terraços, com vista sobre o Douro. A quinta está inscrita no património português (SIPA 5501). Os jardins do Museu Romântico confinam com os do Palácio de Cristal, formando um dos recantos mais verdes da zona ocidental do Porto.\n\nEm 2021 a Câmara Municipal reorganizou o espaço: o recheio histórico foi desmontado e o local foi anunciado como «Extensão do Romantismo» do Museu da Cidade. A decisão gerou debate público, já que a reconstituição de interiores de 1972 era vista como um valor próprio. Hoje o espaço conjuga a memória do rei exilado com uma programação museológica contemporânea em mudança.",
+    "facts": [
+      "A casa da Quinta da Macieirinha data do século XIX e pertenceu à família Pinto Basto.",
+      "O rei Carlos Alberto do Piemonte e da Sardenha faleceu aqui, no exílio, a 28 de julho de 1849.",
+      "A capela, o quarto e a sala foram reconstituídos a partir de aguarelas e litografias românticas.",
+      "O museu abriu em 1972 como núcleo do Museu da Cidade do Porto.",
+      "A quinta está inscrita no património português com o número SIPA 5501.",
+      "Os jardins do museu confinam com os do Palácio de Cristal e debruçam-se sobre o Douro."
+    ],
+    "tip": "Visite o museu juntamente com os Jardins do Palácio de Cristal, mesmo ao lado — o passeio pelos terraços sobre o Douro leva cerca de uma hora. Confirme os horários antes de ir: após a reorganização de 2021 a exposição e o horário mudaram várias vezes. Há autocarros até ao Palácio de Cristal, ou suba a pé desde a Cordoaria; as linhas de elétrico mais próximas seguem a frente ribeirinha.",
+    "gallery": [
+      {
+        "caption": "O Museu Romântico — o pavilhão do Solar do Vinho do Porto, na quinta."
+      },
+      {
+        "caption": "O Museu Romântico — a fonte nos jardins da Quinta da Macieirinha."
+      }
+    ],
+    "panorama": null
+  },
+  "casa-guerra-junqueiro": {
+    "name": "Casa-Museu Guerra Junqueiro",
+    "year": "1730",
+    "short": "Casa nobre barroca de 1730 na Rua de D. Hugo, atribuída a Nicolau Nasoni: a casa-museu do poeta Guerra Junqueiro, com a sua coleção de artes decorativas.",
+    "long": "A Casa-Museu Guerra Junqueiro, também conhecida como Casa do Dr. Domingos Barbosa, é uma antiga casa nobre de granito na Rua de D. Hugo, 32, no centro histórico do Porto. Datada de 1730 e atribuída ao arquiteto Nicolau Nasoni. Em 1940 a família do poeta Guerra Junqueiro doou a casa e as coleções à Câmara Municipal, com a condição de se exporem os objetos que reunira. O museu guarda arte sacra, faiança de Viana do Castelo, pratos de Nuremberga, cerâmica e mobiliário.",
+    "history": "A casa nobre da Rua de D. Hugo, 32, é datada de 1730. Construída em estilo barroco, é atribuída a Nicolau Nasoni, o mestre italiano que trabalhou no Porto nos Clérigos, na Sé e no paço episcopal. Durante muito tempo a casa foi conhecida como Casa do Dr. Domingos Barbosa, por um dos seus proprietários; mais tarde foi também chamada Casa dos Miranda. A fachada sóbria de granito, os aros das janelas, a escada de pedra e a pequena capela são típicos de uma casa burguesa portuense do século XVIII.\n\nGuerra Junqueiro (1850–1923) nasceu em Freixo de Espada à Cinta, publicou os primeiros versos aos catorze anos e tornou-se um dos poetas mais lidos de Portugal e um republicano destacado. Toda a vida colecionou obras de arte e sonhou com uma casa onde pudesse mostrar a sua coleção. Após a sua morte, a esposa e a filha Maria Isabel Guerra Junqueiro concretizaram esse desejo.\n\nEm 1940 a família entregou o edifício e a coleção ao município do Porto com a condição de aí serem expostas as peças que o poeta reunira nas suas muitas viagens. O museu em sua memória foi criado em 1942. A exposição conjuga artes decorativas e legado literário: a par das vitrinas estão a biblioteca e o arquivo do poeta.\n\nEntre as peças contam-se uma coleção de arte sacra, faiança de Viana do Castelo, pratos de Nuremberga, cerâmica, mobiliário e objetos orientais. O edifício está classificado como Imóvel de Interesse Público (SIPA 5468, DGPC 74495). Frente à casa ergue-se uma estátua de bronze de Guerra Junqueiro, lembrando que o museu é dedicado não só à coleção mas ao seu criador.\n\nHoje a Casa-Museu continua a ser um dos museus municipais do Porto e integra o conjunto das casas-museu da cidade. Fica a poucos passos da Sé e da Ribeira, num quarteirão onde sobrevive a malha antiga na encosta entre a Sé e o rio. As salas pequenas e o pátio interior tornam a visita íntima e tranquila.",
+    "facts": [
+      "A casa nobre é datada de 1730 e atribuída ao arquiteto Nicolau Nasoni.",
+      "É também conhecida como Casa do Dr. Domingos Barbosa, por um dos proprietários.",
+      "O museu fica na Rua de D. Hugo, 32, no centro histórico do Porto.",
+      "Em 1940 a família do poeta doou a casa e as coleções à Câmara Municipal.",
+      "Guerra Junqueiro (1850–1923) foi poeta e republicano, natural de Freixo de Espada à Cinta.",
+      "A coleção inclui arte sacra, faiança de Viana, pratos de Nuremberga, cerâmica e mobiliário.",
+      "O edifício está classificado como Imóvel de Interesse Público (SIPA 5468)."
+    ],
+    "tip": "O museu é pequeno — quarenta minutos chegam — e vale a pena espreitar o pátio interior com a estátua do poeta. A Rua de D. Hugo é estreita e desce entre a Sé e a Ribeira, pelo que se combina bem com um passeio até à catedral ou à frente ribeirinha. Procure a entrada no número 32; as paragens de autocarro mais próximas são junto à Sé e na Praça da Ribeira.",
+    "gallery": [
+      {
+        "caption": "Casa-Museu Guerra Junqueiro — a fachada principal."
+      },
+      {
+        "caption": "Casa-Museu Guerra Junqueiro — a fachada da rua."
+      }
+    ],
+    "panorama": null
+  },
+  "teatro-rivoli": {
+    "name": "Teatro Municipal Rivoli",
+    "year": "1913",
+    "short": "Palco municipal na Praça de D. João I, aberto em 1913 como Teatro Nacional e remodelado em 1923: uma das principais salas de espetáculo do Porto.",
+    "long": "O Teatro Rivoli é um dos dois polos do Teatro Municipal do Porto (o outro é o Teatro do Campo Alegre) e pertence à Câmara Municipal. Situa-se na Praça de D. João I, entre os Aliados e a Batalha. Inaugurado em 1913 como Teatro Nacional e remodelado em 1923 pelo arquiteto e engenheiro Júlio José de Brito, passou a chamar-se Rivoli e adaptou-se ao cinema, à ópera, à dança e aos concertos. Nas décadas de 1940 e 1950 viveu anos dourados sob Maria Borges, quando no topo da fachada foi colocado um alto-relevo do escultor Henrique Moreira.",
+    "history": "O teatro na Praça de D. João I abriu em 1913 com o nome de Teatro Nacional. As mudanças no centro urbano obrigaram a repensar o edifício, e em 1923 surgiu remodelado como Teatro Rivoli — adaptado ao cinema e com programação de ópera, dança, teatro e concertos. O projeto arquitetónico é do arquiteto e engenheiro Júlio José de Brito.\n\nAs décadas de 1940 e 1950 foram o período dourado do Rivoli, ligado ao nome de Maria Borges, filha de Manuel Pires Fernandes. Assumiu o teatro como projeto pessoal e fez muitas melhorias. A mais visível é o alto-relevo no topo da fachada, da autoria do escultor Henrique Moreira, que ainda hoje se pode ver.\n\nDepois de Maria Borges adoecer e ir viver para Lisboa, o teatro definhou. Nos anos 1970 a situação financeira piorou: equipamento obsoleto, sem programação regular nem público próprio. Em 1989 a Câmara do Porto decidiu comprar o edifício para o devolver à cidade e aos seus habitantes.\n\nEm 1992 o teatro encerrou para uma remodelação total com projeto do arquiteto Pedro Ramalho. A área existente de 6.000 m² foi ampliada para mais de 11.000 m²: criaram-se um auditório secundário, um café-concerto, uma sala de ensaios, um foyer de artistas e espaços administrativos e técnicos. A 16 de outubro de 1997 o Rivoli reabriu as portas.\n\nDe 2007 a 2011 o teatro foi gerido por Filipe La Féria. Em 2014 a Cultura da Câmara Municipal do Porto assumiu definitivamente os destinos do Teatro Municipal (Rivoli e Campo Alegre). Nesse outono apresentou-se no Rivoli o programa «O Rivoli Já Dança!», e em janeiro de 2015 o novo diretor artístico, Tiago Guedes, apresentou uma programação que voltou a colocar o Rivoli no mapa dos grandes eventos culturais nacionais e internacionais.",
+    "facts": [
+      "O teatro abriu em 1913 com o nome de Teatro Nacional.",
+      "Foi remodelado em 1923 e passou a chamar-se Rivoli; o projeto é de Júlio José de Brito.",
+      "A sala tem cerca de 1.300 lugares.",
+      "O alto-relevo no topo da fachada é do escultor Henrique Moreira, dos anos 1940–50.",
+      "A Câmara do Porto comprou o teatro em 1989; a partir de 1992 foi remodelado por Pedro Ramalho.",
+      "O teatro reabriu a 16 de outubro de 1997, passando de 6.000 para 11.000 m².",
+      "Desde 2015 o diretor artístico é Tiago Guedes; integra o Teatro Municipal do Porto."
+    ],
+    "tip": "O Rivoli fica mesmo na Praça de D. João I, entre a estação de metro do Bolhão e os Aliados — fácil de alcançar a pé. Compre bilhetes com antecedência: espetáculos populares e sessões de festival esgotam depressa. Uma boa ideia é juntar um espetáculo à noite a um jantar na zona da Batalha; depois, a praça fica muito bem iluminada.",
+    "gallery": [
+      {
+        "caption": "Teatro Rivoli — a fachada na Praça de D. João I."
+      },
+      {
+        "caption": "Teatro Rivoli — a sala de espetáculos."
+      }
+    ],
+    "panorama": null
+  },
+  "cinema-batalha": {
+    "name": "Batalha Centro de Cinema",
+    "year": "1947",
+    "short": "Notável edifício art déco na Praça da Batalha, inaugurado em 1947 com projeto de Artur Andrade; hoje um centro municipal de cinema com os frescos de Júlio Pomar recuperados.",
+    "long": "O Batalha é um notável edifício art déco na Praça da Batalha, no Porto. O seu antecessor, o Salão High-Life, instalou-se aqui em 1908, e desde 1913 o cinema passou a chamar-se Batalha. Em 1944–1947 o arquiteto Artur Andrade construiu o edifício atual, inaugurado a 3 de junho de 1947. A fachada conjuga pilastras verticais, um acento em torre e um baixo-relevo de Américo Soares Braga. Após a reabilitação, funciona hoje como Batalha Centro de Cinema.",
+    "history": "O Salão High-Life, criado em 1906, esteve primeiro na Feira de São Miguel (hoje Rotunda da Boavista), passou depois pelo Jardim da Cordoaria e em 1908 fixou-se na Praça da Batalha como Novo Salão High-Life. Foi o primeiro cinema a exibir sessões abertas ao público; era gerido por Manuel da Silva Neves e Edmond Pascaud, criadores da empresa Neves & Pascaud. A partir de 1913 o espaço passou a designar-se Cinema Batalha.\n\nEm 1944 o cinema antigo foi demolido e ergueu-se um novo edifício. O projeto do arquiteto Artur Andrade teve um ante-projeto em 1942 e uma segunda versão em 1944, com o desenho final concebido em 1945 e concluído em 1947. De raiz Déco, o projeto evoluiu para formas dinâmicas sob influência do Estilo Internacional, tirando partido do betão e do vidro. A sala principal tinha 950 lugares: plateia 346, tribuna 222, balcão 382.\n\nO edifício uniu arquitetura, escultura e pintura mural. Júlio Pomar pintou os frescos dos foyers, Augusto Gomes o alto-relevo da sala principal, António Sampaio a pintura da escadaria, Américo Soares Braga o baixo-relevo da fachada e Arlindo Rocha a escultura da deusa Flora. Muitas destas obras neorrealistas foram censuradas: em junho de 1948 os frescos de Pomar foram mandados ocultar e retirou-se uma foice e um martelo do baixo-relevo de Braga.\n\nEm 1976 abriu na cave a pequena Sala Bebé, com 135 lugares. Nos anos 1980 e 1990 os cinemas tradicionais perderam público para os multiplex; a última sessão com grande assistência foi a estreia de Titanic, em 1998, e em agosto de 2000 o cinema fechou. Em 2012 o edifício foi classificado como Monumento de Interesse Público, passando depois a acolher eventos pontuais — TEDx Porto, OFFF Porto, Desobedoc.\n\nEm janeiro de 2017 a Câmara arrendou o cinema por 25 anos como centro municipal de cinema. A reabilitação, do Atelier 15 (Alexandre Alves Costa e Sérgio Fernandez), começou em 2019. A 9 de dezembro de 2022 o centro abriu como Batalha Centro de Cinema, com a Sala Grande de 341 lugares e uma sala-estúdio; os frescos de Pomar, escondidos sob sete camadas de tinta, foram descobertos e devolvidos ao público.",
+    "facts": [
+      "O cinema remonta ao Salão High-Life (1906) e chama-se Batalha desde 1913.",
+      "O novo edifício art déco, de Artur Andrade, abriu a 3 de junho de 1947.",
+      "A sala principal tinha 950 lugares: plateia 346, tribuna 222, balcão 382.",
+      "Júlio Pomar, Américo Soares Braga e Arlindo Rocha criaram obras para o cinema; algumas foram censuradas em 1948.",
+      "A pequena Sala Bebé, com 135 lugares, abriu na cave em 1976.",
+      "O cinema fechou em agosto de 2000 e foi classificado Monumento de Interesse Público em 2012.",
+      "Após a reabilitação de 2019–2022, reabriu a 9 de dezembro de 2022; os frescos de Pomar estavam sob sete camadas de tinta."
+    ],
+    "tip": "O Batalha fica mesmo na Praça da Batalha, ao lado do Teatro São João e a cinco minutos do metro do Bolhão. Vá de dia para ver com calma o baixo-relevo da fachada e os interiores; consulte no site a programação de filmes e exposições. O edifício tem café e um terraço na cobertura — bom para uma pausa entre sessões.",
+    "gallery": [
+      {
+        "caption": "Cinema Batalha — um pormenor da fachada art déco."
+      },
+      {
+        "caption": "Cinema Batalha — a torre de esquina na Praça da Batalha."
+      }
+    ],
+    "panorama": null
+  },
+  "cadeia-relacao": {
+    "name": "Antiga Cadeia e Tribunal da Relação",
+    "year": "1765",
+    "short": "Edifício de granito de 1765–1796, desenhado por Eugénio dos Santos: cadeia e tribunal da Relação do Porto e, desde 2001, Centro Português de Fotografia.",
+    "long": "A antiga Cadeia da Relação é um edifício histórico de granito no Campo dos Mártires da Pátria, no Porto. Projetado em 1765 por iniciativa de João de Almada e Melo e segundo planta do engenheiro Eugénio dos Santos, um dos autores da Lisboa pombalina, levou trinta anos a construir e ficou concluído em 1796. Albergou o Tribunal da Relação do Porto e uma cadeia em funcionamento até 1974. Após o restauro, desde 2001 ocupa-o o Centro Português de Fotografia.",
+    "history": "O Tribunal da Relação do Porto foi criado a 27 de julho de 1582, mas durante muito tempo não teve sede própria, andando por instalações alheias. Só em 1603 Filipe II ordenou a construção de uma casa para o tribunal e a cadeia; as obras no Campo do Olival começaram em 1606 e duraram três anos. A 1 de abril de 1752, Sábado de Aleluia, esse edifício ruiu completamente, e o tribunal regressou à Câmara Municipal.\n\nUma nova casa para a Relação e a cadeia começou a ser construída sobre os escombros em 1765, por iniciativa de João de Almada e Melo, regedor das Justiças e governador das Armas do Porto. A planta foi elaborada pelo engenheiro e arquiteto Eugénio dos Santos, interveniente na reconstrução de Lisboa; após a sua morte, as obras foram seguidas pelo oficial de engenharia Francisco Pinheiro da Cunha. A obra custou 200 contos de réis e durou trinta anos, ficando concluída apenas em 1796.\n\nAs enxovias tinham nomes de santos: Santo António e Sant'Ana para homens, Santa Teresa para mulheres, Santa Rita para menores. Havia também os «salões» — do Carmo e de São José — com chão de madeira, onde se pagava 1$500 réis por um lugar. Na sala do tribunal havia uma capela: as Ordenações do Reino determinavam que um sacerdote dissesse missa ali todos os dias, e os presos ouviam-na através das grades viradas para o saguão.\n\nÀ cadeia andam ligados nomes célebres. Em 1846 esteve aqui detido o duque da Terceira, com generais e oficiais; em 1860 o escritor Camilo Castelo Branco ocupou o «quarto de São João» juntamente com Ana Plácido, ambos acusados de adultério. Mais tarde passaram por aqui o banqueiro Roriz, o médico Urbino de Freitas, o salteador Zé do Telhado, o caudilho miguelista Pita Bezerra e o jornalista político João Chagas.\n\nEm 1961 começou a construir-se o novo Estabelecimento Prisional do Porto, em Custóias; em 1974, após a revolução, os reclusos foram para lá transferidos e o edifício da Relação foi ocupado por vários grupos e famílias, degradando-se depressa. O restauro começou em 1988, com projeto do arquiteto Humberto Vieira. Em 1997 foi criado o Centro Português de Fotografia e, em 2000, o edifício encerrou para concluir as obras; o projeto de renovação foi dos arquitetos Eduardo Souto de Moura e Humberto Vieira. O centro reabriu em outubro de 2001 e hoje preserva e expõe o património fotográfico português.",
+    "facts": [
+      "O Tribunal da Relação do Porto foi criado a 27 de julho de 1582.",
+      "O anterior edifício do tribunal e cadeia ruiu a 1 de abril de 1752.",
+      "O novo edifício começou em 1765, segundo planta de Eugénio dos Santos.",
+      "A construção durou trinta anos e ficou concluída em 1796.",
+      "As enxovias tinham nomes de santos; os «salões» com chão de madeira custavam 1$500 réis.",
+      "Em 1860 o escritor Camilo Castelo Branco esteve preso aqui com Ana Plácido.",
+      "A cadeia funcionou até 1974; desde 2001 o edifício alberga o Centro Português de Fotografia."
+    ],
+    "tip": "O centro de fotografia fica acima da Cordoaria, no Campo dos Mártires da Pátria; a entrada é habitualmente gratuita, mas os horários das exposições mudam — consulte cpf.pt. Espreite o saguão com a fonte de Neptuno e suba a escadaria de pedra: os interiores da cadeia estão preservados. Daqui desce-se facilmente à Ribeira ou segue-se a pé até São Bento.",
+    "gallery": [
+      {
+        "caption": "A antiga cadeia da Relação — o edifício do Centro Português de Fotografia."
+      },
+      {
+        "caption": "A antiga cadeia da Relação — interiores de pedra e pátio."
+      }
+    ],
+    "panorama": null
+  },
+  "almeida-garrett": {
+    "name": "Biblioteca Municipal Almeida Garrett",
+    "year": "2001",
+    "short": "Biblioteca municipal aberta em 2001 nos Jardins do Palácio de Cristal, com o nome do escritor Almeida Garrett; serve Massarelos como sala de leitura, galeria e centro cultural.",
+    "long": "A Biblioteca Municipal Almeida Garrett abriu a 2 de abril de 2001, no ano em que o Porto foi Capital Europeia da Cultura. Projectada pelo arquitecto José Manuel Soares, fica nos Jardins do Palácio de Cristal, na freguesia de Massarelos, sobre o Douro. Além das salas de leitura, alberga uma galeria, um café com esplanada e um pequeno auditório. Tem o nome de João Baptista de Almeida Garrett, a maior figura do romantismo português, nascido no Porto em 1799.",
+    "history": "A Biblioteca Municipal Almeida Garrett abriu a 2 de abril de 2001, no ano em que o Porto foi Capital Europeia da Cultura. O edifício foi projectado pelo arquitecto José Manuel Soares. Além das salas de leitura, alberga uma galeria de exposições, um café com esplanada e um pequeno auditório. Situa-se nos Jardins do Palácio de Cristal, em Massarelos, entre alamedas de tílias e camélias, sobre o Douro.\n\nA biblioteca deve o nome a João Baptista da Silva Leitão de Almeida Garrett (1799–1854), escritor, dramaturgo e político, a maior figura do romantismo português. Garrett nasceu no Porto a 4 de fevereiro de 1799, numa casa da antiga Rua do Calvário, hoje Rua Dr. Barbosa de Castro. Participou na revolução liberal, exilou-se em Inglaterra, onde descobriu Shakespeare e Walter Scott, e regressou para criar um teatro nacional: o Teatro Nacional D. Maria II, em Lisboa, foi ideia sua.\n\nEm 1832 Garrett combateu no Batalhão Académico durante o Cerco do Porto e, após a vitória liberal, ocupou cargos ministeriais. Escreveu os poemas Camões e Dona Branca, o romance Viagens na Minha Terra e a peça Frei Luís de Sousa. Em 1851 o rei D. Pedro V concedeu-lhe o título de Visconde de Almeida Garrett. Morreu em Lisboa em 1854 e repousa hoje no Panteão Nacional.\n\nA biblioteca integra a rede de bibliotecas públicas da cidade e é de entrada livre. Aqui se preservam e digitalizam os periódicos do Porto, e se organizam exposições, encontros e programas educativos para crianças. O edifício é deliberadamente discreto e integrado no jardim: as salas de leitura são iluminadas por grandes janelas e a esplanada olha para o verde do parque. Assim, a biblioteca continua a tradição do Palácio de Cristal, que serviu a cidade como lugar de encontro e de esclarecimento.",
+    "facts": [
+      "A biblioteca abriu a 2 de abril de 2001, projectada pelo arquitecto José Manuel Soares para o ano do Porto Capital Europeia da Cultura.",
+      "Tem o nome de João Baptista de Almeida Garrett (1799–1854), a maior figura do romantismo português.",
+      "Fica nos Jardins do Palácio de Cristal, em Massarelos, com galeria, esplanada e pequeno auditório.",
+      "Garrett nasceu no Porto a 4 de fevereiro de 1799, numa casa da Rua do Calvário, hoje Rua Dr. Barbosa de Castro.",
+      "O Teatro Nacional D. Maria II, em Lisboa, foi ideia sua; em 1832 combateu no Batalhão Académico no Cerco do Porto.",
+      "Integra a rede nacional de bibliotecas públicas, é de entrada livre e preserva e digitaliza os periódicos do Porto."
+    ],
+    "tip": "Passe pela biblioteca depois de um passeio pelos Jardins do Palácio de Cristal: a entrada é livre e a esplanada do café olha para o parque. Chega-se a pé do miradouro do jardim; os autocarros passam na Rua de Entre-Quintas. Confirme o horário, pois algumas salas fecham à segunda-feira.",
+    "gallery": [
+      {
+        "caption": "O edifício da biblioteca Almeida Garrett nos Jardins do Palácio de Cristal."
+      },
+      {
+        "caption": "Os Jardins do Palácio de Cristal, o parque que enquadra a biblioteca."
+      }
+    ],
+    "panorama": null
+  },
+  "museu-misericordia": {
+    "name": "Museu e Igreja da Misericórdia",
+    "year": "2015",
+    "short": "O Museu da Misericórdia na Rua das Flores, aberto em 2015: cinco séculos de uma irmandade fundada em 1499, a igreja barroca de Nasoni e uma célebre coleção de prata.",
+    "long": "O Museu e a Igreja da Misericórdia formam um conjunto único na Rua das Flores, no centro histórico do Porto. A Santa Casa da Misericórdia, fundada a 14 de março de 1499, é uma das mais antigas irmandades de caridade do país; junto à sua sede ergue-se a Igreja da Misericórdia, reconstruída no século XVIII segundo projeto de Nicolau Nasoni. O museu (MMIPO) abriu a 14 de julho de 2015 após obras e mostra pintura, escultura, paramentos, desenhos de Nasoni e uma preciosa coleção de prata litúrgica dos séculos XVI a XIX.",
+    "history": "A Santa Casa da Misericórdia do Porto foi fundada a 14 de março de 1499 e é uma das mais antigas irmandades de caridade de Portugal. Durante cinco séculos manteve hospitais e recolhimentos e assistiu os pobres, os doentes e os sem-abrigo, com a sede junto à Igreja da Misericórdia, na Rua das Flores, uma das principais ruas do centro histórico.\n\nA Igreja da Misericórdia foi construída na década de 1550 e reconstruída em meados do século XVIII. O projeto da nova fachada e do interior é do arquitecto italiano Nicolau Nasoni, que trabalhava então também na Sé do Porto. A igreja continua em funcionamento e o seu retábulo barroco e a pedra lavrada fazem parte do percurso do museu, ligando o espaço de culto aos espaços expositivos.\n\nO sonho de um museu próprio foi acarinhado pelo conde de Samodães, provedor da irmandade em finais do século XIX. Passaram mais de 120 anos até se concretizar, pois as obras urgentes da ação social iam adiando o projeto. Só em 2015, com financiamento municipal e europeu, o museu abriu finalmente, a 14 de julho, na Rua das Flores. O investimento rondou 1,2 milhões de euros, 80 % dos quais cobertos por fundos comunitários.\n\nO acervo abrange cinco séculos de história: pintura e escultura, paramentos litúrgicos, documentos e, sobretudo, uma muito apreciada coleção de prata — peças de ourivesaria religiosa dos séculos XVI a XIX. Uma sala é dedicada a desenhos e autógrafos de Nasoni. Em conjunto, igreja e museu mostram como a fé, o ofício e a misericórdia se entrelaçaram na vida da cidade.",
+    "facts": [
+      "A Santa Casa da Misericórdia do Porto foi fundada a 14 de março de 1499, uma das mais antigas irmandades do país.",
+      "O museu (MMIPO) abriu a 14 de julho de 2015 na Rua das Flores, após um projeto sonhado há mais de 120 anos.",
+      "As obras custaram cerca de 1,2 milhões de euros, 80 % cobertos por fundos comunitários.",
+      "A Igreja da Misericórdia foi construída na década de 1550 e reconstruída no século XVIII segundo projeto de Nicolau Nasoni.",
+      "O acervo reúne pintura, escultura, paramentos e desenhos de Nasoni ao longo de cinco séculos.",
+      "A coleção de ourivesaria (prata litúrgica) dos séculos XVI a XIX é um dos pontos altos."
+    ],
+    "tip": "A igreja e o museu ficam na Rua das Flores, a dois minutos a pé da estação de São Bento, pelo que se combinam bem com um passeio pela rua. Compre o bilhete conjunto e não perca a sala da prata nem os desenhos de Nasoni. Ao domingo de manhã parte do museu pode fechar para o culto; confirme o horário em mmipo.pt.",
+    "gallery": [
+      {
+        "caption": "A Igreja da Misericórdia na Rua das Flores, com a fachada de Nasoni."
+      },
+      {
+        "caption": "O altar-mor da Igreja da Misericórdia."
+      }
+    ],
+    "panorama": null
+  },
+  "parque-cidade": {
+    "name": "Parque da Cidade do Porto",
+    "year": "1993",
+    "short": "O maior parque urbano de Portugal, na frente marítima do Porto: 83 hectares, cerca de 10 km de caminhos, lagos e manchas de arvoredo segundo projeto de Sidónio Pardal.",
+    "long": "O Parque da Cidade é o maior espaço verde urbano de Portugal: 83 hectares e cerca de 10 quilómetros de caminhos. Foi projectado pelo arquitecto paisagista Sidónio Pardal; a construção começou em 1991 e o parque abriu em 1993. Chega ao oceano em largos prados e esconde lagos e bosques atrás de socalcos de pedra e blocos. Nele estão o Pavilhão da Água da Expo 98, o aquário Sea Life e o Queimódromo, palco da Queima das Fitas e da Maratona do Porto.",
+    "history": "A ideia de um grande parque na zona ocidental do Porto demorou a amadurecer. Já em 1916–1918 o engenheiro Ezequiel de Campos propunha a aquisição de terrenos para um parque; nos anos 60 reservaram-se terrenos no plano de urbanização de Robert Auzelle, os primeiros estudos conceptuais começaram em 1982 e uma exposição dos projetos foi feita no Arquivo Histórico da Casa do Infante. Só em 1991 se iniciou a construção continuada, segundo o projeto de Sidónio Pardal.\n\nO parque abriu em 1993 e tornou-se o maior espaço verde urbano de Portugal: 83 hectares e cerca de 10 quilómetros de caminhos. Pardal criou, não natureza selvagem, mas uma paisagem cuidadosamente composta de lagos, bosques, socalcos de pedra e relvados. O relevo, os blocos e o arvoredo formam recantos recolhidos onde a cidade densa parece distante, enquanto para o oceano o parque se abre em prados amplos.\n\nCom o tempo o parque ganhou equipamentos culturais. O Pavilhão da Água, feito para a Expo 98, foi aqui instalado e aberto ao público a 28 de dezembro de 2002. A 18 de junho de 2009 abriu junto à Rotunda do Castelo do Queijo o aquário Sea Life Center, o primeiro aquário privado da cidade. No campo anexo do Queimódromo realizam-se a Queima das Fitas, a partida e a chegada da Maratona do Porto e outros eventos de massas.\n\nHoje o parque é também uma reserva ecológica: aqui se observam dezenas de espécies de aves e os seus prados e águas sustentam biodiversidade dentro da cidade. Está em estudo o alargamento para Matosinhos e a ligação ao Parque Real sob a Circunvalação. Para os portuenses é lugar de longos passeios, corridas e piqueniques à beira-mar.",
+    "facts": [
+      "O parque ocupa 83 hectares e é o maior espaço verde urbano de Portugal, com quase 10 km de caminhos.",
+      "Foi projectado pelo arquitecto paisagista Sidónio Pardal; a construção começou em 1991 e abriu em 1993.",
+      "As primeiras propostas para um parque da cidade datam de 1916–1918 e os terrenos foram reservados no plano Auzelle nos anos 60.",
+      "O Pavilhão da Água da Expo 98 abriu no parque a 28 de dezembro de 2002.",
+      "O aquário Sea Life Center abriu a 18 de junho de 2009 junto à Rotunda do Castelo do Queijo.",
+      "O Queimódromo acolhe a Queima das Fitas, a Maratona do Porto e outros eventos da cidade."
+    ],
+    "tip": "Alugue uma bicicleta ou siga simplesmente o caminho circular: em duas ou três horas vai dos lagos à frente marítima. Vá de manhã ou ao pôr do sol, quando o sol cai sobre a água. Leve água e uma manta para um piquenique no relvado; o metro mais próximo é Casa da Música, depois autocarro para a Boavista ou a Foz.",
+    "gallery": [
+      {
+        "caption": "O Parque da Cidade visto do ar: prados, bosques e lagos."
+      },
+      {
+        "caption": "Um lago no Parque da Cidade."
+      }
+    ],
+    "panorama": null
+  },
+  "cordoaria": {
+    "name": "Jardim de João Chagas (Cordoaria)",
+    "year": "1865",
+    "short": "Jardim romântico de 1865 junto à Torre dos Clérigos, conhecido pelas esculturas de Teixeira Lopes e por 'Treze a rir uns dos outros', de Juan Muñoz.",
+    "long": "O Jardim de João Chagas, que todos chamam Cordoaria, fica no Campo dos Mártires da Pátria, entre a Torre dos Clérigos, o Palácio da Justiça e a antiga Cadeia da Relação. Foi fundado em 1865 pelo Visconde de Vilar d'Allen, com projeto inicial do paisagista alemão Émile David. Um ciclone em 1941 alterou muito o jardim e, em 2001, foi remodelado segundo projeto de Camilo Cortesão. Aqui estão a 'Flora', de Teixeira Lopes, e as figuras de bronze de Juan Muñoz.",
+    "history": "O Jardim de João Chagas, conhecido por todos como Cordoaria, fica no Campo dos Mártires da Pátria, a um passo da Torre dos Clérigos e do Palácio da Justiça. O nome oficial homenageia o jornalista e político João Chagas, mas o nome antigo recorda a cordoaria que outrora ocupou este lugar. O jardim tem cerca de 1,59 hectares.\n\nO jardim foi fundado em 1865 pelo Visconde de Vilar d'Allen, com projeto inicial do paisagista alemão Émile David — o mesmo que desenhou os Jardins do Palácio de Cristal. O traçado romântico, de alamedas sinuosas e copas densas, ficou muito danificado em 1941, quando um ciclone atingiu a cidade e alterou visivelmente o jardim.\n\nEm finais do século XX, no âmbito de «Porto 2001 — Capital Europeia da Cultura», o jardim foi remodelado segundo projeto do arquitecto Camilo Cortesão. Muitos cidadãos e associações criticaram duramente a obra, que alterou bastante o carácter histórico do lugar, removendo árvores antigas e abrindo novos caminhos.\n\nA Cordoaria é conhecida pelas suas esculturas. Aqui estão a «Flora» (1904), de António Teixeira Lopes, e os monumentos aos escritores Ramalho Ortigão (1909, de Leopoldo de Almeida) e António Nobre (1926, de Tomás Costa). Em 2001 juntou-se-lhes «Treze a rir uns dos outros», de Juan Muñoz — treze figuras de bronze suspensas numa roda irónica. Ao lado fica a antiga Cadeia da Relação, hoje Centro Português de Fotografia.",
+    "facts": [
+      "O jardim foi fundado em 1865 pelo Visconde de Vilar d'Allen, com projeto inicial do paisagista alemão Émile David.",
+      "Tem cerca de 1,59 hectares e o nome oficial é uma homenagem ao jornalista João Chagas.",
+      "Um ciclone em 1941 alterou muito o jardim e a remodelação de 2001 foi polémica.",
+      "Aqui estão a «Flora» (1904), de António Teixeira Lopes, e o monumento a Ramalho Ortigão (1909), de Leopoldo de Almeida.",
+      "O monumento a António Nobre (1926) é de Tomás Costa.",
+      "«Treze a rir uns dos outros» (2001) é um conjunto de treze figuras de bronze de Juan Muñoz."
+    ],
+    "tip": "Passe por aqui no caminho da Torre dos Clérigos para o Palácio da Justiça: a sombra dos plátanos e os bancos fazem do jardim uma pausa fácil. Não deixe de procurar as figuras «a rir» de Juan Muñoz — passam facilmente despercebidas entre as árvores. Ao lado, na antiga cadeia, vale a pena visitar o Centro Português de Fotografia; o metro mais próximo é São Bento.",
+    "gallery": [
+      {
+        "caption": "O jardim da Cordoaria com a sua alameda e árvores antigas."
+      },
+      {
+        "caption": "«Treze a rir uns dos outros», de Juan Muñoz."
+      }
+    ],
+    "panorama": null
+  },
+  "sao-lazaro": {
+    "name": "Jardim de São Lázaro",
+    "year": "1834",
+    "short": "O jardim municipal mais antigo do Porto, aberto em 1834: tílias, um coreto de ferro fundido e esculturas junto à Biblioteca Pública e à igreja da Nossa Senhora da Esperança.",
+    "long": "O Jardim de São Lázaro é o mais antigo jardim municipal do Porto, aberto em 1834; oficialmente tem o nome do pintor Marques de Oliveira. Ocupa apenas cerca de 0,67 hectares, mas a sua história está intimamente ligada à da cidade. É de conceção romântica, com tílias imponentes, um coreto de ferro fundido e grupos escultóricos que convivem com a Escola Superior de Belas-Artes. A poente fica a Biblioteca Pública Municipal do Porto; a sul, a fachada barroca do antigo convento de São Lázaro, atribuída a Nicolau Nasoni.",
+    "history": "O Jardim de São Lázaro é o mais antigo jardim municipal do Porto, aberto em 1834. Oficialmente tem o nome do pintor Marques de Oliveira, mas os portuenses conhecem-no pelo antigo hospital de São Lázaro que outrora existiu nas proximidades. Ocupa apenas cerca de 0,67 hectares, mas a sua história está intimamente ligada à da cidade.\n\nDe conceção romântica, o jardim conserva uma atmosfera de sombra e recolhimento. Destacam-se as tílias imponentes e o coreto de ferro fundido — uma estrada para a orquestra que se tornou um dos símbolos do lugar. Os grupos escultóricos não são por acaso: a Escola Superior de Belas-Artes do Porto fica perto e muitas obras são de alunos e antigos alunos. No gradeamento a norte está embutido um chafariz retirado do antigo convento de São Domingos.\n\nA poente do jardim fica a Biblioteca Pública Municipal do Porto, aberta em 1842; a sul, a fachada barroca do antigo convento de São Lázaro (igreja da Nossa Senhora da Esperança), atribuída a Nicolau Nasoni. O hospital de São Lázaro que deu nome ao lugar era um dos mais antigos do Porto; depois da extinção das ordens religiosas, em 1834, os seus terrenos foram transformados em jardim público.\n\nO jardim continua a ser um oásis de verde no meio do centro agitado. Aqui se marcam encontros, se lê nos bancos e, no verão, se ouve música junto ao coreto. É um lembrete de que o Porto não é só granito e comércio, mas também jardins feitos para o descanso dos seus habitantes.",
+    "facts": [
+      "Aberto em 1834, é o mais antigo jardim municipal do Porto e tem oficialmente o nome do pintor Marques de Oliveira.",
+      "Ocupa cerca de 0,67 hectares e a sua conceção é romântica.",
+      "O elemento mais conhecido é o coreto de ferro fundido, sobrevivente do século XIX.",
+      "No gradeamento a norte está embutido um chafariz retirado do antigo convento de São Domingos.",
+      "A poente fica a Biblioteca Pública Municipal do Porto, aberta em 1842.",
+      "A sul está a fachada barroca do antigo convento de São Lázaro, atribuída a Nicolau Nasoni."
+    ],
+    "tip": "Venha de manhã, quando o jardim está quase vazio: a sombra das tílias e o silêncio fazem dele a melhor pausa entre a Trindade e o Coliseu. Descubra o coreto e o chafariz junto ao gradeamento norte e depois entre na Biblioteca Pública ao lado, geralmente de entrada livre. O metro mais próximo é Trindade ou Bolhão, a poucos minutos a pé.",
+    "gallery": [
+      {
+        "caption": "O coreto de ferro fundido no Jardim de São Lázaro."
+      },
+      {
+        "caption": "Uma escultura no Jardim de São Lázaro."
+      }
+    ],
+    "panorama": null
+  },
+  "passeio-alegre": {
+    "name": "Jardim do Passeio Alegre",
+    "year": "século XIX",
+    "short": "Jardim ribeirinho da Foz do Douro, traçado em finais do século XIX por Émile David: alamedas de palmeiras, chafariz e obeliscos de Nasoni, com vista sobre a foz do Douro e o Atlântico.",
+    "long": "O Jardim do Passeio Alegre é um antigo jardim público da Foz do Douro, mesmo na foz do Douro, onde o rio encontra o Atlântico. Foi traçado em finais do século XIX pelo arquitecto paisagista Émile David numa área de cerca de 4,19 hectares. Alamedas rectas, canteiros, plátanos frondosos e palmeiras altas descem até à marginal, que se abre sobre o oceano e os farolins que guardam a barra. O jardim e o conjunto urbano que o envolve estão classificados como Imóvel de Interesse Público desde 1993.",
+    "history": "O jardim público da Foz do Douro foi traçado em finais do século XIX segundo um desenho do arquitecto paisagista Émile David. Ocupou cerca de 4,19 hectares de terreno ribeirinho plano na foz do Douro, onde o rio ainda sente a maré e o Atlântico se abre para além da ponta. O traçado combinou a geometria rigorosa de um boulevard com um passeio marítimo ao longo da água.\n\nA própria Foz do Douro é muito mais antiga: tornou-se freguesia em 1836, mas a sua primeira capela, São João da Foz, foi doada pelo rei Afonso Henriques já em 1145 e passou depois ao mosteiro beneditino de Santo Tirso. Em finais do século XIX a Foz tornara-se um bairro de veraneio aristocrático do Porto, e o jardim tornou-se a sua sala de visitas.\n\nA peça central do jardim é um chafariz do século XVIII de Nicolau Nasoni, feito para os jardins da Quinta da Prelada, da família Noronha e Meneses. No século XX, quando a Câmara comprou a quinta para ali instalar o parque de campismo municipal, o chafariz foi desmontado e transferido para aqui. Alguns autores defendem que estava originalmente no claustro do Convento de São Francisco, destruído em 1833 durante o Cerco do Porto. É Monumento Nacional desde 1910.\n\nDois obeliscos do século XVIII da mesma Quinta da Prelada vieram também para o jardim e são atribuídos a Nasoni. O conjunto do Passeio Alegre inclui outros monumentos: a casa do Visconde de Oliveira, a capela dos mareantes de Nossa Senhora da Lapa, o Chalet Suíço (Chalet do Carneiro), um marégrafo e antigos candeeiros. Em 1993, todo o conjunto foi classificado como Imóvel de Interesse Público.\n\nHoje o Passeio Alegre é um local de passeio preferido: o eléctrico histórico 1, vindo da Ribeira, passa ao lado, uma banda toca no coreto à sombra das palmeiras e, ao anoitecer, o sol põe-se sobre o oceano para além da marginal. Perto erguem-se os farolins de São Miguel-o-Anjo e de Felgueiras e o antigo Forte de São João Baptista.",
+    "facts": [
+      "O jardim foi traçado em finais do século XIX pelo arquitecto paisagista Émile David.",
+      "Ocupa cerca de 4,19 hectares na foz do Douro.",
+      "Desde 1993 o conjunto do Passeio Alegre é Imóvel de Interesse Público (IIP).",
+      "O chafariz do século XVIII de Nicolau Nasoni foi transferido da Quinta da Prelada.",
+      "O chafariz é Monumento Nacional desde 1910.",
+      "Dois obeliscos do século XVIII da Quinta da Prelada são atribuídos a Nasoni.",
+      "O conjunto inclui o Chalet Suíço (Chalet do Carneiro), monumento municipal.",
+      "O eléctrico histórico 1, vindo da Ribeira, passa ao longo do jardim."
+    ],
+    "tip": "Venha ao pôr do sol: o jardim fica mesmo na foz do Douro e o sol põe-se sobre o oceano em frente às alamedas. O melhor acesso é o eléctrico histórico 1, da Ribeira, ou os autocarros até à Foz do Douro. Espreite o Chalet Suíço e o chafariz de Nasoni e siga depois até ao farolim de Felgueiras e ao Forte de São João Baptista, tudo no mesmo percurso. No verão há feiras e música no coreto aos fins-de-semana.",
+    "gallery": [
+      {
+        "caption": "Passeio Alegre: uma alameda do jardim ladeada de palmeiras."
+      },
+      {
+        "caption": "O Chalet Suíço (Chalet do Carneiro), no jardim do Passeio Alegre."
+      }
+    ],
+    "panorama": null
+  },
+  "praca-batalha": {
+    "name": "Praça da Batalha",
+    "year": "século XVI",
+    "short": "Uma das praças mais antigas do Porto, aberta no século XVI: a estátua do rei D. Pedro V, o Teatro Nacional São João, o Palácio da Batalha e a Igreja de Santo Ildefonso com azulejos de Jorge Colaço.",
+    "long": "A Praça da Batalha fica entre as freguesias da Sé e de Santo Ildefonso, no coração da baixa do Porto. Abriu como praça da cidade no século XVI e mudou várias vezes de nome — Campo do Pombal, Largo de Santo Ildefonso — antes de fixar-se em Batalha. Hoje é enquadrada por monumentos de épocas diferentes: a estátua do rei D. Pedro V, o Palácio da Batalha, o Teatro Nacional São João e a Igreja de Santo Ildefonso, cuja fachada está revestida de azulejos.",
+    "history": "Diz a tradição que o nome da praça vem de uma sangrenta batalha do século X entre o exército de Almançor e os habitantes do Porto, derrotados e cuja cidade terá sido arrasada. A sua história documentada começa no século XVI, quando era um campo aberto junto às muralhas. No ângulo sudoeste ficava a Porta do Cimo de Vila da Muralha Fernandina, junto da qual estava a capela de Nossa Senhora da Batalha. No século XVIII a muralha foi demolida e o quarteirão transformou-se profundamente.\n\nNo lado nascente, em finais do século XVIII, a família Melo Correia mandou construir um palacete brasonado — o futuro Palácio da Batalha. Em 1826 foi vendido a José Anastácio da Silva da Fonseca, cavaleiro da Casa Real. Durante o Cerco do Porto os proprietários pró-miguelistas fugiram e o governo liberal ocupou-o, usando-o para instituições públicas e hospital de sangue. Foi aqui que Bernardo de Sá Nogueira, mais tarde marquês de Sá da Bandeira, foi tratado depois de gravemente ferido e onde lhe amputaram o braço direito. Em 1861, quando a praça foi terraplanada, o palácio ficou cerca de um metro acima do pavimento e a Câmara pagou uma indemnização para rebaixar a sua base. Grande parte do século XX acolheu a estação central dos Correios, Telégrafos e Telefones, e em 2009 o edifício foi vendido a um grupo hoteleiro.\n\nDesde 1866 o centro da praça tem o monumento ao rei D. Pedro V, de José Teixeira Lopes, pai. O lado sul é ocupado pelo Teatro Nacional São João. O seu primeiro teatro, o Real Teatro de São João, foi construído em 1794 com projecto do italiano Vicente Mazzoneschi e inaugurado a 13 de Maio de 1798 com a comédia A Vivandeira, assinalando o aniversário do príncipe D. João — daí ter sido chamado Teatro do Príncipe. A 11 de Abril de 1908 um violento incêndio destruiu o edifício; reconstruído com projecto de Marques da Silva, reabriu a 7 de Março de 1920. O Estado comprou-o em 1992, restaurou-o entre 1993 e 1995 e, em 2012, foi classificado como monumento nacional.\n\nNo lado norte ergue-se a Igreja de Santo Ildefonso, reconstruída em 1730; em 1932 o pintor Jorge Colaço revestiu a fachada de azulejos. Aqui fica também o Cinema Batalha (1947, arquitecto Artur Andrade). No âmbito do programa Porto 2001, a praça, o Largo de Santo Ildefonso e as ruas vizinhas foram reabilitados sob coordenação do arquitecto Adalberto Dias, com a participação de Fernando Távora, Álvaro Siza, Souto de Moura e outros.",
+    "facts": [
+      "A praça abriu no século XVI e chamou-se Campo do Pombal e Largo de Santo Ildefonso.",
+      "A estátua do rei D. Pedro V, de Teixeira Lopes pai, foi erguida em 1866.",
+      "O Teatro São João inaugurou a 13 de Maio de 1798 com a comédia A Vivandeira.",
+      "Um incêndio a 11 de Abril de 1908 destruiu o teatro; reabriu a 7 de Março de 1920.",
+      "O Teatro São João, de Marques da Silva, é monumento nacional desde 2012.",
+      "A Igreja de Santo Ildefonso foi reconstruída em 1730; os azulejos são de Jorge Colaço, 1932.",
+      "No ângulo sudoeste ficava a Porta do Cimo de Vila da Muralha Fernandina.",
+      "A reabilitação do Porto 2001 foi coordenada pelo arquitecto Adalberto Dias."
+    ],
+    "tip": "Espreite o foyer do Teatro São João durante o dia, quando não há espectáculo, e dê a volta à praça: a estátua de D. Pedro V, o Palácio da Batalha e a fachada de azulejos de Santo Ildefonso são três épocas em duzentos metros. A praça fica a 400 metros do metro de São Bento (linhas D e B). À noite a fachada da igreja fica bem iluminada; há cafés e lojas na vizinha Rua de Santa Catarina. Combina bem com uma visita ao Cinema Batalha ao lado.",
+    "gallery": [
+      {
+        "caption": "O Teatro Nacional São João, na Praça da Batalha."
+      },
+      {
+        "caption": "O monumento ao rei D. Pedro V, no centro da praça."
+      }
+    ],
+    "panorama": null
+  },
+  "castelo-queijo": {
+    "name": "Forte de São Francisco Xavier do Queijo",
+    "year": "1662",
+    "short": "Forte costeiro de 1661–1662 sobre uma rocha de granito na Foz do Douro, apelidado Castelo do Queijo: baluartes triangulares, guaritas com cúpulas, ponte levadiça e plataformas de tiro.",
+    "long": "O Forte de São Francisco Xavier, conhecido como Castelo do Queijo, ergue-se sobre uma rocha de granito na própria orla do Atlântico, na Foz do Douro, perto da foz do rio. O apelido significa Castelo do Queijo: reza a tradição que a rocha por baixo foi desgastada pelo mar até ganhar a forma de um queijo redondo. Construído em 1661–1662 durante a Guerra da Restauração, o forte ainda domina o oceano — das suas muralhas vêem-se as ondas, as praias e o farolim de Felgueiras.",
+    "history": "Em meados do século XVII o local guardava as ruínas de uma fortificação mais antiga, que serviram de alicerce a esta pequena fortaleza marítima. Foi erguida durante a Guerra da Restauração portuguesa (1640–1668) às custas da Câmara Municipal do Porto, quando a costa era ameaçada pela armada da Galiza. A traça é atribuída ao engenheiro militar francês Miguel de l'École, e os trabalhos foram dirigidos por Fernando César de Carvalhais Negreiros, capitão da Armada Real. O ano exacto de fundação é desconhecido: 1661 ou 1662; a primeira data consta de um auto de escolha do local e a segunda de um ofício que mostra que as obras já iam adiantadas.\n\nNo início do século XVIII o forte tornou-se um encargo. Em 1717 a Câmara do Porto pediu ao rei D. João V que o desactivasse, queixando-se de que o chamado Castelo do Queijo era inútil e supérfluo e apenas consumia o cofre da cidade com o soldo de oficiais que ali nunca residiam. O Conselho de Guerra do soberano indeferiu o pedido em 1720.\n\nNas Guerras Liberais, durante o Cerco do Porto (1828–1834), o forte esteve ocupado pelas forças conservadoras de D. Miguel. Segundo o registo, foi bombardeado pela artilharia combinada das baterias da Luz e dos navios da esquadra liberal de D. Pedro, que lhe danificou gravemente a estrutura. Depois da jornada do Lordelo foi abandonado e saqueado pela população. Em 1839 foi entregue à Companhia de Veteranos e, em 1846, durante a revolta da Maria da Fonte, foi ocupado pelas tropas da Junta do Porto e alvejado pela fragata Íris, fiel à rainha D. Maria II. Em 1890 passou para a Guarda Fiscal, que o conservou até 1910.\n\nA 20 de Março de 1934, pelo Decreto n.º 23 684, o forte foi classificado como Imóvel de Interesse Público. Em 1949 foi cedido ao Núcleo da Brigada Naval da Legião Portuguesa do Porto, que ali esteve até à Revolução dos Cravos de 25 de Abril de 1974. A sua Zona Especial de Protecção foi definida em 1961.\n\nHoje o forte restaurado está sob a guarda da Associação de Comandos (delegação do Norte), que mantém um museu histórico-militar e uma programação cultural. Tem planta triangular, muralhas sólidas de cantaria e guaritas pentagonais com cúpulas nos vértices. No terrapleno há amplas plataformas de tiro com canhões históricos e os edifícios de serviço: casa do comando, quartéis, paiol e cisterna. Do lado de terra, defendem-no fossos, uma ponte levadiça e um portão monumental em arco encimado pelo escudo das armas de Portugal.",
+    "facts": [
+      "O forte foi construído em 1661–1662 durante a Guerra da Restauração.",
+      "O apelido vem da rocha redonda de granito, em forma de queijo.",
+      "A traça é atribuída ao engenheiro francês Miguel de l'École.",
+      "Em 1717 a cidade pediu a D. João V que o fechasse por inútil; o pedido foi indeferido em 1720.",
+      "No Cerco do Porto esteve ocupado pelos miguelistas e foi muito danificado pela artilharia.",
+      "A 20 de Março de 1934 o forte foi classificado Imóvel de Interesse Público (IIP).",
+      "Tem planta triangular, muralhas de cantaria e guaritas pentagonais com cúpulas.",
+      "Acolhe hoje um museu histórico-militar sob a guarda da Associação de Comandos."
+    ],
+    "tip": "O forte fica na saída do Porto para Matosinhos, ao lado da praia do Castelo do Queijo e do farolim de Felgueiras — fácil de juntar a um passeio pela marginal. Pode visitar-se como museu; confirme os horários, que variam com a estação. Do lado de fora, o portão com as armas de Portugal, os fossos e a vista sobre o oceano são gratuitos. Os autocarros param no Castelo do Queijo; o estacionamento ao longo da Avenida do Brasil enche aos fins-de-semana, por isso vá de manhã.",
+    "gallery": [
+      {
+        "caption": "Castelo do Queijo: vista geral do forte sobre a sua rocha."
+      },
+      {
+        "caption": "O Forte de São Francisco Xavier: muralhas e baluartes."
+      }
+    ],
+    "panorama": null
+  },
+  "praia-ingleses": {
+    "name": "Praia dos Ingleses",
+    "year": "século XIX",
+    "short": "Praia urbana de areia na Foz do Douro, com o nome do século XIX ligado à comunidade britânica do Porto: areia fina, rochas na linha de água, Bandeira Azul e vista sobre o Atlântico.",
+    "long": "A Praia dos Ingleses é uma pequena praia urbana na elegante Foz do Douro, na fronteira entre o Porto e Matosinhos. Deve o nome ao século XIX e à numerosa comunidade britânica que ali era recebida: os ingleses lançaram a moda de fechar as casas na cidade e ir passar uns meses à beira-mar. A praia, de areia fina e dourada com formações rochosas na linha de água, tem Bandeira Azul; perto ficam o jardim do Passeio Alegre, o Forte de São João Baptista e o farolim de Felgueiras.",
+    "history": "O nome Praia dos Ingleses surgiu no século XIX e está ligado à comunidade britânica do Porto, aí especialmente visível. Os ingleses que viviam na cidade começaram o costume de se mudar para a costa no verão, e a Foz do Douro tornou-se o seu local preferido: desse hábito nasceu toda uma cultura de banhos de mar e de vida de veraneio que moldou o bairro.\n\nA própria Foz do Douro tornou-se freguesia em 1836, mas a sua história é bem mais antiga: a primeira capela, São João da Foz, foi doada pelo rei Afonso Henriques já em 1145 e passou ao mosteiro beneditino de Santo Tirso no século XIII. Os limites do Couto da Foz eram marcados por Matosinhos a norte e pelo Porto a leste. A praia fica na entrada da foz do Douro, uma das mais movimentadas portas marítimas do país.\n\nNos séculos XIX e XX construiu-se uma marginal e um passeio marítimo ao longo da Foz, ligando as praias ao jardim do Passeio Alegre, aos fortes e aos farolins. A Praia dos Ingleses tornou-se a praia clássica do veraneio: aqui chegava o eléctrico, montavam-se banheiros e cabinas de banho, e os pescadores vendiam o peixe na areia.\n\nHoje é uma praia urbana de areia fina e fundo suave, contígua à Praia do Castelo do Queijo. A costa está virada ao Atlântico aberto, por isso a água é fria e as ondas chegam do oceano — local apreciado por surfistas e por quem corre de manhã na marginal. Perto funcionam cafés e restaurantes com vista sobre a água.\n\nA praia tem Bandeira Azul e, com as praias vizinhas, forma o passeio da Foz. Daqui vêem-se os farolins de Felgueiras e de São Miguel-o-Anjo, o antigo Forte de São João Baptista e o ilhéu rochoso e, ao anoitecer, o sol a pôr-se sobre o Atlântico.",
+    "facts": [
+      "O nome da praia remonta ao século XIX e à comunidade britânica do Porto.",
+      "A colónia inglesa lançou a moda de ir para a costa no verão, moldando o veraneio da Foz.",
+      "A praia tem Bandeira Azul e cerca de 86 metros de areal.",
+      "A Foz do Douro tornou-se freguesia em 1836; a capela de São João da Foz é de 1145.",
+      "A praia fica na foz do Douro, perto do jardim do Passeio Alegre e do Forte de São João Baptista.",
+      "A costa está virada ao Atlântico aberto: a água é fria e as ondas são frequentes.",
+      "Perto ficam os farolins de Felgueiras e de São Miguel-o-Anjo e o Castelo do Queijo."
+    ],
+    "tip": "Venha de manhã — a faixa estreita de areia enche mais tarde e o vento do oceano aumenta. A água é sempre fria por causa do Atlântico aberto, por isso tome banho com cuidado: respeite as bandeiras e as ondas. Pode ir a pé desde o jardim do Passeio Alegre ou de eléctrico 1; há cafés e instalações sanitárias perto. Junte a visita ao Forte de São João Baptista e ao farolim de Felgueiras.",
+    "gallery": [
+      {
+        "caption": "Praia dos Ingleses: areia e oceano na Foz do Douro."
+      },
+      {
+        "caption": "A costa atlântica junto à Praia dos Ingleses."
+      }
+    ],
+    "panorama": null
+  },
+  "sealife-porto": {
+    "name": "SEA LIFE Porto",
+    "year": "2009",
+    "short": "Aquário na Foz do Douro aberto a 15 de Junho de 2009: túnel subaquático, zonas de rios e de litoral rochoso, pinguins, tubarões e o primeiro centro nacional de reprodução de corais ameaçados.",
+    "long": "O SEA LIFE Porto é um aquário familiar na Foz do Douro, ao lado do Castelo do Queijo, aberto a 15 de Junho de 2009. Pertence à rede europeia Sea Life, propriedade da Merlin Entertainments. A exposição está construída como uma viagem dos rios e ribeiros ao litoral rochoso e a um navio naufragado até ao oceano aberto: os visitantes passam por um túnel subaquático com tubarões, raias e outros animais marinhos por cima da cabeça. A conservação é um foco especial, incluindo o primeiro centro português de reprodução de corais ameaçados.",
+    "history": "O SEA LIFE Porto abriu a 15 de Junho de 2009 na Foz do Douro, mesmo à beira do Atlântico, junto ao Forte de São Francisco Xavier, conhecido como Castelo do Queijo. Desde o início funcionou como parte da rede internacional Sea Life, propriedade do grupo britânico Merlin Entertainments, que tem aquários também em Londres, Birmingham, Melbourne, Banguecoque e outras cidades do mundo.\n\nO edifício do aquário tem dois pisos. O percurso está desenhado como uma descida gradual às profundezas: o visitante entra primeiro nas zonas dos rios e ribeiros de Portugal, depois num litoral rochoso de maré, onde observa de perto os habitantes da costa norte, e a seguir no Navio Naufragado e no Reino de Salacia, a parte marinha da exposição. O percurso termina num túnel subaquático — um corredor transparente através do qual surgem grandes peixes e tubarões.\n\nAlém de tubarões e raias, o SEA LIFE Porto acolhe pinguins, cavalos-marinhos, lontras e muitas espécies de peixes de climas diferentes. Todos os dias há alimentações demonstrativas e conversas com a equipa, e um questionário mantém as crianças atentas: os mais novos respondem a perguntas sobre os animais ao longo da visita.\n\nO trabalho de conservação é uma vertente à parte. O aquário tem um Coral Maternity Center: no âmbito dos programas da fundação SEA LIFE Trust, é o primeiro projecto português de reprodução e distribuição de corais ameaçados, que abastece outros aquários da rede. Os visitantes ficam também a saber mais sobre a poluição plástica do oceano e como reduzi-la.\n\nHoje o SEA LIFE Porto continua a ser um dos atractivos familiares mais visitados da Foz do Douro. Combina facilmente com um passeio ao Castelo do Queijo, ao farolim de Felgueiras e à Praia dos Ingleses, e chega-se de eléctrico e dos autocarros que percorrem a Avenida do Brasil.",
+    "facts": [
+      "O aquário abriu a 15 de Junho de 2009 na Foz do Douro, ao lado do Castelo do Queijo.",
+      "Faz parte da rede internacional Sea Life, da Merlin Entertainments.",
+      "O percurso passa por um túnel subaquático com tubarões e raias.",
+      "As zonas incluem rios e ribeiros, litoral rochoso, navio naufragado e o Reino de Salacia.",
+      "Acolhe pinguins, cavalos-marinhos, lontras e muitas espécies de peixes.",
+      "Todos os dias há alimentações demonstrativas e conversas com a equipa.",
+      "O seu Coral Maternity Center é o primeiro centro nacional de reprodução de corais ameaçados.",
+      "Um questionário para crianças acompanha a visita."
+    ],
+    "tip": "Compre os bilhetes online — é mais barato e evita a fila, sobretudo em dias de chuva e aos fins-de-semana. A visita dura cerca de uma hora a hora e meia; veja antes os horários das alimentações e das conversas para as apanhar. O bilhete permite voltar no mesmo dia. Passam autocarros na Avenida do Brasil e o eléctrico serve a zona; o Castelo do Queijo e a praia ficam ao lado, por isso o passeio combina bem.",
+    "gallery": [
+      {
+        "caption": "O edifício do SEA LIFE Porto na Foz do Douro."
+      },
+      {
+        "caption": "SEA LIFE Porto: o interior da exposição do aquário."
+      }
+    ],
+    "panorama": null
   }
 };
 

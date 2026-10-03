@@ -17,7 +17,8 @@
 //           ln, lf, lb  lanes, lanes:forward, lanes:backward (integers)
 //           br  bridge value (yes, viaduct ...), bs bridge:structure
 //           tu  tunnel value (yes, building_passage, culvert ...)
-//           ly  layer (integer), ms maxspeed (km/h), sf surface, jn junction
+//           cv  covered value (yes: a cut-and-cover section with no tunnel tag)
+//           tn  tunnel:name, ly layer (integer), ms maxspeed (km/h), sf surface, jn junction
 //   j     junctions: flat [pointIndex, nodeId, ...]. nodeId is a dense index
 //         shared by every feature through the same OSM node: the traffic
 //         graph joins streets there. Every feature end is listed too.
@@ -28,6 +29,9 @@ import { CITY, BBOX, ORIGIN, overpass, simplify, r5, dataPath, cachePath, dataRe
 
 const OUT = dataPath('roads.json');
 const RAW = cachePath('roads-raw.json.gz');
+// bump when the Overpass query changes (currently v3: Metro do Porto
+// light_rail and covered=yes captured)
+const CACHE_V = 3;
 
 if (process.argv.includes('--dry-run')) {
   console.log(`city ${CITY.id}; data dir ${dataRel()}`);
@@ -39,12 +43,16 @@ if (process.argv.includes('--dry-run')) {
 const ROADS = 'motorway|trunk|primary|secondary|tertiary|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|unclassified|residential|living_street|pedestrian';
 const FOOT = 'footway|path|cycleway|steps|service|track|bridleway';
 const b = `${BBOX.s},${BBOX.w},${BBOX.n},${BBOX.e}`;
+// `light_rail` is the Metro do Porto (its tunnels are tunnel=yes /
+// tunnel=building_passage); it is fetched whole so the line is drawn up to
+// the portals. CP mainline rail is `railway=rail`.
 const QUERY = `[out:json][timeout:240];
 (
   way["highway"~"^(${ROADS})$"](${b});
   way["highway"~"^(${FOOT})$"]["bridge"]["bridge"!="no"](${b});
   way["waterway"~"^(river|stream)$"](${b});
   way["railway"="rail"](${b});
+  way["railway"~"^(light_rail|subway)$"](${b});
 );
 out body geom;`;
 
@@ -109,6 +117,9 @@ function tagsOf(t) {
   if (t['bridge:name']) o.bn = t['bridge:name'];
   if (t.tunnel && t.tunnel !== 'no') o.tu = t.tunnel;
   if (t['tunnel:name']) o.tn = t['tunnel:name'];
+  // covered=yes is a cut-and-cover section with no tunnel tag (the VCI under
+  // the centre, metro station boxes, arcades); the engine draws it as covered
+  if (t.covered && t.covered !== 'no') o.cv = t.covered;
   const ly = int(t.layer);
   if (ly) o.ly = ly;
   return o;
@@ -116,12 +127,16 @@ function tagsOf(t) {
 
 async function load() {
   if (!process.argv.includes('--fetch') && existsSync(RAW)) {
-    console.log(`using cached ${RAW}`);
-    return JSON.parse(gunzipSync(readFileSync(RAW)).toString('utf8'));
+    const cached = JSON.parse(gunzipSync(readFileSync(RAW)).toString('utf8'));
+    if (cached?.v === CACHE_V && Array.isArray(cached.els)) {
+      console.log(`using cached ${RAW}`);
+      return cached.els;
+    }
+    console.log('roads cache predates the current query; refetching');
   }
   const els = await overpass(QUERY, { label: 'roads', rounds: 4 });
   mkdirSync(dirname(RAW), { recursive: true });
-  writeFileSync(RAW, gzipSync(JSON.stringify(els)));
+  writeFileSync(RAW, gzipSync(JSON.stringify({ v: CACHE_V, els })));
   return els;
 }
 
@@ -211,7 +226,10 @@ for (const w of ways) {
       const p = [r5(outPts[k][0]), r5(outPts[k][1])];
       const osm = outIds[k];
       const end = k === 0 || k === outPts.length - 1;
-      const junction = isStreet && (end || (use.get(osm) || 0) > 1);
+      // every feature end keeps its OSM node id (rail and light_rail have no
+      // highway, but their tunnel pieces still join end to end: the engine
+      // chains them with these ids so a portal is drawn only at the open air)
+      const junction = end || (isStreet && (use.get(osm) || 0) > 1);
       if (P.length && P.at(-1)[0] === p[0] && P.at(-1)[1] === p[1]) {
         // rounded onto the previous point: the junction id moves there
         if (junction) {
@@ -231,7 +249,7 @@ for (const w of ways) {
     features.push(f);
     counts[kind] = (counts[kind] || 0) + 1;
     if (t.br || (t.ly > 0 && !t.tu)) structures.bridges.push(f);
-    if (t.tu || t.ly < 0) structures.tunnels.push(f);
+    if (t.tu || t.cv || t.ly < 0) structures.tunnels.push(f);
   }
 }
 if (features.length === 0) throw new Error('No features after conversion');
@@ -265,8 +283,13 @@ mkdirSync(dirname(OUT), { recursive: true });
 const json = JSON.stringify({ v: 2, source: '© OpenStreetMap contributors, ODbL 1.0', origin: ORIGIN, bbox: BBOX, nodes: dense.size, features });
 writeFileSync(OUT, json);
 console.log(`Wrote ${OUT}: ${features.length} features, ${dense.size} junction nodes, ${(json.length / 1024 / 1024).toFixed(2)} MB`, counts);
-const label = (f) => `${f.kind}/${f.t.hw || f.t.rw || f.t.ww} ${f.t.name || f.t.bn || f.t.tn || ''} ${f.t.ref || ''} br=${f.t.br || ''} tu=${f.t.tu || ''} ly=${f.t.ly ?? ''}`.replace(/\s+/g, ' ');
-console.log(`bridges ${structures.bridges.length}, tunnels ${structures.tunnels.length}`);
+const label = (f) => `${f.kind}/${f.t.hw || f.t.rw || f.t.ww} ${f.t.name || f.t.bn || f.t.tn || ''} ${f.t.ref || ''} br=${f.t.br || ''} tu=${f.t.tu || ''} cv=${f.t.cv || ''} ly=${f.t.ly ?? ''}`.replace(/\s+/g, ' ');
+const roadT = features.filter((f) => f.t?.hw && f.t.tu && f.t.tu !== 'building_passage' && f.t.tu !== 'covered');
+const coveredT = features.filter((f) => f.t?.hw && ((f.t.tu === 'building_passage' || f.t.tu === 'covered') || (!f.t.tu && f.t.cv)));
+const metroT = features.filter((f) => f.kind === 'rail' && f.t?.rw === 'light_rail' && (f.t.tu || f.t.cv));
+const railT = features.filter((f) => f.kind === 'rail' && f.t?.rw !== 'light_rail' && f.t?.tu);
+console.log(`bridges ${structures.bridges.length}, tunnel-tagged ways ${structures.tunnels.length}`);
+console.log(`  road tunnels (bored) ${roadT.length}, covered/cut-and-cover ${coveredT.length}, metro (light_rail) ${metroT.length}, CP rail ${railT.length}`);
 if (process.argv.includes('--list')) {
   for (const f of structures.bridges) console.log('  B', label(f), f.pts[0]);
   for (const f of structures.tunnels) console.log('  T', label(f), f.pts[0]);

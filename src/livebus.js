@@ -1,23 +1,24 @@
-// TUB buses at their scheduled positions.
+// Porto's transit vehicles at their scheduled positions.
 //
-//   - data: data/gtfs/schedule.json, built by scripts/fetch-gtfs.mjs from
-//     the TUB static GTFS (https://www.tub.pt/developer/gtfs/feed/tub.zip,
-//     listed on dados.gov.pt): 80 lines, their shapes, and every trip's stop
-//     times, grouped into patterns. Loaded at run time the first time live
-//     mode turns on (about 190 KB gzipped), not bundled;
-//   - only in live mode («Сейчас в Браге»): the clock is the real Lisbon
+//   - data: data/gtfs/schedule.json, built by scripts/fetch-gtfs.mjs from the
+//     STCP and Metro do Porto static GTFS feeds (dadosabertos.cm-porto.pt,
+//     CCZero): every route, its shapes and every trip's stop times, grouped
+//     into patterns. Loaded at run time the first time live mode turns on,
+//     not bundled;
+//   - only in live mode («Сейчас в Порту»): the clock is the real Lisbon
 //     time (or ?now=, running at 1x from that instant);
 //   - every trip running now is placed on its shape between the two stops
 //     it lies between, by its stop times; after midnight the previous
 //     service day's late trips still run;
-//   - at most 150 buses, the ones nearest the view first; instanced, with
-//     the line's colour on the side stripe (the feed has no route colours:
-//     they are hashed from the line number), lit windows at night; drawn
-//     1.3x life size so a 12 m bus reads on the map;
+//   - at most 150 vehicles, the ones nearest the view first; instanced, with
+//     the line's colour on the side stripe (from the feed when it publishes
+//     colours: STCP and Metro do); lit windows at night; drawn 1.3x life
+//     size so a 12 m bus reads on the map;
 //   - hover (tap on phones): line, headsign and the next stop.
-// Real time: TUB publishes no open GTFS-Realtime feed (its app uses a
-// private API). ?tubkey=KEY (or localStorage.tubKey) is kept as a hook for a
-// future keyed feed: TUB_RT_URL below is null until one exists.
+// Real time: neither operator publishes an open GTFS-Realtime feed here, so
+// the vehicles run on the schedule. ?rtkey=KEY (or localStorage.transitRtKey)
+// is kept as a hook for a future keyed feed: RT_URL below is null until one
+// exists.
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { t } from './i18n.js';
@@ -27,7 +28,7 @@ import { createHoverLabel, esc } from './liveair.js';
 import { lisbonClock, PRESET_HOUR, optInKey } from './traffic-model.js';
 
 const MAX = 150;
-const TUB_RT_URL = null; // a GTFS-RT VehiclePositions URL, when TUB opens one
+const RT_URL = null; // a GTFS-RT VehiclePositions URL, when an operator opens one
 const BUS_SCALE = 1.3;
 const RESELECT_MS = 1000;
 const LOAD_AFTER_MS = 2500;
@@ -96,8 +97,8 @@ export function createLiveBus({ scene, camera, renderer, project, heightAt, mobi
   let data = null; // the prepared schedule
   let status = 'waiting';
   let loadAt = performance.now() + LOAD_AFTER_MS;
-  const rtKey = optInKey('tubkey', 'tubKey');
-  if (rtKey) console.info(`[porto] TUB real-time: key stored, but TUB publishes no open GTFS-Realtime feed yet${TUB_RT_URL ? '' : ' (TUB_RT_URL is null)'}; the buses run on the schedule`);
+  const rtKey = optInKey('rtkey', 'transitRtKey');
+  if (rtKey) console.info(`[porto] transit real-time: key stored, but no operator publishes an open GTFS-Realtime feed yet${RT_URL ? '' : ' (RT_URL is null)'}; the buses run on the schedule`);
 
   async function load() {
     status = 'loading';
@@ -109,7 +110,7 @@ export function createLiveBus({ scene, camera, renderer, project, heightAt, mobi
       status = 'ok';
     } catch (e) {
       status = `unavailable: ${e.message}`;
-      console.info(`[porto] TUB schedule unavailable (${e.message}); no buses`);
+      console.info(`[porto] transit schedule unavailable (${e.message}); no buses`);
     }
   }
 
@@ -277,7 +278,7 @@ export function createLiveBus({ scene, camera, renderer, project, heightAt, mobi
   let shown = false;
   function update(adt, dt, view) {
     const tNow = performance.now();
-    // only in live mode («Сейчас в Браге»); the schedule loads on the first switch-on
+    // only in live mode («Сейчас в Порту»); the schedule loads on the first switch-on
     if (!live?.live) {
       if (shown) {
         shown = false;
@@ -360,7 +361,7 @@ export function createLiveBus({ scene, camera, renderer, project, heightAt, mobi
 
   function badge() {
     if (!live?.live || !data) return null;
-    return `${t('Автобусы {op}:').replace('{op}', CITY.transit?.operator || 'GTFS')} ${running} ${t('на линиях')} (${t(TUB_RT_URL && rtKey ? 'в реальном времени' : 'по расписанию')})`;
+    return `${t('Автобусы {op}:').replace('{op}', CITY.transit?.operator || 'GTFS')} ${running} ${t('на линиях')} (${t(RT_URL && rtKey ? 'в реальном времени' : 'по расписанию')})`;
   }
 
   return {

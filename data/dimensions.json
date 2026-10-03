@@ -1227,5 +1227,1485 @@
       }
     ],
     "confidence": "medium"
+  },
+  "ponte-sao-joao": {
+    "footprint_m": {
+      "length": 1147.1,
+      "width": 26.5,
+      "matches_osm": true,
+      "note": "OSM way 690242771 outline: 1147.1 x 26.5 m, bearing 48.5 deg."
+    },
+    "height_m": {
+      "total": 66
+    },
+    "elements": {},
+    "facade_faces": "NE",
+    "facade_azimuth_deg": 48.5,
+    "facade_axis_rel": "OSM outline orientation (bearing 48.5 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 48.5 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 690242771, \"Ponte de São João\"); 1147.1 x 26.5 m at bearing 48.5 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "url": "https://www.wikidata.org/wiki/Q7228153",
+        "fact": "bridge height above the Douro",
+        "value": "66 m (P2048); 250 m main arch; 1029 m total"
+      }
+    ],
+    "confidence": "high"
+  },
+  "ponte-infante": {
+    "footprint_m": {
+      "length": 405.6,
+      "width": 20,
+      "matches_osm": true,
+      "note": "OSM way 835566537 outline: 405.6 x 20 m, bearing 171.1 deg."
+    },
+    "height_m": {
+      "total": 75
+    },
+    "elements": {},
+    "facade_faces": "S",
+    "facade_azimuth_deg": 171.1,
+    "facade_axis_rel": "OSM outline orientation (bearing 171.1 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 171.1 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 835566537, \"Ponte Infante Dom Henrique\"); 405.6 x 20 m at bearing 171.1 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "url": "https://pt.wikipedia.org/wiki/Ponte_do_Infante_Dom_Henrique",
+        "fact": "bridge maximum height",
+        "value": "75 m altura máxima; 280 m arco; 370 m comprimento; 20 m largura"
+      }
+    ],
+    "confidence": "high"
+  },
+  "ponte-freixo": {
+    "footprint_m": {
+      "length": 747.4,
+      "width": 36.7,
+      "matches_osm": true,
+      "note": "OSM way 835569084 outline: 747.4 x 36.7 m, bearing 178.1 deg."
+    },
+    "height_m": {
+      "total": 35
+    },
+    "elements": {},
+    "facade_faces": "S",
+    "facade_azimuth_deg": 178.1,
+    "facade_axis_rel": "OSM outline orientation (bearing 178.1 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 178.1 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 835569084, \"Ponte do Freixo\"); 747.4 x 36.7 m at bearing 178.1 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Ponte do Freixo (1995): eight spans, main span 150 m; no published height. Its deck is described as much lower than the other Porto bridges, estimated about 35 m above the Douro."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "serra-do-pilar": {
+    "footprint_m": {
+      "length": 57.1,
+      "width": 16.6,
+      "matches_osm": true,
+      "note": "OSM relation 4673533 outline: 57.1 x 16.6 m, bearing 71.5 deg."
+    },
+    "height_m": {
+      "total": 30
+    },
+    "elements": {},
+    "facade_faces": "E",
+    "facade_azimuth_deg": 71.5,
+    "facade_axis_rel": "OSM outline orientation (bearing 71.5 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 71.5 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (relation 4673533, \"Mosteiro da Serra do Pilar\"); 57.1 x 16.6 m at bearing 71.5 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Mosteiro da Serra do Pilar: circular church with hemispherical dome and a bell tower; no published height, dome/tower about 30 m against the mapped complex."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "jardim-do-morro": {
+    "footprint_m": {
+      "length": 197.2,
+      "width": 102.3,
+      "matches_osm": true,
+      "note": "OSM way 98836111 outline: 197.2 x 102.3 m, bearing 166.6 deg."
+    },
+    "height_m": {
+      "total": 5
+    },
+    "elements": {},
+    "facade_faces": "S",
+    "facade_azimuth_deg": 166.6,
+    "facade_axis_rel": "OSM outline orientation (bearing 166.6 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 166.6 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 98836111, \"Jardim do Morro\"); 197.2 x 102.3 m at bearing 166.6 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Jardim do Morro is a flat terraced viewpoint garden; no built element rises above the trees, nominal 5 m."
+      }
+    ],
+    "confidence": "low"
+  },
+  "cais-gaia": {
+    "footprint_m": {
+      "length": 909,
+      "width": 182.7,
+      "matches_osm": true,
+      "note": "OSM way 1079535206 outline: 909 x 182.7 m, bearing 87.1 deg."
+    },
+    "height_m": {
+      "total": 12
+    },
+    "elements": {},
+    "facade_faces": "E",
+    "facade_azimuth_deg": 87.1,
+    "facade_axis_rel": "OSM outline orientation (bearing 87.1 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 87.1 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 1079535206, \"Cais de Gaia\"); 909 x 182.7 m at bearing 87.1 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Cais de Gaia: 2-3 storey lodge and warehouse row along the quay, about 12 m to the eaves; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "convento-corpus-christi": {
+    "footprint_m": {
+      "length": 76.7,
+      "width": 74.1,
+      "matches_osm": true,
+      "note": "OSM way 701396870 outline: 76.7 x 74.1 m, bearing 7.2 deg."
+    },
+    "height_m": {
+      "total": 18
+    },
+    "elements": {},
+    "facade_faces": "N",
+    "facade_azimuth_deg": 7.2,
+    "facade_axis_rel": "OSM outline orientation (bearing 7.2 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 7.2 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 701396870, \"Convento de Corpus Christi\"); 76.7 x 74.1 m at bearing 7.2 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Convento de Corpus Christi (1354, rebuilt after 1726): church nave and two-storey convent ranges, about 18 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "estacao-general-torres": {
+    "footprint_m": {
+      "length": 106.7,
+      "width": 8.2,
+      "matches_osm": true,
+      "note": "OSM way 1312447799 outline: 106.7 x 8.2 m, bearing 79.9 deg."
+    },
+    "height_m": {
+      "total": 12
+    },
+    "elements": {},
+    "facade_faces": "E",
+    "facade_azimuth_deg": 79.9,
+    "facade_axis_rel": "OSM outline orientation (bearing 79.9 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 79.9 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 1312447799, \"undefined\"); 106.7 x 8.2 m at bearing 79.9 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Estação de General Torres (1902 building): single-storey station on the line with a steep roof, about 12 m; no published height and no closed station building in OSM."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "trindade": {
+    "footprint_m": {
+      "length": 78.8,
+      "width": 30.1,
+      "matches_osm": true,
+      "note": "OSM way 286005374 outline: 78.8 x 30.1 m, bearing 33.3 deg."
+    },
+    "height_m": {
+      "total": 30
+    },
+    "elements": {},
+    "facade_faces": "NE",
+    "facade_azimuth_deg": 33.3,
+    "facade_axis_rel": "OSM outline orientation (bearing 33.3 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 33.3 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 286005374, \"Igreja da Santíssima Trindade\"); 78.8 x 30.1 m at bearing 33.3 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Igreja da Santíssima Trindade: granite Baroque church with a tall front; no published height, about 30 m including the pediment."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "congregados": {
+    "footprint_m": {
+      "length": 41.4,
+      "width": 17.3,
+      "matches_osm": true,
+      "note": "OSM way 395125611 outline: 41.4 x 17.3 m, bearing 13.5 deg."
+    },
+    "height_m": {
+      "total": 35
+    },
+    "elements": {},
+    "facade_faces": "N",
+    "facade_azimuth_deg": 13.5,
+    "facade_axis_rel": "OSM outline orientation (bearing 13.5 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 13.5 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 395125611, \"Igreja de Santo António dos Congregados\"); 41.4 x 17.3 m at bearing 13.5 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Igreja dos Congregados (1700s): twin bell towers with pyramid tops, about 35 m; no published height. OSM building:levels=4 (12.8 m) counts the nave only, overridden. (OSM tag gives 12.8 m, osm building:levels×3.2; overridden)"
+      }
+    ],
+    "confidence": "medium"
+  },
+  "lapa": {
+    "footprint_m": {
+      "length": 63.8,
+      "width": 50.8,
+      "matches_osm": true,
+      "note": "OSM way 128828528 outline: 63.8 x 50.8 m, bearing 54.6 deg."
+    },
+    "height_m": {
+      "total": 30
+    },
+    "elements": {},
+    "facade_faces": "NE",
+    "facade_azimuth_deg": 54.6,
+    "facade_axis_rel": "OSM outline orientation (bearing 54.6 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 54.6 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 128828528, \"Igreja da Lapa\"); 63.8 x 50.8 m at bearing 54.6 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Igreja da Lapa (1863): single façade with a bell tower, about 30 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "santa-clara": {
+    "footprint_m": {
+      "length": 42.9,
+      "width": 22.1,
+      "matches_osm": true,
+      "note": "OSM way 238893532 outline: 42.9 x 22.1 m, bearing 122.9 deg."
+    },
+    "height_m": {
+      "total": 18
+    },
+    "elements": {},
+    "facade_faces": "SE",
+    "facade_azimuth_deg": 122.9,
+    "facade_axis_rel": "OSM outline orientation (bearing 122.9 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 122.9 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 238893532, \"Igreja de Santa Clara\"); 42.9 x 22.1 m at bearing 122.9 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Igreja de Santa Clara (15th c., rebuilt 18th c.): single-nave church, about 18 m to the ridge; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "sao-nicolau": {
+    "footprint_m": {
+      "length": 37.8,
+      "width": 14.4,
+      "matches_osm": true,
+      "note": "OSM way 210565199 outline: 37.8 x 14.4 m, bearing 159.3 deg."
+    },
+    "height_m": {
+      "total": 18
+    },
+    "elements": {},
+    "facade_faces": "S",
+    "facade_azimuth_deg": 159.3,
+    "facade_axis_rel": "OSM outline orientation (bearing 159.3 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 159.3 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 210565199, \"Igreja de São Nicolau\"); 37.8 x 14.4 m at bearing 159.3 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Igreja de São Nicolau: Baroque church with a bell gable, about 18 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "sao-bento-vitoria": {
+    "footprint_m": {
+      "length": 113.2,
+      "width": 75.2,
+      "matches_osm": true,
+      "note": "OSM way 708946302 outline: 113.2 x 75.2 m, bearing 103 deg."
+    },
+    "height_m": {
+      "total": 25
+    },
+    "elements": {},
+    "facade_faces": "E",
+    "facade_azimuth_deg": 103,
+    "facade_axis_rel": "OSM outline orientation (bearing 103 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 103 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 708946302, \"Igreja e Mosteiro de São Bento da Vitória\"); 113.2 x 75.2 m at bearing 103 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Igreja e Mosteiro de São Bento da Vitória (1604): tall church façade with a tower and four-square monastery; about 25 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "cedofeita": {
+    "footprint_m": {
+      "length": 26.1,
+      "width": 11.6,
+      "matches_osm": true,
+      "note": "OSM way 167490112 outline: 26.1 x 11.6 m, bearing 69.7 deg."
+    },
+    "height_m": {
+      "total": 16
+    },
+    "elements": {},
+    "facade_faces": "E",
+    "facade_azimuth_deg": 69.7,
+    "facade_axis_rel": "OSM outline orientation (bearing 69.7 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 69.7 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 167490112, \"Igreja de São Martinho de Cedofeita\"); 26.1 x 11.6 m at bearing 69.7 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Igreja de São Martinho de Cedofeita (13th c., Romanesque): low single-nave church, about 16 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "santo-ildefonso": {
+    "footprint_m": {
+      "length": 38.2,
+      "width": 15.9,
+      "matches_osm": true,
+      "note": "OSM way 213578739 outline: 38.2 x 15.9 m, bearing 38.6 deg."
+    },
+    "height_m": {
+      "total": 30
+    },
+    "elements": {},
+    "facade_faces": "NE",
+    "facade_azimuth_deg": 38.6,
+    "facade_axis_rel": "OSM outline orientation (bearing 38.6 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 38.6 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 213578739, \"Igreja de Santo Ildefonso\"); 38.2 x 15.9 m at bearing 38.6 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Igreja de Santo Ildefonso (1739): twin towers flanking a tiled Baroque façade, about 30 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "miragaya-sao-pedro": {
+    "footprint_m": {
+      "length": 35.3,
+      "width": 18.8,
+      "matches_osm": true,
+      "note": "OSM way 216202560 outline: 35.3 x 18.8 m, bearing 121.8 deg."
+    },
+    "height_m": {
+      "total": 16
+    },
+    "elements": {},
+    "facade_faces": "SE",
+    "facade_azimuth_deg": 121.8,
+    "facade_axis_rel": "OSM outline orientation (bearing 121.8 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 121.8 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 216202560, \"Igreja de São Pedro de Miragaia\"); 35.3 x 18.8 m at bearing 121.8 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Igreja de São Pedro de Miragaia: modest Baroque church, about 16 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "capela-almas": {
+    "footprint_m": {
+      "length": 25.8,
+      "width": 12.7,
+      "matches_osm": true,
+      "note": "OSM way 365610859 outline: 25.8 x 12.7 m, bearing 106.1 deg."
+    },
+    "height_m": {
+      "total": 16
+    },
+    "elements": {},
+    "facade_faces": "E",
+    "facade_azimuth_deg": 106.1,
+    "facade_axis_rel": "OSM outline orientation (bearing 106.1 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 106.1 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 365610859, \"Capela das Almas\"); 25.8 x 12.7 m at bearing 106.1 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Capela das Almas (18th c.): small chapel with a blue-and-white tiled façade, about 16 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "foz-sao-joao-baptista": {
+    "footprint_m": {
+      "length": 54.7,
+      "width": 34.2,
+      "matches_osm": true,
+      "note": "OSM relation 13904442 outline: 54.7 x 34.2 m, bearing 155.4 deg."
+    },
+    "height_m": {
+      "total": 20
+    },
+    "elements": {},
+    "facade_faces": "SE",
+    "facade_azimuth_deg": 155.4,
+    "facade_axis_rel": "OSM outline orientation (bearing 155.4 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 155.4 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (relation 13904442, \"Igreja de São João Baptista da Foz do Douro\"); 54.7 x 34.2 m at bearing 155.4 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Igreja de São João Baptista da Foz (16th c.): nave with a bell tower, about 20 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "ramalde": {
+    "footprint_m": {
+      "length": 32.6,
+      "width": 17.1,
+      "matches_osm": true,
+      "note": "OSM way 167487542 outline: 32.6 x 17.1 m, bearing 78.9 deg."
+    },
+    "height_m": {
+      "total": 16
+    },
+    "elements": {},
+    "facade_faces": "E",
+    "facade_azimuth_deg": 78.9,
+    "facade_axis_rel": "OSM outline orientation (bearing 78.9 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 78.9 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 167487542, \"Igreja de Ramalde\"); 32.6 x 17.1 m at bearing 78.9 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Igreja de Ramalde: parish church with a bell gable, about 16 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "campanha": {
+    "footprint_m": {
+      "length": 103,
+      "width": 15.5,
+      "matches_osm": true,
+      "note": "OSM way 125513783 outline: 103 x 15.5 m, bearing 9.5 deg."
+    },
+    "height_m": {
+      "total": 18
+    },
+    "elements": {},
+    "facade_faces": "N",
+    "facade_azimuth_deg": 9.5,
+    "facade_axis_rel": "OSM outline orientation (bearing 9.5 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 9.5 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 125513783, \"Estação Ferroviária de Porto - Campanhã\"); 103 x 15.5 m at bearing 9.5 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Estação de Campanhã (1875): tall central station building with a clock gable, about 18 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "coliseu": {
+    "footprint_m": {
+      "length": 104.1,
+      "width": 58.8,
+      "matches_osm": true,
+      "note": "OSM way 223346220 outline: 104.1 x 58.8 m, bearing 51.1 deg."
+    },
+    "height_m": {
+      "total": 32
+    },
+    "elements": {},
+    "facade_faces": "NE",
+    "facade_azimuth_deg": 51.1,
+    "facade_axis_rel": "OSM outline orientation (bearing 51.1 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 51.1 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 223346220, \"Coliseu do Porto\"); 104.1 x 58.8 m at bearing 51.1 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Coliseu do Porto (1941): large auditorium with a domed roof, about 32 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "museu-soares-dos-reis": {
+    "footprint_m": {
+      "length": 165.2,
+      "width": 150.8,
+      "matches_osm": true,
+      "note": "OSM way 261265893 outline: 165.2 x 150.8 m, bearing 101.2 deg."
+    },
+    "height_m": {
+      "total": 16
+    },
+    "elements": {},
+    "facade_faces": "E",
+    "facade_azimuth_deg": 101.2,
+    "facade_axis_rel": "OSM outline orientation (bearing 101.2 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 101.2 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 261265893, \"Museu Nacional Soares dos Reis\"); 165.2 x 150.8 m at bearing 101.2 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Museu Nacional Soares dos Reis in the Palácio dos Carrancas: two tall storeys, about 16 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "casa-do-infante": {
+    "footprint_m": {
+      "length": 52.4,
+      "width": 46.6,
+      "matches_osm": true,
+      "note": "OSM relation 2880925 outline: 52.4 x 46.6 m, bearing 76.5 deg."
+    },
+    "height_m": {
+      "total": 14
+    },
+    "elements": {},
+    "facade_faces": "E",
+    "facade_azimuth_deg": 76.5,
+    "facade_axis_rel": "OSM outline orientation (bearing 76.5 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 76.5 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (relation 2880925, \"Museu Municipal Casa do Infante\"); 52.4 x 46.6 m at bearing 76.5 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Casa do Infante (14th c., rebuilt): medieval customs house and museum, about 14 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "alfandega-nova": {
+    "footprint_m": {
+      "length": 66.1,
+      "width": 57,
+      "matches_osm": true,
+      "note": "OSM relation 9818049 outline: 66.1 x 57 m, bearing 130.2 deg."
+    },
+    "height_m": {
+      "total": 20
+    },
+    "elements": {},
+    "facade_faces": "SE",
+    "facade_azimuth_deg": 130.2,
+    "facade_axis_rel": "OSM outline orientation (bearing 130.2 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 130.2 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (relation 9818049, \"Alfândega Nova do Porto\"); 66.1 x 57 m at bearing 130.2 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Alfândega Nova (1860, Jean Colson): long neoclassical granite customs house with an iron interior; about 20 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "museu-romantico": {
+    "footprint_m": {
+      "length": 46.1,
+      "width": 19,
+      "matches_osm": true,
+      "note": "OSM way 255778741 outline: 46.1 x 19 m, bearing 30.8 deg."
+    },
+    "height_m": {
+      "total": 12
+    },
+    "elements": {},
+    "facade_faces": "NE",
+    "facade_azimuth_deg": 30.8,
+    "facade_axis_rel": "OSM outline orientation (bearing 30.8 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 30.8 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 255778741, \"Museu do Romântico\"); 46.1 x 19 m at bearing 30.8 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Museu Romântico (Casa dos Macieirinha): two-storey villa with a garden, about 12 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "casa-guerra-junqueiro": {
+    "footprint_m": {
+      "length": 62.5,
+      "width": 26.6,
+      "matches_osm": true,
+      "note": "OSM way 210461454 outline: 62.5 x 26.6 m, bearing 19.4 deg."
+    },
+    "height_m": {
+      "total": 14
+    },
+    "elements": {},
+    "facade_faces": "N",
+    "facade_azimuth_deg": 19.4,
+    "facade_axis_rel": "OSM outline orientation (bearing 19.4 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 19.4 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 210461454, \"Casa-Museu Guerra Junqueiro\"); 62.5 x 26.6 m at bearing 19.4 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Casa-Museu Guerra Junqueiro (17th c.): granite bourgeois house, about 14 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "teatro-rivoli": {
+    "footprint_m": {
+      "length": 82.2,
+      "width": 22.6,
+      "matches_osm": true,
+      "note": "OSM way 224769221 outline: 82.2 x 22.6 m, bearing 103.6 deg."
+    },
+    "height_m": {
+      "total": 25
+    },
+    "elements": {},
+    "facade_faces": "E",
+    "facade_azimuth_deg": 103.6,
+    "facade_axis_rel": "OSM outline orientation (bearing 103.6 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 103.6 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 224769221, \"Teatro Municipal Rivoli\"); 82.2 x 22.6 m at bearing 103.6 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Teatro Rivoli (1913): five-storey theatre block with an auditorium fly tower, about 25 m; no published height. OSM building:levels=5 (16 m) counts the street front, overridden. (OSM tag gives 16 m, osm building:levels×3.2; overridden)"
+      }
+    ],
+    "confidence": "medium"
+  },
+  "cinema-batalha": {
+    "footprint_m": {
+      "length": 39.3,
+      "width": 27.5,
+      "matches_osm": true,
+      "note": "OSM way 213576697 outline: 39.3 x 27.5 m, bearing 152.1 deg."
+    },
+    "height_m": {
+      "total": 22
+    },
+    "elements": {},
+    "facade_faces": "SE",
+    "facade_azimuth_deg": 152.1,
+    "facade_axis_rel": "OSM outline orientation (bearing 152.1 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 152.1 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 213576697, \"Batalha Centro de Cinema\"); 39.3 x 27.5 m at bearing 152.1 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Batalha Centro de Cinema (1947, Artur Andrade): Art Deco cinema block, about 22 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "cadeia-relacao": {
+    "footprint_m": {
+      "length": 63,
+      "width": 62.7,
+      "matches_osm": true,
+      "note": "OSM relation 2883918 outline: 63 x 62.7 m, bearing 11.5 deg."
+    },
+    "height_m": {
+      "total": 20
+    },
+    "elements": {},
+    "facade_faces": "N",
+    "facade_azimuth_deg": 11.5,
+    "facade_axis_rel": "OSM outline orientation (bearing 11.5 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 11.5 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (relation 2883918, \"Antiga Cadeia e Tribunal da Relação do Porto\"); 63 x 62.7 m at bearing 11.5 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Antiga Cadeia da Relação (1765): three-storey granite prison and court, about 20 m; no published height. OSM building:levels=3 (9.6 m) counts one range, overridden. (OSM tag gives 9.6 m, osm building:levels×3.2; overridden)"
+      }
+    ],
+    "confidence": "medium"
+  },
+  "almeida-garrett": {
+    "footprint_m": {
+      "length": 35,
+      "width": 6.8,
+      "matches_osm": true,
+      "note": "OSM way 216140291 outline: 35 x 6.8 m, bearing 101.2 deg."
+    },
+    "height_m": {
+      "total": 14
+    },
+    "elements": {},
+    "facade_faces": "E",
+    "facade_azimuth_deg": 101.2,
+    "facade_axis_rel": "OSM outline orientation (bearing 101.2 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 101.2 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 216140291, \"Casa onde Nasceu Almeida Garrett\"); 35 x 6.8 m at bearing 101.2 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Casa natal de Almeida Garrett: 18th c. granite house, about 14 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "museu-misericordia": {
+    "footprint_m": {
+      "length": 65.2,
+      "width": 41.1,
+      "matches_osm": true,
+      "note": "OSM relation 9680615 outline: 65.2 x 41.1 m, bearing 132.7 deg."
+    },
+    "height_m": {
+      "total": 18
+    },
+    "elements": {},
+    "facade_faces": "SE",
+    "facade_azimuth_deg": 132.7,
+    "facade_axis_rel": "OSM outline orientation (bearing 132.7 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 132.7 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (relation 9680615, \"Museu e Igreja da Misericórdia do Porto\"); 65.2 x 41.1 m at bearing 132.7 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Museu e Igreja da Misericórdia: Baroque church with a museum wing, about 18 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "parque-cidade": {
+    "footprint_m": {
+      "length": 1483.4,
+      "width": 688.2,
+      "matches_osm": true,
+      "note": "OSM way 559610396 outline: 1483.4 x 688.2 m, bearing 102.5 deg."
+    },
+    "height_m": {
+      "total": 6
+    },
+    "elements": {},
+    "facade_faces": "E",
+    "facade_azimuth_deg": 102.5,
+    "facade_axis_rel": "OSM outline orientation (bearing 102.5 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 102.5 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 559610396, \"Parque da Cidade\"); 1483.4 x 688.2 m at bearing 102.5 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Parque da Cidade (1993): flat coastal park; the low pavilions/cafe are the only built elements, estimated 6 m (no mapped building in OSM)."
+      }
+    ],
+    "confidence": "low"
+  },
+  "cordoaria": {
+    "footprint_m": {
+      "length": 278.8,
+      "width": 211,
+      "matches_osm": true,
+      "note": "OSM way 1474400372 outline: 278.8 x 211 m, bearing 114.4 deg."
+    },
+    "height_m": {
+      "total": 6
+    },
+    "elements": {},
+    "facade_faces": "SE",
+    "facade_azimuth_deg": 114.4,
+    "facade_axis_rel": "OSM outline orientation (bearing 114.4 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 114.4 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 1474400372, \"Campo dos Mártires da Pátria\"); 278.8 x 211 m at bearing 114.4 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Jardim da Cordoaria (1865): flat romantic garden; the bandstand and sculptures rise to about 6 m."
+      }
+    ],
+    "confidence": "low"
+  },
+  "sao-lazaro": {
+    "footprint_m": {
+      "length": 109.8,
+      "width": 66.2,
+      "matches_osm": true,
+      "note": "OSM way 615959558 outline: 109.8 x 66.2 m, bearing 83.1 deg."
+    },
+    "height_m": {
+      "total": 8
+    },
+    "elements": {},
+    "facade_faces": "E",
+    "facade_azimuth_deg": 83.1,
+    "facade_axis_rel": "OSM outline orientation (bearing 83.1 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 83.1 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 615959558, \"Jardim de São Lázaro\"); 109.8 x 66.2 m at bearing 83.1 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Jardim de São Lázaro (1834): flat garden; the cast-iron Coreto bandstand rises to about 8 m."
+      }
+    ],
+    "confidence": "low"
+  },
+  "passeio-alegre": {
+    "footprint_m": {
+      "length": 394,
+      "width": 147.1,
+      "matches_osm": true,
+      "note": "OSM relation 8521873 outline: 394 x 147.1 m, bearing 91.7 deg."
+    },
+    "height_m": {
+      "total": 8
+    },
+    "elements": {},
+    "facade_faces": "E",
+    "facade_azimuth_deg": 91.7,
+    "facade_axis_rel": "OSM outline orientation (bearing 91.7 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 91.7 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (relation 8521873, \"Jardim do Passeio Alegre\"); 394 x 147.1 m at bearing 91.7 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Jardim do Passeio Alegre: flat riverside garden; the Coreto and the 18th c. fountain rise to about 8 m."
+      }
+    ],
+    "confidence": "low"
+  },
+  "praca-batalha": {
+    "footprint_m": {
+      "length": 188.2,
+      "width": 107.1,
+      "matches_osm": true,
+      "note": "OSM way 223622276 outline: 188.2 x 107.1 m, bearing 11.7 deg."
+    },
+    "height_m": {
+      "total": 25
+    },
+    "elements": {},
+    "facade_faces": "N",
+    "facade_azimuth_deg": 11.7,
+    "facade_axis_rel": "OSM outline orientation (bearing 11.7 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 11.7 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 223622276, \"Praça da Batalha\"); 188.2 x 107.1 m at bearing 11.7 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Praça da Batalha is a flat square; the tall element is the adjacent Teatro Nacional São João / Igreja de Santo Ildefonso frontage, about 25 m."
+      }
+    ],
+    "confidence": "low"
+  },
+  "castelo-queijo": {
+    "footprint_m": {
+      "length": 55.8,
+      "width": 34.8,
+      "matches_osm": true,
+      "note": "OSM way 160503628 outline: 55.8 x 34.8 m, bearing 26.2 deg."
+    },
+    "height_m": {
+      "total": 12
+    },
+    "elements": {},
+    "facade_faces": "NE",
+    "facade_azimuth_deg": 26.2,
+    "facade_axis_rel": "OSM outline orientation (bearing 26.2 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 26.2 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 160503628, \"Forte de São Francisco Xavier\"); 55.8 x 34.8 m at bearing 26.2 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Forte de São Francisco Xavier do Queijo (1662): low star fort with a gatehouse, about 12 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "praia-ingleses": {
+    "footprint_m": {
+      "length": 290.4,
+      "width": 77.7,
+      "matches_osm": true,
+      "note": "OSM way 71293460 outline: 290.4 x 77.7 m, bearing 150.8 deg."
+    },
+    "height_m": {
+      "total": 2
+    },
+    "elements": {},
+    "facade_faces": "SE",
+    "facade_azimuth_deg": 150.8,
+    "facade_axis_rel": "OSM outline orientation (bearing 150.8 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 150.8 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 71293460, \"Praia dos Ingleses\"); 290.4 x 77.7 m at bearing 150.8 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Praia dos Ingleses is a flat sandy beach; nominal 2 m for the dune/beach profile, no built element."
+      }
+    ],
+    "confidence": "low"
+  },
+  "sealife-porto": {
+    "footprint_m": {
+      "length": 44.4,
+      "width": 38.5,
+      "matches_osm": true,
+      "note": "OSM way 110801272 outline: 44.4 x 38.5 m, bearing 174.8 deg."
+    },
+    "height_m": {
+      "total": 12
+    },
+    "elements": {},
+    "facade_faces": "S",
+    "facade_azimuth_deg": 174.8,
+    "facade_axis_rel": "OSM outline orientation (bearing 174.8 deg)",
+    "facade_note": "Facade direction taken from the OSM outline's principal axis (bearing 174.8 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 110801272, \"Sea Life Porto\"); 44.4 x 38.5 m at bearing 174.8 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Sea Life Porto (2009): two-storey aquarium block, about 12 m; no published height. OSM building:levels=2 (6.4 m) counts the low wing, overridden. (OSM tag gives 6.4 m, osm building:levels×3.2; overridden)"
+      }
+    ],
+    "confidence": "medium"
   }
 }

@@ -628,6 +628,1099 @@ export const landmarks = {
       }
     ],
     "panorama": null
+  },
+  "ponte-sao-joao": {
+    "name": "São João Bridge",
+    "year": "1991",
+    "short": "The railway bridge over the Douro opened on 24 June 1991 to replace the century-old Maria Pia bridge: about 1,147 metres, a 250-metre main span, a continuous concrete frame on vertical piers.",
+    "long": "The São João Bridge carries the Linha do Norte across the Douro between Porto and Vila Nova de Gaia. Unlike most of the city's crossings it is not an arch but a continuous multi-span frame on vertical piers: a central span of 250 metres and two side spans of 125 metres, carried by two piers standing in the river bed. With its approach viaducts it is roughly 1,147 metres long. Designed by the engineer Edgar Cardoso in reinforced and prestressed concrete, it replaced the single-track Maria Pia bridge of 1877 and became the most important structure of the new generation of Portuguese concrete railway bridges.",
+    "history": "As early as 1934 the Companhia dos Caminhos de Ferro Portugueses was planning a second crossing of the Douro at Porto, to relieve the only railway link then in place, the single-track D. Maria Pia bridge of 1877. Slow and one-track, it produced serious bottlenecks. In 1966 the company set out to double the line between General Torres and Porto-Campanhã and entrusted the preliminary design of a new double-track crossing to the engineer Edgar Cardoso, the builder of the Arrábida viaduct. But the estimate of about 120 million escudos was too heavy, and the work was postponed to the third development plan (1968–1973).\n\nThe idea was revived only in the 1980s. Decree-Law 307/81 created the Office of the Railway Bridge over the Douro, and Decree-Law 347 of 15 October 1986 widened it into the Office of the Porto Railway Junction. Programme 1 covered the new double-track crossing and its approaches: on the south bank the remodelling of Gaia station with new quays, the Devesas viaduct, a new General Torres station, a tunnel in the Serra do Pilar and a 360-metre viaduct by the bridge; on the north bank a 170-metre approach viaduct.\n\nConstruction was by the FERDOURO-ACE consortium of Soares da Costa, Teixeira Duarte and OPCA, supervised by Bratex-Agrupamento. Structurally the bridge is a single continuous frame on vertical piers: three spans (250 + 125 + 125 m) and two piers in the river. The main girder is a trapezoidal, two-cell box varying from 4 metres deep on the viaducts to 14 metres over the river piers and 7 metres at mid-span. Both tracks rest directly on the top slab, and the strip between and beside the rails is filled with porous concrete that acts as a brake in a derailment. Each main pier foundation is strengthened with 130 micro-piles of concrete with five A500NR bars 50 mm across and 12 metres long, driven into the rocky river bed.\n\nThe bridge was opened on St John's Day, 24 June 1991, next to the Maria Pia bridge, which closed that same year. The programme was formally finished in early 1994, when the new General Torres station opened. The whole project cost 30 million contos, of which 12 million went on the bridge itself. For its scale and forms the São João was called the most important of Portugal's new generation of reinforced- and prestressed-concrete railway bridges.\n\nIn the 21st century the bridge is kept in service: in 2020 delaminated concrete was replaced at a cost of €0.843 million without interrupting traffic. High-speed trains are expected to use it towards the Porto-Campanhã terminal, which will require the tracks to be modified.",
+    "facts": [
+      "Opened on 24 June 1991, St John's Day; it carries the double-track Linha do Norte.",
+      "Total length about 1,147 metres (the Wikipedia infobox gives 1,140 m): a 250 m central span and two 125 m side spans.",
+      "It is not an arch but a continuous multi-span frame on vertical piers, in reinforced and prestressed concrete.",
+      "The box girder varies from 4 m deep on the approaches to 14 m over the river piers and 7 m at mid-span.",
+      "Each of the two river piers is founded on 130 A500NR micro-piles driven into the rocky bed of the Douro.",
+      "Built by the FERDOURO-ACE consortium (Soares da Costa, Teixeira Duarte, OPCA); designed by the engineer Edgar Cardoso.",
+      "The bridge alone cost about 12 million contos within a 30 million conto programme.",
+      "It replaced the single-track D. Maria Pia bridge of 1877."
+    ],
+    "tip": "The best views are from the Ribeira quay, from the Serra do Pilar monastery and from the upper deck of the Luís I bridge. Trains cross the São João almost daily and are most photogenic at sunset, when the light falls on the concrete from the Porto side. The easiest approach is by metro to São Bento or by train to Campanhã, then a walk down to the river.",
+    "gallery": [
+      {
+        "caption": "The São João Bridge seen from the air among Porto's railway bridges."
+      },
+      {
+        "caption": "The São João Bridge from the Vila Nova de Gaia bank."
+      },
+      {
+        "caption": "The São João Bridge over the Douro."
+      }
+    ],
+    "panorama": null
+  },
+  "ponte-infante": {
+    "name": "Infante Dom Henrique Bridge",
+    "year": "2003",
+    "short": "The concrete arch bridge over the Douro opened on 30 March 2003: a 280-metre arch, up to 75 metres high, 20 metres wide; it replaced the upper roadway of the Luís I bridge.",
+    "long": "The Infante Dom Henrique Bridge, also known as the Infante Bridge, is the newest of the road bridges between Porto and Vila Nova de Gaia. It is named after Prince Henry the Navigator, who was born in Porto. It stands just upstream of the Luís I bridge, in the historic centre, linking the Fontainhas district of Porto with the Serra do Pilar in Gaia. A high-level deck about 371 metres long (some 405 m with its approaches) and 20 metres wide rests on a reinforced-concrete arch with a 280-metre span; the maximum height is 75 metres above the Douro. A span-to-rise ratio of 11.2 made it a world record for this type of bridge.",
+    "history": "The Infante Bridge was built to replace the upper roadway of the Luís I bridge, which was then given over to the Porto Metro's Yellow Line (Hospital de São João – Santo Ovídio). The new crossing was meant to keep the historic districts of Fontainhas and Serra do Pilar connected and to relieve the 1886 bridge.\n\nThe design was by the Spanish firm IDEAM under José Antonio Fernández Ordóñez; the engineers were António Adão da Fonseca and Francisco Millanes Mato, with Afassociados ensuring compliance with Portuguese regulations. Construction took 27 months and cost 14 million euros.\n\nThe structure is a box girder 4.5 metres deep resting on a flexible arch only 1.5 metres thick. The high-level bridge is about 371 metres long and 20 metres wide. It carries two lanes each way, a one-metre central divider and three-metre side walks with safety railings. The lighting sits at a low level so that the roadway is lit evenly, without hard shadows. The arch follows the solution the Swiss engineer Robert Maillart used in his Alpine bridges: a rise of 25 metres between crown and springing for a 280-metre arch, a ratio of 11.2.\n\nThe bridge was inaugurated on 30 March 2003. Like the other Porto–Gaia crossings, it set a record for its type and has served as a reference for many arch bridges built since.",
+    "facts": [
+      "Opened on 30 March 2003.",
+      "Reinforced-concrete arch with a 280-metre span; total length about 371 m (405.6 m including approaches by OSM), width 20 metres.",
+      "Maximum height 75 metres above the Douro.",
+      "An arch rise of 25 metres gives a span-to-rise ratio of 11.2, a world record for the type.",
+      "The main deck is a 4.5-metre box girder on a flexible arch 1.5 metres thick.",
+      "Designed by António Adão da Fonseca and Francisco Millanes (IDEAM, José Antonio Fernández Ordóñez); 27 months, €14 million.",
+      "Replaced the upper roadway of the Luís I bridge, now the Metro's Yellow Line.",
+      "Links Fontainhas in Porto with Serra do Pilar in Gaia."
+    ],
+    "tip": "The best place to see the new arch is from the upper and lower decks of the Luís I bridge and from the Serra do Pilar viewpoint. At sunset the arch is lit and reflected in the water, which makes it easy to photograph from the Ribeira quay. The easiest approach is on foot from São Bento metro station (about 15 minutes), or by crossing the Infante bridge itself by bus.",
+    "gallery": [
+      {
+        "caption": "The Infante Dom Henrique Bridge, general view."
+      },
+      {
+        "caption": "The Infante Dom Henrique Bridge over the Douro."
+      },
+      {
+        "caption": "The Infante Bridge seen from the quay."
+      }
+    ],
+    "panorama": null
+  },
+  "ponte-freixo": {
+    "name": "Freixo Bridge",
+    "year": "1995",
+    "short": "The road bridge over the Douro opened in September 1995: two parallel portal-frame decks 10 cm apart, eight spans, a 150-metre main span, a low deck; the most upstream of Porto's bridges.",
+    "long": "The Freixo Bridge links Porto and Vila Nova de Gaia on the A20 / IP1 / E01 motorway. Of all the bridges joining the city to the south bank it stands furthest upstream, that is, furthest east. It is in fact two parallel portal-frame bridges set side by side only 10 centimetres apart. The bridge has eight spans, the main one 150 metres, and eight traffic lanes (four on each half). Its low deck sits well below every other bridge between Porto and Gaia.",
+    "history": "The Freixo Bridge was planned to relieve the Arrábida and Luís I bridges, where traffic congestion had become particularly bad from the late 1980s. The design was by Professor António Reis. The bridge opened in September 1995, inaugurated by the then Junta Autónoma das Estradas (JAE).\n\nStructurally it is two frames pressed almost together: two parallel bridges 10 centimetres apart, with eight spans and a 150-metre main span. The bridge carries eight traffic lanes, four in each direction. Its deck is set at far lower levels than every other Porto–Gaia crossing, so vessels pass more freely beneath it.\n\nThe bridge became part of the eastern A20 ring road linking the northern and southern parts of Greater Porto. In 2011 an average of 95,000 vehicles crossed it every day, making it one of the busiest stretches in the city.\n\nThe bridge takes its name from the Freixo district on the Porto bank, where the Palácio do Freixo stands — an 18th-century Baroque mansion, once a flour mill and now a hotel, with a former monastery beside it. The crossing links the A20 with the eastern suburbs and the A1, so the traffic has never eased, and it remains the Porto–Gaia bridge with the greatest number of spans.",
+    "facts": [
+      "Opened in September 1995.",
+      "Made of two parallel portal-frame bridges set just 10 centimetres apart.",
+      "Eight spans, with a 150-metre main span.",
+      "Eight traffic lanes: four on each half.",
+      "Carries the A20 / IP1 / E01 motorway; about 95,000 vehicles a day in 2011.",
+      "Designed by the engineer and professor António Reis.",
+      "Its deck sits far lower than every other Porto–Gaia bridge.",
+      "The most upstream (easternmost) of Porto's six Douro bridges."
+    ],
+    "tip": "The Freixo Bridge is not very accessible on foot, but it is clearly seen from the train between Campanhã and Gaia and from the quay further upstream. For the classic view of the low crossing, take the metro to Campanhã and walk down to the river by Freixo. At sunset the light comes from the Porto side and picks out the long line of spans.",
+    "gallery": [
+      {
+        "caption": "The Freixo Bridge looking upstream."
+      },
+      {
+        "caption": "The Freixo Bridge from the water."
+      },
+      {
+        "caption": "The Freixo Bridge from the Vila Nova de Gaia bank."
+      }
+    ],
+    "panorama": null
+  },
+  "serra-do-pilar": {
+    "name": "Monastery of Serra do Pilar",
+    "year": "1672",
+    "short": "A Renaissance monastery on the Gaia hill facing Porto: a round church and a round cloister of the same diameter, under a hemispherical dome; a national monument and a UNESCO site since 1996.",
+    "long": "The Monastery of Serra do Pilar, also the Monastery of Saint Augustine of Serra do Pilar, stands on a hill on the south bank of the Douro, facing Porto's historic centre and the Luís I bridge. It belonged to the order of Augustinian canons. Construction began in 1538 (some sources say 1537) and stretched over a century and a half; the church was re-inaugurated on 17 July 1672. The complex is considered one of the most remarkable buildings of European classical architecture for its unique design: both the church and the cloister are circular and of the same diameter. It is the only monastery in Portugal with a circular church and cloister.",
+    "history": "The scheme dates from 1527, when King John III and Frei Brás de Barros sought to unite all the houses of the Augustinian canons into a single congregation based at Santa Cruz in Coimbra, moving the community of the decaying Grijó monastery to a prominent site near Porto. The hill of Serra de São Nicolau on the south bank of the Douro was chosen. Construction began in 1538 and four years later the friars moved into new, still provisional quarters; the first church was consecrated in 1544. The essentials were finished by 1564 and the cloister was completed by 1583. The original designer is unknown; the documents name Diogo de Castilho and João de Ruão and it was probably a joint work to a general scheme by Frei Brás de Barros.\n\nThe original layout did not last: in 1597 work began on a larger new church, the first being thought too small, and in 1599 the monastery's dedication changed to Saint Augustine. Work dragged on and the dome stood unfinished for years. The main body was completed between 1669 and 1672, with the new inauguration on 17 July 1672. In 1690 two stonework contracts were signed to build a retrochoir (to a design by Domingos Lopes), which required dismantling and rebuilding the Renaissance cloister once more; the next year Filipe Silva was commissioned to make the main altar. These final works gave the monastery its present form.\n\nThe monastery's geo-military value, on its commanding height, showed during the French invasions (1807–1814), the Siege of Porto (1832–1833) and the Maria da Fonte troubles (1846–1847), when a fortified system grew around it. In 1835, after the extinction of the religious orders (1834) and the transfer of the building to the state, Serra do Pilar was made a first-class Praça de Guerra. The wars left several buildings ruined, especially the south wing, whose reconstruction began in 1927. In 1947 part of the premises was given to the 2nd Heavy Artillery Regiment for a small museum, and ten years later the church reopened for worship.\n\nArchitecturally the monastery is a rare adaptation of civil-architecture models to monastic building, blending Renaissance and Mannerist elements. The central nucleus combines the circular, domed church, a rectangular chancel and retrochoir, and a circular single-storey cloister; north and south wings carry the remaining convent rooms. The cloister, known as the Cloister of Silence, is ringed by a vaulted gallery on 36 Ionic columns in groups of nine, with four small circular chapels opening off it, a fountain at its centre and 72 graves in the gallery floor. The balustrade carries the inscription ANNO/DOMINI/NOSTRI/1692.\n\nThe church has the same diameter as the cloister; it is covered by a hemispherical vault with a lantern and its walls are rhythmically divided by pilasters. Eight large niches below form chapels, with tall windows above. Between the severity of the Renaissance and the ornamental Mannerism of northern origin typical of 17th-century Porto there is a tense dialogue, especially visible in the portal with its Ionic columns and Mannerist pediment.\n\nThe church and cloister were declared a national monument in 1910; the chapter house, refectory, kitchen, tower and chapel became imóveis de interesse público in 1935. In 1996 the monastery was listed as UNESCO World Heritage together with Porto's historic centre and the Luís I bridge. Since 2012 it has been open to the public with a heritage promotion space, run with the brotherhood that maintains the church and the Portuguese Army, which occupies part of the building.",
+    "facts": [
+      "Construction began in 1538 (some sources say 1537); the new church started in 1597 and was re-inaugurated on 17 July 1672.",
+      "The church and cloister are both circular and of the same diameter — the only such case in Portugal.",
+      "The cloister has 36 Ionic columns in four groups of nine, four circular chapels and 72 graves in the floor; the balustrade is dated 1692.",
+      "The church is covered by a hemispherical dome with a lantern (dome built 1660–1672); the retrochoir dates from 1690–1693.",
+      "A national monument since 1910; other parts are imóveis de interesse público from 1935.",
+      "A UNESCO World Heritage site since 1996, with Porto's historic centre and the Luís I bridge.",
+      "It served as a first-class Praça de Guerra during the Siege of Porto (1832–1833) and the French invasions.",
+      "It belonged to the Augustinian canons and was dedicated to Saint Augustine in 1599."
+    ],
+    "tip": "The best time to climb to the monastery is early morning or sunset, when the terrace gives a panorama of Porto, the Ribeira and the Luís I bridge. The easiest approach is across the upper deck of the Luís I bridge from São Bento metro station, then up on foot or by the cable car. Entry to the church is free, but it is crowded in summer and at weekends.",
+    "gallery": [
+      {
+        "caption": "The church of Serra do Pilar, the round domed rotunda."
+      },
+      {
+        "caption": "The Monastery of Serra do Pilar seen from the air."
+      },
+      {
+        "caption": "The monastery's circular cloister."
+      }
+    ],
+    "panorama": null
+  },
+  "jardim-do-morro": {
+    "name": "Jardim do Morro",
+    "year": "1927",
+    "short": "A terraced viewpoint garden in Gaia laid out in 1927 at the foot of Serra do Pilar beside the upper deck of the Luís I bridge: a lake, a bandstand, 22 lime trees and the Gaia cable-car terminus.",
+    "long": "The Jardim do Morro is a green space in the parish of Santa Marinha, Vila Nova de Gaia. It lies at the foot of the Serra do Pilar, next to the upper roadway of the Luís I bridge, and is one of the finest viewpoints (miradouros) over the historic centre of Porto. It has a small lake, a bandstand and a wide variety of plants; 22 lime trees line the final stretch of Avenida da República. The garden was laid out in 1927 and its design has barely changed since, though it now stands beside a metro station and in the path of thousands of tourists.",
+    "history": "The Jardim do Morro was laid out in 1927 in Gaia. Its design has changed little since, but by 2016 the historic garden had lost much of its liveliness: cut tree stumps, old bins, graffiti-covered benches and a waterless lake around its grotto remained. The garden had become a neighbour of the metro station and a place crossed by thousands of tourists every day.\n\nIn the summer of 2016 the garden was refurbished: the works cost about half a million euros and were funded by the municipality. In the green space, which attracts many visitors, an open-air amphitheatre, a senior citizens' park and a cafeteria were added, while the grotto and the lake were preserved.\n\nThe garden is known above all as a viewpoint: from its terraces there is a panorama of historic Porto, the Ribeira and the Douro. It is also a convenient place from which to climb to the Serra do Pilar monastery and the upper deck of the Luís I bridge.\n\nClose by is the Gaia cable car (Teleférico de Vila Nova de Gaia). It links the Praça Super Bock on the Cais de Gaia with the Jardim do Morro and opened on 1 April 2011; the line is 560 metres long. In winter the cable car runs from 10:00 to 18:00, in summer from 10:00 to 20:00.",
+    "facts": [
+      "Laid out in 1927 in Gaia.",
+      "22 lime trees line the final stretch of Avenida da República.",
+      "It stands at the foot of Serra do Pilar, beside the upper deck of the Luís I bridge.",
+      "It is one of the best viewpoints over Porto's historic centre.",
+      "Refurbished in 2016 for about €500,000: an open-air amphitheatre, a senior park and a cafeteria, with the lake and grotto preserved.",
+      "The Gaia cable car (opened 1 April 2011, 560 m) links Cais de Gaia with the garden.",
+      "The garden has a lake, a bandstand and a rich collection of plants."
+    ],
+    "tip": "Come at sunset: from the garden's terraces you get the best view in Gaia over Porto, the Luís I bridge and the setting sun. The easiest approach is across the upper deck of the Luís I bridge from São Bento metro station, then down to the garden; you can return by cable car to Cais de Gaia. In summer at weekends it is crowded, so claim a spot at the parapet early.",
+    "gallery": [
+      {
+        "caption": "Jardim do Morro, the garden and viewpoint."
+      },
+      {
+        "caption": "The terraces of the Jardim do Morro."
+      },
+      {
+        "caption": "The Monastery of Serra do Pilar and the Jardim do Morro."
+      }
+    ],
+    "panorama": null
+  },
+  "cais-gaia": {
+    "name": "Cais de Gaia",
+    "year": "2003",
+    "short": "The Gaia riverfront opposite historic Porto: a wine port for centuries, rebuilt in 2000–2003 into an esplanade of restaurants, wine lodges, a cable car and Douro cruise jetties.",
+    "long": "Cais de Gaia is the tourist quay on the left, Gaia bank of the Douro, facing Porto's historic Ribeira, a UNESCO World Heritage site. Wine lodges, restaurants, bars and the jetties of Upper Douro cruises meet along more than 900 metres of river frontage. Redeveloped in 2000–2003 to a design by the architect Tasso de Sousa with Eduardo Cabral dos Santos, it is now one of the main promenades of Porto and Gaia, with the best views of the Luís I bridge and the twin cities on either bank.",
+    "history": "For many centuries this was a river port from which goods — above all Port wine — were shipped out. Barrels reached the quay on flat-bottomed rabelo boats, while the lodges on the upper Gaia bank stored and aged the wine before it was floated downriver or loaded onto ships.\n\nThe silting of the Douro bar and the building of the new port of Leixões brought a slow decline to the landing quay and its surroundings. Old Cais de Gaia decayed, though the lodges above it kept working.\n\nRevival began around 2000. The new quay was designed by the architect Tasso de Sousa with Eduardo Cabral dos Santos. Work started in 2000 and finished three years later; the project, budgeted at about 15 million euros, won the \"Turismo — Valorização do Espaço Público\" award from the Portuguese tourism institute.\n\nIn its opening year, 2003, roughly 2.4 million people visited Cais de Gaia. The following year it became the first open-air public space in Portugal with wireless internet. It is managed by Douro Cais under a concession from the Douro and Leixões port authority (APDL); it holds 28 concessionaires, 23 of them in food and drink. There is also an acoustic plaza where music is played on summer evenings.\n\nToday numerous river cruises to the Alto Douro wine region leave from the quay, the lower station of the Teleférico de Gaia cable car stands here, and the Luís I and Infante bridges cross the river. It is the best place to see Porto and Gaia at once — above all at sunset.",
+    "facts": [
+      "Redeveloped in 2000–2003 to a design by Tasso de Sousa with Eduardo Cabral dos Santos, at a cost of about €15 million.",
+      "About 2.4 million people visited in its first year, 2003.",
+      "It has 28 concessionaires, 23 of them restaurants and bars, managed by Douro Cais under an APDL concession.",
+      "In 2004 it became the first open-air public space in Portugal with wireless internet.",
+      "For centuries it was the river port that shipped Port wine; silting of the Douro bar and the port of Leixões caused its decline.",
+      "The lower station of the Teleférico de Gaia and the jetties for Alto Douro cruises are here.",
+      "It faces Porto's historic Ribeira, a UNESCO World Heritage site."
+    ],
+    "tip": "Come at sunset: the sun sets behind Porto and the Ribeira facades glow orange. The easiest way is the metro to Jardim do Morro or São Bento, then a walk across the upper or lower deck of the Luís I bridge. Restaurant tables sit right by the water, but in season it is best to book; the cable car gives the finest view of the quay and the bridge.",
+    "gallery": [
+      {
+        "caption": "Cais de Gaia — the quay with its restaurants and Port-wine lodges."
+      },
+      {
+        "caption": "The Gaia restaurant row on the Douro, with the cable car above."
+      },
+      {
+        "caption": "Avenida Diogo Leite, the Gaia waterfront along the river."
+      }
+    ],
+    "panorama": null
+  },
+  "convento-corpus-christi": {
+    "name": "Corpus Christi Convent",
+    "year": "1345",
+    "short": "A Dominican convent by the Gaia quay, founded in 1345 by the noblewoman Maria Mendes Petite and opened only in 1354; a 17th-century domed church with forty-nine painted coffers, now a cultural centre.",
+    "long": "The Corpus Christi Convent, also known as the Monastery of São Domingos das Donas and the Bom Pastor Institute, stands by the Cais de Gaia in Vila Nova de Gaia. Founded in 1345 and opened in 1354, it belonged to the Dominican order. Its Baroque centralized church, with a dome, an octagonal vaulted nave and a ceiling of 49 painted coffers, is one of the region's most interesting. Classified an Imóvel de Interesse Público in 2012, it was restored in the early 2000s and now houses the Espaço Corpus Christi cultural venue and a master's programme of the University of Porto's Faculty of Fine Arts.",
+    "history": "The monastery was founded in 1345 by Maria Mendes Petite, a Gaia noblewoman, widow of the troubadour Estevão Coelho and mother of Pero Coelho, one of those behind the murder of Inês de Castro. The family was linked to the powerful monastery of Grijó. The foundress dedicated the house to the Blessed Sacrament of the Eucharist, endowed it richly and gave it to the Dominican order.\n\nA legal dispute with the Bishop of Porto, who at first opposed the foundation, long delayed its opening: it came only in 1354. Buried in the church are D. Leonor de Alvim, wife of the Constable Nuno Álvares Pereira, and her grandmother Maria Mendes Aboim, who died in 1355 and is counted a foundress; the tomb chest of Álvaro Anes de Cernache, first lord of Gaia, is here too.\n\nThe first church decayed over time because of the Douro floods. In the second half of the 17th century a new temple was begun to a design by Father Pantaleão da Rocha de Magalhães, following the Lisbon model of the Bom Sucesso monastery, with the choirs adapted to the community's needs by Gregório Fernandes. In the 18th century the Baroque facade before the church portal was built, showing the influence of Niccolò Nasoni.\n\nDuring the Siege of Porto the Corpus Christi nuns took refuge in the monastery of São Salvador de Vairão. Convent life ended in 1894 with the death of the last nun, Marcelina Cândida Viana. In 1930 the building was given to the sisters of the Bom Pastor Institute, who set up a women's institute of education and reform; a growing number of inmates led to the 1940 building of the west wing in Estado Novo style.\n\nIn the early 1990s, once the religious had left, the complex was given to the Sovereign Military Order of Malta, working through the Frei Manuel Pinto da Fonseca Foundation. In 2003 it returned to Vila Nova de Gaia town council and, after renovation, became the Espaço Corpus Christi cultural venue and a master's base of the University of Porto's Faculty of Fine Arts. In 2012 it was classified a public-interest monument.",
+    "facts": [
+      "Founded in 1345 by Maria Mendes Petite and opened only in 1354 after a dispute with the Bishop of Porto.",
+      "It belonged to the Dominicans and was linked to the São Domingos das Donas monastery in Santarém.",
+      "The church nave has an octagonal vaulted plan, crowned by a dome.",
+      "Its ceiling is made up of 49 painted coffers.",
+      "The two-level U-shaped choir stalls of the first half of the 17th century carry a different carved face on every seat.",
+      "Buried here are D. Leonor de Alvim, wife of Nuno Álvares Pereira, and the tomb of Álvaro Anes de Cernache.",
+      "Convent life ended in 1894 with the death of the last nun.",
+      "Since 2012 an Imóvel de Interesse Público; it now houses Espaço Corpus Christi and an FBAUP master's base."
+    ],
+    "tip": "The convent is a step from the Cais de Gaia, so combine it with a walk on the quay and a cable-car ride. Step into the inner courtyard, which frames the Baroque church front and the octagonal nave. Check the Espaço Corpus Christi programme in advance, as the church is sometimes closed between exhibitions; the nearest metro stops are Jardim do Morro and General Torres.",
+    "gallery": [
+      {
+        "caption": "The church of the Corpus Christi Convent — the facade."
+      },
+      {
+        "caption": "The inner courtyard and the church front."
+      },
+      {
+        "caption": "The Corpus Christi Convent in Vila Nova de Gaia."
+      }
+    ],
+    "panorama": null
+  },
+  "estacao-general-torres": {
+    "name": "General Torres railway station",
+    "year": "1877",
+    "short": "A Linha do Norte station in Vila Nova de Gaia: the Campanhã–Gaia line opened on 5 November 1877, a shelter was added in 1902, the station was rebuilt in early 1994 under the Porto rail-node programme, and stairs and lifts were added in 2018.",
+    "long": "General Torres station stands on the Linha do Norte in the centre of Vila Nova de Gaia, on Rua General Torres. Originally the halt \"Apeadeiro da Rua do General Torres\", it became a full station only in early 1994, when a new station was built under the Porto rail-node programme. Today it is an important interchange: four tracks, long platforms, a passenger building on the west side and a link to the metro. It is served by Regional, Interregional and suburban Comboios de Portugal trains.",
+    "history": "The link between Porto-Campanhã and Vila Nova de Gaia opened on 5 November 1877. The new stop on this section took its name from Rua General Torres and was at first only a halt — an apeadeiro.\n\nIn 1902, at the request of Porto city council, a shelter was installed on the General Torres platform. As late as 1988 the stop was still classed an apeadeiro.\n\nIn the 1990s the Porto rail-node office launched a programme to reroute the Linha do Norte and build the São João bridge. The last contract of this programme was the building of a new General Torres station, now a full station; work finished in early 1994. The whole programme cost thirty million contos, twelve of them on the bridge, the rest on the access works and the station. Signalling was modernised too, with electronic signals installed on the stretch between Gaia and Campanhã.\n\nThe station has four tracks, numbered I–IV: two 216 metres long and two 217 metres, all served by platforms 232–235 metres long and 90 centimetres high. The passenger building stands on the west side of the tracks, on the left towards Campanhã.\n\nIn 2018 the station was refurbished with new stairs and lifts. The work, costing about €480,000 (€479,208), was awarded to the Conduril Engenharia / Pinto & Cruz consortium and aimed to improve accessibility and create an interchange with the metro and other public transport. From 2019 to 2022 the station's typology was also reclassified. Today General Torres is served by CP Regional, Interregional and suburban trains, with a metro station of the same name alongside.",
+    "facts": [
+      "The Porto-Campanhã to Gaia link opened on 5 November 1877.",
+      "It was originally the halt \"Apeadeiro da Rua do General Torres\"; a shelter was added in 1902.",
+      "It became a station in early 1994, rebuilt under the Porto rail-node programme and the São João bridge.",
+      "The station has four tracks, I–IV: two 216 m long and two 217 m.",
+      "Its platforms are 232 and 235 metres long and 90 cm high.",
+      "The passenger building stands on the west side, on the left towards Campanhã.",
+      "In 2018, works costing €479,208 added stairs and lifts linking to the metro.",
+      "It is served by CP Regional, Interregional and suburban trains."
+    ],
+    "tip": "General Torres is a handy train-to-metro interchange: it sits on the Linha do Norte, with easy links to Campanhã, Gaia and central Porto. Trains towards Porto run along the Douro, so a window seat on the right gives views of the river and bridges. If you are heading for the Cais de Gaia, get off here and walk down to the quay.",
+    "gallery": [
+      {
+        "caption": "General Torres station — a metro train at the platform."
+      },
+      {
+        "caption": "General Torres station — platform and canopy."
+      },
+      {
+        "caption": "The General Torres stop with a Metro do Porto train."
+      }
+    ],
+    "panorama": null
+  },
+  "trindade": {
+    "name": "Trindade Church",
+    "year": "1841",
+    "short": "A large 19th-century church behind Porto's city hall, built to a design by Carlos Amarante and opened on 5 June 1841; a granite facade with twin bell towers and a Baptism of Christ altarpiece by José de Brito.",
+    "long": "Trindade Church stands on Praça da Trindade, right behind Porto's city hall. It was built through the 19th century to a design by the architect Carlos Amarante, author of the Bom Jesus do Monte sanctuary, who is buried here. It opened for worship on 5 June 1841. It is a large neoclassical granite building with a tall front and twin bell towers; the main chapel holds a large Baptism of Christ panel by José de Brito. Beside it lies the complex of the Third Order of the Holy Trinity and its hospital.",
+    "history": "Trindade Church stands on Praça da Trindade, behind Porto's city hall. It was built throughout the 19th century to a design by the architect Carlos Amarante — author of the celebrated Bom Jesus do Monte sanctuary — who is buried in the church itself. It opened for worship on 5 June 1841.\n\nThe architecture is neoclassical: a severe granite front with two bell towers is crowned by a pediment. The main chapel (capela-mor) holds a large altarpiece, the Baptism of Christ, by the painter José de Brito.\n\nA local legend tells of a vision of the Holy Trinity and angels singing the Tantum Ergo, seen here by the visionary and healer Guilhermina, who also had visions of Our Lady at Argoncilhe.\n\nAttached to the church is the complex of the Third Order of the Holy Trinity (Igreja e Hospital da Ordem Terceira da Santíssima Trindade): the church of the third order and its hospital, with which Trindade forms a single ensemble almost eighty metres long.\n\nThe church is part of the protected ensemble of Praça da Liberdade, Avenida dos Aliados and Praça do General Humberto Delgado. The Trindade metro station, one of the city's main interchanges, is right by it, making the church easy to reach.",
+    "facts": [
+      "Built to a design by the architect Carlos Amarante through the 19th century.",
+      "Opened for worship on 5 June 1841.",
+      "Carlos Amarante, the architect, is buried in the church.",
+      "The main chapel holds a large Baptism of Christ panel by José de Brito.",
+      "Its neoclassical granite front is crowned by twin bell towers.",
+      "It stands right behind Porto's city hall, on Praça da Trindade.",
+      "The complex of the Third Order of the Holy Trinity and its hospital adjoins it.",
+      "It is part of the protected Praça da Liberdade — Avenida dos Aliados ensemble."
+    ],
+    "tip": "Trindade Church is a step from the Trindade metro station, so it fits easily into a walk along the Aliados and Praça da Liberdade. It looks best early in the morning, when the granite front is evenly lit. Step inside for the Baptism of Christ panel; entry is usually free, though visitors may be asked to wait during services.",
+    "gallery": [
+      {
+        "caption": "Trindade Church — the granite facade."
+      },
+      {
+        "caption": "Trindade Church in Porto."
+      },
+      {
+        "caption": "Trindade Church seen from the square."
+      }
+    ],
+    "panorama": null
+  },
+  "congregados": {
+    "name": "Congregados Church",
+    "year": "1703",
+    "short": "A Baroque church on Praça de Almeida Garrett by the Aliados, built in 1703 on the site of a 1662 chapel; twin towers and a blue-and-white azulejo facade by Jorge Colaço, and inside the mummified body of Pope Clement I.",
+    "long": "Congregados Church stands on Praça de Almeida Garrett between São Bento station and Avenida dos Aliados. It was built in 1703 on the site of a chapel to Saint Anthony, raised in 1662 but demolished in 1694 when it could no longer hold the congregation. The church was attached to the monastery of the Oratorian Congregation. Its Baroque twin-tower facade is covered in blue-and-white azulejos by Jorge Colaço; the stained glass was made by Robert Léone in 1920. The Chapel of the Holy Family holds the mummified body of Pope Clement I — the only pontiff buried away from the Vatican.",
+    "history": "Congregados Church stands on Praça de Almeida Garrett in central Porto. It was built in 1703 on the site of a chapel to Saint Anthony: the chapel was built in 1662 and demolished in 1694, as it no longer held the faithful who came to Mass. The new church was attached to the monastery of the Oratorian Congregation (Congregação do Oratório).\n\nThe history of the building of the house and church of the Oratorian Congregation of Porto (1680–1703) is examined in a study by the historian Joaquim Jaime B. Ferreira-Alves, published by the University of Porto's Faculty of Letters.\n\nThe facade is clad in blue-and-white azulejos by Jorge Colaço, and the stained glass was made by Robert Léone in 1920. The main chapel (capela-mor) was rebuilt in the 19th century and received murals by the painter Acácio Lino. These layers — from 18th-century Baroque to early-20th-century decoration — make the church one of the most recognisable in the city.\n\nWhat brings the church particular fame is the Chapel of the Holy Family, which holds the mummified body, richly dressed in papal robes, of Pope Clement I — a martyr and the only pontiff buried away from the Vatican. He was identified by Professor Paulo de Souza Pinto, a historian and graduate of the University of Porto.\n\nThe church faces Praça de Almeida Garrett and Praça da Liberdade, part of the protected Avenida dos Aliados ensemble. It stands opposite São Bento station, near some of the city's oldest fabric, and is seen by everyone arriving in central Porto by train.",
+    "facts": [
+      "Built in 1703 on the site of a 1662 chapel to Saint Anthony, demolished in 1694.",
+      "It was attached to the monastery of the Oratorian Congregation.",
+      "Its facade is clad in blue-and-white azulejos by Jorge Colaço.",
+      "The stained glass was made by Robert Léone in 1920.",
+      "The Chapel of the Holy Family holds the mummified body of Pope Clement I, the only pope buried outside the Vatican.",
+      "The main chapel was rebuilt in the 19th century, with murals by Acácio Lino.",
+      "It stands opposite São Bento station, on Avenida dos Aliados."
+    ],
+    "tip": "Congregados Church is right opposite São Bento station, so it is easy to see in a few minutes on leaving the train or metro. The best light for photographing the blue-and-white front is around midday, when the azulejos shine. Step inside for the Chapel of the Holy Family, but remember it is an active church; access may be limited during services.",
+    "gallery": [
+      {
+        "caption": "Congregados Church — the Baroque azulejo facade."
+      },
+      {
+        "caption": "Congregados Church on Praça da Liberdade."
+      },
+      {
+        "caption": "The blue-and-white azulejos on the Congregados facade."
+      }
+    ],
+    "panorama": null
+  },
+  "lapa": {
+    "name": "Lapa Church",
+    "year": "1863",
+    "short": "The neo-baroque church of the Lapa brotherhood, with twin towers, the heart of King Pedro IV and Porto's first public cemetery.",
+    "long": "The Church of Nossa Senhora da Lapa belongs to a brotherhood founded in 1755. Built over more than a century, from 1756 to 1863, it blends rococo and neoclassical forms. Its chief relic is the heart of King Pedro IV, bequeathed to the brotherhood and kept here since 1835. Beside it lies the Lapa Cemetery (1833), one of the city's first public burial grounds, and inside stands one of the finest pipe organs in the Iberian Peninsula.",
+    "history": "The Brotherhood of Our Lady of Lapa (Irmandade de Nossa Senhora da Lapa) was founded in 1755 by the Brazilian priest Padre Ângelo Sequeira, born in São Paulo (1707-1776); its first statutes date from 1757. On 29 July 1755 the brotherhood received a papal bull from Benedict XIV, and alms paid for the building of a chapel, Nossa Senhora da Lapa das Confissões. Two years later the governing board decided to replace the chapel with a full church.\n\nThe first stone was laid on 17 July 1756. The first design was commissioned from the architect João Glama Ströberle, but by 1756 a new drawing had been made for José de Figueiredo Seixas, who directed the works until his death in 1773. Lack of funds and the Napoleonic invasions stretched the building over more than a century: the church was consecrated in 1779 and only completed in 1863.\n\nThe church owes much of its fame to the heart of King Pedro IV: the monarch, a benefactor of the brotherhood, left it his heart in his will, and since 1835 it has been kept here. Since 1837 the relic has rested in a mausoleum by Costa Lima in the main chapel, on the Gospel side.\n\nThe brotherhood did far more than hold services: it founded the Lapa Seminary-College, established the brotherhood's cemetery, opened in 1833, and built a hospital. The mid-nineteenth to early twentieth century was the age in which the founder's dreams were realised, a man who wanted to find 'all remedies for the body, for the soul and for life'.\n\nIn May 1991 the brotherhood signed the contract for a monumental organ, inaugurated on 7 July 1995. The instrument weighs about 32 tonnes, stands 15 metres high, 10.5 metres wide and 5 metres deep, and its largest wooden pipe is 10.12 metres long. On Largo da Lapa, the church remains one of the city's best-known ensembles.",
+    "facts": [
+      "The Lapa brotherhood was founded in 1755 by Padre Ângelo Sequeira; its first statutes date from 1757.",
+      "The first stone was laid on 17 July 1756; the church was consecrated in 1779 and completed in 1863.",
+      "Since 1835 it has held the heart of King Pedro IV, and since 1837 in Costa Lima's mausoleum.",
+      "The Lapa Cemetery opened in 1833, one of Porto's first public cemeteries.",
+      "The 1995 pipe organ weighs about 32 tonnes and is 15 metres tall.",
+      "Its largest wooden pipe is 10.12 metres long.",
+      "The same brotherhood also ran a school and a hospital beside the church."
+    ],
+    "tip": "Go in to see Pedro IV's heart in the main chapel, then walk the Lapa Cemetery next door, a quiet open-air museum with a chapel and a cypress avenue. Check the dates of organ concerts: the 1995 instrument is worth hearing live. The nearest metro is Lapa (line C), five minutes' walk away, with buses from São Bento to Largo da Lapa.",
+    "gallery": [
+      {
+        "caption": "The Lapa church facade and its twin bell towers."
+      },
+      {
+        "caption": "General view of the Igreja da Lapa on Largo da Lapa."
+      },
+      {
+        "caption": "The Lapa Cemetery and its chapel beside the church."
+      }
+    ],
+    "panorama": null
+  },
+  "santa-clara": {
+    "name": "Santa Clara Church",
+    "year": "1457",
+    "short": "A Gothic church of 1457 by the Fernandine walls, with one of Portugal's finest gilded baroque interiors.",
+    "long": "The Church of Santa Clara, completed in 1457 together with the monastery of the Poor Clares, was built beside the most visible stretch of Porto's Fernandine walls. Outside it is a sober Gothic building with a baroque doorway of 1697; inside it is covered end to end in gilded carving (talha dourada) of the first half of the eighteenth century, from the reign of King John V. It is one of the finest expressions of Portuguese baroque.",
+    "history": "The monastery did not appear from nothing: the Poor Clares moved here from an older thirteenth-century house at Entre Ambos-os-Rios, today Torrão. The new church and monastery by the Fernandine walls were completed in 1457. Over time, as smaller houses were suppressed in the fifteenth and sixteenth centuries, nuns gathered at Santa Clara and brought their incomes with them, including a toll on all goods passing along the Douro.\n\nAt the end of the nineteenth century, with the death of the last nun, the monastery was extinguished and the building began to decay. Later, as state property, it was repaired and adapted for a health centre and other institutions.\n\nThe church is entered through a baroque door dated 1697 and reworked in the eighteenth century, combining Renaissance elements with Solomonic columns and Corinthian capitals. Inside, the whole church is covered in gilded carving of the first half of the eighteenth century, one of the best examples of Joanine baroque in the country.\n\nIn 2016-2021 the 'Operação Igreja de Santa Clara do Porto' restoration was carried out at a cost of about 2.5 million euros. Around a hundred specialists worked on the structure and on all the artistic contents: gilded and polychrome carving, sculpture, panel and mural painting, stone, azulejo, metal and the organ. The work revealed details of the building that had been unknown: seventeenth-century paintings on wood showing saints, including Saint Clare; a granite tombstone of 1645 recording a daily Mass for the soul of the abbot of Vandoma buried there; and winged angels hidden beneath the later carving.\n\nToday Santa Clara is an active church and museum a few steps from Porto Cathedral. Small in size, it makes its impression above all through its interior: gold in the half-light, side chapels and altarpieces giving it the feel of a precious casket.",
+    "facts": [
+      "The church and the Poor Clares' monastery were completed in 1457.",
+      "Inside is one of the finest examples of Joanine gilded carving.",
+      "The baroque doorway is dated 1697 and was reworked in the eighteenth century.",
+      "The monastery was suppressed at the end of the nineteenth century after the last nun died.",
+      "The 2016-2021 restoration cost about 2.5 million euros.",
+      "The restoration uncovered a 1645 tombstone and seventeenth-century paintings.",
+      "It stands by the Fernandine walls in the Sé parish, near the cathedral."
+    ],
+    "tip": "Go in for the gilded interior, which is what people come for, and allow time to look closely at the carving. Entry is usually ticketed and open only at set hours, so check the schedule in advance. The church lies on the way between the cathedral and the Ribeira, easy to add to a walk through the old town. It is quieter in the evening, when the light inside is especially warm.",
+    "gallery": [
+      {
+        "caption": "The baroque doorway of Santa Clara Church, dated 1697."
+      },
+      {
+        "caption": "General view of the Igreja de Santa Clara in Porto."
+      },
+      {
+        "caption": "The gilded interior of the nave and side chapels."
+      }
+    ],
+    "panorama": null
+  },
+  "sao-nicolau": {
+    "name": "São Nicolau Church",
+    "year": "1762",
+    "short": "A baroque church on the Ribeira, rebuilt after the 1758 fire, with a bell gable and an azulejo front.",
+    "long": "The Church of São Nicolau stands on the Ribeira, by the Rua do Infante D. Henrique. The parish dates from the end of the sixteenth century, when Bishop Marcos de Lisboa divided the city's single parish into four. The old thirteenth-century chapel was demolished and a church built in its place in 1671; after a fire in 1758 it was rebuilt and finished in 1762. Its two-storey front with a niche holding the patron saint, a single-nave interior under a brick vault and a rococo gilded altarpiece make it a typical baroque church of the Ribeira.",
+    "history": "At the end of the sixteenth century, to improve the running of the city, Porto's only parish, Santa Maria da Sé, was divided by Bishop Marcos de Lisboa into four: Sé, Vitória, São Nicolau and São João Baptista de Belomonte. The last was later suppressed and shared between Vitória and São Nicolau. Services were first held in a small thirteenth-century chapel, but it became too small, and in 1671 it was demolished to make way for the Church of São Nicolau.\n\nIn 1758 the church was damaged by fire. The rebuilding, completed in 1762, was in a mixed neoclassical and baroque style; it is attributed to the friar Frei Manuel de Jesus Maria and was carried out under Bishop D. Frei António de Sousa.\n\nAt the top of the facade is a broken pediment with a niche holding a limestone image of the patron saint. The interior has a single nave under a brick vault. The altarpiece is in rococo gilded carving by Frei Manuel de Jesus Monteiro, and the painted panel is by the artist João Glama.\n\nThe sacristy holds works of art and valuable silver. Chests brought from Hamburg in 1817 have bronze handles; among the silver are a sixteenth-century chalice with sanctus bells, a rococo silver pyx with an inscription on its base, a gilded chalice of the same period and two cruets with salvers of the eighteenth century by the Porto goldsmith Domingos Sousa Coelho. In 1832 a railed churchyard was added to protect the graves, and in 1861 the front was covered with azulejos.\n\nThe church stands in the low river quarter, among the narrow streets of the Ribeira, and fits naturally into a walk to the Douro quay, the Palácio da Bolsa and the church of São Francisco.",
+    "facts": [
+      "The parish of São Nicolau was created at the end of the sixteenth century by Bishop Marcos de Lisboa.",
+      "The old thirteenth-century chapel was replaced by a church in 1671.",
+      "After a fire in 1758 the church was rebuilt and completed in 1762.",
+      "A niche in the facade holds a limestone image of the patron saint.",
+      "The rococo gilded altarpiece is by Frei Manuel de Jesus Monteiro.",
+      "In 1861 the facade was covered with azulejos; in 1832 a railed churchyard was added.",
+      "The sacristy keeps a sixteenth-century chalice and eighteenth-century silver."
+    ],
+    "tip": "The church is a couple of minutes from the Ribeira quay and the Palácio da Bolsa, so it fits easily into a walk toward the Luís I bridge. Look for the 1861 azulejos and the niche with the patron saint in the broken pediment. Entry is usually free in daytime, though Mass can make it busy on Sundays. There are plenty of cafes nearby, and the best views of the quarter are from the quay and the bridge.",
+    "gallery": [
+      {
+        "caption": "The facade of São Nicolau Church on the Ribeira."
+      },
+      {
+        "caption": "General view of the Igreja de São Nicolau in Porto."
+      },
+      {
+        "caption": "The single nave and its gilded rococo altarpiece."
+      }
+    ],
+    "panorama": null
+  },
+  "sao-bento-vitoria": {
+    "name": "São Bento da Vitória Church and Monastery",
+    "year": "1604",
+    "short": "A vast Benedictine monastery on the hill above the Ribeira, built from the end of the sixteenth century to about 1707.",
+    "long": "The São Bento da Vitória ensemble grew up on the Morro do Olival, on the site of the former Jewish quarter, the Judiaria do Olival. Benedictine monks came here from Tibães and began building at the end of the sixteenth century; the church, designed by Diogo Marques Lucas, a pupil of the Italian Filippo Terzi, was only consecrated around 1707. It is one of Porto's largest monastic complexes: a tall granite church with a tower and a four-square monastery with an inner courtyard and cloister. Today it houses an archive and concert rooms.",
+    "history": "The Benedictines came to Porto from the monastery of Tibães to found a house in the city. They chose a site on the Morro do Olival, where the Jewish quarter, the Judiaria do Olival, had stood; after some obstacles, building began at the very end of the sixteenth century. The works stretched over nearly a century and were finished only around 1707.\n\nThe church of São Bento da Vitória was designed by the architect Diogo Marques Lucas, a pupil of the Italian Filippo Terzi. It was built in a classical style already tempered by the Counter-Reformation, with harmonious proportions and a strong sense of solidity. Together with the church, the monastery formed a vast four-square complex with an inner courtyard and a cloister.\n\nDuring the Peninsular War part of the monastery was occupied first by French and then by Portuguese troops, who used it as a military hospital. It later served as a barracks, which caused it considerable damage.\n\nIn the twentieth century the administration of the church and part of the monastery was entrusted to the Benedictines of Singeverga. In 1995 the Porto District Archive moved in, and later an orchestra was housed in the old monastic rooms. The old monastery thus became a cultural and archival centre without losing its religious function.\n\nToday São Bento da Vitória is one of the city's most imposing monuments. Its granite walls rise above the steep streets leading from the Ribeira up to the cathedral, and its severe classical front with its tower can be seen from far off. Concerts and exhibitions are held inside and in the former monastic halls.",
+    "facts": [
+      "The monastery was founded by Benedictines from Tibães on the site of the Judiaria do Olival.",
+      "Building began at the end of the sixteenth century and was completed around 1707.",
+      "The church was designed by Diogo Marques Lucas, a pupil of Filippo Terzi.",
+      "During the Peninsular War the monastery served as a military hospital.",
+      "In 1995 the Porto District Archive was installed in the monastery.",
+      "It is one of the largest monastic complexes in the city.",
+      "The ensemble stands on the Morro do Olival, between the Ribeira and the cathedral."
+    ],
+    "tip": "Walk up to the monastery from the Ribeira: the climb is steep, but the views over the tiled roofs are worth it. Check the listings, as concerts and exhibitions are often held in the former monastic halls, and entry to the church is usually free. The cathedral, the bishop's palace and several viewpoints are close by. It is easiest to walk downhill, from the cathedral to the Ribeira, ending at the river.",
+    "gallery": [
+      {
+        "caption": "General view of the Mosteiro de São Bento da Vitória."
+      },
+      {
+        "caption": "The church facade of São Bento da Vitória."
+      },
+      {
+        "caption": "The monastery courtyard and former monastic halls."
+      }
+    ],
+    "panorama": null
+  },
+  "cedofeita": {
+    "name": "Cedofeita Church",
+    "year": "1087",
+    "short": "A Romanesque church held to be the oldest in Porto, with origins traced to a sixth-century Suevic king.",
+    "long": "The Church of São Martinho de Cedofeita is the oldest church in Porto. Tradition says a Suevic king founded it in the fifth or sixth century, and its name is derived from the Latin Cito Facta, 'built early'. The present Romanesque building is dated to the early thirteenth century, when a monastery of Canons Regular was established here. A low granite church with thick walls, a semicircular apse and an archivolted portal, it has been a national monument since 1910.",
+    "history": "The exact date of the first church is unknown, but most historians link it to the Suevic settlement at Cedofeita. One account has King Rechiar building it in 446; another has King Theodemir building it in 559 and being baptised there with his son Ariamir. The name is tied to the same legend: the church was said to have been put up so quickly that it was called Cito Facta, 'made early', from which 'Cedofeita' is said to come.\n\nThe earliest document mentioning the church dates from 1087 and records a grant and a consecration. The present Romanesque temple is dated to the early thirteenth century, when the Monastery of Cedofeita was founded on the site. It was run by Canons Regular of St Augustine, and the church kept a relic of Saint Martin of Tours, brought here with other relics by the bishop of Braga and Dume, evangeliser of the Suevi.\n\nIn 1742 the prior D. Luís de Sousa Carvalho ordered a series of alterations that largely shaped the building as it stood until the twentieth century. In 1910, however, the church was declared a national monument, and in the 1930s the Directorate of National Monuments, seeking to restore its original appearance, removed many later ornaments. After that campaign much of the old ensemble survived only in its venerable facade and tower, while the Romanesque character of the building was emphasised anew.\n\nToday the small church is hemmed in by the grown city. Its low granite nave, semicircular apse, thick walls and archivolted portal recall its Romanesque age, and beside it stands a new parish church: its design was drawn up from 1899 by the architect José Marques da Silva, though the full scheme was never completed.",
+    "facts": [
+      "It is considered the oldest church in Porto.",
+      "Its name is derived from Cito Facta, 'built early'.",
+      "The earliest document mentioning the church dates from 1087.",
+      "It has been a national monument since 1910.",
+      "A 1930s restoration removed seventeenth- and eighteenth-century additions.",
+      "It once kept a relic of Saint Martin of Tours.",
+      "A new parish church, planned from 1899, stands 50 metres to the south."
+    ],
+    "tip": "Come for the earliest Romanesque masonry in the city: note the archivolted portal, the apse and the massive granite walls. The church is active and entry is usually free, though not during Mass. It lies off the main tourist routes, so it is quiet; it works well combined with a walk through the Cedofeita district with its cafes and shops. The nearest metro is Lapa or Casa da Música, then a short walk.",
+    "gallery": [
+      {
+        "caption": "General view of the Romanesque Church of Cedofeita."
+      },
+      {
+        "caption": "The facade of Cedofeita Church, the oldest in Porto."
+      },
+      {
+        "caption": "The low granite nave and semicircular apse."
+      }
+    ],
+    "panorama": null
+  },
+  "santo-ildefonso": {
+    "name": "Church of Saint Ildefonso",
+    "year": "1739",
+    "short": "A proto-Baroque granite church on Praça da Batalha with two bell towers and a facade clad in 1932 azulejo panels by Jorge Colaço.",
+    "long": "The Church of Saint Ildefonso stands on Praça da Batalha in the centre of Porto. Its signature is the great blue-and-white azulejo facade made in 1932 by the painter Jorge Colaço: scenes from the life of Saint Ildefonso of Toledo and allegories of the Eucharist cover the whole front. Two slender bell towers with dentilled cornices, spheres and fanciful pediments frame the central bay and its patron niche. The nave is polygonal and proto-Baroque, with a timber ceiling, ornamental stucco and carved altarpieces. It has been listed as a Property of Public Interest since 1977.",
+    "history": "The first chapel on the site, known as Santo Alifon, long predated the present church. The oldest reference to it appears in a document by Vicente Mendes, bishop of Porto, dated 1296.\n\nBy 1709 the old chapel was close to collapse and was demolished that same year, when work on the new church began. Construction took almost thirty years. By 1730 the main body was finished and a tympanum bearing the date MDCCXXX (1730) was set in place; between 1730 and 1739 the two bell towers were raised and the facade and narthex completed. The church was blessed and inaugurated on 18 July 1739.\n\nThe architect's name is unknown: only the carpenters, stonemasons and locksmiths who worked on the building survive in the records. After a severe storm in 1819 the church was extensively repaired, and on 21 July 1833, during the Siege of Porto, it was damaged by artillery fire.\n\nIn 1932 the facade and walls were clad in azulejo panels by Jorge Colaço showing scenes from the life of Saint Ildefonso and allegories of the Eucharist — the work that made the church one of the city's most recognisable. New stained-glass windows, made by the artist Isolino Vaz, replaced the old glazing in 1967. During work in the narthex in 1996, nineteen burials were found beneath the floor.\n\nThe polygonal nave is proto-Baroque, with a timber ceiling and ornamental stucco repeated on the walls, neoclassical side altars and collateral altarpieces in rococo carving. The retable of the second half of the 18th century is attributed to the Italian master Niccolò Nasoni. Since 1977 the church has been classified as a Property of Public Interest.",
+    "facts": [
+      "Construction ran from 1709 to 1739 and the church was consecrated on 18 July 1739.",
+      "Its celebrated azulejo facade was made in 1932 by the painter Jorge Colaço.",
+      "The tympanum carries the date MDCCXXX (1730), when the main body was finished.",
+      "The architect's name is unknown; only the builders' names survive in the records.",
+      "During the Siege of Porto in 1833 the church was damaged by artillery fire.",
+      "The stained-glass windows of 1967 were created by the artist Isolino Vaz.",
+      "It has been a Property of Public Interest since 1977."
+    ],
+    "tip": "The church faces Praça da Batalha, next to the São João theatre. The azulejo facade photographs best in the morning, when the sun lights the front wall. São Bento and Bolhão metro stations are about a ten-minute walk away. Step inside: entry is free and the polygonal nave, with its carved altars and stucco, is worth seeing; the nearby staircase leads to a viewpoint by the theatre.",
+    "gallery": [
+      {
+        "caption": "The 1932 Jorge Colaço azulejo facade and the two bell towers."
+      },
+      {
+        "caption": "The Church of Saint Ildefonso on Praça da Batalha, seen from the square."
+      }
+    ],
+    "panorama": null
+  },
+  "miragaya-sao-pedro": {
+    "name": "Church of Saint Peter of Miragaia",
+    "year": "1740",
+    "short": "The parish church of the old fishing quarter of Miragaia on the Douro, rebuilt in 1740, its walls clad in azulejo between 1863 and 1876.",
+    "long": "The Church of Saint Peter of Miragaia stands above the Douro quay in one of Porto's oldest quarters. Miragaia grew up as a fishing village, and its patron is the fisherman-saint Peter. The present church is the latest of several on the site, known since the Middle Ages: bishop Nicolau Monteiro reformed it in 1672, and in 1740 it was partly demolished and rebuilt, keeping only the chancel and transept. The granite facade ends in a triangular pediment inscribed 'Divo Petro Dicata' ('Dedicated to Saint Peter') and crowned by a cross. Its walls were clad in azulejo between 1863 and 1876.",
+    "history": "Miragaia was in origin a land of fishermen, and its patron is the fisherman-saint Peter. A church on the site is known from the Middle Ages; the present building is the latest of several to stand here.\n\nIn 1453, after the fall of Constantinople, a group of Armenian Christians fled across the Mediterranean and entered the Douro estuary. They carried relics of Saint Pantaleon saved from the Turks and gave them to the church of Miragaia. The relic became an object of popular devotion until, decades later, bishop Diogo de Sousa moved it to Porto Cathedral; only an arm of the saint remained at Miragaia. The Armenian families settled nearby, in the street later called Rua dos Arménios.\n\nIn 1672 bishop Nicolau Monteiro remodelled the church. In 1740 it was partly taken down: only the chancel and transept were kept, and the rest was rebuilt, giving the church its present form.\n\nThe facade gained a portal with a pediment and a large barred window; it is crowned by a triangular pediment inscribed 'Divo Petro Dicata' and a cross. Between 1863 and 1876 the outer walls were faced with azulejo.\n\nThe single nave is enriched by a gilded altarpiece dedicated to Our Lady of Mount Carmel, brought here from the ruined Monchique convent, and a 17th-century altar of Saint Rita. The chancel is lined with carving reinforced with elements from Monchique. The church remains the parish church of Miragaia.",
+    "facts": [
+      "A church has stood here since the Middle Ages; the present one was rebuilt in 1740.",
+      "In 1672 it was reformed by bishop Nicolau Monteiro.",
+      "The facade ends in a pediment inscribed 'Divo Petro Dicata' ('Dedicated to Saint Peter').",
+      "Its walls were clad in azulejo between 1863 and 1876.",
+      "In 1453 relics of Saint Pantaleon were brought here by Armenians fleeing Constantinople.",
+      "It keeps a 17th-century altar of Saint Rita and carving from the Monchique convent.",
+      "It stands on the Douro, in the old fishing quarter of Miragaia."
+    ],
+    "tip": "The church is on Rua de Miragaia, above the river, a few minutes from the Ribeira waterfront. Walk up through the old fishing lanes and then down to the Douro for the panorama; morning light shows the azulejo walls at their best. Public transport stops near Ribeira; the easiest approach is on foot from the Luís I bridge or the cathedral.",
+    "gallery": [
+      {
+        "caption": "The Church of Saint Peter of Miragaia above the Douro."
+      },
+      {
+        "caption": "The granite facade with its pediment and portal."
+      }
+    ],
+    "panorama": null
+  },
+  "capela-almas": {
+    "name": "Capela das Almas",
+    "year": "1801",
+    "short": "A chapel on the corner of Rua de Santa Catarina entirely clad in 15,947 blue-and-white azulejo tiles (1929, Eduardo Leite).",
+    "long": "The Chapel of the Souls, or Chapel of Saint Catherine, stands on the corner of Rua de Santa Catarina and Rua de Fernandes Tomás, in the busiest shopping street of Porto. It is covered in 15,947 blue-and-white azulejo tiles designed in 1929 by Eduardo Leite and made by the Lisbon factory Viúva Lamego; the tiles cover some 360 square metres and show scenes from the lives of Saint Francis of Assisi and Saint Catherine of Alexandria. The front ends in a circular pediment bearing the coat of arms of the two saints, a two-storey bell tower rises on the left, and the dome is crowned by an iron cross.",
+    "history": "The chapel began as an old wooden chapel raised in honour of Saint Catherine of Alexandria. The present building dates to the late 18th century, when the Brotherhood of the Souls and of the Wounds of Saint Francis moved to the Chapel of Saint Catherine from the Monastery of Santa Clara.\n\nAs the brotherhood joined it, devotion to Saint Catherine grew, drawing large numbers of the faithful, and those who superintended the cult decided on a new building. In 1801 the chapel was enlarged and restored, which altered its original style. It has two bodies, the second lower than the first.\n\nUntil 1929 the outer surfaces of the chapel were rendered and whitewashed, without azulejo. It was then that the walls were entirely tiled: 15,947 tiles by Eduardo Leite, made by the Viúva Lamego factory in Lisbon, cover about 360 square metres and depict the lives of Saint Francis of Assisi and Saint Catherine.\n\nThe main facade has a framed door topped by a circular pediment. In the tympanum is a bipartite coat of arms with the devices of Saint Francis of Assisi and Saint Catherine of Alexandria. A two-storey bell tower rises on the left: the first storey has a door with a small window, the second four windows crowned by a balustrade. The dome ends in an iron cross. A stained-glass window of the Souls, made in 1964 by the painter Amândio Silva, is a particular highlight.",
+    "facts": [
+      "Its facade is clad in 15,947 azulejo tiles covering about 360 m² of wall.",
+      "The 1929 tiles were designed by Eduardo Leite and made by Viúva Lamego in Lisbon.",
+      "Before 1929 the outer walls were rendered and whitewashed.",
+      "The present building is late 18th-century; the chapel was enlarged in 1801.",
+      "The Brotherhood of the Souls and Wounds of Saint Francis moved here from Santa Clara.",
+      "The stained-glass window of the Souls was made in 1964 by Amândio Silva.",
+      "The tympanum carries the devices of Saint Francis and Saint Catherine."
+    ],
+    "tip": "The chapel is on the corner of Rua de Santa Catarina, Porto's main shopping street, by the Bolhão metro station. It is one of the most photographed spots in the city, so come early: fewer people and no harsh glare on the blue-and-white tiles. Peek inside if the door is open — the 1964 stained-glass window is worth it. The Bolhão market and cafés are right next door for a break after shopping.",
+    "gallery": [
+      {
+        "caption": "The corner of the chapel, entirely covered in blue-and-white azulejo."
+      },
+      {
+        "caption": "Azulejo panels showing the lives of Saint Francis and Saint Catherine."
+      }
+    ],
+    "panorama": null
+  },
+  "foz-sao-joao-baptista": {
+    "name": "Church of Saint John the Baptist of Foz",
+    "year": "1646",
+    "short": "The parish church of the Foz do Douro, inside the walls of the São João Baptista fort; its predecessor was the first Renaissance church of northern Portugal (1527).",
+    "long": "The Church of Saint John the Baptist stands at the very mouth of the Douro, in the Foz Velha quarter, inside the walls of the São João Baptista fort. Its story begins in 1527, when bishop D. Miguel da Silva and the architect Francesco de Cremona built a church and abbot's palace here — one of the first Renaissance works in northern Portugal. Between 1642 and 1653 the fort was rebuilt to the design of the French engineer Charles Lassart, and in 1646 the old church was demolished: its Renaissance vault, the first in the country, became the fortress parade ground. The present parish church of Foz dates to the 17th century and still stands within the ramparts by the sea.",
+    "history": "The São João Baptista fort, also known as the Castle of São João da Foz, was begun in 1570 under King Sebastian, supervised by João Gomes da Silva, with Simão de Ruão as master of fortifications. It was at first a simple bastioned enclosure around the hospice and church of the Benedictines of Santo Tirso — the old Igreja Velha.\n\nBishop D. Miguel da Silva of Viseu built a church and an abbot's palace here, using designs by the architect Francesco de Cremona, brought from Italy. Together with the São Miguel-o-Anjo lighthouse (completed in 1527), these works were the first expression of Renaissance architecture in northern Portugal. The chancel and nave of the church, enclosed by the bastioned wall and stripped of their roof, later served as the fort's parade ground.\n\nDuring the War of Restoration the fortifications had to be remodelled. In 1642 the new engineer-general of the kingdom, the Frenchman Charles Lassart, came to Porto; he drew up a project to enlarge and strengthen the fort, and the works were carried out under the Benedictine João Turriano. The old church was demolished in 1646: the central part of its facade disappeared, the towers were opened, grave slabs were reused in the masonry, and the vault — the first Renaissance vault in Portugal — was taken down. The works were finished by 1653.\n\nIn the early 19th century, during the Peninsular War, on 6 June 1808 Sergeant-major Raimundo José Pinheiro occupied the fort and at dawn the next day raised the Portuguese flag on its mast — the first act of Portuguese resistance to the Napoleonic occupation. Later the fort held political prisoners, and in the 20th century the poet Florbela Espanca lived here.\n\nSince 1967 the fort has been listed as a Property of Public Interest; today it houses the Institute of National Defence. The parish church of Saint John the Baptist, built in the 17th century, remains the church of the Foz quarter, standing inside the ramparts facing the mouth of the Douro.",
+    "facts": [
+      "The first church here was built in 1527 by bishop D. Miguel da Silva with the architect Francesco de Cremona.",
+      "Its Renaissance vault was the first in Portugal.",
+      "Construction of the São João Baptista fort began in 1570 under King Sebastian.",
+      "The old church was demolished in 1646 and its nave became the fort's parade ground.",
+      "On 6 June 1808 the Portuguese flag was first raised here against Napoleon.",
+      "The fort has been a Property of Public Interest since 1967.",
+      "The Institute of National Defence is housed in the fort today."
+    ],
+    "tip": "The easiest approach is by bus or tram to Foz, then a short walk through the Foz Velha quarter. Step through the fort gate: the church stands inside the ramparts, right by the water. The afternoon is best, when the sun lights the facade from the sea. Afterwards walk down to the ocean, where the Douro meets the Atlantic — the sunsets there are the finest in Porto.",
+    "gallery": [
+      {
+        "caption": "The Church of Saint John the Baptist within the fort walls at the mouth of the Douro."
+      },
+      {
+        "caption": "The facade and bell tower of the Foz parish church."
+      }
+    ],
+    "panorama": null
+  },
+  "ramalde": {
+    "name": "Church of Ramalde",
+    "year": "18th century",
+    "short": "The parish church of São Salvador de Ramalde, rebuilt in the 18th century, with an azulejo and gilded interior and a gabled bell wall over the facade.",
+    "long": "The Church of Ramalde, dedicated to the Saviour (São Salvador), is the parish church of an old district in the north-west of Porto. The parish is first mentioned under the archaic name Rianhaldy in the Inquirições of King Afonso III (1258), and as a place in a document of 1222, when Queen Mafalda made a donation to the monastery of Arouca. The present building was rebuilt in the 18th century. Its single nave is lined with azulejo panels and enriched with gilded carving, and a gabled bell wall (espadaña) with arched openings and a cross rises above the granite facade. Next door stands the Casa de Ramalde, remodelled from 1746 by the Italian architect Nicolau Nasoni.",
+    "history": "The parish of São Salvador de Ramalde is first mentioned under the archaic name Rianhaldy in the Inquirições of King Afonso III, compiled in 1258. The place is known even earlier: a document of 1222 records Queen Mafalda making a donation to the monastery of Arouca. The settlement probably grew up between 920 and 944, when Benedictine monks arrived.\n\nThe lands of Ramalde belonged to the royal patronage of King Sancho I, who in 1196 gave them to his daughter Mafalda. Under Sancho II the area was called Ramunhaldy and was made up of five places: Francos, Requesende and the three parts of Ramalde itself. From 1230 to 1835 it belonged to the abolished municipality of Bouças, and in 1895 it was incorporated into the municipality of Porto as a parish.\n\nThe present church was rebuilt in the 18th century. It is a single-nave building with a faceted roof and a gilded high altarpiece; the nave walls are clad in azulejo tiles that form a continuous decorative carpet. A gabled bell wall (espadaña) with three arches for the bells and a stone cross rises above the granite facade.\n\nThe church stands beside the Casa de Ramalde, the manor of the Leite Pereira family. Its present building was raised from 1746 to designs by the Italian architect Nicolau Nasoni, commissioned by Florência Leite Pereira de Melo and her sons. Nasoni incorporated the old tower into the new house and moved the earlier chapel here, joining it to the manor. In 1809 the French troops of General Soult sacked and burned the house and chapel, which were restored in 1870.\n\nToday the Church of Ramalde remains an active parish church, while the manor houses the Directorate of Cultural Heritage of the North. Together they recall the rural past of this part of Porto, which was still outside the city in the 19th century.",
+    "facts": [
+      "The parish of São Salvador de Ramalde is first named Rianhaldy in the 1258 Inquirições of Afonso III.",
+      "As a place, Ramalde appears in a 1222 document, a donation by Queen Mafalda to Arouca.",
+      "The present church was rebuilt in the 18th century.",
+      "Its nave is lined with azulejo and enriched with gilded carving.",
+      "The facade is crowned by a gabled bell wall (espadaña) with arches and a cross.",
+      "Beside it stands the Casa de Ramalde, remodelled by Nicolau Nasoni from 1746.",
+      "Ramalde has belonged to the municipality of Porto since 1895."
+    ],
+    "tip": "The church stands by the Ramalde square and manor, away from the tourist centre; it is easily reached by metro to Ramalde station and a short walk. Admire the modest granite facade with its bell wall and look into Nasoni's manor courtyard next door. This is quiet, un-postcard Porto — a good place to see how the 18th-century suburb lived. Morning light suits photography best.",
+    "gallery": [
+      {
+        "caption": "The Casa de Ramalde, Nicolau Nasoni's manor beside the church (from 1746)."
+      },
+      {
+        "caption": "The new parish church of Ramalde, which replaced the old church."
+      }
+    ],
+    "panorama": null
+  },
+  "campanha": {
+    "name": "Campanhã Railway Station",
+    "year": "1875",
+    "short": "The main station of northern Portugal, opened on 21 May 1875: a long 19th-century building with an iron trainshed, the hub of the Linha do Norte and Linha do Minho.",
+    "long": "Campanhã is Porto's principal railway station and the main gateway to the whole of northern Portugal. Opened on 21 May 1875 as the terminus of the Linha do Norte, it was from the outset a passenger, freight and management centre. The long 19th-century building stands on the western side of the tracks, with a broad iron-and-glass trainshed over the platforms. Today Alfa Pendular and Intercidades trains leave here for the whole country, alongside the international Celta service to Vigo.",
+    "history": "The first station at Campanhã opened on 21 May 1875; it was originally called simply Porto, and even earlier Pinheiro. The riverside site was chosen for the short, easy approach of the Linha do Norte, but it lay far from the centre and was hard to reach. Access was only solved in 1896, when São Bento station opened.\n\nCampanhã became a major railway hub: the Linha do Norte (PK 336+079) and the Linha do Minho (PK 0+000) met here, along with depots and workshops. In the 1900s Contumil took over part of the load, electric lighting arrived at the station in the 1930s, and the tracks were electrified in the 1960s.\n\nThe passenger building stands on the western side of the tracks. It is a long 19th-century structure with pavilion blocks, tall arched windows and a metal trainshed over the platforms. By 2004 the station had 16 tracks and platforms between 220 and 510 metres long.\n\nIn the 1990s the complex was enlarged and reorganised. Today Campanhã handles Alfa Pendular, Intercidades and the Celta to Vigo, as well as suburban and regional services. An underpass and the metro station, served by lines A, B, C, E and F, connect it to the city.",
+    "facts": [
+      "Opened on 21 May 1875 as a station on the Linha do Norte.",
+      "It stands on the Linha do Norte (PK 336+079) and the Linha do Minho (PK 0+000).",
+      "By 2004 it had 16 tracks and platforms 220 to 510 m long.",
+      "Campanhã metro station is served by lines A, B, C, E and F.",
+      "São Bento opened in 1896 to relieve the outlying Campanhã.",
+      "The tracks were electrified in the 1960s.",
+      "The international Celta train to Vigo departs from here."
+    ],
+    "tip": "Arrive early: Campanhã is a large interchange with long walks between platforms. Buy Alfa Pendular and Intercidades tickets online. The easiest way into the centre is the metro (lines A, B, C, E, F) or a train to São Bento.",
+    "gallery": [
+      {
+        "caption": "The Campanhã station building seen from the city side."
+      },
+      {
+        "caption": "Trains at the platforms of Campanhã station."
+      }
+    ],
+    "panorama": null
+  },
+  "coliseu": {
+    "name": "Coliseu do Porto",
+    "year": "1941",
+    "short": "An Art Deco concert hall opened on 19 December 1941: a curved white facade, a horseshoe auditorium for some 4,000 people and an asymmetric tower with a marquee over the entrance.",
+    "long": "The Coliseu do Porto is one of the city's leading concert and theatre venues and a celebrated masterpiece of Portuguese Art Deco. Designed by Cassiano Branco and Júlio de Brito, it opened on 19 December 1941 with a concert by the National Symphony Orchestra. Its identity lies in the curved white facade, the tall corner tower and the canopy over the entrance; inside, the horseshoe auditorium seats around 4,000. Opera, ballet, cinema, variety shows and circus have all filled its stage.",
+    "history": "The first plan for a great entertainment hall in Porto dates from 1911, when influential citizens led by João José da Silva rallied around the idea. Construction began in 1937 with early sketches by the architect José Porto; projects by the Dutchman Jan Wils and by Júlio José de Brito followed, but the city's aesthetics commission rejected them.\n\nIn 1939 Cassiano Branco took charge. He reused the walls already built around the auditorium, stage and corridors, reworked the vertical circulation and shaped the sequence of entrance spaces. With Júlio de Brito he composed an asymmetric facade with a tower and a marquee over the entrance, while the horseshoe auditorium reinforced a sense of dynamism.\n\nThe Coliseu took just 22 months to build and opened on 19 December 1941 at a cost of 11,000 contos, a huge sum at the time. From 1941 to 1991, its \"decades of glory\", artists from around the world appeared on its stage: opera, ballet, classical and popular music, variety, circus and cinema.\n\nIn 1995 a sale of the building to a church threatened it, but the city and cultural figures defended it by creating a non-profit association. On 28 September 1996 a fire destroyed the stage; on 12 December that year the hall reopened with the Christmas circus, and on 24 November 1998 the fully restored Coliseu reopened with the opera Carmen.\n\nIn 2012 the building was classified as a monument of public interest, and since 2018 it has carried the name Coliseu Porto Ageas.",
+    "facts": [
+      "Opened on 19 December 1941 with a National Symphony Orchestra concert.",
+      "An Art Deco design by Cassiano Branco and Júlio de Brito.",
+      "The horseshoe auditorium seats around 4,000 people.",
+      "Built in just 22 months at a cost of 11,000 contos.",
+      "A fire on 28 September 1996 destroyed the stage.",
+      "Fully restored and reopened on 24 November 1998 with Carmen.",
+      "A monument of public interest since 2012.",
+      "Named Coliseu Porto Ageas since 2018."
+    ],
+    "tip": "See the programme and buy tickets at coliseu.pt; the box office and entrance are on Rua de Passos Manuel. The best views of the curved white facade are from the opposite side of the street, especially when it is lit at night. The nearest metro is Bolhão (lines A, B, C, E, F), about a seven-minute walk away.",
+    "gallery": [
+      {
+        "caption": "The curved white facade of the Coliseu do Porto."
+      },
+      {
+        "caption": "The Coliseu do Porto by evening."
+      }
+    ],
+    "panorama": null
+  },
+  "museu-soares-dos-reis": {
+    "name": "Soares dos Reis National Museum",
+    "year": "1833",
+    "short": "Portugal's oldest public art museum, founded in 1833 and housed since 1942 in the Palácio dos Carrancas in Miragaia.",
+    "long": "The Soares dos Reis National Museum is Portugal's oldest public art museum, founded in 1833 on the initiative of the regent Dom Pedro. Since 1942 it has occupied the Palácio dos Carrancas in Miragaia, a palace built in the late 18th century. Its collection holds more than 18,000 objects: painting, sculpture, prints, decorative arts and archaeology. The greatest treasure is the marble O Desterrado (The Exile, 1872) by the sculptor Soares dos Reis, after whom the museum is named.",
+    "history": "The museum was officially founded on 9–11 April 1833 on the initiative of the regent Dom Pedro, Duke of Braganza. Named Museu Portuense, or Ateneu D. Pedro IV, it became the country's first public art museum. It was first housed in the Convent of Santo António da Cidade, now the city's public library, in the monks' former refectory.\n\nIn 1911 the museum was renamed after the sculptor António Soares dos Reis, a native of Porto whose work forms the core of the collection. The best-known piece is the marble O Desterrado (1872), which became the museum's symbol.\n\nThe Palácio dos Carrancas, where the museum stands today, belonged to Manuel Mendes de Morais e Castro and was later sold to the Santa Casa da Misericórdia. In 1940 the state bought the palace; after adaptation by the engineer Fernandes de Sá, the museum opened there in 1942. The former workshops were turned into a top-lit painting gallery and a separate sculpture gallery.\n\nIn 1940–42 the collection was enriched with the holdings of the Porto Municipal Museum, and the museum shifted from fine arts alone to a mixed profile that included the decorative arts. In the 1950s, under the sculptor Salvador Barata Feyo, works by young artists were acquired.\n\nIn 1992 a remodelling and expansion designed by the architect Fernando Távora began, completed in 2001. Today the collection numbers more than 18,000 items, of which around 3,000 are drawing and painting.",
+    "facts": [
+      "Founded on 9–11 April 1833 on the initiative of the regent Dom Pedro.",
+      "Portugal's first public art museum.",
+      "Renamed in 1911 after the sculptor Soares dos Reis.",
+      "Housed in the Palácio dos Carrancas since 1942; the state bought it in 1940.",
+      "More than 18,000 objects, around 3,000 of them painting and drawing.",
+      "Its signature work is O Desterrado (The Exile, 1872).",
+      "Fernando Távora's remodelling ran from 1992 to 2001."
+    ],
+    "tip": "The museum is at Rua de Dom Manuel II, 44, in Miragaia; the nearest metro is Palácio de Cristal (line F). Allow at least two hours: the collection is large, and admission is often free on Sunday afternoons. Don't miss Soares dos Reis's O Desterrado and the decorative arts rooms.",
+    "gallery": [
+      {
+        "caption": "The Palácio dos Carrancas, which houses the museum."
+      },
+      {
+        "caption": "The facade of the Soares dos Reis National Museum."
+      }
+    ],
+    "panorama": null
+  },
+  "casa-do-infante": {
+    "name": "Casa do Infante Museum",
+    "year": "1325",
+    "short": "A medieval royal customs house on the waterfront and one of Porto's oldest buildings; by tradition the birthplace of Prince Henry the Navigator in 1394.",
+    "long": "The Casa do Infante is a medieval royal customs house (the Alfândega Velha) and one of the oldest buildings in Porto, standing near the Ribeira waterfront. By tradition it is the birthplace of Prince Henry the Navigator, patron of the Portuguese discoveries, born here in 1394. It began as two tall towers around a central courtyard; the building was later remodelled and in the 17th century the facade was extended and the towers truncated. Today it holds a museum and the city's historical archive, and archaeological digs have revealed Roman mosaics.",
+    "history": "In 1325 King Afonso IV, against the bishop's wishes, ordered a royal storehouse — the customs house of Porto — to be built here, where all goods arriving in the city were collected so that duty could be charged. The original building consisted of two tall towers and a central courtyard; the upper floors of the north tower served as living quarters.\n\nAs early as the 15th century, under King João I, a projecting block was added, its portico topped by a lintel with an inscription and a niche holding a statue of the Virgin, protector of customs houses. East of the main building stood the Mint (Casa da Moeda), whose origins also go back to the 14th century; the exchequer and the notaries' court were nearby.\n\nThe old customs house is closely linked to Prince Henry, who by tradition was born here in 1394. Henry's Portuense origin is known from the chronicle of Fernão Lopes, and the city archive keeps a document listing the expenses of the celebrations for his baptism in 1394.\n\nIn the 17th century the whole complex was rebuilt: the facade was advanced to the street, the tops of the towers were demolished and replaced by two broad roofs; an inscription of 1677 marks the work. Customs services operated here until the 19th century, when they moved to the Alfândega Nova in Miragaia; the building was then used as a warehouse.\n\nIn 1924 the Casa do Infante was declared a national monument. It was restored in the late 1950s, and in 1980 the Porto Municipal Historical Archive moved in. Archaeological excavations in the 1990s revealed Roman mosaics and everyday objects; the building now includes a museum space of the City Museum.",
+    "facts": [
+      "In 1325 Afonso IV founded Porto's royal customs house here.",
+      "Originally two tall towers around a central courtyard.",
+      "Under João I in the 15th century a block with a Virgin's niche was added.",
+      "By tradition Prince Henry the Navigator was born here in 1394.",
+      "In the 17th century the towers were truncated; an inscription of 1677 records it.",
+      "A national monument since 1924.",
+      "The Porto Municipal Historical Archive has been here since 1980.",
+      "Excavations in the 1990s uncovered Roman mosaics."
+    ],
+    "tip": "The Casa do Infante stands on Rua da Alfândega, close to the Ribeira waterfront; the nearest metro is São Bento (line D). Museum admission is usually inexpensive and often free on Sundays. Look into the courtyard and the Roman mosaic display — the best way to grasp what medieval Porto looked like.",
+    "gallery": [
+      {
+        "caption": "The Casa do Infante, the old customs house by the waterfront."
+      },
+      {
+        "caption": "The Casa do Infante facade with its stone portal."
+      }
+    ],
+    "panorama": null
+  },
+  "alfandega-nova": {
+    "name": "Alfândega Nova do Porto",
+    "year": "1859",
+    "short": "A huge 19th-century granite customs house (1859–1879) on the Douro in Miragaia, now the Transport Museum and a congress centre.",
+    "long": "The Alfândega Nova is a vast granite customs house on the Miragaia waterfront, built in the second half of the 19th century to a design by the French architect Jean-François Colson. The order to build was signed on 25 September 1859, the first block opened in 1869, and the works were completed ten years later. The building covers some 36,000 m² in three main blocks around inner courtyards. Since the 1990s, restored to a design by Eduardo Souto de Moura, it has served as a congress centre and the Museum of Transport and Communications.",
+    "history": "The new customs house was commissioned on 25 September 1859 and built on the site of the old Miragaia beach. Its design was by the French architect Jean-François Colson. The first block opened in 1869 and the whole construction was finished by 1879. Beneath it an enormous stone platform was laid, replacing the former riverside beach.\n\nThe complex was conceived not only as a place for goods to enter and leave, but as a whole working machine: warehouses, railway tracks, turntables for wagons and cranes. In 1888 it was connected to Campanhã station by a railway branch (the Ramal da Alfândega), and the Rua Nova da Alfândega was opened. These works are considered one of the deepest urban and landscape transformations of 19th-century Porto.\n\nThe old customs house by the Casa do Infante could no longer cope with the flow of goods, and moving the service to Miragaia was necessary. Built with techniques considered innovative at the time, the new building became one of the most robust and symbolic in the city: some 36,000 m² and three main blocks whose facades clearly express their functions.\n\nIn the 1990s a restoration and conversion began to a design by the architect Eduardo Souto de Moura. It now houses a congress centre, the Museum of Transport and Communications and the headquarters of the Association of the Transport and Communications Museum (AMTC), founded in February 1992. In 2023 the Alfândega Nova was declared a national monument.",
+    "facts": [
+      "The order to build was signed on 25 September 1859.",
+      "Designed by the French architect Jean-François Colson.",
+      "The first block opened in 1869; construction finished in 1879.",
+      "About 36,000 m² in three main blocks.",
+      "Connected to Campanhã station by rail in 1888.",
+      "Restored from the 1990s to a design by Eduardo Souto de Moura.",
+      "Houses the Museum of Transport and Communications and a congress centre.",
+      "A national monument since 2023."
+    ],
+    "tip": "The Alfândega Nova stands on Rua Nova da Alfândega, by the river in Miragaia; the nearest metro is São Bento, about a fifteen-minute walk down to the Douro. Visit the riverside terrace and the Transport Museum — tickets are usually inexpensive, with family rates at weekends. In the evening the facade is beautifully lit from the river side.",
+    "gallery": [
+      {
+        "caption": "The Alfândega Nova and its quay on the Douro."
+      },
+      {
+        "caption": "The granite facade of the Alfândega Nova."
+      }
+    ],
+    "panorama": null
+  },
+  "museu-romantico": {
+    "name": "Romantic Museum of Quinta da Macieirinha",
+    "year": "1972",
+    "short": "A small museum in a 19th-century country villa at Quinta da Macieirinha: the interiors of the Romantic-era Portuguese bourgeoisie and the last refuge of King Charles Albert of Sardinia.",
+    "long": "The Romantic Museum is one of the núcleos of the Museum of the City of Porto, housed in the country house of Quinta da Macieirinha (also called Quinta da Macieira or do Sacramento). The 19th-century villa belonged to the Pinto Basto family and recreates the daily life of a wealthy Portuguese bourgeois household of the Romantic age. Here, in exile, King Charles Albert of Piedmont and Sardinia spent his final days and died on 28 July 1849; the chapel, bedroom and drawing room were restored in his memory.",
+    "history": "Quinta da Macieirinha is an old country estate on the slope above the Douro, beside today's Jardins do Palácio de Cristal. Its house is dated to the 19th century; it belonged to the well-off Pinto Basto family and went by several names — Quinta da Macieira, or do Sacramento. By the mid-19th century it was a quiet place on the outskirts of Porto, among vineyards and gardens.\n\nIn 1849 the estate became the final refuge of Charles Albert, King of Sardinia. After the defeat of the revolution in Italy he abdicated in favour of his son Victor Emmanuel II and went into exile. In Porto he fell gravely ill and died on 28 July 1849 in the house at Quinta da Macieirinha. Several rooms were later restored in his memory — a chapel, a bedroom and a drawing room — with their furnishings reconstructed from watercolours and lithographs of the period.\n\nThe museum opened in 1972 as a núcleo of the Museum of the City of Porto. Its aim was to show the inside of an affluent Oitocentos household: furniture, porcelain, silver, paintings and everyday objects. Part of the estate was long occupied by the Solar do Vinho do Porto, the port-wine institute, which used rooms on the Quinta grounds.\n\nA small garden with a fountain and terraces surrounds the house, with views over the Douro. The estate is listed as Portuguese heritage (SIPA 5501). The Romantic Museum's gardens adjoin those of the Palácio de Cristal, forming one of the greenest corners of western Porto.\n\nIn 2021 the city council reorganised the site: the historic furnishings were dismantled and the space was announced as an 'Extension of Romanticism' of the Museum of the City. The decision sparked public debate, since the 1972 interior reconstruction was seen as a value in its own right. Today the space combines the memory of the exiled king with a changing contemporary museum programme.",
+    "facts": [
+      "The Quinta da Macieirinha house is dated to the 19th century and belonged to the Pinto Basto family.",
+      "King Charles Albert of Piedmont and Sardinia died here in exile on 28 July 1849.",
+      "The chapel, bedroom and drawing room were rebuilt from Romantic-era watercolours and lithographs.",
+      "The museum opened in 1972 as a núcleo of the Museum of the City of Porto.",
+      "The estate is listed as Portuguese heritage under SIPA 5501.",
+      "The museum gardens adjoin the Jardins do Palácio de Cristal and overlook the Douro."
+    ],
+    "tip": "Visit the museum together with the Jardins do Palácio de Cristal next door — the terraced walk above the Douro takes about an hour. Check the opening hours before you go: after the 2021 reorganisation the displays and schedule changed several times. Buses run to the Palácio de Cristal, or walk up the slope from Cordoaria; the nearest tram lines follow the riverfront.",
+    "gallery": [
+      {
+        "caption": "The Romantic Museum — the Solar do Vinho do Porto pavilion on the estate grounds."
+      },
+      {
+        "caption": "The Romantic Museum — the fountain in the Quinta da Macieirinha gardens."
+      }
+    ],
+    "panorama": null
+  },
+  "casa-guerra-junqueiro": {
+    "name": "Casa-Museu Guerra Junqueiro",
+    "year": "1730",
+    "short": "A Baroque 1730 townhouse on Rua de D. Hugo, attributed to Nicolau Nasoni: the house-museum of the poet Guerra Junqueiro, holding his collection of decorative arts.",
+    "long": "The Casa-Museu Guerra Junqueiro, also known as Casa do Dr. Domingos Barbosa, is an old granite mansion at Rua de D. Hugo 32, in Porto's historic centre. It is dated to 1730 and attributed to the architect Nicolau Nasoni. In 1940 the poet Guerra Junqueiro's family gave the house and its collections to the city council on condition that the objects he had gathered be displayed. The museum holds sacred art, faience from Viana do Castelo, Nuremberg plates, ceramics and furniture.",
+    "history": "The townhouse at Rua de D. Hugo 32 is dated to 1730. Built in the Baroque style, it is attributed to Nicolau Nasoni, the Italian master who worked in Porto on the Clérigos, the cathedral and the bishop's palace. For a long time the house was known as Casa do Dr. Domingos Barbosa, after one of its owners; it was later also called Casa dos Miranda. Its sober granite facade, window surrounds, stone staircase and small chapel are typical of an 18th-century Porto burgher's house.\n\nGuerra Junqueiro (1850–1923) was born in Freixo de Espada à Cinta, published his first verses at fourteen and became one of Portugal's most widely read poets and a prominent republican. All his life he collected works of art and dreamed of a house where his collection could be shown. After his death his wife and daughter Maria Isabel Guerra Junqueiro fulfilled that wish.\n\nIn 1940 the family handed the building and the collection to the Porto municipality on condition that the pieces the poet had brought back from his many travels be exhibited. The museum in his memory was created in 1942. Its displays combine decorative arts with his literary legacy: alongside the showcases are the poet's library and archive.\n\nAmong the exhibits are a collection of sacred art, faience from Viana do Castelo, plates from Nuremberg, ceramics, furniture and oriental objects. The building is listed as Imóvel de Interesse Público (SIPA 5468, DGPC 74495). A bronze statue of Guerra Junqueiro stands before the house, a reminder that the museum is devoted not only to the collection but to its creator.\n\nToday the Casa-Museu remains one of Porto's municipal museums and part of the city's house-museum group. It stands a few steps from the cathedral and the Ribeira, in a quarter where the old townscape survives on the slope between the Sé and the river. Its small rooms and inner courtyard make for a quiet, intimate visit.",
+    "facts": [
+      "The townhouse is dated to 1730 and attributed to the architect Nicolau Nasoni.",
+      "It is also known as Casa do Dr. Domingos Barbosa, after one of its owners.",
+      "The museum is at Rua de D. Hugo 32, in Porto's historic centre.",
+      "In 1940 the poet's family gave the house and collections to the city council.",
+      "Guerra Junqueiro (1850–1923) was a poet and republican born in Freixo de Espada à Cinta.",
+      "The collection includes sacred art, Viana faience, Nuremberg plates, ceramics and furniture.",
+      "The building is listed as Imóvel de Interesse Público (SIPA 5468)."
+    ],
+    "tip": "The museum is small — forty minutes is enough — and worth stepping into its inner courtyard with the poet's statue. Rua de D. Hugo is narrow and slopes between the Sé and the Ribeira, so combine the visit with a walk to the cathedral or the waterfront. Look for the entrance at number 32; the nearest bus stops are by the Sé and at Praça da Ribeira.",
+    "gallery": [
+      {
+        "caption": "Casa-Museu Guerra Junqueiro — the main facade."
+      },
+      {
+        "caption": "Casa-Museu Guerra Junqueiro — the street facade."
+      }
+    ],
+    "panorama": null
+  },
+  "teatro-rivoli": {
+    "name": "Rivoli Municipal Theatre",
+    "year": "1913",
+    "short": "A city stage on Praça de D. João I, opened in 1913 as the Teatro Nacional and remodelled in 1923: one of Porto's main theatre venues.",
+    "long": "The Rivoli Theatre is one of the two poles of the Municipal Theatre of Porto (the other is the Campo Alegre Theatre) and belongs to the city council. It stands on Praça de D. João I, between the Aliados and the Batalha. Opened in 1913 as the Teatro Nacional and remodelled in 1923 by the architect-engineer Júlio José de Brito, it became the Rivoli and was adapted for cinema, opera, dance and concerts. In the 1940s and 1950s it enjoyed golden years under Maria Borges, when a high-relief by the sculptor Henrique Moreira was added to the top of the facade.",
+    "history": "The theatre on Praça de D. João I opened in 1913 as the Teatro Nacional. Changes in the city centre soon forced a rethink, and in 1923 it reappeared, remodelled, as the Teatro Rivoli — adapted for cinema and with a programme of opera, dance, theatre and concerts. The architectural project was by the architect-engineer Júlio José de Brito.\n\nThe 1940s and 1950s were the golden period of the Rivoli, bound to the name of Maria Borges, daughter of Manuel Pires Fernandes. She took the theatre on as a personal project and made many improvements. The most striking was the high-relief at the top of the facade by the sculptor Henrique Moreira, which can still be seen today.\n\nAfter Maria Borges fell ill and moved to Lisbon, the theatre declined. In the 1970s its finances worsened: obsolete equipment, no regular programme and no loyal audience. In 1989 the Porto council decided to buy the building in order to give it back to the city and its people.\n\nIn 1992 the theatre closed for a full remodelling designed by the architect Pedro Ramalho. Its existing 6,000 m² were enlarged to more than 11,000 m²: a second auditorium, a café-concert room, a rehearsal room, an artists' foyer and administrative and technical spaces were created. On 16 October 1997 the Rivoli reopened.\n\nFrom 2007 to 2011 the theatre was run by Filipe La Féria. In 2014 the culture department of the Porto council definitively took charge of the Municipal Theatre (Rivoli and Campo Alegre). That autumn the programme 'O Rivoli Já Dança!' was staged, and in January 2015 the new artistic director, Tiago Guedes, presented a programme that put the Rivoli back on the map of major national and international cultural events.",
+    "facts": [
+      "The theatre opened in 1913 under the name Teatro Nacional.",
+      "It was remodelled in 1923 and renamed Rivoli; the project was by Júlio José de Brito.",
+      "The auditorium seats around 1,300 people.",
+      "The high-relief at the top of the facade was made by the sculptor Henrique Moreira in the 1940s–50s.",
+      "The Porto council bought the theatre in 1989; from 1992 it was remodelled by Pedro Ramalho.",
+      "The theatre reopened on 16 October 1997, its area growing from 6,000 to 11,000 m².",
+      "Since 2015 its artistic director has been Tiago Guedes; it forms part of the Municipal Theatre of Porto."
+    ],
+    "tip": "The Rivoli stands right on Praça de D. João I, between the Bolhão metro station and the Aliados — easy to reach on foot. Book ahead: tickets for popular plays and festival screenings sell out quickly. A good plan is to pair an evening performance with dinner in the Batalha area; afterwards the square is beautifully lit.",
+    "gallery": [
+      {
+        "caption": "The Rivoli Theatre — the facade on Praça de D. João I."
+      },
+      {
+        "caption": "The Rivoli Theatre — the auditorium."
+      }
+    ],
+    "panorama": null
+  },
+  "cinema-batalha": {
+    "name": "Batalha Cinema Centre",
+    "year": "1947",
+    "short": "A striking Art Deco landmark on Praça da Batalha, opened in 1947 to a design by Artur Andrade; today a municipal cinema centre with restored Júlio Pomar frescoes.",
+    "long": "The Batalha is a remarkable Art Deco building on Praça da Batalha in Porto. Its predecessor, the Salão High-Life, settled here in 1908, and from 1913 the cinema carried the name Batalha. In 1944–1947 the architect Artur Andrade built the present building, opened on 3 June 1947. Its facade combines vertical piers, a tower-like accent and a bas-relief by Américo Soares Braga. After restoration it now operates as the Batalha Centro de Cinema.",
+    "history": "The Salão High-Life, created in 1906, first stood at the Feira de São Miguel (today's Rotunda da Boavista), then moved to the Cordoaria garden, and in 1908 settled permanently on Praça da Batalha as the Novo Salão High-Life. It was the first cinema to hold public screenings; it was run by Manuel da Silva Neves and Edmond Pascaud, who founded the firm Neves & Pascaud. From 1913 the venue was called Cinema Batalha.\n\nIn 1944 the old cinema was demolished and a new building rose on the site. The design by the architect Artur Andrade went through a 1942 ante-project and a 1944 second version, with the final drawing made in 1945 and completed in 1947. From an initial Déco root the project evolved towards dynamic forms under the influence of the International Style, exploiting concrete and glass. The main auditorium held 950 seats: stalls 346, tribune 222, balcony 382.\n\nThe building married architecture, sculpture and mural painting. Júlio Pomar painted the foyer frescoes, Augusto Gomes the high-relief in the main hall, António Sampaio the staircase painting, Américo Soares Braga the facade bas-relief, and Arlindo Rocha the statue of the goddess Flora. Many of these Neo-Realist works were censored: in June 1948 Pomar's frescoes were ordered hidden and a sickle and hammer were removed from Braga's bas-relief.\n\nIn 1976 a small Sala Bebé seating 135 opened in the basement. In the 1980s and 1990s traditional cinemas lost audiences to multiplexes; the last well-attended screening was the premiere of Titanic in 1998, and in August 2000 the cinema closed. In 2012 the building was classified as a Monumento de Interesse Público, after which it hosted occasional events — TEDx Porto, OFFF Porto, Desobedoc.\n\nIn January 2017 the city leased the cinema for 25 years as a municipal film centre. The renovation by Atelier 15 (Alexandre Alves Costa and Sérgio Fernandez) began in 2019. On 9 December 2022 the centre opened as the Batalha Centro de Cinema, with a 341-seat Sala Grande and a studio room; Pomar's frescoes, hidden under seven layers of paint, were uncovered and returned to the public.",
+    "facts": [
+      "The cinema traces its history to the Salão High-Life (1906) and has been called Batalha since 1913.",
+      "Its new Art Deco building, by Artur Andrade, opened on 3 June 1947.",
+      "The main auditorium held 950 seats: stalls 346, tribune 222, balcony 382.",
+      "Júlio Pomar, Américo Soares Braga and Arlindo Rocha contributed artwork; some was censored in 1948.",
+      "The small 135-seat Sala Bebé opened in the basement in 1976.",
+      "The cinema closed in August 2000 and was classified a Monumento de Interesse Público in 2012.",
+      "After a 2019–2022 renovation it reopened on 9 December 2022; Pomar's frescoes were found under seven paint layers."
+    ],
+    "tip": "The Batalha stands right on Praça da Batalha, beside the São João theatre and five minutes from the Bolhão metro station. Go in daytime to study the facade bas-relief and interiors without a crowd; check the film and exhibition schedule on the centre's website. The building has a café and a rooftop terrace — a good spot for a break between screenings.",
+    "gallery": [
+      {
+        "caption": "Batalha Cinema — a detail of the Art Deco facade."
+      },
+      {
+        "caption": "Batalha Cinema — the corner tower on Praça da Batalha."
+      }
+    ],
+    "panorama": null
+  },
+  "cadeia-relacao": {
+    "name": "Old Prison and Court of the Relação",
+    "year": "1765",
+    "short": "A granite building of 1765–1796 designed by Eugénio dos Santos: Porto's prison and appeals court, and since 2001 the Portuguese Photography Centre.",
+    "long": "The old Cadeia da Relação is a historic granite building on Campo dos Mártires da Pátria in Porto. Planned in 1765 to a design by the engineer Eugénio dos Santos, one of the architects of post-earthquake Lisbon, it took thirty years to build and was completed in 1796. It housed the Porto appeals court and a prison that operated until 1974. After restoration, since 2001 it has been occupied by the Portuguese Photography Centre (Centro Português de Fotografia).",
+    "history": "The Porto appeals court (Tribunal da Relação) was founded on 27 July 1582 but long had no building of its own and moved from one borrowed room to another. Only in 1603 did Philip II order a house to be built for the court and prison; work at Campo do Olival began in 1606 and lasted three years. On 1 April 1752, Holy Saturday, that building collapsed completely, and the court returned to the city hall.\n\nA new home for the Relação and the prison was begun on the ruins in 1765 on the initiative of João de Almada e Melo, governor of justice and arms of Porto. The plan was drawn up by the engineer and architect Eugénio dos Santos, a participant in the rebuilding of Lisbon after the earthquake; after his death the works were led by the military engineer Francisco Pinheiro da Cunha. The building cost 200 contos de réis and took thirty years — it was finished only in 1796.\n\nThe prison cells were named after saints: Santo António and Sant'Ana for men, Santa Teresa for women, Santa Rita for minors. There were also 'salons' — do Carmo and de São José — with wooden floors, for a place in which one paid 1$500 réis. In the court hall there was a chapel: royal ordinances required a priest to say Mass there every morning, and the prisoners heard it through the grilles facing the inner yard.\n\nFamous names are linked to the prison. In 1846 the Duke of Terceira was held here with generals and officers; in 1860 the writer Camilo Castelo Branco occupied the 'room of São João' together with Ana Plácido, both accused of adultery. Later came the banker Roriz, the doctor Urbino de Freitas, the outlaw Zé do Telhado, the Miguelite leader Pita Bezerra and the political journalist João Chagas.\n\nIn 1961 construction of a new Porto prison began at Custóias; in 1974, after the revolution, the inmates were moved there and the Relação building was occupied by various groups and families, which left it rapidly dilapidated. Restoration began in 1988 to a design by the architect Humberto Vieira. In 1997 the Portuguese Photography Centre was created, and in 2000 the building closed to complete the works; the renovation project was carried out by the architects Eduardo Souto de Moura and Humberto Vieira. The centre opened in October 2001, and today it preserves and exhibits Portugal's photographic heritage.",
+    "facts": [
+      "The Porto appeals court was founded on 27 July 1582.",
+      "The earlier court and prison building collapsed on 1 April 1752.",
+      "The new building was begun in 1765 to a design by Eugénio dos Santos.",
+      "Construction took thirty years and was completed in 1796.",
+      "The cells were named after saints; 'salons' with wooden floors cost 1$500 réis.",
+      "In 1860 the writer Camilo Castelo Branco was held here with Ana Plácido.",
+      "The prison operated until 1974; since 2001 the building has housed the Portuguese Photography Centre."
+    ],
+    "tip": "The photography centre stands above the Cordoaria, at Campo dos Mártires da Pátria; entry is usually free, but exhibition hours change — check cpf.pt. Look into the inner courtyard with its Neptune fountain and climb the stone staircase: the prison interiors are preserved. From here it is easy to walk down to the Ribeira or across to São Bento.",
+    "gallery": [
+      {
+        "caption": "The old Relação prison — the Portuguese Photography Centre building."
+      },
+      {
+        "caption": "The old Relação prison — stone interiors and courtyard."
+      }
+    ],
+    "panorama": null
+  },
+  "almeida-garrett": {
+    "name": "Almeida Garrett Municipal Library",
+    "year": "2001",
+    "short": "A city library opened in 2001 in the Palácio de Cristal gardens, named after the writer Almeida Garrett and serving Massarelos as a reading room, gallery and cultural centre.",
+    "long": "The Almeida Garrett Municipal Library opened on 2 April 2001, when Porto was European Capital of Culture. Designed by the architect José Manuel Soares, it stands in the Jardins do Palácio de Cristal, in the Massarelos district above the Douro. Besides its reading rooms it holds an exhibition gallery, a café with a terrace and a small auditorium. It is named after João Baptista de Almeida Garrett, the leading writer of Portuguese Romanticism, who was born in Porto in 1799.",
+    "history": "The Almeida Garrett Municipal Library opened on 2 April 2001, in the year Porto was European Capital of Culture. The building was designed by the architect José Manuel Soares. Alongside the reading rooms it holds an exhibition gallery, a café with a terrace and a small auditorium. It stands in the Jardins do Palácio de Cristal, in Massarelos, among avenues of lime trees and camellias above the Douro.\n\nThe library takes its name from João Baptista da Silva Leitão de Almeida Garrett (1799–1854), writer, playwright and politician, the major figure of Portuguese Romanticism. Garrett was born in Porto on 4 February 1799 in a house on the old Rua do Calvário, today Rua Dr. Barbosa de Castro. He took part in the liberal revolution, went into exile in England, where he discovered Shakespeare and Walter Scott, and returned to create a national theatre: the Teatro Nacional D. Maria II, in Lisbon, was his idea.\n\nIn 1832 Garrett fought in the Academic Battalion during the Siege of Porto, and after the liberal victory he held ministerial office. He wrote the poems Camões and Dona Branca, the novel Viagens na Minha Terra and the play Frei Luís de Sousa. In 1851 King Pedro V granted him the title of Viscount of Almeida Garrett. He died in Lisbon in 1854 and now lies in the Portuguese National Pantheon.\n\nThe library belongs to the city's public library network and is free to all. It preserves and digitises Porto's newspapers and periodicals, and runs exhibitions, talks and educational programmes for children. The building is deliberately modest and set into the garden: the reading rooms are lit through large windows, and the terrace looks out on the park's greenery. In this way the library continues the tradition of the Crystal Palace, which served the city as a place of meeting and enlightenment.",
+    "facts": [
+      "The library opened on 2 April 2001, designed by the architect José Manuel Soares for Porto's year as European Capital of Culture.",
+      "It is named after João Baptista de Almeida Garrett (1799–1854), the leading writer of Portuguese Romanticism.",
+      "It stands in the Jardins do Palácio de Cristal in Massarelos, with a gallery, a café terrace and a small auditorium.",
+      "Garrett was born in Porto on 4 February 1799, in a house on the Rua do Calvário, now Rua Dr. Barbosa de Castro.",
+      "The Teatro Nacional D. Maria II in Lisbon was his idea; in 1832 he fought in the Academic Battalion at the Siege of Porto.",
+      "The library is part of the national public library network, free to enter, and preserves and digitises Porto's periodicals."
+    ],
+    "tip": "Stop by the library after a walk in the Palácio de Cristal gardens: entry is free and the café terrace looks out over the park. It is an easy walk from the garden's mirador; buses run along Rua de Entre-Quintas. Check the opening hours, as some rooms close on Mondays.",
+    "gallery": [
+      {
+        "caption": "The Almeida Garrett library building in the Palácio de Cristal gardens."
+      },
+      {
+        "caption": "The Jardins do Palácio de Cristal, the park that frames the library."
+      }
+    ],
+    "panorama": null
+  },
+  "museu-misericordia": {
+    "name": "Museu and Church of the Misericórdia",
+    "year": "2015",
+    "short": "The Misericórdia Museum on Rua das Flores, opened in 2015: five centuries of a brotherhood founded in 1499, a Baroque church by Nasoni and a celebrated silver collection.",
+    "long": "The Misericórdia Museum and Church form a single ensemble on Rua das Flores, in Porto's historic centre. The Santa Casa da Misericórdia, founded on 14 March 1499, is one of Portugal's oldest charitable brotherhoods; beside its headquarters stands the Church of the Misericórdia, rebuilt in the 18th century to a design by Niccolò Nasoni. The museum (MMIPO) opened on 14 July 2015 after a renovation and displays painting, sculpture, vestments, drawings by Nasoni and a priceless collection of church silver from the 16th to the 19th century.",
+    "history": "The Santa Casa da Misericórdia do Porto was founded on 14 March 1499 and is one of Portugal's oldest charitable brotherhoods. For five centuries it ran hospitals and shelters and cared for the poor, the sick and the homeless, with its headquarters beside the Church of the Misericórdia on Rua das Flores, one of the main streets of the historic centre.\n\nThe Church of the Misericórdia was built in the 1550s and rebuilt in the mid-18th century. The design of its new facade and interior belongs to the Italian architect Niccolò Nasoni, who was then also working on Porto Cathedral. The church is still in use today, and its Baroque altarpiece and stone carving form part of the museum route, linking the place of worship with the exhibition spaces.\n\nThe dream of a museum of its own was cherished by the Count of Samodães, provedor of the brotherhood at the end of the 19th century. More than 120 years passed before it came true, as the urgent work of social care repeatedly pushed the plan aside. Only in 2015, with city and European funding, did the museum finally open, on 14 July, on Rua das Flores. The investment came to about 1.2 million euros, 80 % of it covered by European Union funds.\n\nThe collection spans five centuries of history: painting and sculpture, liturgical vestments, documents and, above all, a much-admired collection of silver — church plate from the 16th to the 19th century. A separate room is devoted to Nasoni's drawings and manuscripts. Together, church and museum show how faith, craft and mercy intertwined in the life of the city.",
+    "facts": [
+      "The Santa Casa da Misericórdia do Porto was founded on 14 March 1499, one of the country's oldest charitable brotherhoods.",
+      "The museum (MMIPO) opened on 14 July 2015 on Rua das Flores, after a project dreamed of for more than 120 years.",
+      "The renovation cost about 1.2 million euros, 80 % of it covered by European Union funds.",
+      "The Church of the Misericórdia was built in the 1550s and rebuilt in the 18th century to a design by Niccolò Nasoni.",
+      "The collection holds painting, sculpture, vestments and Nasoni drawings spanning five centuries.",
+      "Its church silver (ourivesaria), from the 16th to the 19th century, is a particular highlight."
+    ],
+    "tip": "The church and museum are on Rua das Flores, a two-minute walk from São Bento station, so it pairs well with a stroll down the street. Take the combined ticket and do not miss the silver room and Nasoni's drawings. On Sunday mornings part of the museum may close for services, so check the timetable at mmipo.pt.",
+    "gallery": [
+      {
+        "caption": "The Church of the Misericórdia on Rua das Flores, with Nasoni's facade."
+      },
+      {
+        "caption": "The high altar of the Church of the Misericórdia."
+      }
+    ],
+    "panorama": null
+  },
+  "parque-cidade": {
+    "name": "Porto City Park",
+    "year": "1993",
+    "short": "Portugal's largest urban park on Porto's ocean front: 83 hectares, about 10 km of paths, lakes and wooded groves designed by Sidónio Pardal.",
+    "long": "The City Park (Parque da Cidade) is Portugal's largest urban green space: 83 hectares and about 10 kilometres of paths. It was designed by the landscape architect Sidónio Pardal; construction began in 1991 and the park opened in 1993. It reaches the ocean in broad open meadows and hides lakes and groves behind stone terraces and boulders. Within it stand the Water Pavilion from Expo 98, the Sea Life aquarium and the Queimódromo field, home to the Queima das Fitas and the Porto Marathon.",
+    "history": "The idea of a great city park on Porto's western edge took a long time to ripen. As early as 1916–1918 the engineer Ezequiel de Campos proposed buying land for a park; in the 1960s sites were reserved in Robert Auzelle's urban plan, conceptual studies began in 1982, and an exhibition of the schemes was held at the Casa do Infante historical archive. Only in 1991 did sustained construction begin, to Sidónio Pardal's design.\n\nThe park opened in 1993 and became Portugal's largest urban green space: 83 hectares and about 10 kilometres of paths. Pardal created not wilderness but a carefully composed landscape of lakes, groves, stone terraces and lawns. Its relief, boulders and trees make secluded corners where the dense city seems far away, while to the ocean the park opens into broad meadows.\n\nOver time the park acquired cultural buildings. The Water Pavilion (Pavilhão da Água), made for Expo 98, was installed here and opened to the public on 28 December 2002. On 18 June 2009 the Sea Life Center aquarium opened beside the Castelo do Queijo roundabout, the city's first privately run aquarium. On the adjoining Queimódromo field the Queima das Fitas, the start and finish of the Porto Marathon and other large events are held.\n\nToday the park is also an ecological reserve: dozens of bird species are watched here, and its meadows and waters sustain biodiversity within the city. There are plans to extend it towards Matosinhos and to link it with Parque Real beneath the ring road. For the people of Porto it is a place for long walks, runs and picnics by the ocean.",
+    "facts": [
+      "The park covers 83 hectares and is Portugal's largest urban green space, with almost 10 km of paths.",
+      "It was designed by the landscape architect Sidónio Pardal; construction began in 1991 and it opened in 1993.",
+      "The first proposals for a city park date to 1916–1918, and land was reserved in the Auzelle plan in the 1960s.",
+      "The Water Pavilion from Expo 98 opened in the park on 28 December 2002.",
+      "The Sea Life Center aquarium opened on 18 June 2009 by the Castelo do Queijo roundabout.",
+      "The Queimódromo field hosts the Queima das Fitas, the Porto Marathon and other city events."
+    ],
+    "tip": "Rent a bike or simply follow the circular path: in two or three hours you can walk from the lakes to the ocean shore. Go early or at sunset, when the sun drops over the water. Bring water and a blanket for a picnic on the meadow; the nearest metro is Casa da Música, then a bus towards Boavista or Foz.",
+    "gallery": [
+      {
+        "caption": "Porto City Park from the air: meadows, groves and lakes."
+      },
+      {
+        "caption": "A lake in the City Park."
+      }
+    ],
+    "panorama": null
+  },
+  "cordoaria": {
+    "name": "João Chagas Garden (Cordoaria)",
+    "year": "1865",
+    "short": "A romantic garden of 1865 beside the Clérigos tower, known for its sculptures by Teixeira Lopes and Juan Muñoz's 'Thirteen Laughing at Each Other'.",
+    "long": "The João Chagas Garden, which everyone calls the Cordoaria, lies on the Campo dos Mártires da Pátria, between the Clérigos tower, the Palácio da Justiça and the old Cadeia da Relação prison. It was founded in 1865 by the Viscount of Vilar d'Allen, with an initial design by the German landscape architect Émile David. A cyclone in 1941 greatly changed the garden, and it was remodelled in 2001 to a design by Camilo Cortesão. Here stand 'Flora' by Teixeira Lopes and the bronze figures of Juan Muñoz.",
+    "history": "The João Chagas Garden, known to everyone as the Cordoaria, lies on the Campo dos Mártires da Pátria, a step from the Clérigos tower and the Palácio da Justiça. Its official name honours the journalist and politician João Chagas, but the old name recalls the ropeworks (cordoaria) that once occupied the site. The garden covers about 1.59 hectares.\n\nThe park was founded in 1865 by the Viscount of Vilar d'Allen, with an initial design by the German landscape architect Émile David — the same man who laid out the Palácio de Cristal gardens. Its romantic layout of winding avenues and dense canopies was badly damaged in 1941, when a cyclone struck the city and visibly changed the garden's appearance.\n\nIn the late 20th century, as part of the 'Porto 2001 — European Capital of Culture' programme, the garden was remodelled to a design by the architect Camilo Cortesão. Many residents and associations fiercely criticised the work, which markedly changed the historic character of the place, removing old trees and laying new paths.\n\nThe Cordoaria is known for its sculptures. Here stand 'Flora' (1904) by António Teixeira Lopes and monuments to the writers Ramalho Ortigão (1909, by Leopoldo de Almeida) and António Nobre (1926, by Tomás Costa). In 2001 Juan Muñoz's 'Thirteen Laughing at Each Other' joined them — thirteen bronze figures frozen in an ironic ring. Nearby is the old Cadeia da Relação prison, now home to the Portuguese Centre of Photography.",
+    "facts": [
+      "The garden was founded in 1865 by the Viscount of Vilar d'Allen, with an initial design by the German landscape architect Émile David.",
+      "It covers about 1.59 hectares and is officially named after the journalist João Chagas.",
+      "A cyclone in 1941 greatly changed the garden, and its 2001 remodelling was controversial.",
+      "It holds 'Flora' (1904) by António Teixeira Lopes and a monument to Ramalho Ortigão (1909) by Leopoldo de Almeida.",
+      "The monument to António Nobre (1926) was made by Tomás Costa.",
+      "'Thirteen Laughing at Each Other' (2001) is a group of thirteen bronze figures by Juan Muñoz."
+    ],
+    "tip": "Drop in on the way from the Clérigos tower to the Palácio da Justiça: the shade of the great plane trees and the benches make the garden an easy rest. Be sure to find Juan Muñoz's 'laughing' figures, as they are easy to miss among the trees. Next door, in the old prison, the Portuguese Centre of Photography is worth a look; the nearest metro is São Bento.",
+    "gallery": [
+      {
+        "caption": "The Cordoaria garden with its avenue and old trees."
+      },
+      {
+        "caption": "'Thirteen Laughing at Each Other' by Juan Muñoz."
+      }
+    ],
+    "panorama": null
+  },
+  "sao-lazaro": {
+    "name": "São Lázaro Garden",
+    "year": "1834",
+    "short": "Porto's oldest municipal garden, opened in 1834: lime trees, a cast-iron coreto bandstand and sculptures beside the Public Library and the Nossa Senhora da Esperança church.",
+    "long": "The São Lázaro Garden is Porto's oldest municipal garden, opened in 1834; officially it is named after the painter Marques de Oliveira. It covers only about 0.67 hectares, yet its history is closely woven into the city's. It is laid out in the romantic spirit, with imposing lime trees, a cast-iron coreto (bandstand) and sculpture groups that sit next to the School of Fine Arts. To the west stands the Porto Public Municipal Library; to the south, the Baroque facade of the old São Lázaro convent, attributed to Niccolò Nasoni.",
+    "history": "The São Lázaro Garden is Porto's oldest municipal garden, opened in 1834. Officially it bears the name of the painter Marques de Oliveira, but residents know it by the old hospital of Saint Lazarus that once stood nearby. The garden covers only about 0.67 hectares, yet its history is closely woven into the city's.\n\nLaid out in the romantic spirit, the garden keeps an atmosphere of shade and seclusion. It is graced by imposing lime trees and by a cast-iron coreto — a bandstand for the orchestra that has become one of the symbols of the place. The sculpture groups here are no accident: the Porto School of Fine Arts stands close by, and many of the works were made by its students and graduates. A fountain taken from the old São Domingos convent is set into the garden's north railing.\n\nTo the west of the garden stands the Porto Public Municipal Library, opened in 1842; to the south, the Baroque facade of the old São Lázaro convent (the church of Nossa Senhora da Esperança), attributed to Niccolò Nasoni. The hospital of Saint Lazarus that gave the place its name was one of the oldest in Porto; after the dissolution of the monasteries in 1834 its grounds were turned into a public garden.\n\nThe garden remains a quiet island of green in a busy centre. People meet here, read on the benches and, in summer, listen to music by the coreto. It is a reminder that Porto is a city not only of granite and trade but also of gardens made for the rest of its people.",
+    "facts": [
+      "Opened in 1834, it is Porto's oldest municipal garden and is officially named after the painter Marques de Oliveira.",
+      "It covers about 0.67 hectares and is laid out in the romantic style.",
+      "Its best-known feature is the cast-iron coreto, or bandstand, surviving from the 19th century.",
+      "A fountain from the old São Domingos convent is set into the garden's north railing.",
+      "To the west stands the Porto Public Municipal Library, opened in 1842.",
+      "To the south is the Baroque facade of the old São Lázaro convent, attributed to Niccolò Nasoni."
+    ],
+    "tip": "Come in the morning, when the garden is nearly empty: the shade of the lime trees and the quiet make it the best break between Trindade and the Coliseu. Find the coreto and the fountain by the north railing, then step into the adjoining Public Library, usually free to enter. The nearest metro is Trindade or Bolhão, a few minutes' walk away.",
+    "gallery": [
+      {
+        "caption": "The cast-iron coreto (bandstand) in São Lázaro Garden."
+      },
+      {
+        "caption": "A sculpture in São Lázaro Garden."
+      }
+    ],
+    "panorama": null
+  },
+  "passeio-alegre": {
+    "name": "Passeio Alegre Garden",
+    "year": "19th century",
+    "short": "A riverside garden in Foz do Douro laid out in the late 19th century by Émile David: palm avenues, a Nasoni fountain and obelisks, with views over the Douro mouth and the Atlantic.",
+    "long": "The Jardim do Passeio Alegre is an old public garden in Foz do Douro, at the very mouth of the Douro where the river meets the Atlantic. It was laid out in the late 19th century by the landscape architect Émile David across some 4.19 hectares. Straight avenues, flower beds, shady planes and tall palms lead down to the promenade, which opens onto the ocean and the lighthouses guarding the harbour entrance. The garden and its surrounding urban ensemble have been listed as a Portuguese property of public interest since 1993.",
+    "history": "The public garden at Foz do Douro was laid out in the late 19th century to a design by the landscape architect Émile David. It took about 4.19 hectares of flat riverside land at the mouth of the Douro, where the river still feels the tide and the Atlantic opens beyond the point. The plan combined the strict geometry of a boulevard with a seaside walk along the water.\n\nFoz do Douro itself is far older: it became a parish in 1836, but its first chapel, São João da Foz, was granted by King Afonso Henriques as early as 1145 and later passed to the Benedictine monastery of Santo Tirso. By the late 19th century Foz had become an aristocratic summer district of Porto, and the garden became its drawing room.\n\nThe garden's centrepiece is an 18th-century fountain by Nicolau Nasoni, made for the gardens of the Quinta da Prelada estate of the Noronha e Meneses family. In the 20th century, when the city bought the estate for a municipal campsite, the fountain was dismantled and moved here. Some scholars believe it originally stood in the cloister of the São Francisco convent, destroyed in 1833 during the Siege of Porto. It has been a national monument since 1910.\n\nTwo 18th-century obelisks from the same Quinta da Prelada also came into the garden and are attributed to Nasoni. The Passeio Alegre ensemble includes further monuments: the house of the Viscount of Oliveira, the sailors' chapel of Nossa Senhora da Lapa, the Swiss Chalet (Chalet do Carneiro), a tide gauge and old lamp posts. In 1993 the whole ensemble was listed as a property of public interest.\n\nToday Passeio Alegre is a favourite place to walk: the historic tram 1 from Ribeira runs alongside it, a band plays at the bandstand in the shade of the palms, and at dusk the sun sets over the ocean beyond the promenade. Nearby stand the São Miguel-o-Anjo and Felgueiras lighthouses and the old Fort of São João Baptista.",
+    "facts": [
+      "The garden was laid out in the late 19th century by landscape architect Émile David.",
+      "It covers about 4.19 hectares at the mouth of the Douro.",
+      "Since 1993 the Passeio Alegre ensemble has been a property of public interest (IIP).",
+      "Its 18th-century fountain by Nicolau Nasoni was moved here from the Quinta da Prelada.",
+      "The fountain has been a national monument since 1910.",
+      "Two 18th-century obelisks from the Quinta da Prelada are attributed to Nasoni.",
+      "The ensemble includes the Swiss Chalet (Chalet do Carneiro), a municipal monument.",
+      "The historic tram 1 from Ribeira runs along the garden."
+    ],
+    "tip": "Come at sunset: the garden sits right at the mouth of the Douro and the sun sets over the ocean opposite the avenues. The easiest way is the historic tram 1 from Ribeira or buses to Foz do Douro. Look in on the Swiss Chalet and the Nasoni fountain, then walk on to the Felgueiras lighthouse and the Fort of São João Baptista, all on one route. In summer there are fairs and music at the bandstand at weekends.",
+    "gallery": [
+      {
+        "caption": "Passeio Alegre: a garden avenue lined with tall palms."
+      },
+      {
+        "caption": "The Swiss Chalet (Chalet do Carneiro) inside the Passeio Alegre garden."
+      }
+    ],
+    "panorama": null
+  },
+  "praca-batalha": {
+    "name": "Batalha Square",
+    "year": "16th century",
+    "short": "One of Porto's oldest squares, opened in the 16th century: the statue of King Pedro V, the São João National Theatre, the Batalha Palace and the Church of Saint Ildefonso with Jorge Colaço's azulejos.",
+    "long": "Praça da Batalha lies between the parishes of Sé and Santo Ildefonso, in the heart of lower Porto. It opened as a city square in the 16th century and changed names several times — Campo do Pombal, Largo de Santo Ildefonso — before settling on Batalha, meaning Battle. Today it is framed by monuments from different eras: the statue of King Pedro V, the Batalha Palace, the São João National Theatre and the Church of Saint Ildefonso, whose facade is clad in azulejo tiles.",
+    "history": "Legend says the square takes its name from a bloody 10th-century battle between Almanzor's army and the people of Porto, who were defeated and whose city was then razed. Its recorded history begins in the 16th century, when it was open ground beside the city walls. In the south-west corner stood the Porta do Cimo de Vila gate of the Fernandine Wall, next to the chapel of Nossa Senhora da Batalha. In the 18th century the wall was demolished and the quarter changed greatly.\n\nOn the east side, in the late 18th century, the Melo Correia family built a mansion with a coat of arms — the future Batalha Palace. In 1826 it was sold to José Anastácio da Silva da Fonseca, a knight of the royal household. During the Siege of Porto its pro-Miguelist owners fled and the liberal government took it over, using it for public institutions and a military hospital. It was here that Bernardo de Sá Nogueira, later Marquis of Sá da Bandeira, was treated after being gravely wounded, and where his right arm was amputated. In 1861, when the square was levelled, the palace ended up about a metre above the pavement, and the city paid compensation to lower its base. For much of the 20th century it housed the central post, telegraph and telephone office, and in 2009 it was sold to a hotel group.\n\nSince 1866 the centre of the square has held the monument to King Pedro V by José Teixeira Lopes the elder. The south side is taken by the São João National Theatre. Its first theatre, the Real Teatro de São João, was built in 1794 to a design by the Italian Vicente Mazzoneschi and opened on 13 May 1798 with the comedy A Vivandeira, to mark the birthday of Prince João — which is why it was first called the Theatre of the Prince. On 11 April 1908 a violent fire destroyed the building; rebuilt to a design by Marques da Silva, it reopened on 7 March 1920. The state bought it in 1992, restored it in 1993–1995, and in 2012 it was declared a national monument.\n\nOn the north side stands the Church of Saint Ildefonso, rebuilt in 1730; in 1932 the painter Jorge Colaço covered its facade with azulejos. The Cinema Batalha (1947, architect Artur Andrade) is here too. Under the Porto 2001 programme the square, Largo de Santo Ildefonso and neighbouring streets were redeveloped under the architect Adalberto Dias, with Fernando Távora, Álvaro Siza, Souto de Moura and others taking part.",
+    "facts": [
+      "The square opened in the 16th century and was once called Campo do Pombal and Largo de Santo Ildefonso.",
+      "The statue of King Pedro V by Teixeira Lopes the elder was erected in 1866.",
+      "The São João Theatre opened on 13 May 1798 with the comedy A Vivandeira.",
+      "A fire on 11 April 1908 destroyed the theatre; it reopened on 7 March 1920.",
+      "The São João Theatre, by Marques da Silva, has been a national monument since 2012.",
+      "The Church of Saint Ildefonso was rebuilt in 1730; its azulejos are by Jorge Colaço, 1932.",
+      "The Porta do Cimo de Vila gate of the Fernandine Wall stood in the south-west corner.",
+      "The Porto 2001 redevelopment was coordinated by architect Adalberto Dias."
+    ],
+    "tip": "Look into the São João Theatre foyer during the day when no performance is on, then walk all around the square: the Pedro V statue, the Batalha Palace and the azulejo facade of Saint Ildefonso are three different eras within two hundred metres. The square is 400 metres from São Bento metro (lines D and B). At night the church facade is nicely lit; cafés and shops line nearby Rua de Santa Catarina. It pairs well with a visit to the neighbouring Cinema Batalha.",
+    "gallery": [
+      {
+        "caption": "The São João National Theatre on Batalha Square."
+      },
+      {
+        "caption": "The monument to King Pedro V in the centre of the square."
+      }
+    ],
+    "panorama": null
+  },
+  "castelo-queijo": {
+    "name": "Fort of São Francisco Xavier (Castelo do Queijo)",
+    "year": "1662",
+    "short": "A coastal fort of 1661–1662 on a granite rock at Foz do Douro, nicknamed the Cheese Castle: triangular bastions, domed watch turrets, a drawbridge and gun platforms.",
+    "long": "The Fort of São Francisco Xavier, known as the Castelo do Queijo (Cheese Castle), stands on a granite rock at the very edge of the Atlantic in Foz do Douro, near the mouth of the Douro. Its nickname means Cheese Castle: tradition holds that the rock beneath it was worn by the sea into the shape of a round cheese. Built in 1661–1662 during the War of Restoration, the fort still commands the ocean — from its walls you can see the waves, the beaches and the Felgueiras lighthouse.",
+    "history": "In the mid-17th century the site held the ruins of an older fortification, and these became the foundation of a small maritime fortress. It was built during the Portuguese War of Restoration (1640–1668) at the expense of the Porto city council, when the coast was threatened by the fleet of Galicia. The design is attributed to the French military engineer Miguel de l'École, and the works were directed by Fernando César de Carvalhais Negreiros, captain of the Royal Navy. The exact founding year is unknown: 1661 or 1662; the first date comes from a deed choosing the site, the second from a document showing the works were already advanced by then.\n\nIn the early 18th century the fort became a burden. In 1717 the Porto council asked King John V to decommission it, complaining that the so-called Cheese Castle was useless and superfluous and merely drained the city treasury with pay for officers who never lived there. The king's Council of War rejected the request in 1720.\n\nIn the Liberal Wars, during the Siege of Porto (1828–1834), the fort was held by the conservative forces of Miguel. According to the record, it was bombarded by the combined artillery of the Luz batteries and the ships of Pedro's liberal squadron, which badly damaged its structure. After the battle of Lordelo it was abandoned and looted by the population. In 1839 it was handed to the Veterans' Company, and in 1846, during the Maria da Fonte revolt, it was occupied by the troops of the Porto Junta and shelled by the frigate Iris, loyal to Queen Maria II. In 1890 it passed to the Fiscal Guard, which held it until 1910.\n\nOn 20 March 1934, by Decree no. 23,684, the fort was listed as a property of public interest. In 1949 it was given to the Northern branch of the Portuguese Legion's Naval Brigade, which stayed until the Carnation Revolution of 25 April 1974. Its special protection zone was defined in 1961.\n\nToday the restored fort is in the care of the Commando Association (northern branch), which runs a military history museum and a programme of cultural events. The fort has a triangular plan with solid ashlar walls and pentagonal watch turrets with domes at the corners. On the terrace are broad gun platforms with historic cannon and the service buildings: the commander's house, barracks, powder magazine and cistern. The landward side is protected by moats, a drawbridge and a monumental arched gate crowned with the arms of Portugal.",
+    "facts": [
+      "The fort was built in 1661–1662 during the Portuguese War of Restoration.",
+      "Its nickname comes from the round granite rock, shaped like a cheese.",
+      "The design is attributed to French engineer Miguel de l'École.",
+      "In 1717 the city asked King John V to close it as useless; the request was refused in 1720.",
+      "In the Siege of Porto it was held by Miguelist forces and badly damaged by artillery.",
+      "On 20 March 1934 the fort was listed as a property of public interest (IIP).",
+      "It has a triangular plan, ashlar walls and pentagonal domed watch turrets.",
+      "It today houses a military history museum run by the Commando Association."
+    ],
+    "tip": "The fort sits on the way out of Porto towards Matosinhos, beside Castelo do Queijo beach and the Felgueiras lighthouse — easy to combine with a walk along the promenade. It can be visited as a museum; check opening times, which vary by season. Outside, the gate with the arms of Portugal, the moats and the ocean view are free. Buses stop at Castelo do Queijo; parking along Avenida do Brasil fills up at weekends, so go early.",
+    "gallery": [
+      {
+        "caption": "Castelo do Queijo: general view of the fort on its rock."
+      },
+      {
+        "caption": "The Fort of São Francisco Xavier: walls and bastions."
+      }
+    ],
+    "panorama": null
+  },
+  "praia-ingleses": {
+    "name": "Praia dos Ingleses",
+    "year": "19th century",
+    "short": "An urban sandy beach in Foz do Douro, named in the 19th century after Porto's British community: fine sand, rocks at the waterline, a Blue Flag and open Atlantic views.",
+    "long": "Praia dos Ingleses is a small urban beach in the elegant Foz do Douro, on the boundary between Porto and Matosinhos. It took its name in the 19th century from the large British community it hosted: the English were the first to make a fashion of closing up their city houses and leaving for the sea for a few months. The beach, with fine golden sand and rocky outcrops at the water, flies the Blue Flag; nearby are the Passeio Alegre garden, the Fort of São João Baptista and the Felgueiras lighthouse.",
+    "history": "The name Praia dos Ingleses arose in the 19th century and is tied to Porto's British community, which was especially visible here. The English who lived in the city began the custom of moving to the coast for the summer, and Foz do Douro became their favourite spot: from that habit grew a whole culture of sea bathing and resort life that shaped the district.\n\nFoz do Douro itself became a parish in 1836, but its story runs far deeper: the first chapel, São João da Foz, was granted by King Afonso Henriques as early as 1145 and joined the Benedictine monastery of Santo Tirso in the 13th century. The boundaries of the Couto da Foz were set by Matosinhos to the north and Porto to the east. The beach lies at the entrance to the Douro estuary, one of the country's busiest sea gates.\n\nIn the 19th and 20th centuries a promenade and seafront were built along Foz, linking the beaches with the Passeio Alegre garden, the forts and the lighthouses. Praia dos Ingleses became the resort's classic beach: trams ran here, bathing huts and changing cabins were set up, and fishermen sold their catch on the sand.\n\nToday it is an urban beach of fine sand and a gentle seabed, adjoining Praia do Castelo do Queijo. The shore faces the open Atlantic, so the water is cool and the waves roll in from the ocean — a place loved by surfers and by morning runners on the promenade. Cafés and restaurants with sea views operate nearby.\n\nThe beach flies the Blue Flag and, with the neighbouring beaches, forms the Foz promenade. From here you can see the Felgueiras and São Miguel-o-Anjo lighthouses, the old Fort of São João Baptista and the rocky islet, and in the evening the sun setting over the Atlantic.",
+    "facts": [
+      "The beach's name goes back to the 19th century and Porto's British community.",
+      "The English colony set the fashion of moving to the coast for the summer, shaping the Foz resort.",
+      "The beach flies the Blue Flag and has about 86 metres of sand.",
+      "Foz do Douro became a parish in 1836; the São João da Foz chapel dates from 1145.",
+      "The beach lies at the mouth of the Douro, near the Passeio Alegre garden and Fort São João Baptista.",
+      "The shore faces the open Atlantic: the water is cool and waves are common.",
+      "The Felgueiras and São Miguel-o-Anjo lighthouses and Castelo do Queijo are close by."
+    ],
+    "tip": "Come in the morning — the narrow strip of sand gets crowded later, and the ocean wind picks up. The water is always cool because of the open Atlantic, so swim with care: watch the flags and the waves. You can walk from the Passeio Alegre garden or take tram 1; cafés and toilets are nearby. Combine the visit with the Fort of São João Baptista and the Felgueiras lighthouse.",
+    "gallery": [
+      {
+        "caption": "Praia dos Ingleses: sand and ocean in Foz do Douro."
+      },
+      {
+        "caption": "The Atlantic shore beside Praia dos Ingleses."
+      }
+    ],
+    "panorama": null
+  },
+  "sealife-porto": {
+    "name": "SEA LIFE Porto",
+    "year": "2009",
+    "short": "An aquarium in Foz do Douro opened on 15 June 2009: an underwater tunnel, river and rockpool zones, penguins, sharks and Portugal's first endangered-coral breeding centre.",
+    "long": "SEA LIFE Porto is a family aquarium in Foz do Douro, beside the Castelo do Queijo, opened on 15 June 2009. It belongs to the European Sea Life network owned by Merlin Entertainments. The exhibition is built as a journey from rivers and streams through the rockpool and a shipwreck to the open ocean: visitors walk through an underwater tunnel with sharks, rays and other marine animals overhead. Conservation is a special focus here, including Portugal's first breeding centre for endangered corals.",
+    "history": "SEA LIFE Porto opened on 15 June 2009 in Foz do Douro, right on the edge of the Atlantic, next to the Fort of São Francisco Xavier, known as the Castelo do Queijo. From the start it operated as part of the international Sea Life network owned by the British group Merlin Entertainments, whose aquariums also stand in London, Birmingham, Melbourne, Bangkok and other cities around the world.\n\nThe aquarium building has two floors. Its route is designed as a gradual descent into the deep: the visitor first enters the rivers and streams of Portugal, then a tidal rockpool where the inhabitants of the northern shore can be seen up close, then the Shipwreck and the Salacia Kingdom, the marine part of the exhibition. The journey ends in an underwater tunnel — a transparent corridor through which large fish and sharks come into view.\n\nBesides sharks and rays, SEA LIFE Porto is home to penguins, seahorses, otters and many species of fish from different climates. Demonstrative feedings and staff talks are held every day, and a quiz keeps children engaged: young visitors answer questions about the animals as they go around.\n\nConservation work is a separate strand. The aquarium runs a Coral Maternity Center: within the programmes of the SEA LIFE Trust foundation, this is Portugal's first project to breed and distribute endangered corals, supplying other aquariums in the network. Visitors also learn about plastic pollution in the ocean and how to reduce it.\n\nToday SEA LIFE Porto remains one of Foz do Douro's most visited family attractions. It pairs easily with a walk to the Castelo do Queijo, the Felgueiras lighthouse and Praia dos Ingleses, and can be reached by tram and by the buses that run along Avenida do Brasil.",
+    "facts": [
+      "The aquarium opened on 15 June 2009 in Foz do Douro, beside the Castelo do Queijo.",
+      "It is part of the international Sea Life network owned by Merlin Entertainments.",
+      "Its route passes through an underwater tunnel with sharks and rays.",
+      "The zones include rivers and streams, rockpool, shipwreck and the Salacia Kingdom.",
+      "It is home to penguins, seahorses, otters and many species of fish.",
+      "Demonstrative feedings and staff talks take place every day.",
+      "Its Coral Maternity Center is Portugal's first breeding centre for endangered corals.",
+      "A quiz for children runs through the visit."
+    ],
+    "tip": "Buy tickets online — it is cheaper and avoids the queue, especially on rainy days and at weekends. A visit takes about an hour to an hour and a half; check the feeding and talk times in advance so you catch them. The ticket allows same-day re-entry. Buses run along Avenida do Brasil and a tram serves the area; the Castelo do Queijo and the beach are next door, so the trip combines well.",
+    "gallery": [
+      {
+        "caption": "The SEA LIFE Porto building in Foz do Douro."
+      },
+      {
+        "caption": "SEA LIFE Porto: inside the aquarium display."
+      }
+    ],
+    "panorama": null
   }
 };
 

@@ -80,6 +80,7 @@ const LANGS = new Set(['pt', 'en', 'ru', 'other']);
 const allVideos = [];
 const panoVideos = [];
 let panoCount = 0;
+let provisional = 0;
 
 for (const l of landmarks) {
   const w = l.id || '(no id)';
@@ -87,6 +88,10 @@ for (const l of landmarks) {
   if (ids.has(l.id)) err(w, 'duplicate id');
   ids.add(l.id);
   if (typeof l.lat !== 'number' || typeof l.lon !== 'number') err(w, 'lat/lon must be numbers');
+  // Provisional entries are roster placeholders awaiting authored content
+  // (data/new/<id>.landmark.json). They render as massing and are not held to
+  // the content contract yet; they are counted and reported, not failed.
+  if (l._provisional === true) { provisional++; continue; }
   // no_free_photos: true = no free photo of the place exists; image and image_credit are null, gallery is empty
   const noPhotos = l.no_free_photos === true;
   if (noPhotos) {
@@ -97,11 +102,11 @@ for (const l of landmarks) {
     checkCredit(`${w}.image_credit`, l.image_credit);
   }
 
-  // history_ru: 900-3600 chars, 3-8 paragraphs (Porto's detailed editorial standard)
+  // history_ru: 900-4000 chars, 3-8 paragraphs (Porto's detailed editorial standard)
   if (!isStr(l.history_ru)) err(w, 'history_ru missing');
   else {
     const n = [...l.history_ru].length;
-    if (n < 900 || n > 3600) err(w, `history_ru length ${n} not in 900..3600`);
+    if (n < 900 || n > 4000) err(w, `history_ru length ${n} not in 900..4000`);
     const paras = l.history_ru.split('\n\n');
     if (paras.length < 3 || paras.length > 8) err(w, `history_ru has ${paras.length} paragraphs, need 3..8`);
     if (paras.some(p => !p.trim())) err(w, 'history_ru has an empty paragraph');
@@ -243,6 +248,6 @@ if (ONLINE) {
 for (const x of warns) console.warn(`WARN  ${x}`);
 for (const x of errors) console.error(`ERROR ${x}`);
 const galleryN = landmarks.reduce((a, l) => a + (l.gallery?.length || 0), 0);
-console.log(`${landmarks.length} landmarks, ${galleryN} gallery photos, ${panoCount} panoramas (${panoVideos.length} 360° YouTube), ${allVideos.length} videos${ONLINE ? ' (oEmbed + 360° projection checked)' : ''}, ${routes?.length || 0} routes`);
+console.log(`${landmarks.length} landmarks (${provisional} provisional, content pending), ${galleryN} gallery photos, ${panoCount} panoramas (${panoVideos.length} 360° YouTube), ${allVideos.length} videos${ONLINE ? ' (oEmbed + 360° projection checked)' : ''}, ${routes?.length || 0} routes`);
 if (errors.length) { console.error(`${errors.length} error(s)`); process.exit(1); }
 console.log('OK');

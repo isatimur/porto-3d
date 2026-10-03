@@ -69,13 +69,21 @@ export function lisbonClock(date, out = { hour: 0, secs: 0, weekday: 0, ymd: 0 }
 }
 
 // ---- axes
+// The axis ids, in the order data/traffic-axes.json lists them (the keys
+// written by scripts/fetch-traffic-axes.mjs AXES_BY_CITY): a city's axes are
+// whatever it matched, and the number a road is tagged with is the 1-based
+// position in this list. AXIS_IDS is the historical Braga fallback.
 export const AXIS_IDS = ['liberdade', 'n101', 'a11'];
-// Segments in world units: [x0, z0, x1, z1] per segment, and the axis (1..3)
+export function axisIds() {
+  const keys = AXES?.axes ? Object.keys(AXES.axes) : null;
+  return keys && keys.length ? keys : AXIS_IDS;
+}
+// Segments in world units: [x0, z0, x1, z1] per segment, and the axis (1..N)
 export function decodeAxes(project) {
   const seg = [];
   const ids = [];
   const ll = [];
-  AXIS_IDS.forEach((id, k) => {
+  axisIds().forEach((id, k) => {
     const code = AXES?.axes?.[id];
     if (!code) return;
     // integers in 1e-4 deg from `base` (the old Braga file has none: 41.5 N, -8.5 E)
@@ -175,8 +183,9 @@ export function createTrafficModel({ max, getNow, isLive, getPreset, project, mo
   const key = typeof location !== 'undefined' ? optInKey('tomtom', 'tomtomKey') : null;
   const samples = [];
   if (key) {
-    // 12 points: 4 per axis, spread along the ways nearest the centre
-    for (let a = 1; a <= 3; a++) {
+    // 4 points per axis, spread along the ways nearest the centre
+    const nAxes = axisIds().length;
+    for (let a = 1; a <= nAxes; a++) {
       const pts = axes.lines.filter((l) => l.axis === a).flatMap((l) => l.pts);
       const near = pts
         .map((p) => ({ p, d: Math.hypot(p[0] - CITY.origin.lat, (p[1] - CITY.origin.lon) * 0.75) }))

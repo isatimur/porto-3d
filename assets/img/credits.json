@@ -1,0 +1,982 @@
+{
+  "ponte-freixo": {
+    "main": {
+      "file": "assets/img/ponte-freixo.jpg",
+      "kind": "exterior",
+      "author": "Gerry Labrijn from London, UK",
+      "license": "CC BY-SA 2.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:2014-P185_Douro_River_Cruise_(15526239087).jpg",
+      "commons": "File:2014-P185 Douro River Cruise (15526239087).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/ponte-freixo-1.jpg",
+        "kind": "exterior",
+        "author": "José Moutinho from Leça da Palmeira, Portugal",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:FrEixo_(4386401013).jpg",
+        "commons": "File:FrEixo (4386401013).jpg"
+      },
+      {
+        "file": "assets/img/ponte-freixo-2.jpg",
+        "kind": "exterior",
+        "author": "Liam Geoghegan",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Ponte_do_Freixo_(34011316175).jpg",
+        "commons": "File:Ponte do Freixo (34011316175).jpg"
+      }
+    ]
+  },
+  "serra-do-pilar": {
+    "main": {
+      "file": "assets/img/serra-do-pilar.jpg",
+      "kind": "exterior",
+      "author": "Alexkom000",
+      "license": "CC BY 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:2025-08-02_Monastery_of_Serra_do_Pilar.jpg",
+      "commons": "File:2025-08-02 Monastery of Serra do Pilar.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/serra-do-pilar-1.jpg",
+        "kind": "exterior",
+        "author": "Ivan Stesso",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Bellissimo_Mosteiro_da_Serra_do_Pilar._Ph_Ivan_Stesso.jpg",
+        "commons": "File:Bellissimo Mosteiro da Serra do Pilar. Ph Ivan Stesso.jpg"
+      },
+      {
+        "file": "assets/img/serra-do-pilar-2.jpg",
+        "kind": "exterior",
+        "author": "jad99 from Graz, Austria",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Blick_auf_Mosteiro_do_Serra_de_Pilar_(von_Ponte_Dom_Lu%C3%ADs_I)_(14004503082).jpg",
+        "commons": "File:Blick auf Mosteiro do Serra de Pilar (von Ponte Dom Luís I) (14004503082).jpg"
+      }
+    ]
+  },
+  "ponte-sao-joao": {
+    "main": {
+      "file": "assets/img/ponte-sao-joao.jpg",
+      "kind": "exterior",
+      "author": "Matt Kieffer from London, United Kingdom",
+      "license": "CC BY-SA 2.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Ponte_Maria_Pia_and_Ponte_S%C3%A3o_Jo%C3%A3o,_Porto_(38218339552).jpg",
+      "commons": "File:Ponte Maria Pia and Ponte São João, Porto (38218339552).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/ponte-sao-joao-1.jpg",
+        "kind": "exterior",
+        "author": "HombreDHojalata",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Ponte_de_S%C3%A3o_Jo%C3%A3o,_Vila_Nova_de_Gaia_-_Porto.JPG",
+        "commons": "File:Ponte de São João, Vila Nova de Gaia - Porto.JPG"
+      },
+      {
+        "file": "assets/img/ponte-sao-joao-2.jpg",
+        "kind": "exterior",
+        "author": "_morgado",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Ponte_ferrovi%C3%A1ria_de_S%C3%A3o_Jo%C3%A3o_(39874397192).jpg",
+        "commons": "File:Ponte ferroviária de São João (39874397192).jpg"
+      }
+    ]
+  },
+  "ponte-infante": {
+    "main": {
+      "file": "assets/img/ponte-infante.jpg",
+      "kind": "detail",
+      "author": "Gerry Labrijn from London, UK",
+      "license": "CC BY-SA 2.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:2014-P120_Porto_(15089302753).jpg",
+      "commons": "File:2014-P120 Porto (15089302753).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/ponte-infante-1.jpg",
+        "kind": "exterior",
+        "author": "Alexkom000",
+        "license": "CC BY 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2025-08-02_Ponte_do_Infante_D._Henrique.jpg",
+        "commons": "File:2025-08-02 Ponte do Infante D. Henrique.jpg"
+      },
+      {
+        "file": "assets/img/ponte-infante-2.jpg",
+        "kind": "exterior",
+        "author": "jad99 from Graz, Austria",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Blick_auf_Ponte_do_Infante_(14003779042).jpg",
+        "commons": "File:Blick auf Ponte do Infante (14003779042).jpg"
+      }
+    ]
+  },
+  "jardim-do-morro": {
+    "main": {
+      "file": "assets/img/jardim-do-morro.jpg",
+      "kind": "exterior",
+      "author": "yuka HAYASHI from Osaka, JAPAN",
+      "license": "CC BY 2.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Jardim_do_Morro_(14216545760).jpg",
+      "commons": "File:Jardim do Morro (14216545760).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/jardim-do-morro-1.jpg",
+        "kind": "exterior",
+        "author": "dlovins99",
+        "license": "CC0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Jardim_do_Morro_2023-08-06_12.23.29_(53112241760).jpg",
+        "commons": "File:Jardim do Morro 2023-08-06 12.23.29 (53112241760).jpg"
+      },
+      {
+        "file": "assets/img/jardim-do-morro-2.jpg",
+        "kind": "exterior",
+        "author": "Eduardovitorrodrigues",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Jardim_do_Morro,_Gaia.jpg",
+        "commons": "File:Jardim do Morro, Gaia.jpg"
+      }
+    ]
+  },
+  "cais-gaia": {
+    "main": {
+      "file": "assets/img/cais-gaia.jpg",
+      "kind": "exterior",
+      "author": "Gerry Labrijn from London, UK",
+      "license": "CC BY-SA 2.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:2014-P134_Porto_(15523674917).jpg",
+      "commons": "File:2014-P134 Porto (15523674917).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/cais-gaia-1.jpg",
+        "kind": "exterior",
+        "author": "José Luiz",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Cais_de_Gaia_(2).JPG",
+        "commons": "File:Cais de Gaia (2).JPG"
+      },
+      {
+        "file": "assets/img/cais-gaia-2.jpg",
+        "kind": "exterior",
+        "author": "TurismoenPortugal",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Cais_de_Gaia_em_Vila_Nova_de_Gaia.jpg",
+        "commons": "File:Cais de Gaia em Vila Nova de Gaia.jpg"
+      }
+    ]
+  },
+  "convento-corpus-christi": {
+    "main": {
+      "file": "assets/img/convento-corpus-christi.jpg",
+      "kind": "exterior",
+      "author": "Carlos Luis M C da Cruz",
+      "license": "Public domain",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Conv_corpus_christi_5.JPG",
+      "commons": "File:Conv corpus christi 5.JPG"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/convento-corpus-christi-1.jpg",
+        "kind": "exterior",
+        "author": "Alegna13",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Antigo_Convento_Corpus_Christi.jpg",
+        "commons": "File:Antigo Convento Corpus Christi.jpg"
+      },
+      {
+        "file": "assets/img/convento-corpus-christi-2.jpg",
+        "kind": "exterior",
+        "author": "RicardoFilipePereira",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Antigo_Convento_de_Corpus_Christi_-_Lisboa,_Portugal_01.jpg",
+        "commons": "File:Antigo Convento de Corpus Christi - Lisboa, Portugal 01.jpg"
+      }
+    ]
+  },
+  "estacao-general-torres": {
+    "main": {
+      "file": "assets/img/estacao-general-torres.jpg",
+      "kind": "exterior",
+      "author": "Ernstkers",
+      "license": "CC BY-SA 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:General_Torres_20120816_(1).jpg",
+      "commons": "File:General Torres 20120816 (1).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/estacao-general-torres-1.jpg",
+        "kind": "exterior",
+        "author": "IngolfBLN",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Metro_do_Porto_-_Esta%C3%A7%C3%A3o_General_Torres_(8253894820).jpg",
+        "commons": "File:Metro do Porto - Estação General Torres (8253894820).jpg"
+      },
+      {
+        "file": "assets/img/estacao-general-torres-2.jpg",
+        "kind": "exterior",
+        "author": "IngolfBLN",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Metro_do_Porto_-_Esta%C3%A7%C3%A3o_General_Torres_(8253893376).jpg",
+        "commons": "File:Metro do Porto - Estação General Torres (8253893376).jpg"
+      }
+    ]
+  },
+  "trindade": {
+    "main": {
+      "file": "assets/img/trindade.jpg",
+      "kind": "exterior",
+      "author": "Juanje Orío from Logroño, España (Europa)",
+      "license": "CC BY-SA 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:%F0%9F%87%B5%F0%9F%87%B9_%F0%9F%87%AA%F0%9F%87%BA_Iglesia_da_Trindade_(Oporto,_Portugal,_17-7-2010)_%E2%9D%8C_(32546278273).jpg",
+      "commons": "File:🇵🇹 🇪🇺 Iglesia da Trindade (Oporto, Portugal, 17-7-2010) ❌ (32546278273).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/trindade-1.jpg",
+        "kind": "exterior",
+        "author": "Frank Kovalchek from USA",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Classic_architecture_in_Porto,_Portugal_(54041526152).jpg",
+        "commons": "File:Classic architecture in Porto, Portugal (54041526152).jpg"
+      },
+      {
+        "file": "assets/img/trindade-2.jpg",
+        "kind": "exterior",
+        "author": "T meltzer",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_da_Trindade_2.jpg",
+        "commons": "File:Igreja da Trindade 2.jpg"
+      }
+    ]
+  },
+  "lapa": {
+    "main": {
+      "file": "assets/img/lapa.jpg",
+      "kind": "exterior",
+      "author": "Joseolgon",
+      "license": "CC BY-SA 3.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_da_Lapa_(Porto)_11.JPG",
+      "commons": "File:Igreja da Lapa (Porto) 11.JPG"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/lapa-1.jpg",
+        "kind": "exterior",
+        "author": "Bosc d'Anjou from Portugal",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Porto_2016-17_Igreja_da_Lapa_(33249131294).jpg",
+        "commons": "File:Porto 2016-17 Igreja da Lapa (33249131294).jpg"
+      },
+      {
+        "file": "assets/img/lapa-2.jpg",
+        "kind": "exterior",
+        "author": "Joehawkins",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_da_Lapa_lateral.JPG",
+        "commons": "File:Igreja da Lapa lateral.JPG"
+      }
+    ]
+  },
+  "santa-clara": {
+    "main": {
+      "file": "assets/img/santa-clara.jpg",
+      "kind": "detail",
+      "author": "Mariamagala",
+      "license": "CC BY 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_de_Santa_Clara_(Porto),_portal_Barroco.jpg",
+      "commons": "File:Igreja de Santa Clara (Porto), portal Barroco.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/santa-clara-1.jpg",
+        "kind": "detail",
+        "author": "lumoplank",
+        "license": "CC0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Porto,_architecture_-_PortoArchitecture5696.jpg",
+        "commons": "File:Porto, architecture - PortoArchitecture5696.jpg"
+      },
+      {
+        "file": "assets/img/santa-clara-2.jpg",
+        "kind": "detail",
+        "author": "Unknown photographer",
+        "license": "Public domain",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Chafariz_do_Convento_de_Santa_Clara_Porto.jpg",
+        "commons": "File:Chafariz do Convento de Santa Clara Porto.jpg"
+      }
+    ]
+  },
+  "sao-nicolau": {
+    "main": {
+      "file": "assets/img/sao-nicolau.jpg",
+      "kind": "exterior",
+      "author": "Vimacopeca",
+      "license": "CC BY-SA 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Cedofeita,_Santo_Ildefonso,_S%C3%A9,_Miragaia,_S%C3%A3o_Nicolau_e_Vit%C3%B3ria_-_Igreja_de_S%C3%A3o_Nicolau_-_2025-10-27_15-38-22_001.jpg",
+      "commons": "File:Cedofeita, Santo Ildefonso, Sé, Miragaia, São Nicolau e Vitória - Igreja de São Nicolau - 2025-10-27 15-38-22 001.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/sao-nicolau-1.jpg",
+        "kind": "exterior",
+        "author": "GualdimG",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_de_S%C3%A3o_Nicolau_Porto_01.jpg",
+        "commons": "File:Igreja de São Nicolau Porto 01.jpg"
+      },
+      {
+        "file": "assets/img/sao-nicolau-2.jpg",
+        "kind": "exterior",
+        "author": "Mister No",
+        "license": "CC BY 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Paroquia_de_Sao_Nicolau_-_panoramio.jpg",
+        "commons": "File:Paroquia de Sao Nicolau - panoramio.jpg"
+      }
+    ]
+  },
+  "sao-bento-vitoria": {
+    "main": {
+      "file": "assets/img/sao-bento-vitoria.jpg",
+      "kind": "exterior",
+      "author": "Glaucco97",
+      "license": "CC BY-SA 3.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:20110924_D80_ConventoSBentoVitoria-70399_0580.jpg",
+      "commons": "File:20110924 D80 ConventoSBentoVitoria-70399 0580.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/sao-bento-vitoria-1.jpg",
+        "kind": "exterior",
+        "author": "Glaucco97",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:20110924_D80_IgrejaSBentoVitoria-70399_0584.jpg",
+        "commons": "File:20110924 D80 IgrejaSBentoVitoria-70399 0584.jpg"
+      },
+      {
+        "file": "assets/img/sao-bento-vitoria-2.jpg",
+        "kind": "exterior",
+        "author": "Dafema",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_de_S._Bento_da_Vit%C3%B3ria.jpg",
+        "commons": "File:Igreja de S. Bento da Vitória.jpg"
+      }
+    ]
+  },
+  "cedofeita": {
+    "main": {
+      "file": "assets/img/cedofeita.jpg",
+      "kind": "detail",
+      "author": "John Samuel",
+      "license": "CC BY-SA 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_de_S%C3%A3o_Martinho_de_Cedofeita_03.jpg",
+      "commons": "File:Igreja de São Martinho de Cedofeita 03.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/cedofeita-1.jpg",
+        "kind": "exterior",
+        "author": "pt:usuário:JoaoMiranda",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_de_cedofeita.jpg",
+        "commons": "File:Igreja de cedofeita.jpg"
+      },
+      {
+        "file": "assets/img/cedofeita-2.jpg",
+        "kind": "exterior",
+        "author": "Josep Renalias",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Porto_-_Sant_Mart%C3%AD_de_Cedofeita_-_Cap%C3%A7alera.JPG",
+        "commons": "File:Porto - Sant Martí de Cedofeita - Capçalera.JPG"
+      }
+    ]
+  },
+  "santo-ildefonso": {
+    "main": {
+      "file": "assets/img/santo-ildefonso.jpg",
+      "kind": "exterior",
+      "author": "Alexkom000",
+      "license": "CC BY 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:2025-08-07_Porto,_Igreja_de_Santo_Ildefonso.jpg",
+      "commons": "File:2025-08-07 Porto, Igreja de Santo Ildefonso.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/santo-ildefonso-1.jpg",
+        "kind": "interior",
+        "author": "John Samuel",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Interior_view_of_Igreja_de_Santo_Ildefonso_(Porto)_04.jpg",
+        "commons": "File:Interior view of Igreja de Santo Ildefonso (Porto) 04.jpg"
+      },
+      {
+        "file": "assets/img/santo-ildefonso-2.jpg",
+        "kind": "detail",
+        "author": "Senhormario",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_de_Santo_Ildefonso_vista_da_pra%C3%A7a.jpg",
+        "commons": "File:Igreja de Santo Ildefonso vista da praça.jpg"
+      }
+    ]
+  },
+  "miragaya-sao-pedro": {
+    "main": {
+      "file": "assets/img/miragaya-sao-pedro.jpg",
+      "kind": "exterior",
+      "author": "JotaCartas",
+      "license": "CC BY-SA 3.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_S%C3%A3o_Pedro_Miragaia-01.jpg",
+      "commons": "File:Igreja São Pedro Miragaia-01.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/miragaya-sao-pedro-1.jpg",
+        "kind": "exterior",
+        "author": "@ondasderuido",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Porto,_Rua_de_Miragaia_(6).jpg",
+        "commons": "File:Porto, Rua de Miragaia (6).jpg"
+      },
+      {
+        "file": "assets/img/miragaya-sao-pedro-2.jpg",
+        "kind": "exterior",
+        "author": "Pedro from Maia (Porto), Portugal",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:S._Pedro_de_Miragaia_(27780662455).jpg",
+        "commons": "File:S. Pedro de Miragaia (27780662455).jpg"
+      }
+    ]
+  },
+  "capela-almas": {
+    "main": {
+      "file": "assets/img/capela-almas.jpg",
+      "kind": "exterior",
+      "author": "John Samuel",
+      "license": "CC BY-SA 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Capela_das_Almas_(Porto)_07.jpg",
+      "commons": "File:Capela das Almas (Porto) 07.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/capela-almas-1.jpg",
+        "kind": "interior",
+        "author": "Manuel de Sousa",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Capela_Almas_(Porto).jpg",
+        "commons": "File:Capela Almas (Porto).jpg"
+      },
+      {
+        "file": "assets/img/capela-almas-2.jpg",
+        "kind": "exterior",
+        "author": "Julien Chatelain from Paris, France",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Capela_Das_Almas_(44700030771).jpg",
+        "commons": "File:Capela Das Almas (44700030771).jpg"
+      }
+    ]
+  },
+  "foz-sao-joao-baptista": {
+    "main": {
+      "file": "assets/img/foz-sao-joao-baptista.jpg",
+      "kind": "interior",
+      "author": "Vitor Oliveira from Torres Vedras, PORTUGAL",
+      "license": "CC BY-SA 2.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_de_S%C3%A3o_Jo%C3%A3o_Baptista_da_Foz_-_Porto_-_Portugal_(13855329633).jpg",
+      "commons": "File:Igreja de São João Baptista da Foz - Porto - Portugal (13855329633).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/foz-sao-joao-baptista-1.jpg",
+        "kind": "exterior",
+        "author": "Jota",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_de_S%C3%A3o_Jo%C3%A3o_Baptista_-_0078.jpg",
+        "commons": "File:Igreja de São João Baptista - 0078.jpg"
+      },
+      {
+        "file": "assets/img/foz-sao-joao-baptista-2.jpg",
+        "kind": "detail",
+        "author": "Metropolis22 at English Wikipedia",
+        "license": "Public domain",
+        "source_url": "https://commons.wikimedia.org/wiki/File:S%C3%A3o_Jo%C3%A3o_church_2.jpg",
+        "commons": "File:São João church 2.jpg"
+      }
+    ]
+  },
+  "ramalde": {
+    "main": {
+      "file": "assets/img/ramalde.jpg",
+      "kind": "exterior",
+      "author": "JotaCartas",
+      "license": "CC BY-SA 3.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_Nova_de_Ramalde_35.jpg",
+      "commons": "File:Igreja Nova de Ramalde 35.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/ramalde-1.jpg",
+        "kind": "exterior",
+        "author": "Francisco Restivo from Porto, Portugal",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:New_Ramalde_Church_(38985671644).jpg",
+        "commons": "File:New Ramalde Church (38985671644).jpg"
+      },
+      {
+        "file": "assets/img/ramalde-2.jpg",
+        "kind": "exterior",
+        "author": "JotaCartas",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_de_Ramalde_-_Antiga_40.jpg",
+        "commons": "File:Igreja de Ramalde - Antiga 40.jpg"
+      }
+    ]
+  },
+  "campanha": {
+    "main": {
+      "file": "assets/img/campanha.jpg",
+      "kind": "exterior",
+      "author": "Barao78",
+      "license": "CC BY 2.5",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Porto_-_Esta%C3%A7%C3%A3o_da_Campanh%C3%A3.jpg",
+      "commons": "File:Porto - Estação da Campanhã.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/campanha-1.jpg",
+        "kind": "exterior",
+        "author": "Draceane",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Esta%C3%A7%C3%A3o_de_Campanh%C3%A3,_Porto,_2016_(04).jpg",
+        "commons": "File:Estação de Campanhã, Porto, 2016 (04).jpg"
+      },
+      {
+        "file": "assets/img/campanha-2.jpg",
+        "kind": "exterior",
+        "author": "Ruben Alexandre Teixeira",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Esta%C3%A7%C3%A3o_de_Porto-Campanh%C3%A3_com_Comboios_Suburbanos_do_Porto.jpg",
+        "commons": "File:Estação de Porto-Campanhã com Comboios Suburbanos do Porto.jpg"
+      }
+    ]
+  },
+  "coliseu": {
+    "main": {
+      "file": "assets/img/coliseu.jpg",
+      "kind": "exterior",
+      "author": "Joehawkins",
+      "license": "CC BY-SA 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Coliseu_do_Porto,_29_de_ourubro_de_2016_(2).jpg",
+      "commons": "File:Coliseu do Porto, 29 de ourubro de 2016 (2).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/coliseu-1.jpg",
+        "kind": "exterior",
+        "author": "Vysotsky",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Coliseu_do_Porto.jpg",
+        "commons": "File:Coliseu do Porto.jpg"
+      },
+      {
+        "file": "assets/img/coliseu-2.jpg",
+        "kind": "exterior",
+        "author": "António Amen",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Santo_Ildefonso-Coliseu_do_Porto.jpg",
+        "commons": "File:Santo Ildefonso-Coliseu do Porto.jpg"
+      }
+    ]
+  },
+  "museu-soares-dos-reis": {
+    "main": {
+      "file": "assets/img/museu-soares-dos-reis.jpg",
+      "kind": "exterior",
+      "author": "Diogo M Lins",
+      "license": "CC BY-SA 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:9_-_exposi%C3%A7%C3%A3o_Museu_Nacional_Soares_dos_Reis_-_Paisagem_Jos%C3%A9_Zagallo_Ilharco.jpg",
+      "commons": "File:9 - exposição Museu Nacional Soares dos Reis - Paisagem José Zagallo Ilharco.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/museu-soares-dos-reis-1.jpg",
+        "kind": "exterior",
+        "author": "Joseolgon",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Museu_Nacional_de_Soares_dos_Reis_(1).JPG",
+        "commons": "File:Museu Nacional de Soares dos Reis (1).JPG"
+      },
+      {
+        "file": "assets/img/museu-soares-dos-reis-2.jpg",
+        "kind": "exterior",
+        "author": "Angelo Romano from Groningen, Netherlands",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Museu_Nacional_Soares_dos_Reis,_Porto_(5760126130).jpg",
+        "commons": "File:Museu Nacional Soares dos Reis, Porto (5760126130).jpg"
+      }
+    ]
+  },
+  "casa-do-infante": {
+    "main": {
+      "file": "assets/img/casa-do-infante.jpg",
+      "kind": "exterior",
+      "author": "Dafema",
+      "license": "CC BY-SA 3.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Casa_do_Infante2.jpg",
+      "commons": "File:Casa do Infante2.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/casa-do-infante-1.jpg",
+        "kind": "exterior",
+        "author": "NunoCaldeira",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Museu_Casa_do_Infante_.jpg",
+        "commons": "File:Museu Casa do Infante .jpg"
+      },
+      {
+        "file": "assets/img/casa-do-infante-2.jpg",
+        "kind": "exterior",
+        "author": "Concierge.2C",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Porto_-_Casa_do_Infante_(Alf%C3%A2ndega_Velha).jpg",
+        "commons": "File:Porto - Casa do Infante (Alfândega Velha).jpg"
+      }
+    ]
+  },
+  "alfandega-nova": {
+    "main": {
+      "file": "assets/img/alfandega-nova.jpg",
+      "kind": "interior",
+      "author": "Joseolgon",
+      "license": "CC0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Interior_of_Alf%C3%A2ndega_Nova_Porto_3.jpg",
+      "commons": "File:Interior of Alfândega Nova Porto 3.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/alfandega-nova-1.jpg",
+        "kind": "exterior",
+        "author": "Wikimedia Commons",
+        "license": "CC BY 2.5",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Porto_-_Alf%C3%A2ndega.jpg",
+        "commons": "File:Porto - Alfândega.jpg"
+      },
+      {
+        "file": "assets/img/alfandega-nova-2.jpg",
+        "kind": "exterior",
+        "author": "JoannafMartins",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Alf%C3%A2ndega_Nova.jpg",
+        "commons": "File:Alfândega Nova.jpg"
+      }
+    ]
+  },
+  "almeida-garrett": {
+    "main": {
+      "file": "assets/img/almeida-garrett.jpg",
+      "kind": "exterior",
+      "author": "rilo 2006",
+      "license": "CC BY 2.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Porto,_Pra%C3%A7a_de_Almeida_Garrett_(06).jpg",
+      "commons": "File:Porto, Praça de Almeida Garrett (06).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/almeida-garrett-1.jpg",
+        "kind": "exterior",
+        "author": "Mister No",
+        "license": "CC BY 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Praca_de_Almeida_Garrett_-_panoramio_(2).jpg",
+        "commons": "File:Praca de Almeida Garrett - panoramio (2).jpg"
+      },
+      {
+        "file": "assets/img/almeida-garrett-2.jpg",
+        "kind": "exterior",
+        "author": "eknutov from Eindhoven, The Netherlands",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Pra%C3%A7a_de_Almeida_Garrett_(3185233832).jpg",
+        "commons": "File:Praça de Almeida Garrett (3185233832).jpg"
+      }
+    ]
+  },
+  "museu-misericordia": {
+    "main": {
+      "file": "assets/img/museu-misericordia.jpg",
+      "kind": "exterior",
+      "author": "Manuel de Sousa",
+      "license": "CC BY-SA 3.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_Misericordia_3_(Porto).jpg",
+      "commons": "File:Igreja Misericordia 3 (Porto).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/museu-misericordia-1.jpg",
+        "kind": "exterior",
+        "author": "Joseolgon",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Museu_da_Miseric%C3%B3rdia_do_Porto_(37).JPG",
+        "commons": "File:Museu da Misericórdia do Porto (37).JPG"
+      },
+      {
+        "file": "assets/img/museu-misericordia-2.jpg",
+        "kind": "detail",
+        "author": "Béria Lima de Rodríguez",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Santa_Casa_de_Miseric%C3%B3rdia_(Azulejo).JPG",
+        "commons": "File:Santa Casa de Misericórdia (Azulejo).JPG"
+      }
+    ]
+  },
+  "parque-cidade": {
+    "main": {
+      "file": "assets/img/parque-cidade.jpg",
+      "kind": "exterior",
+      "author": "Pedropimenta",
+      "license": "CC BY-SA 3.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Caminho_no_parque_da_cidade.JPG",
+      "commons": "File:Caminho no parque da cidade.JPG"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/parque-cidade-1.jpg",
+        "kind": "exterior",
+        "author": "Joseolgon",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Caminho_no_Parque_da_Cidade.JPG",
+        "commons": "File:Caminho no Parque da Cidade.JPG"
+      },
+      {
+        "file": "assets/img/parque-cidade-2.jpg",
+        "kind": "exterior",
+        "author": "ThomasLendt",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Dry_stone_wall_in_Parque_da_Cidade_do_Porto,_Portugal.jpg",
+        "commons": "File:Dry stone wall in Parque da Cidade do Porto, Portugal.jpg"
+      }
+    ]
+  },
+  "cordoaria": {
+    "main": {
+      "file": "assets/img/cordoaria.jpg",
+      "kind": "exterior",
+      "author": "Jose Goncalves",
+      "license": "Public domain",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Cordoaria_Porto.jpg",
+      "commons": "File:Cordoaria Porto.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/cordoaria-1.jpg",
+        "kind": "exterior",
+        "author": "jad99 from Graz, Austria",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Jardim_da_Cordoaria_(14007679724).jpg",
+        "commons": "File:Jardim da Cordoaria (14007679724).jpg"
+      },
+      {
+        "file": "assets/img/cordoaria-2.jpg",
+        "kind": "exterior",
+        "author": "Matt Kieffer from London, United Kingdom",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Jardim_da_Cordoaria_and_buildings,_Porto_(38195461666).jpg",
+        "commons": "File:Jardim da Cordoaria and buildings, Porto (38195461666).jpg"
+      }
+    ]
+  },
+  "sao-lazaro": {
+    "main": {
+      "file": "assets/img/sao-lazaro.jpg",
+      "kind": "exterior",
+      "author": "KingofPT",
+      "license": "CC BY-SA 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Conjunto_arboreo_de_sao_lazaro_2.jpg",
+      "commons": "File:Conjunto arboreo de sao lazaro 2.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/sao-lazaro-1.jpg",
+        "kind": "exterior",
+        "author": "Vysotsky",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Jardim_de_S%C3%A3o_L%C3%A1zaro_Porto.jpg",
+        "commons": "File:Jardim de São Lázaro Porto.jpg"
+      },
+      {
+        "file": "assets/img/sao-lazaro-2.jpg",
+        "kind": "detail",
+        "author": "Joseolgon",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Jardim_de_S%C3%A3o_L%C3%A1zaro,_Porto.jpg",
+        "commons": "File:Jardim de São Lázaro, Porto.jpg"
+      }
+    ]
+  },
+  "passeio-alegre": {
+    "main": {
+      "file": "assets/img/passeio-alegre.jpg",
+      "kind": "exterior",
+      "author": "Reis Quarteu",
+      "license": "CC BY-SA 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Zona_do_Passeio_Alegre_-_12.jpg",
+      "commons": "File:Zona do Passeio Alegre - 12.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/passeio-alegre-1.jpg",
+        "kind": "exterior",
+        "author": "János Korom Dr. &gt;14 Million views from Wien, Austria",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Porto_062DSC_0072_(49033361932).jpg",
+        "commons": "File:Porto 062DSC 0072 (49033361932).jpg"
+      },
+      {
+        "file": "assets/img/passeio-alegre-2.jpg",
+        "kind": "exterior",
+        "author": "Alain GAVILLET from Chêne-Bougeries, Suisse",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Trams_de_Porto_(Portugal)_(6458488797).jpg",
+        "commons": "File:Trams de Porto (Portugal) (6458488797).jpg"
+      }
+    ]
+  },
+  "praca-batalha": {
+    "main": {
+      "file": "assets/img/praca-batalha.jpg",
+      "kind": "exterior",
+      "author": "Chester from Toronto, Canada",
+      "license": "CC BY 2.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Porto_(27217118772).jpg",
+      "commons": "File:Porto (27217118772).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/praca-batalha-1.jpg",
+        "kind": "exterior",
+        "author": "Nuno Morão",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Pra%C3%A7a_da_Batalha,_2002.03.28.jpg",
+        "commons": "File:Praça da Batalha, 2002.03.28.jpg"
+      },
+      {
+        "file": "assets/img/praca-batalha-2.jpg",
+        "kind": "exterior",
+        "author": "Leandro Neumann Ciuffo",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Bondinho_na_Pra%C3%A7a_da_Batalha_(3395006582).jpg",
+        "commons": "File:Bondinho na Praça da Batalha (3395006582).jpg"
+      }
+    ]
+  },
+  "castelo-queijo": {
+    "main": {
+      "file": "assets/img/castelo-queijo.jpg",
+      "kind": "exterior",
+      "author": "António Amen",
+      "license": "CC BY-SA 3.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Castelo_do_Queijo_(1).jpg",
+      "commons": "File:Castelo do Queijo (1).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/castelo-queijo-1.jpg",
+        "kind": "exterior",
+        "author": "Ivan Stesso",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Antichi_cannoni._Ph_Ivan_Stesso.jpg",
+        "commons": "File:Antichi cannoni. Ph Ivan Stesso.jpg"
+      },
+      {
+        "file": "assets/img/castelo-queijo-2.jpg",
+        "kind": "exterior",
+        "author": "Ivan Stesso",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Antico_castello_di_Porto._Ph_Ivan_Stesso.jpg",
+        "commons": "File:Antico castello di Porto. Ph Ivan Stesso.jpg"
+      }
+    ]
+  },
+  "praia-ingleses": {
+    "main": {
+      "file": "assets/img/praia-ingleses.jpg",
+      "kind": "exterior",
+      "author": "Vitor Oliveira from Torres Vedras, PORTUGAL",
+      "license": "CC BY-SA 2.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Foz_do_Douro_-_Porto_-_Portugal_(17264169176).jpg",
+      "commons": "File:Foz do Douro - Porto - Portugal (17264169176).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/praia-ingleses-1.jpg",
+        "kind": "exterior",
+        "author": "lilivanili from London, UK",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Porto_beach_(1586396839).jpg",
+        "commons": "File:Porto beach (1586396839).jpg"
+      },
+      {
+        "file": "assets/img/praia-ingleses-2.jpg",
+        "kind": "exterior",
+        "author": "Mister No",
+        "license": "CC BY 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Praia_dos_Ingleses_-_panoramio_(1).jpg",
+        "commons": "File:Praia dos Ingleses - panoramio (1).jpg"
+      }
+    ]
+  },
+  "sealife-porto": {
+    "main": {
+      "file": "assets/img/sealife-porto.jpg",
+      "kind": "exterior",
+      "author": "Joseolgon",
+      "license": "CC BY-SA 3.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Sea_Life.JPG",
+      "commons": "File:Sea Life.JPG"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/sealife-porto-1.jpg",
+        "kind": "exterior",
+        "author": "José Conçalves",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Sea_life_Porto_(11).JPG",
+        "commons": "File:Sea life Porto (11).JPG"
+      },
+      {
+        "file": "assets/img/sealife-porto-2.jpg",
+        "kind": "exterior",
+        "author": "Joseolgon",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Sea_Life_Porto_2018_(1).jpg",
+        "commons": "File:Sea Life Porto 2018 (1).jpg"
+      }
+    ]
+  },
+  "congregados": {
+    "main": {
+      "file": "assets/img/congregados.jpg",
+      "kind": "exterior",
+      "author": "Photographia Portuense",
+      "license": "CC BY-SA 2.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:025_Igreja_dos_Congregados_(7969925180).jpg",
+      "commons": "File:025 Igreja dos Congregados (7969925180).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/congregados-1.jpg",
+        "kind": "exterior",
+        "author": "David Perez",
+        "license": "CC BY 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Oporto_10_by-dpc.jpg",
+        "commons": "File:Oporto 10 by-dpc.jpg"
+      },
+      {
+        "file": "assets/img/congregados-2.jpg",
+        "kind": "exterior",
+        "author": "René Hourdry",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_de_Santo_Antonio_dos_Congregados_35.jpg",
+        "commons": "File:Igreja de Santo Antonio dos Congregados 35.jpg"
+      }
+    ]
+  }
+}

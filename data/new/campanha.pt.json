@@ -1,0 +1,22 @@
+{
+  "name": "Estação Ferroviária de Porto-Campanhã",
+  "year": "1875",
+  "short": "A principal estação do norte de Portugal, inaugurada a 21 de maio de 1875: um longo edifício oitocentista com a sua gare de ferro, nó das linhas do Norte e do Minho.",
+  "long": "Campanhã é a principal estação ferroviária do Porto e a porta de entrada de todo o norte de Portugal. Inaugurada a 21 de maio de 1875 como estação terminal da Linha do Norte, foi desde o início um centro de passageiros, mercadorias e gestão. O longo edifício oitocentista ergue-se do lado poente das vias, com a ampla gare metálica e envidraçada sobre as plataformas. Hoje partem daqui os comboios Alfa Pendular e Intercidades para todo o país e o serviço internacional Celta até Vigo.",
+  "history": "A primeira estação de Campanhã abriu a 21 de maio de 1875; chamava-se então apenas Porto e, antes disso, Pinheiro. O local ribeirinho foi escolhido pelo traçado curto e acessível da Linha do Norte, mas ficava longe do centro e era difícil de alcançar. O problema só se resolveu em 1896, com a inauguração da Estação de São Bento.\n\nCampanhã tornou-se um grande nó ferroviário: aqui encontravam-se a Linha do Norte (PK 336+079) e a Linha do Minho (PK 0+000), com oficinas e parques de material. Na década de 1900, Contumil assumiu parte do movimento, nos anos 1930 chegou a iluminação elétrica e nos anos 1960 as vias foram eletrificadas.\n\nO edifício de passageiros situa-se do lado poente das vias. É uma longa construção oitocentista, com corpos-pavilhão, janelas em arco e uma gare metálica sobre as plataformas. Em 2004, a estação tinha 16 vias de circulação e plataformas entre 220 e 510 metros.\n\nNos anos 1990 o complexo foi ampliado e reorganizado. Hoje Campanhã serve comboios Alfa Pendular, Intercidades e o Celta até Vigo, além de serviços suburbanos e regionais. Um túnel pedonal e a estação de metro, servida pelas linhas A, B, C, E e F, ligam-na à cidade.",
+  "facts": [
+    "Inaugurada a 21 de maio de 1875, na Linha do Norte.",
+    "Fica na Linha do Norte (PK 336+079) e na Linha do Minho (PK 0+000).",
+    "Em 2004 tinha 16 vias e plataformas de 220 a 510 m.",
+    "A estação de metro de Campanhã é servida pelas linhas A, B, C, E e F.",
+    "São Bento abriu em 1896 para aliviar a distante Campanhã.",
+    "As vias foram eletrificadas nos anos 1960.",
+    "Daqui parte o comboio internacional Celta para Vigo."
+  ],
+  "tip": "Chegue cedo: Campanhã é um grande interface com longas distâncias entre plataformas. Compre os bilhetes Alfa Pendular e Intercidades online. A forma mais fácil de chegar ao centro é o metro (linhas A, B, C, E, F) ou o comboio até São Bento.",
+  "gallery": [
+    {"caption": "O edifício da estação de Campanhã visto do lado da cidade."},
+    {"caption": "Comboios nas plataformas da estação de Campanhã."}
+  ],
+  "panorama": null
+}

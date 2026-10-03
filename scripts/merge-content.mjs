@@ -40,12 +40,15 @@ for (const id of ids) {
     ...lm,
     // data.js expects objects with url/title and gallery items with src/kind/credit
     sources: (Array.isArray(lm.sources) ? lm.sources : []).map((s) => (typeof s === 'string' ? { title: s, url: s } : s)),
-    gallery: (Array.isArray(lm.gallery) ? lm.gallery : []).map((g) => ({
-      src: g.src || g.img || '',
-      kind: g.kind || 'exterior',
-      caption_ru: g.caption_ru || '',
-      credit: g.credit || credit,
-    })),
+    gallery: (Array.isArray(lm.gallery) ? lm.gallery : [])
+      // the app's gallery is assets/img/<id>-N.jpg; the main image is <id>.jpg
+      .filter((g) => new RegExp(`^assets/img/${id}-\\d+\\.jpg$`).test(g.src || g.img || ''))
+      .map((g) => ({
+        src: g.src || g.img || '',
+        kind: g.kind || 'exterior',
+        caption_ru: g.caption_ru || '',
+        credit: g.credit || credit,
+      })),
   }, { _provisional: false });
   const e = readIf(join(NEW_DIR, `${id}.en.json`));
   const p = readIf(join(NEW_DIR, `${id}.pt.json`));

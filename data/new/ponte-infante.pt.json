@@ -1,0 +1,24 @@
+{
+  "name": "Ponte Infante Dom Henrique",
+  "year": "2003",
+  "short": "A ponte em arco de betão sobre o Douro aberta a 30 de março de 2003: arco de 280 metros, até 75 metros de altura, 20 metros de largura; substituiu o tabuleiro superior da ponte Luís I.",
+  "long": "A Ponte Infante Dom Henrique, também conhecida como Ponte do Infante, é a mais recente das pontes rodoviárias entre o Porto e Vila Nova de Gaia. Foi baptizada em honra do Infante D. Henrique, nascido no Porto. Fica pouco a montante da ponte Luís I, em plena zona histórica, ligando as Fontainhas (Porto) à Serra do Pilar (Gaia). Um tabuleiro à cota alta com cerca de 371 metros de extensão (cerca de 405 m com os acessos) e 20 metros de largura assenta num arco de betão armado com 280 metros de vão; a altura máxima é de 75 metros sobre o Douro. A relação vão/flecha de 11,2 constituiu um recorde mundial para esta tipologia.",
+  "history": "A Ponte do Infante foi construída para substituir o tabuleiro superior da ponte Luís I, entretanto convertido para uso da Linha Amarela do Metro do Porto (Hospital de São João – Santo Ovídio). A nova travessia devia manter ligados os bairros históricos das Fontainhas e da Serra do Pilar e aliviar a ponte de 1886.\n\nO projeto é da empresa espanhola IDEAM, sob a direção de José Antonio Fernández Ordóñez; os engenheiros foram António Adão da Fonseca e Francisco Millanes Mato, com a Afassociados a assegurar a adequação aos regulamentos portugueses. A construção demorou 27 meses e custou 14 milhões de euros.\n\nA estrutura é uma viga-caixa com 4,5 metros de altura apoiada num arco flexível com apenas 1,5 metro de espessura. A ponte à cota alta tem cerca de 371 metros de extensão e 20 metros de largura. Leva duas vias em cada sentido, um separador central de 1 metro e passeios laterais de 3 metros com guardas de segurança. A iluminação está colocada à cota baixa, para iluminar a via de forma uniforme, sem sombras. O arco retoma a solução do engenheiro suíço Robert Maillart nas suas pontes alpinas: flecha de 25 metros entre o fecho e o arranque para um vão de 280 metros, ou seja, uma relação de 11,2.\n\nA ponte foi inaugurada a 30 de março de 2003. Como as restantes travessias Porto–Gaia, tornou-se um recorde da sua tipologia e serviu de referência a muitas pontes em arco construídas depois.",
+  "facts": [
+    "Inaugurada a 30 de março de 2003.",
+    "Arco de betão armado com 280 metros de vão; extensão total de cerca de 371 m (405,6 m com acessos, segundo o OSM), 20 metros de largura.",
+    "Altura máxima de 75 metros sobre o Douro.",
+    "Uma flecha de 25 metros dá a relação vão/flecha de 11,2, recorde mundial da tipologia.",
+    "O tabuleiro principal é uma viga-caixa de 4,5 m apoiada num arco flexível de 1,5 m de espessura.",
+    "Projeto de António Adão da Fonseca e Francisco Millanes (IDEAM, José Antonio Fernández Ordóñez); 27 meses, 14 milhões de euros.",
+    "Substituiu o tabuleiro superior da ponte Luís I, hoje Linha Amarela do Metro.",
+    "Liga as Fontainhas, no Porto, à Serra do Pilar, em Gaia."
+  ],
+  "tip": "Os melhores miradouros para ver o novo arco são os tabuleiros superior e inferior da ponte Luís I e o miradouro da Serra do Pilar. Ao pôr do sol o arco fica iluminado e reflete-se na água, sendo fácil fotografá-lo do cais da Ribeira. O acesso mais simples é a pé a partir da estação de metro de São Bento (cerca de 15 minutos), ou atravessando a própria ponte do Infante de autocarro.",
+  "gallery": [
+    {"caption": "A Ponte Infante Dom Henrique, vista geral."},
+    {"caption": "A Ponte Infante Dom Henrique sobre o Douro."},
+    {"caption": "A Ponte do Infante vista do cais."}
+  ],
+  "panorama": null
+}

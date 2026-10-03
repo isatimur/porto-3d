@@ -445,8 +445,10 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
     if (any) embankments++;
   }
   const portalCol = lin(PORTAL);
+  const coveredCol = lin(CONCRETE);
   const dark = [0.008, 0.008, 0.01];
   let portalsOpen = 0;
+  let portalsCovered = 0;
   for (const p of net.portals) {
     const w = net.ways[p.way];
     // the hood reaches at most halfway into the tunnel (the other portal's
@@ -459,7 +461,9 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
       portalsOpen++;
       continue;
     }
-    portalGeometry(ST, { x: p.x, z: p.z, y: p.y + RIBBON_LIFT, dx: p.dx, dz: p.dz }, { halfW: (w.widthM / 2) * S, col: portalCol, dark, cap: earth, hoodM });
+    const style = p.type === 'covered' ? 'covered' : 'bored';
+    if (style === 'covered') portalsCovered++;
+    portalGeometry(ST, { x: p.x, z: p.z, y: p.y + RIBBON_LIFT, dx: p.dx, dz: p.dz }, { halfW: (w.widthM / 2) * S, col: style === 'covered' ? coveredCol : portalCol, dark, cap: earth, hoodM, style });
   }
   let structTris = 0;
   if (ST.idx.length) {

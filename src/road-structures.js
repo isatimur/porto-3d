@@ -224,13 +224,18 @@ export function bridgeGeometry(T, pts, opts) {
 }
 
 // p: { x, z, y, dx, dz } portal on the road (y: road surface), d: into the
-// tunnel. opts: { halfW, col, dark, cap }
-export function portalGeometry(T, p, { halfW, col, dark = [0.01, 0.01, 0.012], cap = col, hoodM = 11 }) {
+// tunnel. opts: { halfW, col, dark, cap, style }
+// style 'bored' (default): a granite head wall with wing walls splayed into
+// the hillside. 'covered': the flat concrete mouth of a cut-and-cover /
+// covered tunnel (the VCI under the centre, a metro station box): shorter
+// straight wing walls, a lower head wall.
+export function portalGeometry(T, p, { halfW, col, dark = [0.01, 0.01, 0.012], cap = col, hoodM = 11, style = 'bored' }) {
+  const covered = style === 'covered';
   const { x, z, y, dx, dz } = p;
   const vx = -dz; // across
   const vz = dx;
   const H = 5.4 * M; // clear height
-  const TOP = 7.4 * M; // head wall top
+  const TOP = (covered ? 6.4 : 7.4) * M; // head wall top
   const w = halfW + 0.6 * M;
   const t = 0.9 * M;
   const back = [-dx, 0, -dz];
@@ -238,12 +243,15 @@ export function portalGeometry(T, p, { halfW, col, dark = [0.01, 0.01, 0.012], c
   orientedBox(T, x - dx * t * 0.5, z - dz * t * 0.5, y + H, y + TOP, dx, dz, t * 0.5, w + 1.1 * M, col);
   // pilasters
   for (const sgn of [1, -1]) orientedBox(T, x - dx * t * 0.5 + vx * (w + 0.55 * M) * sgn, z - dz * t * 0.5 + vz * (w + 0.55 * M) * sgn, y - 0.6 * M, y + TOP, dx, dz, t * 0.5, 0.55 * M, col);
-  // wing walls splaying out from the portal, falling toward the ends
+  // wing walls: splayed into the hillside (bored) or short straight returns
+  // of a cut-and-cover box (covered)
+  const splayA = covered ? 1.8 : 7;
+  const splayV = covered ? 0.8 : 3;
   for (const sgn of [1, -1]) {
     const bx = x + vx * (w + 1.1 * M) * sgn;
     const bz = z + vz * (w + 1.1 * M) * sgn;
-    const ex = bx - dx * 7 * M + vx * 3 * M * sgn;
-    const ez = bz - dz * 7 * M + vz * 3 * M * sgn;
+    const ex = bx - dx * splayA * M + vx * splayV * M * sgn;
+    const ez = bz - dz * splayA * M + vz * splayV * M * sgn;
     const out = [vx * sgn - dx * 0.4, 0, vz * sgn - dz * 0.4];
     quad(T, [bx, y - 0.6 * M, bz], [ex, y - 0.6 * M, ez], [ex, y + 1 * M, ez], [bx, y + TOP, bz], col, out);
     quad(T, [bx, y - 0.6 * M, bz], [ex, y - 0.6 * M, ez], [ex, y + 1 * M, ez], [bx, y + TOP, bz], col, [-out[0], 0, -out[2]]);

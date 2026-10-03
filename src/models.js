@@ -40,6 +40,7 @@ import felgueiras from './models/porto/felgueiras.js';
 import cavesGaia from './models/porto/caves-gaia.js';
 import aliados from './models/porto/aliados.js';
 import palacioCristal from './models/porto/palacio-cristal.js';
+import { builders as portoBuilders, specs as portoSpecs } from './models/porto/index.js';
 
 export { PALETTE, MAT, triangleCount };
 
@@ -89,9 +90,13 @@ const DETAILED = {
   ...cavesGaia,
   ...aliados,
   ...palacioCristal,
+  ...portoBuilders,
 };
-const BUILDERS = { ...blockBuilders(Object.keys(LANDMARK_SPECS)), ...DETAILED };
 
+// Roster-expansion specs (id -> { type, h, yaw }) merged before the derived maps.
+Object.assign(LANDMARK_SPECS, portoSpecs);
+
+const BUILDERS = { ...blockBuilders(Object.keys(LANDMARK_SPECS)), ...DETAILED };
 const TYPE_DEFAULT = Object.fromEntries(Object.entries(LANDMARK_SPECS).map(([id, s]) => [s.type, id]));
 export const MODEL_TYPES = Object.keys(TYPE_DEFAULT);
 

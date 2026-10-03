@@ -75,7 +75,13 @@ export function surfaceOf(f) {
 
 export const LANE_M = 3; // nominal lane width (m)
 const MAX_STEP = 3; // world units between points
+// tunnel=yes and its variants: a bored road/rail tunnel, drawn with a portal
+// facade in the hillside
 const ROAD_TUNNELS = new Set(['yes', 'avalanche_protector', 'flooded']);
+// tunnel=building_passage / covered, or covered=yes without a tunnel tag
+// (the VCI cut-and-cover under the centre, metro station boxes, arcades):
+// drawn with the flat concrete covered mouth instead
+const COVERED_TUNNELS = new Set(['building_passage', 'covered', 'gallery']);
 
 // clearance of a deck (top of the road surface) over what it spans, in m.
 // Water: over the terrain model, which has no river channel (the Este and
@@ -159,7 +165,15 @@ function build(roads, project, heightAt) {
     if (f.kind === 'foot') widthM = t.hw === 'steps' ? 2 : 3;
     if (f.kind === 'rail') widthM = 4.2;
     const tu = t.tu;
-    const roadTunnel = !!tu && ROAD_TUNNELS.has(tu) && f.kind !== 'water';
+    const isRail = f.kind === 'rail';
+    const isWater = f.kind === 'water';
+    // a bored tunnel (tunnel=yes ...) — the historic hillside tunnels
+    const bored = !!tu && ROAD_TUNNELS.has(tu) && !isWater;
+    // a covered tunnel: tunnel=building_passage / covered, or covered=yes on
+    // a road with no tunnel tag (the VCI under the centre). covered=yes on a
+    // railway alone is a train shed, not a tunnel, so rail needs the tag.
+    const covered = (!!tu && COVERED_TUNNELS.has(tu) && !isWater) || (!tu && !!t.cv && !isWater && !isRail);
+    const tunnel = bored || covered;
     ways.push({
       fi,
       f,
@@ -180,7 +194,8 @@ function build(roads, project, heightAt) {
       ly: t.ly || 0,
       bridge: !!t.br || ((t.ly || 0) > 0 && !tu), // settled below by the crossings
       tagBridge: !!t.br,
-      tunnel: roadTunnel,
+      tunnel,
+      tunnelType: bored ? 'bored' : 'covered',
       closed: false,
       crossings: [],
       car: !cls.noCar && !t.nocar && f.kind !== 'foot' && f.kind !== 'rail',
@@ -578,7 +593,7 @@ function build(roads, project, heightAt) {
       dz /= L;
       const clear = clearOf(w, PX[i], PZ[i], dx, dz);
       inside[end] = Math.min(INSIDE, clear);
-      portals.push({ way: wi, x: PX[i], z: PZ[i], y: Y[i], dx, dz, widthM: w.widthM, name: w.t.name || '', clear });
+      portals.push({ way: wi, x: PX[i], z: PZ[i], y: Y[i], dx, dz, widthM: w.widthM, name: w.t.name || '', clear, type: w.tunnelType });
     }
     for (let i = w.start; i < w.start + w.n; i++) {
       const s = PC[i];

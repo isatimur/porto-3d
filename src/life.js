@@ -6,12 +6,26 @@
 //     down; a 4-minute trip run ten times faster, with a pause at the
 //     stations. The cars ride on the model's own track bed where the city
 //     has one (Braga), else on the terrain height;
-//   - the historic trams (Elétrico Linha 1): yellow Carros Elétricos along
-//     the river from Infante toward Foz, following the real OSM route at
-//     ground height, easing to a stop and reversing at each terminus;
+//   - the historic trams (Elétrico Linhas 1, 18 and 22): yellow Carros
+//     Elétricos on three real OSM routes — Infante <-> Passeio Alegre along
+//     the river, Clérigos <-> Passeio Alegre, and Carmo <-> Batalha — with
+//     1435 mm gauge rails set in the pavement, following the ground, easing
+//     to a stop and reversing at each terminus, each showing its number;
 //   - the Teleférico de Gaia (2011): two stations, two haul ropes and six
 //     cabins gliding between the Cais de Gaia and the Jardim do Morro, each
 //     cabin gently swaying; a cabin passes every ~20 s;
+//   - rolling stock on the Douro crossings (data/life.json `rail`): the
+//     Metro do Porto (Linha D) on the Luís I upper deck between Jardim do
+//     Morro and São Bento, and CP mainline trains (a locomotive and
+//     carriages) on the Ponte de São João to/from Campanhã. Each consist
+//     rides the real OSM alignment; on the bridge it holds the deck height
+//     (60 m Luís I upper, 66 m São João, dimensions.json), elsewhere it
+//     follows the terrain, ramping down off the bridge at the ends;
+//   - river traffic on the Douro: rabelo boats (flat-bottomed, port casks,
+//     square sail) along the Ribeira, Douro cruisers down to the Foz and up
+//     to Freixo, and the small Gaia <-> Ribeira ferry, each on its own
+//     ordered path with a spreading, fading wake; rabelos also lie moored
+//     along the Cais de Gaia (data/life.json `boats`);
 //   - traffic on the primary and secondary streets: instanced cars and
 //     vans that follow the OSM polylines at 30-55 km/h in both directions,
 //     turning onto a connected street at each end; head and tail lights at
@@ -332,32 +346,122 @@ const TRAM_M = 9; // metres, the Porto Carro Elétrico
 const TRAM_SPEEDUP = 10; // the map runs the timetable faster, like the funicular
 
 // A yellow Carro Elétrico: skirt, body, a lit window band, clerestory roof,
-// a raised trolley pole and a headlight; +z is the front (metres -> world).
+// a raised trolley pole, twin headlights, a dark destination board and the
+// front fender; +z is the front (metres -> world).
 function tramGeometry() {
   const W = 2.4;
   const parts = [
-    box(W, 0.5, TRAM_M, 0, 0, 0, 0x24231f),
-    box(W, 1.5, TRAM_M - 0.5, 0, 0.5, 0, 0xe7b32a),
-    box(W + 0.06, 0.85, TRAM_M - 1.9, 0, 1.0, 0.1, 0x223039, 1),
-    box(W - 0.2, 0.18, TRAM_M - 0.9, 0, 2.0, 0, 0xd39a1c),
-    box(0.1, 1.25, 0.1, 0, 2.15, -1.4, 0x3a3f42),
-    box(1.5, 0.07, 0.07, 0, 3.4, -1.4, 0x3a3f42),
-    box(1.0, 0.26, 0.12, 0, 0.85, TRAM_M / 2 - 0.06, 0xffe9b0, 1),
+    box(W, 0.5, TRAM_M, 0, 0, 0, 0x24231f), // chassis / skirt
+    box(W, 1.5, TRAM_M - 0.5, 0, 0.5, 0, 0xe7b32a), // yellow body
+    box(W + 0.06, 0.85, TRAM_M - 1.9, 0, 1.0, 0.1, 0x223039, 1), // lit side windows
+    box(W + 0.07, 0.7, 0.12, 0, 1.0, TRAM_M / 2 - 0.3, 0x2a3a44, 1), // front window
+    box(W - 0.2, 0.18, TRAM_M - 0.9, 0, 2.0, 0, 0xd39a1c), // clerestory roof
+    box(0.1, 1.35, 0.1, 0, 2.15, -1.9, 0x3a3f42), // trolley pole
+    box(1.5, 0.07, 0.07, 0, 3.5, -1.9, 0x3a3f42), // trolley bar
+    box(0.5, 0.62, 0.12, 0, 1.5, TRAM_M / 2 - 0.04, 0x14120f), // destination board
+    box(0.18, 0.18, 0.1, -0.72, 0.72, TRAM_M / 2 - 0.02, 0xffe9b0, 1), // headlights
+    box(0.18, 0.18, 0.1, 0.72, 0.72, TRAM_M / 2 - 0.02, 0xffe9b0, 1),
+    box(W - 0.3, 0.5, 0.06, 0, 0.05, TRAM_M / 2 + 0.05, 0x24231f), // front fender
   ];
   const g = mergeGeometries(parts);
   g.scale(S, S, S);
   return g;
 }
 
+// The route-number board: a little canvas texture (black destination blind,
+// a stripe in the line's colour, the number in cream). No DOM (headless
+// smoke) -> null, and the board falls back to a plain dark plate.
+function boardTexture(number, colour) {
+  if (typeof document === 'undefined') return null;
+  const c = document.createElement('canvas');
+  c.width = 128;
+  c.height = 64;
+  const x = c.getContext('2d');
+  x.fillStyle = '#14120f';
+  x.fillRect(0, 0, 128, 64);
+  x.fillStyle = colour || '#187EC2';
+  x.fillRect(0, 0, 128, 9);
+  x.fillStyle = '#f6efdc';
+  x.font = 'bold 42px system-ui, sans-serif';
+  x.textAlign = 'center';
+  x.textBaseline = 'middle';
+  x.fillText(String(number), 64, 39);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  return tex;
+}
+
+// Rails: two thin steel strips per line, following the polyline at ground
+// height (nothing here reads roads.json), so a tram street reads as a tram
+// street before a car appears. One static InstancedMesh, a box per segment,
+// two per line at the 1435 mm gauge.
+function buildRails(lines, cfg) {
+  const gauge = (cfg?.rail_gauge_m ?? 1.435) * S;
+  const RW = (cfg?.rail_width_m ?? 0.07) * S;
+  const RH = (cfg?.rail_height_m ?? 0.045) * S;
+  let count = 0;
+  for (const L of lines) count += (L.xs.length - 1) * 2;
+  const geo = new THREE.BoxGeometry(1, 1, 1);
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0x585a5e,
+    roughness: 0.42,
+    metalness: 0.62,
+    polygonOffset: true,
+    polygonOffsetFactor: -1,
+    polygonOffsetUnits: -1,
+  });
+  const rails = new THREE.InstancedMesh(geo, mat, count);
+  rails.name = 'tram-rails';
+  rails.castShadow = false;
+  rails.receiveShadow = true;
+  rails.frustumCulled = false;
+  const m = new THREE.Matrix4();
+  const q = new THREE.Quaternion();
+  const e = new THREE.Euler(0, 0, 0, 'YXZ');
+  const p = new THREE.Vector3();
+  const sc = new THREE.Vector3();
+  let k = 0;
+  for (const L of lines) {
+    for (let i = 1; i < L.xs.length; i++) {
+      const ax = L.xs[i - 1];
+      const az = L.zs[i - 1];
+      const bx = L.xs[i];
+      const bz = L.zs[i];
+      const dx = bx - ax;
+      const dz = bz - az;
+      const len = Math.hypot(dx, dz);
+      if (len < 1e-4) continue;
+      const nx = dz / len; // segment right-hand normal
+      const nz = -dx / len;
+      const y0 = (L.ys[i - 1] + L.ys[i]) * 0.5;
+      e.set(0, Math.atan2(dx, dz), 0, 'YXZ');
+      q.setFromEuler(e);
+      sc.set(RW, RH, len + RW);
+      for (const sgn of [-1, 1]) {
+        p.set((ax + bx) * 0.5 + nx * gauge * 0.5 * sgn, y0 + RH * 0.5 + 0.02, (az + bz) * 0.5 + nz * gauge * 0.5 * sgn);
+        m.compose(p, q, sc);
+        rails.setMatrixAt(k++, m);
+      }
+    }
+  }
+  rails.count = k;
+  rails.instanceMatrix.needsUpdate = true;
+  return rails;
+}
+
 export function buildTrams({ project, heightAt, mobile, lite }) {
   const cfg = LIFE?.trams;
-  const routes = cfg?.routes;
-  if (!Array.isArray(routes) || !routes.length) return null;
+  // routes: either a bare [[lat, lon], ...] polyline (older data) or
+  // { id, name, colour, points } (the real STCP lines in data/life.json)
+  const routes = (cfg?.routes || [])
+    .map((r, i) => (Array.isArray(r) ? { id: String(i + 1), points: r } : r))
+    .filter((r) => r && Array.isArray(r.points) && r.points.length >= 2);
+  if (!routes.length) return null;
   const STEP = 1.5; // world units between samples
   const lines = routes
     .map((tr) => {
-      if (!Array.isArray(tr) || tr.length < 2) return null;
-      const p = tr.map((q) => project(q[0], q[1]));
+      const p = tr.points.map((q) => project(q[0], q[1]));
       const xs = [];
       const zs = [];
       for (let i = 1; i < p.length; i++) {
@@ -377,18 +481,25 @@ export function buildTrams({ project, heightAt, mobile, lite }) {
       });
       const cum = [0];
       for (let i = 1; i < xs.length; i++) cum.push(cum[i - 1] + Math.hypot(xs[i] - xs[i - 1], zs[i] - zs[i - 1]));
-      return { xs, zs, ys, cum, total: cum[cum.length - 1] };
+      return { id: tr.id, name: tr.name, colour: tr.colour, xs, zs, ys, cum, total: cum[cum.length - 1] };
     })
     .filter(Boolean);
   if (!lines.length) return null;
 
-  const COUNT = lite || mobile ? 2 : 4;
-  const mesh = new THREE.InstancedMesh(tramGeometry(), lifeMaterial({ roughness: 0.45, metalness: 0.2 }), COUNT);
-  mesh.name = 'trams';
-  mesh.castShadow = false;
-  mesh.receiveShadow = true;
-  mesh.frustumCulled = false;
-  mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  // a few cars per line: the yellow body is shared between them, the
+  // destination board carries the line's number and colour
+  const perRoute = lite || mobile ? 1 : 2;
+  const group = new THREE.Group();
+  group.name = 'trams';
+
+  // rails first: they never move, one static InstancedMesh follows every
+  // line at ground height (no roads.json)
+  const rails = buildRails(lines, cfg);
+  group.add(rails);
+
+  const bodyGeo = tramGeometry();
+  const bodyMat = lifeMaterial({ roughness: 0.45, metalness: 0.2 });
+  const boardGeo = new THREE.PlaneGeometry(0.46 * S, 0.5 * S);
 
   const speed = (cfg.speed_mps ?? 6) * S * TRAM_SPEEDUP;
   const DWELL = 6; // seconds at each terminus
@@ -406,18 +517,40 @@ export function buildTrams({ project, heightAt, mobile, lite }) {
     if (p < 2 * DWELL + one) return L.total;
     return (1 - profile((p - 2 * DWELL - one) / one)) * L.total;
   }
-  const trams = [];
-  for (let i = 0; i < COUNT; i++) {
-    const L = lines[i % lines.length];
+
+  const cars = [];
+  const boardMats = [];
+  lines.forEach((L, li) => {
     const cycle = 2 * (L.total / speed + DWELL);
-    trams.push({ L, offset: (i / COUNT) * cycle });
-  }
+    const tex = boardTexture(L.id, L.colour);
+    const boardMat = new THREE.MeshStandardMaterial({
+      color: 0x14120f,
+      roughness: 0.7,
+      metalness: 0,
+      map: tex,
+      emissive: 0xffffff,
+      emissiveMap: tex,
+      emissiveIntensity: 0,
+      toneMapped: false,
+    });
+    boardMats.push(boardMat);
+    for (let k = 0; k < perRoute; k++) {
+      const car = new THREE.Group();
+      car.name = `tram-${L.id}`;
+      const body = new THREE.Mesh(bodyGeo, bodyMat);
+      body.receiveShadow = true;
+      car.add(body);
+      const board = new THREE.Mesh(boardGeo, boardMat);
+      board.position.set(0, 1.5 * S, (TRAM_M / 2 + 0.05) * S);
+      car.add(board);
+      group.add(car);
+      cars.push({ L, car, offset: ((k + 0.5) / perRoute) * cycle + li * cycle * 0.21 });
+    }
+  });
 
   const _q = new THREE.Quaternion();
   const _e = new THREE.Euler(0, 0, 0, 'YXZ');
   const _p = new THREE.Vector3();
-  const _s = new THREE.Vector3(1, 1, 1);
-  const _m = new THREE.Matrix4();
   const at = { x: 0, y: 0, z: 0, yaw: 0, pitch: 0 };
   function sample(L, s) {
     let i = 1;
@@ -432,36 +565,325 @@ export function buildTrams({ project, heightAt, mobile, lite }) {
     at.pitch = Math.atan2(-(L.ys[i] - L.ys[i - 1]), Math.max(1e-3, Math.hypot(dx, dz)));
     return at;
   }
-  const anchorX = lines[0].xs[lines[0].xs.length >> 1];
-  const anchorZ = lines[0].zs[lines[0].zs.length >> 1];
   let time = -DWELL * 0.4; // first view: a tram already under way
   function update(dt, camera) {
     time += dt;
-    const hidden = camera.position.distanceToSquared(_p.set(anchorX, 0, anchorZ)) > 2600 * 2600;
-    mesh.visible = !hidden;
-    if (hidden) return;
-    for (let i = 0; i < COUNT; i++) {
-      const tr = trams[i];
+    // the destination boards light at night (LIFE_UNIFORMS is updated by
+    // createLife just before this runs)
+    const night = LIFE_UNIFORMS.uLifeNight.value;
+    for (const bm of boardMats) bm.emissiveIntensity = Math.min(1, night * 1.6);
+    const cx = camera.position.x;
+    const cz = camera.position.z;
+    for (let i = 0; i < cars.length; i++) {
+      const tr = cars[i];
       sample(tr.L, arcAt(tr.L, time + tr.offset));
-      _e.set(at.pitch, at.yaw, Math.sin(time * 1.3 + i * 2.1) * 0.012, 'YXZ');
+      _e.set(at.pitch, at.yaw, dt > 0 ? Math.sin(time * 1.3 + i * 2.1) * 0.012 : 0, 'YXZ');
       _q.setFromEuler(_e);
       _p.set(at.x, at.y + 0.09 * S, at.z);
-      _m.compose(_p, _q, _s);
-      mesh.setMatrixAt(i, _m);
+      tr.car.position.copy(_p);
+      tr.car.quaternion.copy(_q);
+      const dx = at.x - cx;
+      const dz = at.z - cz;
+      tr.car.visible = dx * dx + dz * dz < 2600 * 2600;
     }
-    mesh.instanceMatrix.needsUpdate = true;
   }
-  update(0, { position: new THREE.Vector3(anchorX, 0, anchorZ) });
+  update(0, { position: new THREE.Vector3(0, 0, 0) });
   return {
-    object: mesh,
+    object: group,
     update,
-    stats: { trams: COUNT, routes: lines.length, km: +(lines.reduce((s, L) => s + L.total, 0) / S / 1000).toFixed(1) },
+    lines,
+    stats: {
+      trams: cars.length,
+      routes: lines.length,
+      perRoute,
+      km: +(lines.reduce((s, L) => s + L.total, 0) / S / 1000).toFixed(1),
+      railSegments: rails.count,
+    },
+  };
+}
+
+// ------------------------------------------------------------ rail
+// Rolling stock on the Douro crossings (data/life.json `rail`): the Metro do
+// Porto (Linha D) on the Luís I upper deck, and CP mainline trains on the
+// Ponte de São João to Campanhã. A train is one rigid consist — an
+// articulated 3-section metro or a locomotive + carriages — riding the real
+// OSM alignment. On the bridge it holds the deck height (the landmark model's
+// base + dimensions.json: 60 m Luís I upper, 66 m São João); off it, it
+// follows the terrain, ramping between the two over RAIL_BLEND at the ends.
+const RAIL_SPEEDUP = 2; // the map runs the service a little faster than real time
+const RAIL_LIFT = 0.16; // world units the wheels sit above the deck / ground
+const RAIL_BLEND = 20; // world units (80 m) to ramp from the deck to the terrain
+const RAIL_SPAN_W = 20; // world units (80 m) lateral tolerance of a bridge span
+
+// Metro do Porto LRV: a silver-white articulated three-section car with the
+// operator's blue and yellow stripes and a lit window band; +z is the front.
+function metroGeometry() {
+  const W = 2.65;
+  const SL = 10.6; // one section
+  const L = SL * 3;
+  const z0 = -L / 2;
+  const parts = [];
+  for (let c = 0; c < 3; c++) {
+    const zc = z0 + SL * (c + 0.5);
+    parts.push(box(W, 0.55, SL, 0, 0.25, zc, 0x2a2d30)); // skirt / bogies
+    parts.push(box(W + 0.04, 1.55, SL - 0.3, 0, 0.8, zc, 0xe4e7e9)); // silver body
+    parts.push(box(W + 0.1, 0.72, SL - 1.7, 0, 1.28, zc, 0x1f2a30, 1)); // lit windows
+    parts.push(box(W + 0.11, 0.16, SL - 0.6, 0, 0.82, zc, 0x1f7ec2)); // blue stripe
+    parts.push(box(W + 0.11, 0.12, SL - 0.6, 0, 1.02, zc, 0xf9c212)); // yellow stripe
+    parts.push(box(W - 0.3, 0.22, SL - 0.7, 0, 2.42, zc, 0x9aa0a4)); // roof
+  }
+  // front cab: yellow end, windscreen, destination plate, twin headlights
+  parts.push(box(W, 1.9, 0.55, 0, 0.7, L / 2 - 0.28, 0xf9c212));
+  parts.push(box(W - 0.5, 0.95, 0.16, 0, 1.35, L / 2 + 0.02, 0x1f2a30, 1));
+  parts.push(box(W - 0.9, 0.3, 0.1, 0, 1.95, L / 2 + 0.05, 0x14120f));
+  parts.push(box(0.22, 0.22, 0.1, -0.85, 0.85, L / 2 + 0.07, 0xffe9b0, 1));
+  parts.push(box(0.22, 0.22, 0.1, 0.85, 0.85, L / 2 + 0.07, 0xffe9b0, 1));
+  // pantograph
+  parts.push(box(0.1, 0.95, 0.1, 0, 2.55, -1.5, 0x3a3f42));
+  parts.push(box(1.5, 0.08, 0.08, 0, 3.5, -1.5, 0x3a3f42));
+  const g = mergeGeometries(parts);
+  g.userData.lengthM = L;
+  g.scale(S, S, S);
+  return g;
+}
+
+// CP mainline: a white-and-red locomotive + carriages; +z is the front.
+function mainlineGeometry(cars = 4) {
+  const W = 2.9;
+  const LOCO = 19;
+  const CAR = 26;
+  const L = LOCO + cars * CAR;
+  const parts = [];
+  const lz = L / 2 - LOCO / 2; // locomotive at the front (+z)
+  parts.push(box(W, 0.5, LOCO, 0, 0.25, lz, 0x1b1e21));
+  parts.push(box(W, 1.7, LOCO - 0.6, 0, 0.75, lz, 0xf0f1f2));
+  parts.push(box(W + 0.06, 0.68, LOCO - 3.2, 0, 1.35, lz, 0x1f2a30, 1)); // windows
+  parts.push(box(W + 0.07, 0.32, LOCO - 0.6, 0, 0.55, lz, 0xc0392b)); // red band
+  parts.push(box(W - 0.2, 0.22, LOCO - 1.2, 0, 2.55, lz, 0x9aa0a4)); // roof
+  parts.push(box(W, 1.95, 0.45, 0, 0.7, L / 2 - 0.2, 0xf0f1f2)); // cab face
+  parts.push(box(W - 0.35, 0.95, 0.14, 0, 1.35, L / 2 + 0.06, 0x1f2a30, 1));
+  parts.push(box(0.26, 0.26, 0.1, -0.95, 0.8, L / 2 + 0.1, 0xffe9b0, 1)); // headlights
+  parts.push(box(0.26, 0.26, 0.1, 0.95, 0.8, L / 2 + 0.1, 0xffe9b0, 1));
+  for (let c = 0; c < cars; c++) {
+    const zc = L / 2 - LOCO - CAR * (c + 0.5);
+    parts.push(box(W, 0.5, CAR, 0, 0.25, zc, 0x1b1e21));
+    parts.push(box(W, 1.65, CAR - 0.8, 0, 0.75, zc, 0xf0f1f2));
+    parts.push(box(W + 0.06, 0.72, CAR - 2.8, 0, 1.35, zc, 0x1f2a30, 1));
+    parts.push(box(W + 0.07, 0.3, CAR - 0.8, 0, 0.55, zc, 0xc0392b));
+    parts.push(box(W - 0.25, 0.22, CAR - 1.4, 0, 2.5, zc, 0x9aa0a4));
+  }
+  const g = mergeGeometries(parts);
+  g.userData.lengthM = L;
+  g.scale(S, S, S);
+  return g;
+}
+
+export function buildTrains({ project, heightAt, items = [], mobile = false, lite = false }) {
+  const cfg = LIFE?.rail;
+  const list = (cfg?.items || []).filter((it) => Array.isArray(it.path) && it.path.length >= 2);
+  if (!list.length) return null;
+
+  // the bridge deck of a service: the landmark model's base plus the real
+  // deck height above it, and the model's world footprint plus the OSM bridge
+  // span (the train stays at deck height anywhere inside either — the
+  // flattened bridge pad cannot pull it down, and the span covers the
+  // viaduct where it runs past the model box) — see fit.js (top of the Luís I
+  // deck is +60 m, São João +66 m).
+  function bridgeOf(it) {
+    const site = it.bridge?.site;
+    const item = site ? items.find((q) => q.data.id === site) : null;
+    const mesh = item?.meshes?.[0];
+    const bb = mesh?.geometry?.boundingBox;
+    if (!mesh || !bb || !(it.bridge?.deck_m > 0)) return null;
+    const span = Array.isArray(it.bridge.span) && it.bridge.span.length === 2
+      ? it.bridge.span.map((q) => project(q[0], q[1]))
+      : null;
+    return {
+      y: mesh.position.y + it.bridge.deck_m * S,
+      minX: mesh.position.x + bb.min.x,
+      maxX: mesh.position.x + bb.max.x,
+      minZ: mesh.position.z + bb.min.z,
+      maxZ: mesh.position.z + bb.max.z,
+      span,
+    };
+  }
+
+  const STEP = 1.5; // world units between samples
+  const lines = list.map((it) => {
+    const p = it.path.map((q) => project(q[0], q[1]));
+    const xs = [];
+    const zs = [];
+    for (let i = 1; i < p.length; i++) {
+      const a = p[i - 1];
+      const b = p[i];
+      const n = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.z - a.z) / STEP));
+      for (let j = i === 1 ? 0 : 1; j <= n; j++) {
+        xs.push(a.x + ((b.x - a.x) * j) / n);
+        zs.push(a.z + ((b.z - a.z) * j) / n);
+      }
+    }
+    // terrain, median-smoothed so the train does not bob per sample
+    const raw = xs.map((x, i) => heightAt(x, zs[i]));
+    const terrain = raw.map((_, i) => {
+      const w = raw.slice(Math.max(0, i - 2), i + 3).sort((m, n) => m - n);
+      return w[w.length >> 1];
+    });
+    const deck = bridgeOf(it);
+    const ys = terrain.map((g, i) => {
+      if (!deck) return g;
+      const x = xs[i];
+      const z = zs[i];
+      const dBox = Math.max(0, deck.minX - x, x - deck.maxX, deck.minZ - z, z - deck.maxZ);
+      let w = dBox <= 0 ? 1 : Math.max(0, 1 - dBox / RAIL_BLEND);
+      if (deck.span && w < 1) {
+        // distance to the OSM bridge span segment, so the deck covers the
+        // whole viaduct even where it runs past the landmark model's box
+        const [a, b] = deck.span;
+        const vx = b.x - a.x;
+        const vz = b.z - a.z;
+        const l2 = vx * vx + vz * vz;
+        if (l2 > 1e-6) {
+          const tp = ((x - a.x) * vx + (z - a.z) * vz) / l2;
+          const tc = Math.max(0, Math.min(1, tp));
+          const along = tp < 0 ? -tp * Math.sqrt(l2) : tp > 1 ? (tp - 1) * Math.sqrt(l2) : 0;
+          const lat = Math.max(0, Math.hypot(x - (a.x + tc * vx), z - (a.z + tc * vz)) - RAIL_SPAN_W);
+          const dd = Math.hypot(along, lat);
+          const ws = dd <= 0 ? 1 : Math.max(0, 1 - dd / RAIL_BLEND);
+          if (ws > w) w = ws;
+        }
+      }
+      return g + (deck.y - g) * w;
+    });
+    const cum = [0];
+    for (let i = 1; i < xs.length; i++) cum.push(cum[i - 1] + Math.hypot(xs[i] - xs[i - 1], zs[i] - zs[i - 1]));
+    return { item: it, xs, zs, ys, cum, total: cum[cum.length - 1], deck: !!deck };
+  }).filter((L) => L.total > 1);
+  if (!lines.length) return null;
+
+  const group = new THREE.Group();
+  group.name = 'rail';
+  const mat = lifeMaterial({ roughness: 0.42, metalness: 0.28 });
+  const speedK = RAIL_SPEEDUP;
+  // trapezoid speed profile: 15 % accelerating, 15 % braking (as the trams)
+  const A = 0.15;
+  const profile = (x) => (x < A ? (0.5 * x * x) / (A * (1 - A)) : x < 1 - A ? (x - A / 2) / (1 - A) : 1 - (0.5 * (1 - x) * (1 - x)) / (A * (1 - A)));
+
+  const meshes = [];
+  const trains = [];
+  let tris = 0;
+  lines.forEach((L, li) => {
+    const it = L.item;
+    const service = it.service;
+    const geo = service === 'metro' ? metroGeometry() : mainlineGeometry(it.cars ?? 4);
+    const want = it.count ?? 1;
+    const n = lite || mobile ? 1 : want;
+    const mesh = new THREE.InstancedMesh(geo, mat, n);
+    mesh.name = `rail-${it.id}`;
+    mesh.castShadow = false;
+    mesh.receiveShadow = true;
+    mesh.frustumCulled = false; // culled per line below
+    mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    group.add(mesh);
+    meshes.push(mesh);
+    const verts = geo.index ? geo.index.count : geo.attributes.position.count;
+    tris += (verts / 3) * n;
+    const half = ((geo.userData.lengthM ?? 0) * S) / 2 + 0.4;
+    const one = Math.max(1e-3, (L.total - 2 * half) / (Math.max(0.5, it.speed_mps ?? 12) * S * speedK));
+    for (let k = 0; k < n; k++) {
+      trains.push({ L, mesh, slot: k, half, one, offset: ((k + (li ? 0.35 : 0)) / n) * 2 * one });
+    }
+    L.mid = [L.xs[L.xs.length >> 1], L.zs[L.zs.length >> 1]];
+    L.visible = true;
+  });
+
+  const _q = new THREE.Quaternion();
+  const _e = new THREE.Euler(0, 0, 0, 'YXZ');
+  const _p = new THREE.Vector3();
+  const _s = new THREE.Vector3(1, 1, 1);
+  const _m = new THREE.Matrix4();
+  const at = { x: 0, y: 0, z: 0, yaw: 0, pitch: 0 };
+  function heightOn(L, s) {
+    let i = 1;
+    while (i < L.cum.length - 1 && L.cum[i] < s) i++;
+    const u = THREE.MathUtils.clamp((s - L.cum[i - 1]) / Math.max(1e-6, L.cum[i] - L.cum[i - 1]), 0, 1);
+    return L.ys[i - 1] + (L.ys[i] - L.ys[i - 1]) * u;
+  }
+  function sample(L, s) {
+    let i = 1;
+    while (i < L.cum.length - 1 && L.cum[i] < s) i++;
+    const u = THREE.MathUtils.clamp((s - L.cum[i - 1]) / Math.max(1e-6, L.cum[i] - L.cum[i - 1]), 0, 1);
+    at.x = L.xs[i - 1] + (L.xs[i] - L.xs[i - 1]) * u;
+    at.z = L.zs[i - 1] + (L.zs[i] - L.zs[i - 1]) * u;
+    at.y = L.ys[i - 1] + (L.ys[i] - L.ys[i - 1]) * u;
+    const dx = L.xs[i] - L.xs[i - 1];
+    const dz = L.zs[i] - L.zs[i - 1];
+    at.yaw = Math.atan2(dx, dz); // +z of the consist along the travel direction
+    at.pitch = Math.atan2(-(L.ys[i] - L.ys[i - 1]), Math.max(1e-3, Math.hypot(dx, dz)));
+    return at;
+  }
+  // ping-pong along the line, inset by the consist's half-length
+  function arcAt(T, tt) {
+    const one = T.one;
+    const p = ((tt % (2 * one)) + 2 * one) % (2 * one);
+    const span = T.L.total - 2 * T.half;
+    if (p < one) return T.half + profile(p / one) * span;
+    return T.half + (1 - profile((p - one) / one)) * span;
+  }
+  let time = 0;
+  function place(T, s) {
+    sample(T.L, s);
+    // slope over the consist's length, so it does not rock per sample
+    const s0 = Math.max(0, s - T.half);
+    const s1 = Math.min(T.L.total, s + T.half);
+    at.pitch = Math.atan2(-(heightOn(T.L, s1) - heightOn(T.L, s0)), Math.max(1e-3, s1 - s0));
+    _e.set(at.pitch, at.yaw, 0, 'YXZ');
+    _q.setFromEuler(_e);
+    _p.set(at.x, at.y + RAIL_LIFT, at.z);
+    _m.compose(_p, _q, _s);
+    T.mesh.setMatrixAt(T.slot, _m);
+  }
+  function update(dt, camera) {
+    time += dt;
+    const cx = camera?.position.x ?? 0;
+    const cz = camera?.position.z ?? 0;
+    for (const L of lines) {
+      const dx = L.mid[0] - cx;
+      const dz = L.mid[1] - cz;
+      L.visible = !camera || dx * dx + dz * dz < 2600 * 2600;
+    }
+    for (const T of trains) {
+      T.mesh.visible = T.L.visible;
+      if (!T.L.visible) continue;
+      place(T, arcAt(T, time + T.offset));
+      T.mesh.instanceMatrix.needsUpdate = true;
+    }
+  }
+  update(0, { position: new THREE.Vector3(0, 0, 0) });
+  return {
+    object: group,
+    update,
+    lines,
+    stats: {
+      trains: trains.length,
+      services: lines.length,
+      metro: lines.filter((L) => L.item.service === 'metro').length,
+      mainline: lines.filter((L) => L.item.service === 'mainline').length,
+      km: +(lines.reduce((s, L) => s + L.total, 0) / S / 1000).toFixed(1),
+      onDeck: lines.filter((L) => L.deck).length,
+      triangles: Math.round(tris),
+    },
+    // tests: the world position of the first consist of a service
+    position(id = 'metro-d') {
+      const t = trains.find((T) => T.L.item.id === id);
+      if (!t) return null;
+      place(t, arcAt(t, time + t.offset));
+      return { x: at.x, y: at.y, z: at.z, deck: t.L.deck };
+    },
   };
 }
 
 // ------------------------------------------------------------ cable car
-function cabinGeometry() {
-  // a red Gaia gondola: cabin, lit window band, roof, hanger arm and grip
+function cabinGeometry() {  // a red Gaia gondola: cabin, lit window band, roof, hanger arm and grip
   const parts = [
     box(2.2, 1.9, 2.4, 0, 0, 0, 0xc0392b),
     box(2.26, 0.75, 2.46, 0, 0.85, 0, 0x1f2a30, 1),
@@ -577,6 +999,446 @@ export function buildCableCar({ project, heightAt, mobile, lite }) {
     object: group,
     update,
     stats: { cabins: COUNT, spanM: Math.round(span / S), gainM: Math.round((b.y - a.y) / S) },
+  };
+}
+
+// ------------------------------------------------------------ boats
+// The Douro at Porto: rabelo boats (flat-bottomed, port casks, square sail),
+// Douro cruisers / barco-hotels and the small Gaia <-> Ribeira ferry, each
+// following an ordered path over the water with a fading wake. data/life.json
+// `boats` (scripts/fetch-life.mjs).
+//
+// The water surface is draped on the terrain (water.js, which reads
+// heightAt), and the open river is kind 1 ("tidal": not a ribbon), so its
+// mesh rides at heightAt + LIFT * 0.7. Boats are placed on the same level and
+// let the hull sit below the waterline.
+const WATER_LIFT = 0.196; // world units (0.78 m); water.js LIFT * 0.7
+
+// Like box(), but a cylinder: centre at (x, y, z), axis +y unless rotated.
+function cyl(r, h, seg, x, y, z, color, glow = 0, rz = 0, rx = 0) {
+  const g = new THREE.CylinderGeometry(r, r, h, seg).toNonIndexed();
+  if (rz) g.rotateZ(rz);
+  if (rx) g.rotateX(rx);
+  g.translate(x, y, z);
+  const n = g.attributes.position.count;
+  const c = new Float32Array(n * 3);
+  const col = new THREE.Color(color);
+  for (let i = 0; i < n; i++) col.toArray(c, i * 3);
+  g.setAttribute('color', new THREE.BufferAttribute(c, 3));
+  g.setAttribute('aGlow', new THREE.BufferAttribute(new Float32Array(n).fill(glow), 1));
+  g.deleteAttribute('uv');
+  return g;
+}
+
+// A rabelo: flat-bottomed oak hull with raised prow and stern (the
+// meia-lua), a deck of port casks, a single mast and a square sail held to a
+// yard. `sail` false furls it along the yard. +z is the bow; metres.
+function rabeloGeometry(sail = true) {
+  const W = 4.4;
+  const L = 19;
+  const parts = [
+    box(W - 0.6, 0.5, L - 1.4, 0, -0.95, 0, 0x4a3220), // flat keel
+    box(0.4, 1.5, L, -W / 2 + 0.2, -0.95, 0, 0x6b4a2f), // port strake
+    box(0.4, 1.5, L, W / 2 - 0.2, -0.95, 0, 0x6b4a2f), // starboard strake
+    box(W, 1.5, 1.0, 0, -0.95, L / 2 - 0.5, 0x5b3d27), // transom, bow
+    box(W, 1.5, 1.0, 0, -0.95, -L / 2 + 0.5, 0x5b3d27), // transom, stern
+    box(W, 0.8, 3.2, 0, 0.15, L / 2 - 1.6, 0x6b4a2f), // raised prow
+    box(W, 0.7, 2.8, 0, 0.15, -L / 2 + 1.4, 0x6b4a2f), // raised stern
+    box(W - 0.5, 0.16, L - 1.0, 0, 0.5, 0, 0x8a6440), // deck
+    box(0.22, 0.22, L, -W / 2 + 0.15, 0.66, 0, 0x3a2a1c), // gunwale
+    box(0.22, 0.22, L, W / 2 - 0.15, 0.66, 0, 0x3a2a1c),
+    cyl(0.15, 11.4, 7, 0, 6.0, -0.6, 0x6b4a2f), // mast
+    box(0.12, 0.12, 6.6, 0, 9.8, -0.6, 0x5b3d27), // yard
+    box(0.16, 0.16, 4.8, W / 2 - 0.5, 0.9, -L / 2 - 1.3, 0x5b3d27), // steering oar
+    box(3.0, 0.5, 0.5, 0, -0.1, L / 2 - 0.1, 0x3a2a1c), // small foredeck box
+  ];
+  // port casks, lying along x in two rows of three
+  for (let i = 0; i < 3; i++) {
+    const z = -2.6 + i * 2.1;
+    parts.push(cyl(0.42, 1.05, 8, -0.85, 1.18, z, 0x7a4a28, 0, Math.PI / 2));
+    parts.push(cyl(0.42, 1.05, 8, 0.85, 1.18, z, 0x7a4a28, 0, Math.PI / 2));
+  }
+  if (sail) parts.push(box(6.4, 7.0, 0.08, 0, 2.7, -0.5, 0xd9cdb0)); // square sail
+  else parts.push(box(6.8, 0.5, 0.5, 0, 9.55, -0.6, 0xd9cdb0)); // furled
+  const g = mergeGeometries(parts);
+  g.scale(S, S, S);
+  return g;
+}
+
+// A Douro cruiser / barco-hotel: long, low, white, a lit window band, a
+// sun deck, wheelhouse and funnel. +z is the bow; metres.
+function cruiserGeometry() {
+  const W = 7;
+  const L = 36;
+  const parts = [
+    box(W, 1.6, L, 0, -0.9, 0, 0x2b3a44), // lower hull
+    box(W - 0.3, 1.3, L - 1.2, 0, 0.5, 0, 0xf1f1ee), // white topside
+    box(W - 0.5, 1.1, L - 4.0, 0, 1.55, 0.4, 0x223039, 1), // lit window band
+    box(W - 1.4, 0.35, L - 8.0, 0, 2.65, -0.6, 0xf1f1ee), // sun deck
+    box(5.0, 1.5, 6.5, 0, 3.0, 4.0, 0xf1f1ee), // wheelhouse
+    box(4.9, 0.8, 6.0, 0, 3.9, 4.0, 0x223039, 1), // bridge glazing
+    cyl(0.9, 2.6, 10, 0, 4.4, -5.5, 0xe8e4da), // funnel
+    cyl(0.1, 6.4, 6, 0, 3.2, -12.0, 0xcfcabf), // foremast
+    box(0.1, 0.1, 3.0, 0, 8.3, -12.0, 0xcfcabf), // radar bar
+  ];
+  const g = mergeGeometries(parts);
+  g.scale(S, S, S);
+  return g;
+}
+
+// The Gaia <-> Ribeira ferry: a small blue-and-white launch with a lit cabin.
+function ferryGeometry() {
+  const W = 4.2;
+  const L = 12;
+  const parts = [
+    box(W, 1.1, L, 0, -0.7, 0, 0x1d3a55), // lower hull
+    box(W - 0.3, 1.0, L - 0.8, 0, 0.4, 0, 0xf1f1ee), // topside
+    box(W - 0.6, 1.1, 6.5, 0, 1.2, 0.3, 0xece6d8), // cabin
+    box(W - 0.7, 0.7, 5.8, 0, 2.0, 0.3, 0x223039, 1), // window band
+    box(W - 0.2, 0.18, 7.4, 0, 2.7, 0.3, 0xf1f1ee), // cabin roof
+    cyl(0.06, 3.2, 5, 0, 3.4, -3.2, 0xcfcabf), // mast
+  ];
+  const g = mergeGeometries(parts);
+  g.scale(S, S, S);
+  return g;
+}
+
+export function buildBoats({ project, heightAt, mobile = false, lite = false, camera }) {
+  const cfg = LIFE?.boats;
+  const items = cfg?.items;
+  const mooredList = cfg?.moored || [];
+  if (!Array.isArray(items) || !items.length) return null;
+  const TYPES = ['rabelo', 'cruiser', 'ferry'];
+
+  // ---- the paths, subdivided and draped on the terrain (as trams)
+  const STEP = 1.5; // world units between samples
+  function buildLine(path) {
+    const p = path.map((q) => project(q[0], q[1]));
+    const xs = [];
+    const zs = [];
+    for (let i = 1; i < p.length; i++) {
+      const a = p[i - 1];
+      const b = p[i];
+      const n = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.z - a.z) / STEP));
+      for (let j = i === 1 ? 0 : 1; j <= n; j++) {
+        xs.push(a.x + ((b.x - a.x) * j) / n);
+        zs.push(a.z + ((b.z - a.z) * j) / n);
+      }
+    }
+    const raw = xs.map((x, i) => heightAt(x, zs[i]) + WATER_LIFT);
+    const ys = raw.map((_, i) => {
+      const w = raw.slice(Math.max(0, i - 2), i + 3).sort((m, n) => m - n);
+      return w[w.length >> 1];
+    });
+    const cum = [0];
+    for (let i = 1; i < xs.length; i++) cum.push(cum[i - 1] + Math.hypot(xs[i] - xs[i - 1], zs[i] - zs[i - 1]));
+    return { xs, zs, ys, cum, total: cum[cum.length - 1] };
+  }
+
+  const geoKey = (type, sail) => (type === 'rabelo' ? (sail ? 'rabelo-sail' : 'rabelo-bare') : type);
+  const geoCache = new Map();
+  function geoFor(key) {
+    if (!geoCache.has(key)) {
+      geoCache.set(
+        key,
+        key === 'rabelo-sail'
+          ? rabeloGeometry(true)
+          : key === 'rabelo-bare'
+            ? rabeloGeometry(false)
+            : key === 'cruiser'
+              ? cruiserGeometry()
+              : ferryGeometry(),
+      );
+    }
+    return geoCache.get(key);
+  }
+
+  // ---- actors: moving boats (path) and moored boats (fixed)
+  const actors = [];
+  items.forEach((it, i) => {
+    const type = TYPES.includes(it.type) ? it.type : 'rabelo';
+    const sail = type === 'rabelo' ? it.sail !== false : false;
+    actors.push({
+      moving: true,
+      type,
+      sail,
+      line: buildLine(it.path),
+      speed: Math.max(0.5, (it.speed_mps ?? 3) * S),
+      phase: Number.isFinite(it.phase) ? it.phase : (i * 0.37) % 1,
+      meshKey: geoKey(type, sail),
+    });
+  });
+  mooredList.forEach((m) => {
+    const type = TYPES.includes(m.type) ? m.type : 'rabelo';
+    const sail = m.sail === true;
+    const w = project(m.p[0], m.p[1]);
+    actors.push({
+      moving: false,
+      type,
+      sail,
+      x: w.x,
+      z: w.z,
+      y: heightAt(w.x, w.z) + WATER_LIFT,
+      yaw: ((m.yaw ?? 90) * Math.PI) / 180,
+      meshKey: geoKey(type, sail),
+    });
+  });
+
+  // ---- one InstancedMesh per geometry variant
+  const mat = lifeMaterial({ roughness: 0.55, metalness: 0.1 });
+  const group = new THREE.Group();
+  group.name = 'boats';
+  const meshes = [];
+  const byKey = new Map();
+  for (const a of actors) {
+    if (!byKey.has(a.meshKey)) byKey.set(a.meshKey, []);
+    byKey.get(a.meshKey).push(a);
+  }
+  const tris = {};
+  for (const [key, list] of byKey) {
+    const geo = geoFor(key);
+    const mesh = new THREE.InstancedMesh(geo, mat, list.length);
+    mesh.name = `boats-${key}`;
+    mesh.castShadow = false;
+    mesh.receiveShadow = true;
+    mesh.frustumCulled = false;
+    mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    list.forEach((a, i) => {
+      a.mesh = mesh;
+      a.slot = i;
+    });
+    tris[key] = ((geo.index ? geo.index.count : geo.attributes.position.count) / 3) * list.length;
+    group.add(mesh);
+    meshes.push(mesh);
+  }
+
+  // ---- wakes: one fading, widening ribbon behind each moving boat
+  const movers = actors.filter((a) => a.moving);
+  const WAKE = lite ? 6 : mobile ? 9 : 14;
+  const WAKE_STEP = 2.4; // world units (9.6 m) between trail samples
+  const wakeVerts = Math.max(1, movers.length) * WAKE * 2;
+  const wpos = new Float32Array(wakeVerts * 3);
+  const walpha = new Float32Array(wakeVerts);
+  const widx = [];
+  for (let b = 0; b < movers.length; b++) {
+    const o = b * WAKE * 2;
+    for (let i = 0; i < WAKE - 1; i++) widx.push(o + 2 * i, o + 2 * i + 1, o + 2 * i + 2, o + 2 * i + 1, o + 2 * i + 3, o + 2 * i + 2);
+  }
+  const wgeo = new THREE.BufferGeometry();
+  wgeo.setAttribute('position', new THREE.BufferAttribute(wpos, 3).setUsage(THREE.DynamicDrawUsage));
+  wgeo.setAttribute('aAlpha', new THREE.BufferAttribute(walpha, 1).setUsage(THREE.DynamicDrawUsage));
+  wgeo.setIndex(widx);
+  const wmat = new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    uniforms: { uColor: { value: new THREE.Color(0.86, 0.9, 0.93) }, uOpacity: { value: 0.5 } },
+    vertexShader: /* glsl */ `
+      attribute float aAlpha;
+      varying float vA;
+      void main() {
+        vA = aAlpha;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }`,
+    fragmentShader: /* glsl */ `
+      uniform vec3 uColor;
+      uniform float uOpacity;
+      varying float vA;
+      void main() {
+        if (vA < 0.01) discard;
+        gl_FragColor = vec4(uColor, vA * uOpacity);
+      }`,
+  });
+  const wake = new THREE.Mesh(wgeo, wmat);
+  wake.name = 'boat-wakes';
+  wake.frustumCulled = false;
+  wake.renderOrder = 2;
+  group.add(wake);
+
+  for (let b = 0; b < movers.length; b++) {
+    const a = movers[b];
+    a.h = new Float32Array(WAKE * 3); // newest at index 0
+    a.wakeBase = b * WAKE * 2;
+  }
+
+  // ---- motion: a smooth out-and-back along the path, no dwell
+  const A = 0.15; // trapezoid acceleration / braking fraction
+  const profile = (x) => (x < A ? (0.5 * x * x) / (A * (1 - A)) : x < 1 - A ? (x - A / 2) / (1 - A) : 1 - (0.5 * (1 - x) * (1 - x)) / (A * (1 - A)));
+  const at = { x: 0, y: 0, z: 0, yaw: 0 };
+  function sample(L, s) {
+    let i = 1;
+    while (i < L.cum.length - 1 && L.cum[i] < s) i++;
+    const u = THREE.MathUtils.clamp((s - L.cum[i - 1]) / Math.max(1e-6, L.cum[i] - L.cum[i - 1]), 0, 1);
+    at.x = L.xs[i - 1] + (L.xs[i] - L.xs[i - 1]) * u;
+    at.z = L.zs[i - 1] + (L.zs[i] - L.zs[i - 1]) * u;
+    at.y = L.ys[i - 1] + (L.ys[i] - L.ys[i - 1]) * u;
+    at.yaw = Math.atan2(L.xs[i] - L.xs[i - 1], L.zs[i] - L.zs[i - 1]);
+    return at;
+  }
+  function arcAt(L, speed, t) {
+    const one = L.total / speed;
+    const p = ((t % (2 * one)) + 2 * one) % (2 * one);
+    if (p < one) return { s: profile(p / one) * L.total, dir: 1 };
+    return { s: (1 - profile((p - one) / one)) * L.total, dir: -1 };
+  }
+
+  const _q = new THREE.Quaternion();
+  const _e = new THREE.Euler(0, 0, 0, 'YXZ');
+  const _p = new THREE.Vector3();
+  const _s = new THREE.Vector3(1, 1, 1);
+  const _m = new THREE.Matrix4();
+  function setMatrix(a, x, y, z, yaw, roll, scale = 1) {
+    _e.set(0, yaw, roll, 'YXZ');
+    _q.setFromEuler(_e);
+    _p.set(x, y, z);
+    _s.set(scale, scale, scale);
+    _m.compose(_p, _q, _s);
+    a.mesh.setMatrixAt(a.slot, _m);
+  }
+
+  // the river anchor, for the far-distance cull
+  let ax = 0;
+  let az = 0;
+  for (const a of movers) {
+    ax += a.line.xs[a.line.xs.length >> 1];
+    az += a.line.zs[a.line.zs.length >> 1];
+  }
+  if (movers.length) {
+    ax /= movers.length;
+    az /= movers.length;
+  }
+
+  function inView(frustum, x, y, z, r) {
+    const p = frustum.planes;
+    for (let k = 0; k < 6; k++) if (p[k].normal.x * x + p[k].normal.y * y + p[k].normal.z * z + p[k].constant < -r) return false;
+    return true;
+  }
+
+  let time = 0;
+  let visible = 0;
+  function update(dt, cam, frustum, view) {
+    time += dt;
+    const c = cam || camera;
+    const hidden = c ? c.position.distanceToSquared(_p.set(ax, 0, az)) > 2600 * 2600 : false;
+    group.visible = !hidden;
+    if (hidden) return;
+    visible = 0;
+
+    // foam still catches a little light at night; do not let the wake glow
+    wmat.uniforms.uOpacity.value = 0.5 * (view ? 1 - 0.45 * view.night : 1);
+
+    for (const a of actors) {
+      if (!a.moving) {
+        setMatrix(a, a.x, a.y, a.z, a.yaw, 0);
+        if (!frustum || inView(frustum, a.x, a.y, a.z, 6)) visible++;
+        continue;
+      }
+      const { s, dir } = arcAt(a.line, a.speed, time + a.phase * (2 * (a.line.total / a.speed)));
+      sample(a.line, s);
+      const yaw = at.yaw + (dir < 0 ? Math.PI : 0);
+      const roll = dt > 0 ? Math.sin(time * 1.1 + a.slot) * 0.018 : 0;
+      const vis = !frustum || inView(frustum, at.x, at.y, at.z, 4);
+      a.vis = vis;
+      if (vis) {
+        visible++;
+        setMatrix(a, at.x, at.y, at.z, yaw, roll);
+      } else {
+        _m.compose(_p.set(0, -1000, 0), _q.set(0, 0, 0, 1), _s.set(0, 0, 0));
+        a.mesh.setMatrixAt(a.slot, _m);
+      }
+      // wake trail (distance-based, so spacing is steady at any speed)
+      const h = a.h;
+      const d2 = (at.x - h[0]) ** 2 + (at.z - h[2]) ** 2;
+      if (dt > 0 && d2 > WAKE_STEP * WAKE_STEP) {
+        h.copyWithin(3, 0, (WAKE - 1) * 3);
+        h[0] = at.x;
+        h[1] = at.y;
+        h[2] = at.z;
+      }
+    }
+    for (const m of meshes) m.instanceMatrix.needsUpdate = true;
+
+    // ---- the wake ribbons
+    if (movers.length) {
+      for (let b = 0; b < movers.length; b++) {
+        const a = movers[b];
+        const h = a.h;
+        const base = a.wakeBase;
+        for (let i = 0; i < WAKE; i++) {
+          const o3 = i * 3;
+          const px = h[o3];
+          const py = h[o3 + 1];
+          const pz = h[o3 + 2];
+          // tangent toward the older sample
+          const j = Math.min(WAKE - 1, i + 1);
+          let tx = h[j * 3] - px;
+          let tz = h[j * 3 + 2] - pz;
+          const l = Math.hypot(tx, tz);
+          if (l > 1e-4) {
+            tx /= l;
+            tz /= l;
+          } else {
+            tx = 0;
+            tz = 1;
+          }
+          const w = 0.5 + 1.9 * (i / (WAKE - 1)); // wake spreads astern
+          const v = (base + i * 2) * 3;
+          wpos[v] = px - tz * w;
+          wpos[v + 1] = py + 0.02;
+          wpos[v + 2] = pz + tx * w;
+          wpos[v + 3] = px + tz * w;
+          wpos[v + 4] = py + 0.02;
+          wpos[v + 5] = pz - tx * w;
+          const f = Math.pow(1 - i / (WAKE - 1), 1.35);
+          const al = a.vis ? 0.55 * f : 0;
+          walpha[base + i * 2] = al;
+          walpha[base + i * 2 + 1] = al;
+        }
+      }
+      wgeo.attributes.position.needsUpdate = true;
+      wgeo.attributes.aAlpha.needsUpdate = true;
+      wgeo.computeBoundingSphere();
+    }
+  }
+
+  // place everything once (reduced motion: this is the final, still frame)
+  for (const a of movers) {
+    const { s } = arcAt(a.line, a.speed, a.phase * (2 * (a.line.total / a.speed)));
+    sample(a.line, s);
+    for (let i = 0; i < WAKE; i++) {
+      a.h[i * 3] = at.x;
+      a.h[i * 3 + 1] = at.y;
+      a.h[i * 3 + 2] = at.z;
+    }
+  }
+  update(0, camera ? { position: camera.position } : undefined, null);
+
+  const geoTris = Object.values(tris).reduce((s, n) => s + n, 0);
+  return {
+    object: group,
+    update,
+    stats: {
+      items: movers.length,
+      moored: mooredList.length,
+      rabelos: actors.filter((a) => a.type === 'rabelo').length,
+      cruisers: actors.filter((a) => a.type === 'cruiser').length,
+      ferries: actors.filter((a) => a.type === 'ferry').length,
+      routes: items.length,
+      triangles: geoTris,
+      wakeTriangles: widx.length / 3,
+      wakeSegments: WAKE,
+    },
+    get visible() {
+      return visible;
+    },
+    // tests: the world position of the first moving boat
+    position(i = 0) {
+      const a = movers[i];
+      if (!a) return null;
+      const { s } = arcAt(a.line, a.speed, time + a.phase * (2 * (a.line.total / a.speed)));
+      sample(a.line, s);
+      return { x: at.x, y: at.y, z: at.z };
+    },
   };
 }
 
@@ -1405,7 +2267,9 @@ export function createLife(ctx) {
 
   const funicular = safe('funicular', () => buildFunicular({ project, heightAt, items }));
   const trams = safe('trams', () => buildTrams({ project, heightAt, mobile, lite }));
+  const trains = safe('trains', () => buildTrains({ project, heightAt, items, mobile, lite }));
   const cablecar = safe('cablecar', () => buildCableCar({ project, heightAt, mobile, lite }));
+  const boats = safe('boats', () => buildBoats({ project, heightAt, mobile, lite, camera }));
   const traffic = safe('traffic', () => buildTraffic({ roads, project, heightAt, mobile, model, N: carMax }));
   const birds = safe('birds', () => buildBirds({ items, heightAt, project, nature, mobile, lite }));
   const fountains = safe('fountains', () => buildFountains({ project, heightAt, items, mobile }));
@@ -1414,7 +2278,7 @@ export function createLife(ctx) {
   const street = safe('streetscape', () =>
     createStreetscape({ camera, roads, project, heightAt, items, outlines: ctx.outlines, footprints: ctx.footprints, lite, mobile, debug, model, fx, surfaceHeights }),
   );
-  for (const p of [funicular, trams, cablecar, traffic, birds, fountains, street]) if (p) group.add(p.object);
+  for (const p of [funicular, trams, trains, cablecar, boats, traffic, birds, fountains, street]) if (p) group.add(p.object);
 
   const ctxLive = { scene, camera, renderer, project, heightAt, datumM, mobile, reducedMotion, live, model, atmosphere, group };
   // aircraft and buses: a separate chunk, loaded after the first frame
@@ -1437,7 +2301,9 @@ export function createLife(ctx) {
     buildMs,
     funicular: funicular?.stats ?? null,
     trams: trams?.stats ?? null,
+    trains: trains?.stats ?? null,
     cablecar: cablecar?.stats ?? null,
+    boats: boats?.stats ?? null,
     traffic: traffic?.stats ?? null,
     birds: birds?.stats ?? null,
     fountains: fountains?.stats ?? null,
@@ -1485,7 +2351,9 @@ export function createLife(ctx) {
     model?.update();
     funicular?.update(adt, camera);
     trams?.update(adt, camera);
+    trains?.update(adt, camera);
     cablecar?.update(adt, camera);
+    boats?.update(adt, camera, frustum, view);
     traffic?.update(adt, camera, frustum, view);
     birds?.update(adt, camera, view);
     fountains?.update(camera, view);
@@ -1507,7 +2375,9 @@ export function createLife(ctx) {
     live,
     funicular,
     trams,
+    trains,
     cablecar,
+    boats,
     traffic,
     birds,
     fountains,
