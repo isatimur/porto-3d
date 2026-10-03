@@ -180,6 +180,104 @@ function dashes(T, net, w, off, halfM, dashM, gapM, lift, col) {
   }
 }
 
+// ---- close-range paint: priority lines, give-way teeth, turn arrows,
+// zebra crossings. All of it goes into the one lane-markings mesh (MT), so
+// none of it costs an extra draw.
+// Priority rank of a way: which approach yields at a junction.
+const RANK = {
+  motorway: 7,
+  trunk: 6,
+  primary: 5,
+  motorway_link: 5,
+  trunk_link: 5,
+  primary_link: 4,
+  secondary: 4,
+  secondary_link: 3,
+  tertiary: 3,
+  tertiary_link: 2,
+  unclassified: 2,
+  residential: 1,
+  living_street: 1,
+};
+const rankOf = (w) => RANK[w.hw] ?? (w.kind === 'primary' ? 5 : w.kind === 'secondary' ? 3 : 1);
+
+// One painted quad in a local frame: p anchor (world), d unit away from the
+// junction, l unit left of d; corners at (s, t) metres, flat at y + lift.
+function paintQuad(T, p, d, l, s0, s1, t0, t1, y, lift, col) {
+  const v = T.pos.length / 3;
+  const P = (s, t) => [p.x + d.x * s + l.x * t, y + lift, p.z + d.z * s + l.z * t];
+  const c = [P(s0, t0), P(s0, t1), P(s1, t1), P(s1, t0)];
+  for (const q of c) {
+    T.pos.push(q[0], q[1], q[2]);
+    T.nor.push(0, 1, 0);
+    T.col.push(col[0], col[1], col[2]);
+  }
+  const up = (c[1][2] - c[0][2]) * (c[2][0] - c[0][0]) - (c[1][0] - c[0][0]) * (c[2][2] - c[0][2]);
+  if (up >= 0) T.idx.push(v, v + 1, v + 2, v, v + 2, v + 3);
+  else T.idx.push(v, v + 2, v + 1, v, v + 3, v + 2);
+}
+function paintTri(T, p, d, l, s0, s1, s2, t0, t1, t2, y, lift, col) {
+  const v = T.pos.length / 3;
+  const P = (s, t) => [p.x + d.x * s + l.x * t, y + lift, p.z + d.z * s + l.z * t];
+  const c = [P(s0, t0), P(s1, t1), P(s2, t2)];
+  for (const q of c) {
+    T.pos.push(q[0], q[1], q[2]);
+    T.nor.push(0, 1, 0);
+    T.col.push(col[0], col[1], col[2]);
+  }
+  const up = (c[1][2] - c[0][2]) * (c[2][0] - c[0][0]) - (c[1][0] - c[0][0]) * (c[2][2] - c[0][2]);
+  if (up >= 0) T.idx.push(v, v + 1, v + 2);
+  else T.idx.push(v, v + 2, v + 1);
+}
+
+// A frame `dist` metres back from a junction point pi along way w on the
+// `step` side (+1 / -1): { p, d (away from the junction), l (left of d), y }.
+// Walks whole densified segments, so it works for any distance. Null on a
+// hidden (tunnel) stretch or a way too short on that side.
+function approachFrame(net, w, pi, step, dist) {
+  const { X, Z, C, HID } = net;
+  const end = w.start + w.n - 1;
+  let i = pi;
+  let ni = pi + step;
+  if (ni < w.start || ni > end) return null;
+  let remain = dist;
+  for (let guard = 0; guard < 8; guard++) {
+    if (HID[i] || HID[ni]) return null;
+    const seg = Math.abs(C[ni] - C[i]);
+    if (seg < 1e-6) return null;
+    if (remain <= seg) {
+      const u = remain / seg;
+      const dx = (X[ni] - X[i]) / seg;
+      const dz = (Z[ni] - Z[i]) / seg;
+      const ya = net.surfaceY(i, 0);
+      return {
+        p: { x: X[i] + (X[ni] - X[i]) * u, z: Z[i] + (Z[ni] - Z[i]) * u },
+        d: { x: dx, z: dz },
+        l: { x: dz, z: -dx },
+        y: ya + (net.surfaceY(ni, 0) - ya) * u,
+      };
+    }
+    remain -= seg;
+    i = ni;
+    ni += step;
+    if (ni < w.start || ni > end) return null;
+  }
+  return null;
+}
+
+// A lane arrow at offset `off` (left of d), its tip toward the junction
+// (s decreasing). kind 0 straight, 1 bends left, -1 bends right.
+function paintArrow(T, p, d, l, off, kind, y, lift, col) {
+  const headLen = 1.5 * S;
+  const headHalf = 0.45 * S;
+  const shaftW = 0.17 * S;
+  const shaftLen = 3.0 * S;
+  const base = headLen;
+  paintQuad(T, p, d, l, base, base + shaftLen, off - shaftW, off + shaftW, y, lift, col);
+  if (kind === 0) paintTri(T, p, d, l, base, base, 0, off - headHalf, off + headHalf, off, y, lift, col);
+  else paintTri(T, p, d, l, base, base, 0, off - headHalf, off + headHalf, off + kind * (headHalf + 0.5 * S), y, lift, col);
+}
+
 // lite (light mode, main.js): the markings, sidewalks and islands only
 // within 450 units instead of 900. (The main-street glow stays: one draw,
 // and the golden streets are the look.)
@@ -279,9 +377,10 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
     const h = (w.widthM / 2) * S;
     if (T.pat) {
       // pedestrian streets of the centre: calçada (by name: waves on the
-      // main squares, a diagonal net on the largos, a border on the ruas)
+      // main squares, a diagonal net on the largos, a border on the ruas);
+      // the shared-surface living streets of the historic centre carry it too
       const m = w.start + (w.n >> 1);
-      T.cur = w.hw === 'pedestrian' && !w.tunnel && X[m] * X[m] + Z[m] * Z[m] < SIDEWALK_R * SIDEWALK_R ? calcadaPatternOf(w.t.name, 'street') : 0;
+      T.cur = (w.hw === 'pedestrian' || w.hw === 'living_street') && !w.tunnel && X[m] * X[m] + Z[m] * Z[m] < SIDEWALK_R * SIDEWALK_R ? calcadaPatternOf(w.t.name, 'street') : 0;
       if (T.cur) calcadaWays++;
     }
     strip(T, net, w.start, w.start + w.n - 1, 0, h, RIBBON_LIFT, colOf(surfaceOf(w.f)));
@@ -565,6 +664,182 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
       IT.idx.push(v0, b, a, v0, a, b);
     }
   }
+  // ---- junction paint: give-way teeth / stop lines and turn arrows at the
+  // urban junctions of the historic radius, all into MT (one draw)
+  {
+    const R2 = SIDEWALK_R * SIDEWALK_R;
+    const TOOTH = 0.9 * S; // give-way tooth length (m)
+    const T_W = 0.5 * S; // tooth width
+    const T_G = 0.5 * S; // tooth gap
+    let giveN = 0;
+    let stopN = 0;
+    let arrowN = 0;
+    for (let n = 0; n < net.nNodes; n++) {
+      const nw = net.nodeWays[n];
+      if (nw.length < 6) continue; // fewer than three ways
+      const px = X[nw[1]];
+      const pz = Z[nw[1]];
+      if (px * px + pz * pz > R2) continue;
+      // the carriageways at this node, and its priority
+      let maxRank = -1;
+      let round = false;
+      let any = false;
+      for (let k = 0; k < nw.length; k += 2) {
+        const w = net.ways[nw[k]];
+        if (!w.car || w.tunnel || w.kind === 'rail') continue;
+        any = true;
+        const r = rankOf(w);
+        if (r > maxRank) maxRank = r;
+        if (w.t.jn === 'roundabout' || w.t.jn === 'circular') round = true;
+      }
+      if (!any || maxRank < 1) continue;
+      for (let k = 0; k < nw.length; k += 2) {
+        const wi = nw[k];
+        const pi = nw[k + 1];
+        const w = net.ways[wi];
+        if (!w.car || w.tunnel || w.kind === 'rail') continue;
+        if (w.t.jn === 'roundabout' || w.t.jn === 'circular') continue;
+        const r = rankOf(w);
+        if (!round && r >= maxRank) continue; // the through road does not yield
+        const stop = !round && (maxRank - r >= 2 || /_link$/.test(w.hw));
+        const half = (w.widthM / 2) * S;
+        const oneWay = w.ow !== 0;
+        // a one-way way is only an approach on the side it arrives from
+        // (ow 1 travels with the point order, -1 against it; d points away
+        // from the node, so arrival means travel = -d)
+        for (const step of [1, -1]) {
+          if (oneWay && (w.ow === 1 ? step !== -1 : step !== 1)) continue;
+          const f = approachFrame(net, w, pi, step, stop ? 3.6 * S : 3.2 * S);
+          if (!f) continue;
+          if (stop) {
+            // the entering half, or the whole carriageway when one-way
+            paintQuad(MT, f.p, f.d, f.l, -0.18 * S, 0.18 * S, oneWay ? -half + 0.12 * S : 0.12 * S, half - 0.12 * S, f.y, MARK_LIFT, mk);
+            stopN++;
+          } else {
+            const period = T_W + T_G;
+            const span = oneWay ? half - 0.3 * S : half - 0.3 * S;
+            const m = Math.max(1, Math.floor(span / period));
+            for (let q = 0; q < m; q++) {
+              const t = (oneWay ? -half + 0.3 * S : 0.3 * S) + (q + 0.5) * period;
+              paintTri(MT, f.p, f.d, f.l, 0, 0, TOOTH, t - T_W / 2, t + T_W / 2, t, f.y, MARK_LIFT, mk);
+            }
+            giveN++;
+          }
+          // turn arrows further back, on the larger urban approaches
+          if (r >= 2 && arrowN < 400) {
+            const total = w.ow === 0 ? w.fwd : w.total;
+            const lw = w.laneW;
+            const af = approachFrame(net, w, pi, step, 9 * S);
+            if (!af) continue;
+            // the way's bend through the node, if it passes through
+            let kind = 0;
+            const prev = pi - step;
+            if (prev >= w.start && prev <= w.start + w.n - 1) {
+              const inx = -af.d.x;
+              const inz = -af.d.z;
+              const cx = X[prev] - X[pi];
+              const cz = Z[prev] - Z[pi];
+              const L = Math.hypot(cx, cz) || 1;
+              const cross = inx * (cz / L) - inz * (cx / L);
+              if (Math.abs(cross) > 0.05) kind = cross > 0 ? 1 : -1;
+            }
+            for (let lane = 0; lane < Math.min(total, 3); lane++) {
+              const off = w.ow === 0 ? (lane + 0.5) * lw : ((total - 1) / 2 - lane) * lw;
+              if (Math.abs(off) > half - 0.55 * S) continue;
+              paintArrow(MT, af.p, af.d, af.l, off, kind, af.y, MARK_LIFT, mk);
+              arrowN++;
+            }
+          }
+        }
+      }
+    }
+    counts.junctionGiveWay = giveN;
+    counts.junctionStop = stopN;
+    counts.turnArrows = arrowN;
+  }
+
+  // ---- zebra crossings: on the carriageway at the mouths of the pedestrian
+  // centre (the pedestrian and living streets of the historic radius), one
+  // merged set of bars into MT. De-duplicated on a coarse grid.
+  {
+    const CELL = 5; // world units
+    const KEY = (gx, gz) => gx * 65536 + gz;
+    const grid = new Map();
+    net.ways.forEach((w, wi) => {
+      if (!w.car || w.tunnel || w.kind === 'rail') return;
+      const lim = (SIDEWALK_R + 20) * (SIDEWALK_R + 20);
+      for (let i = w.start; i < w.start + w.n; i++) {
+        if (X[i] * X[i] + Z[i] * Z[i] > lim) continue;
+        const key = KEY(Math.floor(X[i] / CELL), Math.floor(Z[i] / CELL));
+        let c = grid.get(key);
+        if (!c) grid.set(key, (c = []));
+        c.push(i, wi);
+      }
+    });
+    const seen = new Set();
+    let zebraN = 0;
+    function zebraOn(wi, i) {
+      const w = net.ways[wi];
+      const end = w.start + w.n - 1;
+      let a = i;
+      let b = i;
+      if (i < end) b = i + 1;
+      else if (i > w.start) a = i - 1;
+      else return;
+      const dx = X[b] - X[a];
+      const dz = Z[b] - Z[a];
+      const L = Math.hypot(dx, dz) || 1;
+      const d = { x: dx / L, z: dz / L };
+      const l = { x: d.z, z: -d.x };
+      const p = { x: X[i], z: Z[i] };
+      const y = net.surfaceY(i, 0);
+      const half = (w.widthM / 2) * S;
+      const depth = 2.4 * S;
+      const period = 1.0 * S;
+      const bars = Math.max(1, Math.floor((2 * half - 0.4 * S) / period));
+      for (let q = 0; q < bars; q++) {
+        const t = -half + 0.2 * S + (q + 0.5) * period;
+        paintQuad(MT, p, d, l, -depth / 2, depth / 2, t - 0.25 * S, t + 0.25 * S, y, MARK_LIFT, mk);
+      }
+      zebraN++;
+    }
+    const R = 10; // world units (40 m) around a mouth
+    const R2 = R * R;
+    for (const w of net.ways) {
+      if (w.hw !== 'pedestrian' && w.hw !== 'living_street') continue;
+      if (w.tunnel || zebraN >= 600) continue;
+      for (const pi of [w.start, w.start + w.n - 1]) {
+        const x = X[pi];
+        const z = Z[pi];
+        if (x * x + z * z > SIDEWALK_R * SIDEWALK_R) continue;
+        let best = -1;
+        let bw = -1;
+        let bd = R2;
+        for (let gx = Math.floor((x - R) / CELL); gx <= Math.floor((x + R) / CELL); gx++) {
+          for (let gz = Math.floor((z - R) / CELL); gz <= Math.floor((z + R) / CELL); gz++) {
+            const c = grid.get(KEY(gx, gz));
+            if (!c) continue;
+            for (let q = 0; q < c.length; q += 2) {
+              const i = c[q];
+              const dd = (X[i] - x) ** 2 + (Z[i] - z) ** 2;
+              if (dd < bd) {
+                bd = dd;
+                best = i;
+                bw = c[q + 1];
+              }
+            }
+          }
+        }
+        if (best < 0) continue;
+        const kk = `${Math.floor(X[best] / CELL)}:${Math.floor(Z[best] / CELL)}`;
+        if (seen.has(kk)) continue;
+        seen.add(kk);
+        zebraOn(bw, best);
+      }
+    }
+    counts.zebraCrossings = zebraN;
+  }
+
   const detailMeshes = [];
   const addDetail = (T, name, units, color) => {
     if (!T.idx.length) return 0;

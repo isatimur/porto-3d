@@ -11,7 +11,7 @@
 import * as THREE from 'three';
 import { S } from './geo.js';
 import { createFacadeDetailTexture } from './textures.js';
-import { setFacadeConfig, facadeStyle, wallBase, roofBase, roofPlan, extrudeRoofed, STYLE, FACADE_VERT_PARS, FACADE_VERT, FACADE_FRAG_PARS, FACADE_FRAG } from './facades.js';
+import { setFacadeConfig, facadeStyle, wallBase, roofBase, roofPlan, extrudeRoofed, minRect, centreDist, STYLE, HIST_M, RING_M, FACADE_VERT_PARS, FACADE_VERT, FACADE_FRAG_PARS, FACADE_FRAG } from './facades.js';
 
 const TILE_M = 1000; // 1 km: about 60 draw calls for the city, not 230
 const MAX_TRIS = 1_500_000;
@@ -22,6 +22,11 @@ const FLAT = { shape: 'flat', planes: [], parapet: false, clutter: 0 }; // far L
 // core tiles farther than this from the camera draw flat caps for their
 // pitched roofs (a ridge is a pixel or two out there)
 const MID_M = 1400;
+// Near-detail tier: only within this range of the camera do the baked
+// chimneys, dormers, eaves, balconies, window bays and arcades draw. They
+// live in their own index block (T.detail) so the mid and far tiers keep the
+// exact triangle count they had (see buildBuildings ranges + updateLod).
+const DETAIL_M = 420;
 
 // Braga's fabric by district (src/facades.js): plaster in white, cream,
 // ochre, pale pink and blue, granite in the centre, concrete further out;
@@ -105,8 +110,12 @@ export const lastPlan = { plan: null, style: 0 };
 // roofOnly: the very far LOD (beyond ~6 km, a house is a few pixels): the
 // flat roof at the same height and colour, without the walls (2 triangles
 // for a box instead of 10).
-export function extrudeBuilding(T, pts, h, k, areaM2, seedIndex, heightAt, roofOnly = false, attrs = null) {
+export function extrudeBuilding(T, pts, h, k, areaM2, seedIndex, heightAt, roofOnly = false, attrs = null, detailLevel = 0) {
   const n = pts.length;
+  // building:levels (where tagged): OSM storeys x the 3.3 m grid the facade
+  // shader draws, so the roofline and the number of window rows agree with
+  // the tag rather than the often-rounder `height`
+  if (attrs?.lv > 0) h = attrs.lv * 3.3;
   const gs = pts.map((p) => heightAt(p.x, p.z));
   const gmin = Math.min(...gs);
   const gmax = Math.max(...gs);
@@ -127,10 +136,25 @@ export function extrudeBuilding(T, pts, h, k, areaM2, seedIndex, heightAt, roofO
 
   if (!roofOnly) {
     const plan = attrs?.far ? FLAT : roofPlan(pts, areaM2, k, hM, style, top, attrs, h2, hash(seedIndex + 104729));
+    // roof:height (m): scale the roof planes about the eave line so the rise
+    // above the walls matches the tag, when the pipeline provides it
+    if (plan.planes.length && attrs?.rh > 0) {
+      const rise = maxRise(plan.planes, pts, top);
+      if (rise > 1e-4) {
+        const kk = (attrs.rh * S) / rise;
+        if (kk > 0.3 && kk < 3) plan.planes = plan.planes.map((P) => ({ ax: P.ax * kk, az: P.az * kk, c: top + (P.c - top) * kk }));
+      }
+    }
     lastPlan.plan = plan; // tests (count the roof kinds)
     lastPlan.style = style;
     const sf = attrs?.sf;
     extrudeRoofed(T, pts, plan, { base, gmin, top, footM, hM, wc, rc, w: seed, seed: seedIndex, shop: sf && sf.size ? (i) => sf.has(i) : null });
+    // near detail: only when the caller selected this building and the tile
+    // carries the detail block (core tiles; the streamed worker does not, so
+    // its near/far cost stays exactly as it was)
+    if (detailLevel > 0 && T.detail) {
+      extrudeDetail(T.detail, { pts, gmin, top, hM, footM, base, wc, rc, w: seed, style, plan, seedIndex, areaM2, attrs, level: detailLevel });
+    }
     return top;
   }
 
@@ -162,7 +186,288 @@ export function extrudeBuilding(T, pts, h, k, areaM2, seedIndex, heightAt, roofO
   return top;
 }
 
-// Fade-in for the streamed tiles (src/tiles.js): each vertex carries the
+// ------------------------------------------------------------ near detail
+// Real geometry for the buildings the camera comes close to: chimneys,
+// dormers and eave fascia on pitched roofs; projecting balconies, stone
+// sills and jamb reveals on the historic facades; piers for the riverfront
+// arcades; recessed frames on tagged shop fronts. It all lands in the
+// T.detail block, whose index range buildBuildings only draws within
+// DETAIL_M of the camera, so the mid and far tiers keep their triangle count.
+const MAX_BALCONY_COLS = 3;
+const C_STONE = [0.44, 0.42, 0.37];
+const C_IRON = [0.018, 0.018, 0.02];
+const C_FRAME = [0.02, 0.05, 0.03];
+const frac = (v) => v - Math.floor(v);
+
+function planeY(P, x, z) {
+  return P.ax * x + P.az * z + P.c;
+}
+function envelope(planes, x, z) {
+  let y = Infinity;
+  for (const P of planes) {
+    const v = planeY(P, x, z);
+    if (v < y) y = v;
+  }
+  return y;
+}
+function maxRise(planes, pts, top) {
+  let m = 0;
+  for (const p of pts) {
+    const v = envelope(planes, p.x, p.z) - top;
+    if (v > m) m = v;
+  }
+  return m;
+}
+
+// a quad p0..p3 with normal n; winding is corrected so n is the front face
+function bitri(T, p0, p1, p2, p3, n, col, w) {
+  const nl = Math.hypot(n[0], n[1], n[2]) || 1;
+  const n0 = n[0] / nl, n1 = n[1] / nl, n2 = n[2] / nl;
+  const ux = p1[0] - p0[0], uy = p1[1] - p0[1], uz = p1[2] - p0[2];
+  const vx = p2[0] - p0[0], vy = p2[1] - p0[1], vz = p2[2] - p0[2];
+  const cx = uy * vz - uz * vy;
+  const cy = uz * vx - ux * vz;
+  const cz = ux * vy - uy * vx;
+  const q = cx * n0 + cy * n1 + cz * n2 >= 0 ? [p0, p1, p2, p3] : [p0, p3, p2, p1];
+  const i = T.pos.length / 3;
+  for (const p of q) {
+    T.pos.push(p[0], p[1], p[2]);
+    T.nor.push(n0, n1, n2);
+    T.col.push(col[0], col[1], col[2]);
+    T.wall.push(0, -1, 0, w);
+  }
+  T.idx.push(i, i + 1, i + 2, i, i + 2, i + 3);
+}
+
+// oriented box: axis (ux, uz), half-length hu, half-depth hv, from y0 to y1;
+// four sides and (optionally) the top. A slab, a pier, a chimney body.
+function dbox(T, cx, cz, ux, uz, hu, hv, y0, y1, col, w, top = true) {
+  const nx = -uz, nz = ux;
+  const A0 = [cx - ux * hu - nx * hv, y0, cz - uz * hu - nz * hv];
+  const B0 = [cx + ux * hu - nx * hv, y0, cz + uz * hu - nz * hv];
+  const C0 = [cx + ux * hu + nx * hv, y0, cz + uz * hu + nz * hv];
+  const D0 = [cx - ux * hu + nx * hv, y0, cz - uz * hu + nz * hv];
+  const A1 = [A0[0], y1, A0[2]], B1 = [B0[0], y1, B0[2]], C1 = [C0[0], y1, C0[2]], D1 = [D0[0], y1, D0[2]];
+  bitri(T, A0, B0, B1, A1, [-nx, 0, -nz], col, w);
+  bitri(T, B0, C0, C1, B1, [ux, 0, uz], col, w);
+  bitri(T, C0, D0, D1, C1, [nx, 0, nz], col, w);
+  bitri(T, D0, A0, A1, D1, [-ux, 0, -uz], col, w);
+  if (top) bitri(T, A1, B1, C1, D1, [0, 1, 0], col, w);
+}
+
+// a thin vertical baluster as two crossed quads (reads as an iron bar)
+function post(T, x, z, ux, uz, nx, nz, hu, hv, y0, y1, col, w) {
+  const a = [x - ux * hu, z - uz * hu];
+  const b = [x + ux * hu, z + uz * hu];
+  const c = [x - nx * hv, z - nz * hv];
+  const d = [x + nx * hv, z + nz * hv];
+  bitri(T, [a[0], y0, a[1]], [b[0], y0, b[1]], [b[0], y1, b[1]], [a[0], y1, a[1]], [nx, 0, nz], col, w);
+  bitri(T, [c[0], y0, c[1]], [d[0], y0, d[1]], [d[0], y1, d[1]], [c[0], y1, c[1]], [ux, 0, uz], col, w);
+}
+
+// a board hanging under the eave, following the eave polygon
+function eaveFascia(T, poly, planes, top, rc, w) {
+  const col = [rc[0] * 0.82, rc[1] * 0.82, rc[2] * 0.82];
+  const n = poly.length;
+  for (let i = 0; i < n; i++) {
+    const a = poly[i];
+    const b = poly[(i + 1) % n];
+    const dx = b.x - a.x, dz = b.z - a.z;
+    const len = Math.hypot(dx, dz);
+    if (len < 1e-4) continue;
+    const nx = dz / len, nz = -dx / len;
+    let ya = envelope(planes, a.x, a.z);
+    let yb = envelope(planes, b.x, b.z);
+    if (!Number.isFinite(ya)) ya = top;
+    if (!Number.isFinite(yb)) yb = top;
+    ya = Math.min(ya, top);
+    yb = Math.min(yb, top);
+    const d = 0.16 * S;
+    bitri(T, [a.x, ya - d, a.z], [b.x, yb - d, b.z], [b.x, yb, b.z], [a.x, ya, a.z], [nx, 0, nz], col, w);
+  }
+}
+
+// chimneys near the ridge of a pitched roof
+function chimney(T, pts, planes, wc, w, rnd) {
+  const R = minRect(pts);
+  if (!R) return;
+  const { ux, uz } = R;
+  const len = R.u1 - R.u0;
+  const wid = R.v1 - R.v0;
+  if (len < 1.2 * S || wid < 1.2 * S) return;
+  const count = 1;
+  const body = [wc[0] * 0.98, wc[1] * 0.98, wc[2] * 0.98];
+  const cap = [C_STONE[0] * 0.8, C_STONE[1] * 0.8, C_STONE[2] * 0.8];
+  for (let c = 0; c < count; c++) {
+    const u = R.u0 + (0.22 + 0.56 * rnd()) * len;
+    const v = R.v0 + (0.3 + 0.4 * rnd()) * wid;
+    const x = u * ux - v * uz;
+    const z = u * uz + v * ux;
+    const yy = envelope(planes, x, z);
+    if (!Number.isFinite(yy)) continue;
+    const y0 = yy - 0.3 * S;
+    const y1 = y0 + (0.7 + 0.7 * rnd()) * S;
+    dbox(T, x, z, ux, uz, 0.42 * S, 0.42 * S, y0, y1, body, w);
+    dbox(T, x, z, ux, uz, 0.54 * S, 0.54 * S, y1, y1 + 0.16 * S, cap, w);
+  }
+}
+
+// dormers on a roof slope with a shed roof over them
+function dormer(T, pts, planes, wc, w, rnd, count) {
+  const R = minRect(pts);
+  if (!R) return;
+  const { ux, uz } = R;
+  const len = R.u1 - R.u0;
+  const wid = R.v1 - R.v0;
+  if (len < 3 * S || wid < 2.2 * S) return;
+  const body = [wc[0] * 0.9, wc[1] * 0.9, wc[2] * 0.9];
+  const roofC = [wc[0] * 0.5, wc[1] * 0.5, wc[2] * 0.5];
+  const wx = (px, pz, du, dv) => px + du * ux - dv * uz;
+  const wz = (px, pz, du, dv) => pz + du * uz + dv * ux;
+  for (let c = 0; c < count; c++) {
+    const u = R.u0 + (0.3 + 0.4 * rnd()) * len;
+    const v = R.v0 + 0.16 * wid;
+    const px = u * ux - v * uz;
+    const pz = u * uz + v * ux;
+    const yy = envelope(planes, px, pz);
+    if (!Number.isFinite(yy)) continue;
+    const hw = 0.5 * S, hd = 0.45 * S;
+    const y0 = yy - 0.15 * S, y1 = yy + 0.8 * S;
+    dbox(T, px, pz, ux, uz, hw, hd, y0, y1, body, w, false);
+    // shed roof: the eave edge over the opening, rising to the back
+    const FL = [wx(px, pz, -hw, -hd), y1, wz(px, pz, -hw, -hd)];
+    const FR = [wx(px, pz, hw, -hd), y1, wz(px, pz, hw, -hd)];
+    const BL = [wx(px, pz, -hw, hd), y1 + 0.45 * S, wz(px, pz, -hw, hd)];
+    const BR = [wx(px, pz, hw, hd), y1 + 0.45 * S, wz(px, pz, hw, hd)];
+    bitri(T, FL, FR, BR, BL, [ux * 0.3 - uz, 1.4, uz * 0.3 + ux], roofC, w);
+  }
+}
+
+// historic facade: a stone sill under every first-floor window and, where
+// the shader draws them, real projecting balconies with iron railings
+function facadeDetail(T, pts, i, gmin, hM, bSd, w, level) {
+  const a = pts[i];
+  const b = pts[(i + 1) % pts.length];
+  const dx = b.x - a.x, dz = b.z - a.z;
+  const len = Math.hypot(dx, dz);
+  if (len < 1e-4) return;
+  const ux = dx / len, uz = dz / len;
+  const nx = uz, nz = -ux;
+  const LM = len / S;
+  const cw = 2.5 + 0.7 * bSd; // as the shader's historic grid
+  const fh = 3.3, g0 = 4.0;
+  const cols = Math.floor(LM / cw);
+  if (cols < 1) return;
+  if (0.84 * fh + g0 > hM + 0.05) return; // no first-floor window row
+  const hasBalcony = bSd < 0.8; // shader: step(bSd, 0.8) at id.y == 0
+  const floorY = gmin + g0 * S;
+  const ys = gmin + (g0 + 0.1 * fh) * S;
+  const winW = 0.38 * cw;
+  let balc = 0;
+  for (let j = 0; j < cols; j++) {
+    const tc = (j + 0.5) * cw;
+    const px = a.x + ux * tc * S;
+    const pz = a.z + uz * tc * S;
+    dbox(T, px + nx * 0.07 * S, pz + nz * 0.07 * S, ux, uz, (winW / 2 + 0.06) * S, 0.08 * S, ys - 0.08 * S, ys, C_STONE, w);
+    if (!hasBalcony || balc >= MAX_BALCONY_COLS) continue;
+    balc++;
+    const bw = 0.31 * cw; // half width, as the shader's balcony span
+    const sd = 0.55;
+    dbox(T, px + nx * (sd / 2) * S, pz + nz * (sd / 2) * S, ux, uz, bw * S, (sd / 2) * S, floorY, floorY + 0.14 * S, C_STONE, w);
+    const fx = px + nx * sd * S;
+    const fz = pz + nz * sd * S;
+    const fy0 = floorY + 0.14 * S;
+    const fy1 = floorY + 1.0 * S;
+    dbox(T, fx, fz, ux, uz, bw * S, 0.03 * S, fy1 - 0.05 * S, fy1, C_IRON, w);
+    const nb = 4;
+    for (let q = 0; q < nb; q++) {
+      const off = (q / (nb - 1) - 0.5) * 2 * (bw - 0.06) * S;
+      post(T, fx + ux * off, fz + uz * off, ux, uz, nx, nz, 0.02 * S, 0.02 * S, fy0, fy1, C_IRON, w);
+    }
+  }
+}
+
+// Ribeira-style arcade: real projecting piers along every street wall
+function arcadeDetail(T, pts, gmin, w, level) {
+  const n = pts.length;
+  const pierY1 = gmin + 2.7 * S; // the shader's springing line
+  for (let i = 0; i < n; i++) {
+    const a = pts[i];
+    const b = pts[(i + 1) % n];
+    const dx = b.x - a.x, dz = b.z - a.z;
+    const len = Math.hypot(dx, dz);
+    if (len < 1e-4) continue;
+    const LM = len / S;
+    if (LM < 3.0) continue;
+    const ux = dx / len, uz = dz / len;
+    const nx = uz, nz = -ux;
+    const bays = Math.max(1, Math.round(LM / 3.0));
+    for (let j = 0; j <= bays; j++) {
+      const tc = (j / bays) * LM;
+      const px = a.x + ux * tc * S;
+      const pz = a.z + uz * tc * S;
+      dbox(T, px + nx * 0.16 * S, pz + nz * 0.16 * S, ux, uz, 0.24 * S, 0.34 * S, gmin, pierY1, C_STONE, w);
+    }
+  }
+}
+
+// tagged shop front: a projecting fascia over the opening and a jamb at each end
+function shopDetail(T, pts, sf, gmin, w) {
+  const n = pts.length;
+  const top = gmin + 3.0 * S;
+  for (const i of sf) {
+    const a = pts[i];
+    const b = pts[(i + 1) % n];
+    const dx = b.x - a.x, dz = b.z - a.z;
+    const len = Math.hypot(dx, dz);
+    if (len < 1e-4) continue;
+    const ux = dx / len, uz = dz / len;
+    const nx = uz, nz = -ux;
+    const LM = len / S;
+    const cx = (a.x + b.x) / 2 + nx * 0.12 * S;
+    const cz = (a.z + b.z) / 2 + nz * 0.12 * S;
+    dbox(T, cx, cz, ux, uz, (LM / 2) * S, 0.13 * S, top, top + 0.4 * S, C_FRAME, w);
+    for (const e of [a, b]) {
+      dbox(T, e.x + nx * 0.12 * S, e.z + nz * 0.12 * S, ux, uz, 0.12 * S, 0.13 * S, gmin, top, C_FRAME, w);
+    }
+  }
+}
+
+// one building's near detail, into its own block
+export function extrudeDetail(T, g) {
+  const { pts, gmin, top, hM, wc, rc, w, plan, seedIndex, areaM2, attrs, level } = g;
+  const bSt = Math.floor(w * 0.5);
+  const bSd = w - 2 * bSt;
+  const hist = (bSt > 0.5 && bSt < 2.5) || bSt === 7;
+  const arcade = bSt === 7;
+  const planes = plan && plan.planes ? plan.planes : [];
+  let rs = hash(seedIndex + 4321);
+  const rnd = () => (rs = frac(rs * 9301 + 0.4927 + Math.sin(rs * 78.233) * 0.5));
+
+  if (planes.length) {
+    eaveFascia(T, plan.poly || pts, planes, top, rc, w);
+    chimney(T, pts, planes, wc, w, rnd);
+    if (hist && level >= 2 && areaM2 >= 160) {
+      dormer(T, pts, planes, wc, w, rnd, 1);
+    }
+  }
+
+  const n = pts.length;
+  let bestI = 0, bestL = -1;
+  for (let i = 0; i < n; i++) {
+    const a = pts[i];
+    const b = pts[(i + 1) % n];
+    const L = Math.hypot(b.x - a.x, b.z - a.z);
+    if (L > bestL) {
+      bestL = L;
+      bestI = i;
+    }
+  }
+  if (hist && level >= 2) facadeDetail(T, pts, bestI, gmin, hM, bSd, w, level);
+  if (arcade && level >= 2) arcadeDetail(T, pts, gmin, w, level);
+  if (attrs && attrs.sf && attrs.sf.size && level >= 2) shopDetail(T, pts, attrs.sf, gmin, w);
+}
+
 // clock time it appeared (aBorn); for 0.6 s after that a growing share of
 // its pixels is drawn (ordered dither), so a tile appears without a pop and
 // stays opaque (shadows, depth, no sorting).
@@ -232,8 +537,12 @@ export function createBuildingMaterial({ fade = false } = {}) {
 // null. b.s lists shop-front edges by index into b.p (edge i: p[i] ->
 // p[i + 1]); pts carry their b.p index (i) and may have been reversed.
 export function attrsOf(b, pts, reversed) {
-  if (!b.r && !b.rc && !b.wc && !b.m && !b.ro && !b.s) return null;
+  if (!b.r && !b.rc && !b.wc && !b.m && !b.ro && !b.s && !(b.lv > 0) && !(b.rh > 0)) return null;
   const a = { r: b.r, rc: b.rc, wc: b.wc, m: b.m, ro: b.ro };
+  // optional storey / roof-height tags, honoured when the pipeline provides
+  // them (building:levels, roof:height); absent tags simply leave them out
+  if (b.lv > 0) a.lv = b.lv;
+  if (b.rh > 0) a.rh = b.rh;
   if (Array.isArray(b.s) && b.s.length) {
     const want = new Set(b.s);
     const sf = new Set();
@@ -326,37 +635,88 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
     console.info(`[porto] buildings: ${tris} triangles > ${MAX_TRIS}; dropped ${stats.droppedSmall} buildings < ${SMALL_M2} m² beyond ${FAR_M} m`);
   }
 
+  // --- pass 1b: who gets near detail, under a flat triangle budget. The
+  // historic core (facade + roof detail) first, then the ring (roof detail),
+  // nearest the centre first, so the detail is concentrated where the camera
+  // spends its time. Detail is baked into the tile's own index block, drawn
+  // only within DETAIL_M; the mid and far tiers are untouched.
+  const DETAIL_FACADE_TRI = 150000;
+  const DETAIL_ROOF_TRI = 100000;
+  {
+    const facade = [];
+    const roof = [];
+    for (const it of keep) {
+      if (it.far || it.k === 'church') continue;
+      const d = centreDist(it.cx, it.cz);
+      if (d > RING_M) continue;
+      const st = facadeStyle(it.cx, it.cz, it.k, it.areaM2, it.h, it.attrs, hash(it.seed), heightAt(it.cx, it.cz) / S);
+      if (d <= HIST_M && (st === STYLE.HIST || st === STYLE.AZUL || st === STYLE.ARCADE) && it.areaM2 >= 40 && it.areaM2 <= 1400 && it.h >= 5) facade.push(it);
+      else roof.push(it);
+    }
+    facade.sort((p, q) => centreDist(p.cx, p.cz) - centreDist(q.cx, q.cz) || Math.abs(p.areaM2 - 170) - Math.abs(q.areaM2 - 170));
+    let used = 0;
+    for (const it of facade) {
+      const est = Math.min(220, 80 + it.areaM2 * 0.5);
+      if (used + est > DETAIL_FACADE_TRI) break;
+      used += est;
+      it.detailLevel = 2;
+    }
+    roof.sort((p, q) => centreDist(p.cx, p.cz) - centreDist(q.cx, q.cz));
+    let usedR = 0;
+    for (const it of roof) {
+      const est = Math.min(50, 20 + it.areaM2 * 0.12);
+      if (usedR + est > DETAIL_ROOF_TRI) break;
+      usedR += est;
+      it.detailLevel = 1;
+    }
+    stats.detail = { facade: facade.filter((it) => it.detailLevel === 2).length, roof: keep.filter((it) => it.detailLevel === 1).length, budgetTri: used + usedR };
+  }
+
   // --- pass 2: geometry per tile
   const tiles = new Map();
   const tileOf = (it) => {
     const key = `${Math.floor(it.cx / S / TILE_M)},${Math.floor(it.cz / S / TILE_M)}`;
     let t = tiles.get(key);
-    if (!t) tiles.set(key, (t = { key, pos: [], nor: [], col: [], wall: [], idx: [], near: [], farCap: [], roofs: { pos: [], nor: [], col: [], wall: [], idx: [] } }));
+    if (!t) tiles.set(key, (t = { key, pos: [], nor: [], col: [], wall: [], detail: { pos: [], nor: [], col: [], wall: [], idx: [] }, idx: [], near: [], farCap: [], roofs: { pos: [], nor: [], col: [], wall: [], idx: [] } }));
     return t;
   };
   for (const it of keep) {
     const T = tileOf(it);
-    extrudeBuilding(T, it.pts, it.h, it.k, it.areaM2, it.seed, heightAt, false, it.attrs);
+    extrudeBuilding(T, it.pts, it.h, it.k, it.areaM2, it.seed, heightAt, false, it.attrs, it.detailLevel || 0);
     extrudeBuilding(T.roofs, it.pts, it.h, it.k, it.areaM2, it.seed, heightAt, true, it.attrs);
     stats.built++;
   }
 
   const material = createBuildingMaterial();
   for (const T of tiles.values()) {
+    // the near detail is a separate block, appended to the buffers and placed
+    // first in the index so its range is contiguous: [detail | pitched roofs |
+    // walls and flat roofs | flat caps]. Only the detail range is new; near,
+    // mid and the roofs-only mesh keep exactly the triangles they had.
+    const baseV = T.pos.length / 3;
+    if (T.detail.idx.length) {
+      for (let i = 0; i < T.detail.pos.length; i++) {
+        T.pos.push(T.detail.pos[i]);
+        T.nor.push(T.detail.nor[i]);
+        T.col.push(T.detail.col[i]);
+        T.wall.push(T.detail.wall[i]);
+      }
+    }
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(T.pos, 3));
     g.setAttribute('normal', new THREE.Float32BufferAttribute(T.nor, 3));
     g.setAttribute('color', new THREE.Float32BufferAttribute(T.col, 3));
     g.setAttribute('aWall', new THREE.Float32BufferAttribute(T.wall, 4));
-    // index blocks: [pitched roofs | walls and flat roofs | flat caps for
-    // the pitched ones]; near draws the first two, the middle LOD the last two
+    const nD = T.detail.idx.length;
     const nA = T.near.length;
     const nB = T.idx.length;
     const nC = T.farCap.length;
-    const all = T.near.concat(T.idx, T.farCap);
+    const detailIdx = new Array(nD);
+    for (let i = 0; i < nD; i++) detailIdx[i] = T.detail.idx[i] + baseV;
+    const all = detailIdx.concat(T.near, T.idx, T.farCap);
     g.setIndex(all);
-    g.userData.ranges = { near: [0, nA + nB], mid: [nA, nB + nC] };
-    g.setDrawRange(0, nA + nB);
+    g.userData.ranges = { detail: [0, nD + nA + nB], near: [nD, nA + nB], mid: [nD + nA, nB + nC] };
+    g.setDrawRange(nD, nA + nB);
     g.computeBoundingSphere();
     g.computeBoundingBox();
     const mesh = new THREE.Mesh(g, material);
@@ -380,6 +740,7 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
     stats.tiles++;
     stats.triangles += (nA + nB) / 3;
     stats.trianglesMid = (stats.trianglesMid || 0) + (nB + nC) / 3;
+    stats.trianglesDetail = (stats.trianglesDetail || 0) + nD / 3;
     stats.vertices += T.pos.length / 3;
   }
   // Very far tiles draw their roofs only: a tile wholly beyond 6 km from the
@@ -389,6 +750,7 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
   const VFAR = 6000 * S;
   const KEEP = 3000 * S;
   const MID = MID_M * S;
+  const DETAIL = DETAIL_M * S;
   group.userData.updateLod = (cam, focus) => {
     for (const mesh of group.children) {
       const full = mesh.userData.full;
@@ -396,11 +758,21 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
       const dc = Math.hypot(bs.center.x - cam.x, bs.center.y - cam.y, bs.center.z - cam.z) - bs.radius;
       const r = full.userData.ranges;
       if (r) {
-        const mid = full.drawRange.start > 0;
-        const wantMid = dc > (mid ? MID * 0.9 : MID);
-        if (wantMid !== mid) {
-          const [s, c] = wantMid ? r.mid : r.near;
+        // three tiers with a little hysteresis: detail < DETAIL_M < near <
+        // MID_M < mid. A tile with no baked detail has an empty detail range,
+        // so it simply falls through to near.
+        const cur = mesh.userData.tier || 'near';
+        let want = cur;
+        if (cur === 'mid') {
+          if (dc < MID * 0.9) want = dc < DETAIL * 0.9 && r.detail[1] > r.detail[0] ? 'detail' : 'near';
+        } else if (cur === 'detail') {
+          if (dc > DETAIL * 0.9) want = dc > MID * 0.9 ? 'mid' : 'near';
+        } else if (dc > MID) want = 'mid';
+        else if (dc < DETAIL * 0.9 && r.detail[1] > r.detail[0]) want = 'detail';
+        if (want !== cur) {
+          const [s, c] = r[want];
           full.setDrawRange(s, c);
+          mesh.userData.tier = want;
         }
       }
       const roofs = mesh.userData.roofs;

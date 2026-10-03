@@ -20,17 +20,71 @@ const smooth = (t) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
 //   - a local high-pass (raw minus a ~550 m box blur) boosts landforms no
 //     wider than about a kilometre, so hills and the gorge crisp up while
 //     the regional slope and the datum are untouched;
-//   - a little deterministic noise breaks the glassy bilinear surface.
+//   - a second, tighter high-pass (~220 m) sharpens the knee where a gorge
+//     bank, the Gaia slope or a Foz cliff turns over; its gain rises with
+//     the local slope, so flat ground is left alone and the steep banks
+//     bite harder;
+//   - named summits (Sé, Serra do Pilar, the Gaia upland) add a little
+//     broad gain, so the rounded tops read as hills rather than ramps;
+//   - a positive-only ridged noise raises granite outcrops and boulders on
+//     the Gaia hillside and the Foz coast;
+//   - a dune berm shapes the beach/dune transition behind the Foz shore.
+// Every added term is non-negative, so ridges rise while hollows, the
+// riverbed and the coast keep their raw height (water.js reads heightAt).
 // The raw heights are kept and re-exported for the streamed tiles, so
 // tile-worker rebuilds exactly the same enhanced grid and nothing seams.
-const RELIEF_GAIN = 0.25;
-const RELIEF_BLUR_R = 5; // cells, about 550 m
+const RELIEF_GAIN = 0.34; // broad high-pass, about 550 m
+const RELIEF_BLUR_R = 5; // cells
+const FINE_BLUR_R = 2; // cells, about 220 m
+const FINE_GAIN = 0.22;
+const SLOPE_LO = 0.09; // m/m where the tight gain starts to bite
+const SLOPE_HI = 0.34;
+const SLOPE_BOOST = 1.2;
+// Soft ceiling on the high-pass, so the city hills sharpen but the distant
+// 300 m ridges are not pumped up past their real height.
+const RELIEF_CAP = 24; // m
+const relief = (v) => (v <= 0 ? 0 : (v * RELIEF_CAP) / (v + RELIEF_CAP));
+const ROCK_MIN_H = 6; // m: never raise the riverbed or the shore
+const ROCK_A = 6.0; // m of outcrop relief
+const DUNE_A = 3.4; // m of dune berm
 const MICRO_M = 1.1; // metres of fine relief
 const EDGE_FADE = 8; // cells: no enhancement within this many cells of the rim
 
 const hash2 = (x, y) => {
   const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
   return s - Math.floor(s);
+};
+
+// Smooth deterministic value noise; the outcrop lobes are built from it.
+function vnoise(x, y) {
+  const xi = Math.floor(x);
+  const yi = Math.floor(y);
+  const u = smooth(x - xi);
+  const v = smooth(y - yi);
+  const a = hash2(xi, yi);
+  const b = hash2(xi + 1, yi);
+  const c = hash2(xi, yi + 1);
+  const d = hash2(xi + 1, yi + 1);
+  return (a + (b - a) * u) * (1 - v) + (c + (d - c) * u) * v;
+}
+
+// Ridged fbm, roughly 0..1 with crests on the ridges: rock lines, not blobs.
+function ridgeFbm(x, y) {
+  let n = 0;
+  let amp = 0.6;
+  let f = 1;
+  for (let o = 0; o < 2; o++) {
+    n += amp * (1 - Math.abs(2 * vnoise(x * f + o * 13.7, y * f - o * 7.1) - 1));
+    amp *= 0.5;
+    f *= 2.03;
+  }
+  return n;
+}
+
+// Smooth falloff weight for a named region, 1 at the centre, 0 at the rim.
+const regionW = (mx, mz, r) => {
+  const d = Math.hypot(mx - r.x, mz - r.z);
+  return d >= r.r ? 0 : 1 - smooth(d / r.r);
 };
 
 // Separable box blur of the grid, clamped at the edges; one channel.
@@ -58,20 +112,58 @@ function blurGrid(H, cols, rows, R) {
   return out;
 }
 
-function enhanceGrid(H, cols, rows) {
+function enhanceGrid(H, cols, rows, frame) {
   const s0 = blurGrid(H, cols, rows, RELIEF_BLUR_R);
+  const s1 = blurGrid(H, cols, rows, FINE_BLUR_R);
   const G = new Float32Array(H.length);
+  const dx = frame ? (frame.x1 - frame.x0) / Math.max(1, cols - 1) : 1;
+  const dz = frame ? (frame.zN - frame.zS) / Math.max(1, rows - 1) : 1;
+  const at = (c, r) => H[Math.min(rows - 1, Math.max(0, r)) * cols + Math.min(cols - 1, Math.max(0, c))];
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       const i = r * cols + c;
       const edge = Math.min(c, cols - 1 - c, r, rows - 1 - r);
       const ef = smooth(Math.min(1, Math.max(0, (edge - 2) / EDGE_FADE)));
+      const mx = frame ? frame.x0 + dx * c : c;
+      const mz = frame ? frame.zS + dz * r : r;
+
+      // local slope, from the raw grid; steep banks get the tight boost
+      const gx = (at(c + 1, r) - at(c - 1, r)) / (2 * dx);
+      const gz = (at(c, r + 1) - at(c, r - 1)) / (2 * dz);
+      const slope = Math.hypot(gx, gz);
+      const steep = smooth(Math.min(1, Math.max(0, (slope - SLOPE_LO) / (SLOPE_HI - SLOPE_LO))));
+
+      // broad high-pass, with a little extra on the named summits
+      let gain = RELIEF_GAIN;
+      if (frame) for (const s of frame.summits) gain += s.g * regionW(mx, mz, s);
+      const hp = Math.max(0, H[i] - s0[i]) * gain;
+      // tight high-pass: the knee of a gorge bank, the Gaia slope, a cliff
+      const fine = Math.max(0, H[i] - s1[i]) * FINE_GAIN * (1 + SLOPE_BOOST * steep);
+
+      // outcrops: positive ridged noise on the Gaia hillside and Foz coast,
+      // kept off the riverbed and the shore by ROCK_MIN_H
+      let rock = 0;
+      if (frame && H[i] > ROCK_MIN_H) {
+        const rw = Math.max(regionW(mx, mz, frame.gaia), regionW(mx, mz, frame.foz));
+        if (rw > 0) {
+          const crest = ridgeFbm((c + 0.5) * 0.75, (r + 0.5) * 0.75);
+          rock = ROCK_A * Math.pow(Math.max(0, crest - 0.42) / 0.58, 1.5) * rw * (0.3 + 0.7 * steep);
+        }
+      }
+      // dune berm behind the Foz beach: crest near 5 m, land only
+      let dune = 0;
+      if (frame) {
+        const land = smooth(Math.min(1, Math.max(0, (H[i] - 0.4) / 2.5)));
+        if (land > 0) {
+          const b = (H[i] - 5) / 3.2;
+          dune = DUNE_A * Math.exp(-b * b) * regionW(mx, mz, frame.foz) * land;
+        }
+      }
       // ridges and hilltops rise only: hollows, the riverbed and the coast
       // keep their raw height, so the water surface (water.js reads heightAt)
       // stays where the DEM put it.
-      const hp = Math.max(0, H[i] - s0[i]) * RELIEF_GAIN * ef;
-      const micro = (hash2(c * 1.7, r * 2.3) - 0.5 + 0.5 * (hash2(c * 0.5 + 3, r * 0.5 - 2) - 0.5)) * 2 * MICRO_M * ef;
-      G[i] = H[i] + hp + micro;
+      const micro = (hash2(c * 1.7, r * 2.3) - 0.5 + 0.5 * (hash2(c * 0.5 + 3, r * 0.5 - 2) - 0.5)) * 2 * MICRO_M;
+      G[i] = H[i] + (relief(hp + fine) + rock + dune + micro) * ef;
     }
   }
   return G;
@@ -86,9 +178,6 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
   const cols = ok ? data.cols : 2;
   const rows = ok ? data.rows : 2;
   const H = ok ? Float32Array.from(data.heights) : new Float32Array(4);
-  // The elevation actually sampled: raw + relief high-pass + micro-relief
-  // (see enhanceGrid). `H` stays raw and is re-exported for the tiles.
-  const G = ok ? enhanceGrid(H, cols, rows) : H;
   // grid corners in metres: west/east x, south/north z (z grows to the south)
   const sw = ok ? toMetres(data.bbox.s, data.bbox.w) : { x: -1, z: 1 };
   const ne = ok ? toMetres(data.bbox.n, data.bbox.e) : { x: 1, z: -1 };
@@ -96,6 +185,33 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
   const x1 = ne.x;
   const zS = sw.z;
   const zN = ne.z;
+  // The named relief regions, in local metres. Kept here (not in the grid)
+  // so the core and the streamed tiles resolve the same masks: tile-worker
+  // rebuilds this grid from the raw heights and the same projection origin.
+  const frame = ok
+    ? (() => {
+        const at = (lat, lon) => {
+          const m = toMetres(lat, lon);
+          return { x: m.x, z: m.z };
+        };
+        return {
+          x0,
+          x1,
+          zS,
+          zN,
+          summits: [
+            { ...at(41.1428, -8.6112), r: 620, g: 0.5 }, // Sé do Porto
+            { ...at(41.1378, -8.6108), r: 520, g: 0.45 }, // Serra do Pilar
+            { ...at(41.1258, -8.606), r: 950, g: 0.28 }, // Gaia upland
+          ],
+          gaia: { ...at(41.13, -8.612), r: 1900 }, // Gaia hillside outcrops
+          foz: { ...at(41.156, -8.684), r: 1500 }, // Foz coast: rocks and dunes
+        };
+      })()
+    : null;
+  // The elevation actually sampled: raw + relief high-pass + micro-relief
+  // (see enhanceGrid). `H` stays raw and is re-exported for the tiles.
+  const G = ok ? enhanceGrid(H, cols, rows, frame) : H;
 
   // Mean height of the border cells: outside the grid the ground eases
   // toward it, so the clamped edge profile does not run out as ridges.

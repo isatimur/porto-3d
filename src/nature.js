@@ -22,25 +22,33 @@ const LAND_PX = 0.5; // land-cover mask: pixels per world unit (8 m per pixel)
 const NEAR = 360; // world units (1.4 km): nearer clumps are meshes, farther billboards
 const REPART_MOVE = 18; // re-split after the camera moved this far
 // relative tree density per square metre, by land-cover kind
-const DENSITY = { forest: 1, scrub: 0.45, park: 0.8, garden: 0.4, orchard: 0.8, grass: 0.03, farmland: 0.008 };
+const DENSITY = { forest: 1, scrub: 0.45, park: 0.95, garden: 0.55, orchard: 0.85, vineyard: 0.7, grass: 0.03, farmland: 0.008 };
 // the wooded sanctuary hills get more of the budget: they are the views
 // (cities/<id>.json nature.hills: Braga's Bom Jesus do Monte and Sameiro)
 const HILLS = () => CITY.nature?.hills || [];
 const HILL_BOOST = 6;
 
 // species: 0 maritime/stone pine, 1 eucalyptus, 2 broadleaf (oak, plane),
-// 3 shrub (laurel, agapanthus), 4 a patch of closed woodland canopy (seven
-// crowns), 5 cypress, 6 linden (avenue), 7 palm (Foz), 8 vine (Gaia bank)
+// 3 shrub (laurel), 4 a patch of closed woodland canopy (seven crowns),
+// 5 cypress, 6 linden (avenue), 7 palm (Foz), 8 vine (Gaia terraces),
+// 9 willow (Douro bank), 10 poplar (Douro bank), 11 reed (water margin),
+// 12 jacaranda (gardens), 13 agapanthus (beds). `bloom` is the spring /
+// early-summer blossom tint the crown shader mixes in.
 const SPECIES = [
-  { h: [14, 22], w: 0.95, tint: 0x334221, trunk: 0x5a4030 },
-  { h: [20, 32], w: 0.7, tint: 0x4d5a3a, trunk: 0x8c806c },
-  { h: [10, 18], w: 1.05, tint: 0x42592a, trunk: 0x54443a },
-  { h: [2.5, 4.5], w: 1.7, tint: 0x4d5a2c, trunk: 0x4a3e30 },
-  { h: [15, 24], w: 1.9, tint: 0x384d24, trunk: 0x4f3d30 },
-  { h: [9, 16], w: 0.42, tint: 0x2f4a2b, trunk: 0x5c4a36 },
-  { h: [12, 20], w: 0.95, tint: 0x54702f, trunk: 0x6b5a44 },
-  { h: [7, 13], w: 0.85, tint: 0x4a6132, trunk: 0x8a7a5e },
-  { h: [1.6, 3.2], w: 1.5, tint: 0x3f5a24, trunk: 0x4a3e30 },
+  { h: [14, 22], w: 0.95, tint: 0x334221, trunk: 0x5a4030, bloom: 0xd66f85 },
+  { h: [20, 32], w: 0.7, tint: 0x4d5a3a, trunk: 0x8c806c, bloom: 0xd66f85 },
+  { h: [10, 18], w: 1.05, tint: 0x42592a, trunk: 0x54443a, bloom: 0xdfc9a6 },
+  { h: [2.5, 4.5], w: 1.7, tint: 0x4d5a2c, trunk: 0x4a3e30, bloom: 0xd66f85 },
+  { h: [15, 24], w: 1.9, tint: 0x384d24, trunk: 0x4f3d30, bloom: 0xd66f85 },
+  { h: [9, 16], w: 0.42, tint: 0x2f4a2b, trunk: 0x5c4a36, bloom: 0xd66f85 },
+  { h: [12, 20], w: 0.95, tint: 0x54702f, trunk: 0x6b5a44, bloom: 0xe3d29a },
+  { h: [7, 13], w: 0.85, tint: 0x4a6132, trunk: 0x8a7a5e, bloom: 0xd66f85 },
+  { h: [1.6, 3.2], w: 1.5, tint: 0x3f5a24, trunk: 0x4a3e30, bloom: 0xd66f85 },
+  { h: [11, 19], w: 1.2, tint: 0x63744a, trunk: 0x6b6350, bloom: 0xd66f85 },
+  { h: [16, 26], w: 0.52, tint: 0x5f7a34, trunk: 0x77705e, bloom: 0xd66f85 },
+  { h: [1.8, 3.6], w: 1.35, tint: 0x707c42, trunk: 0x6a6034, bloom: 0xd6b46f },
+  { h: [8, 14], w: 1.15, tint: 0x4a5a2e, trunk: 0x5c5144, bloom: 0x8f7bd6 },
+  { h: [2, 3.8], w: 1.6, tint: 0x46662f, trunk: 0x4a3e30, bloom: 0x8f9fd6 },
 ];
 // Seasons (src/seasons.js, WEATHER_UNIFORMS.seasonW), per species:
 //   pal:   crown colours, sRGB: spring, summer, autumn A, autumn B, winter
@@ -54,26 +62,37 @@ const SPECIES = [
 const SEASON_CROWNS = [
   { pal: [0x3c4d25, 0x334221, 0x34411f, 0x34411f, 0x2d3721], share: 1, bare: 0, bloom: 0 },
   { pal: [0x56653f, 0x4d5a3a, 0x4d5a3a, 0x4b5839, 0x48533b], share: 1, bare: 0, bloom: 0 },
-  { pal: [0x587e38, 0x3c5625, 0xa87530, 0x874626, 0x5e5249], share: 1, bare: 1, bloom: 0.6 },
+  { pal: [0x587e38, 0x3c5625, 0xb87a2c, 0x8a4a22, 0x5e5249], share: 1, bare: 1, bloom: 0.6 },
   { pal: [0x607e33, 0x4a5829, 0x7e6a2e, 0x6a4a24, 0x524c36], share: 0.5, bare: 0.5, bloom: 0.4 },
   { pal: [0x52722c, 0x33491f, 0x86682e, 0x684824, 0x4f473b], share: 0.4, bare: 0.4, bloom: 0.12 },
   // cypress: evergreen, a touch darker and bluer than the pines
   { pal: [0x31492c, 0x2f4a2b, 0x2f4a2b, 0x2d452a, 0x2a3f28], share: 1, bare: 0, bloom: 0 },
   // linden: spring lime, summer green, gold autumn, bare grey twigs; blooms
-  { pal: [0x7a9a44, 0x4e6a2e, 0xac8a34, 0x8a5a26, 0x5e5249], share: 1, bare: 1, bloom: 0.7 },
+  { pal: [0x7a9a44, 0x4e6a2e, 0xc39a36, 0x9a5a22, 0x5e5249], share: 1, bare: 1, bloom: 0.7 },
   // palm: evergreen, stays green through the year
   { pal: [0x45602c, 0x3f5a2c, 0x3f5a2c, 0x3d572b, 0x39512a], share: 1, bare: 0, bloom: 0 },
-  // vine / agapanthus hint: green, red autumn, thin in winter
-  { pal: [0x5f7f36, 0x46602a, 0x9a4a2a, 0x7a3a22, 0x554d3d], share: 1, bare: 0.7, bloom: 0.1 },
+  // vine (Gaia terraces): green, rust-red autumn, thin in winter
+  { pal: [0x5f7f36, 0x46602a, 0xa8482a, 0x83341f, 0x554d3d], share: 1, bare: 0.7, bloom: 0.1 },
+  // willow (Douro bank): silvery spring, then green and a soft gold autumn
+  { pal: [0x7e9152, 0x5f7440, 0xcdb44a, 0xa8822f, 0x6a6152], share: 1, bare: 0.9, bloom: 0 },
+  // poplar (Douro bank): bright green, a clear golden-yellow autumn
+  { pal: [0x88a848, 0x5f7a34, 0xe6bb3c, 0xc0832a, 0x6a6152], share: 1, bare: 1, bloom: 0 },
+  // reed: green through summer, straw and tawny through autumn and winter
+  { pal: [0x83914a, 0x717f3e, 0xb29a4c, 0x93793a, 0x776a3c], share: 1, bare: 0.15, bloom: 0.05 },
+  // jacaranda: green, then bare; the violet blossom is the whole point
+  { pal: [0x6f8f3e, 0x4e6a30, 0xb08a34, 0x7c5a26, 0x6a6152], share: 1, bare: 0.9, bloom: 1 },
+  // agapanthus: low green clumps, blue-violet flower heads in early summer
+  { pal: [0x4f7a34, 0x466a2c, 0x6e6a2c, 0x5a5228, 0x4a5230], share: 1, bare: 0.2, bloom: 1 },
 ];
 const MIX = {
-  forest: [0.14, 0.12, 0.04, 0, 0.7],
-  scrub: [0.04, 0.04, 0.12, 0.8, 0],
-  park: [0.18, 0.03, 0.6, 0, 0.19],
-  garden: [0.15, 0, 0.7, 0.15, 0],
-  orchard: [0, 0, 0.3, 0.7, 0],
-  grass: [0.2, 0.1, 0.7, 0, 0],
-  farmland: [0.1, 0.1, 0.8, 0, 0],
+  forest: [0.14, 0.12, 0.04, 0, 0.7, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  scrub: [0.04, 0.04, 0.12, 0.8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  park: [0.14, 0.02, 0.34, 0, 0.12, 0.06, 0.06, 0, 0.03, 0.1, 0.08, 0, 0.05, 0],
+  garden: [0.12, 0, 0.2, 0.12, 0, 0.06, 0.1, 0.12, 0.05, 0.04, 0.02, 0, 0.1, 0.07],
+  orchard: [0, 0, 0.45, 0.1, 0, 0, 0, 0, 0.45, 0, 0, 0, 0, 0],
+  vineyard: [0, 0, 0.2, 0.05, 0, 0, 0, 0, 0.65, 0, 0, 0, 0, 0.1],
+  grass: [0.15, 0.05, 0.55, 0.05, 0, 0.05, 0, 0, 0, 0.05, 0.05, 0, 0.05, 0],
+  farmland: [0.1, 0.1, 0.8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 };
 const CELLS = SPECIES.length; // billboard atlas cells
 
@@ -103,17 +122,23 @@ const hash2 = (x, y) => {
 // choose uses the same clump-footprint factor, so the budget (and the tree
 // count, to a handful) is unchanged. `b` shifts the budget toward the
 // district so its species actually read there.
-//   Gaia bank and lodges: stone/maritime pine, cypress, vine hints.
+//   Gaia bank and lodges: terraced vines, stone/maritime pine, cypress.
 //   Serra do Pilar: pine and cypress on the sanctuary hill.
-//   Parque da Cidade: umbrella pines with cypress.
-//   Foz: palms at the mouth, pines behind.
-//   Aliados / Cordoaria: plane and linden along the avenues.
+//   Parque da Cidade: umbrella pines with oaks, cypress, lakeside willows
+//     and poplars.
+//   Foz: palms at the mouth, pines behind, agapanthus in the beds.
+//   Aliados / Cordoaria / São Lázaro / Passeio Alegre: the gardens and
+//     avenues — plane, linden, jacaranda accents, palms at the river mouth.
 const PORTO_REGIONS = [
-  { lat: 41.1375, lon: -8.614, r: 1600, b: 2.2, sp: [[0, 0.45], [5, 0.35], [8, 0.2]] },
-  { lat: 41.1579, lon: -8.6291, r: 900, b: 1.4, sp: [[0, 0.55], [5, 0.45]] },
-  { lat: 41.163, lon: -8.677, r: 2000, b: 2.4, sp: [[0, 0.7], [5, 0.3]] },
-  { lat: 41.149, lon: -8.678, r: 1700, b: 4, sp: [[7, 0.6], [0, 0.4]] },
-  { lat: 41.1487, lon: -8.6125, r: 1000, b: 6, sp: [[6, 0.8], [2, 0.2]] },
+  { lat: 41.1375, lon: -8.614, r: 1600, b: 2.8, sp: [[8, 0.4], [0, 0.33], [5, 0.27]] },
+  { lat: 41.1579, lon: -8.6291, r: 900, b: 1.6, sp: [[0, 0.6], [5, 0.4]] },
+  { lat: 41.163, lon: -8.677, r: 2000, b: 2.8, sp: [[0, 0.42], [2, 0.2], [5, 0.13], [9, 0.15], [10, 0.1]] },
+  { lat: 41.149, lon: -8.679, r: 1500, b: 4, sp: [[7, 0.5], [0, 0.35], [13, 0.15]] },
+  { lat: 41.1487, lon: -8.6125, r: 900, b: 6, sp: [[6, 0.65], [2, 0.2], [12, 0.15]] },
+  // the three gardens: Cordoaria, São Lázaro, Passeio Alegre
+  { lat: 41.1452, lon: -8.6147, r: 300, b: 6, sp: [[2, 0.42], [6, 0.28], [12, 0.18], [13, 0.12]] },
+  { lat: 41.1468, lon: -8.6073, r: 260, b: 6, sp: [[2, 0.5], [6, 0.28], [13, 0.22]] },
+  { lat: 41.148, lon: -8.679, r: 380, b: 5, sp: [[7, 0.55], [2, 0.25], [6, 0.2]] },
 ];
 
 function regionSpecies(s, x, z, regions) {
@@ -295,10 +320,45 @@ function clumpGeometry(species) {
     }
     crown(geos, 0, 0.9, 0, 0.17, 0.06, r() * 1e6, white);
   } else if (species === 8) {
-    // vine / agapanthus hint: low, wide, spreading blobs
-    crown(geos, 0, 0.5, 0, 0.46, 0.46, r() * 1e6, white);
-    crown(geos, 0.5, 0.36, 0.2, 0.3, 0.32, r() * 1e6, white);
-    crown(geos, -0.4, 0.34, -0.3, 0.3, 0.3, r() * 1e6, white);
+    // vine row (Gaia terraces): a low trellis of small crowns in a line
+    for (const x of [-0.6, -0.3, 0, 0.3, 0.6]) {
+      crown(geos, x, 0.42 + r() * 0.12, 0, 0.13, 0.3, r() * 1e6, white);
+    }
+  } else if (species === 9) {
+    // willow (Douro bank): a broad silver dome, lowest lobes trailing
+    trunk(geos, 0, 0, 0.3, 0.03, bark);
+    crown(geos, 0, 0.6, 0, 0.5, 0.4, r() * 1e6, white);
+    crown(geos, 0.34, 0.5, 0.16, 0.3, 0.26, r() * 1e6, white);
+    crown(geos, -0.3, 0.48, -0.2, 0.28, 0.24, r() * 1e6, white);
+    crown(geos, 0.02, 0.4, 0.28, 0.26, 0.2, r() * 1e6, white);
+  } else if (species === 10) {
+    // poplar (Douro bank): a tall, narrow column on a straight trunk
+    trunk(geos, 0, 0, 0.56, 0.02, bark);
+    crown(geos, 0, 0.74, 0, 0.2, 0.32, r() * 1e6, white);
+    crown(geos, 0, 0.48, 0, 0.23, 0.26, r() * 1e6, white);
+    crown(geos, 0.12, 0.62, 0.04, 0.12, 0.2, r() * 1e6, white);
+  } else if (species === 11) {
+    // reed (water margin): a tuft of tall thin blades, no trunk
+    for (let i = 0; i < 7; i++) {
+      const a = (i / 7) * Math.PI * 2 + r() * 0.8;
+      const d = 0.06 + r() * 0.2;
+      crown(geos, Math.cos(a) * d, 0.4 + r() * 0.35, Math.sin(a) * d, 0.06 + r() * 0.04, 0.32 + r() * 0.18, r() * 1e6, white);
+    }
+  } else if (species === 12) {
+    // jacaranda: a broad, flat-topped umbrella crown over a short trunk
+    trunk(geos, 0, 0, 0.38, 0.032, bark);
+    crown(geos, 0, 0.6, 0, 0.5, 0.28, r() * 1e6, white);
+    crown(geos, 0.32, 0.54, 0.14, 0.3, 0.22, r() * 1e6, white);
+    crown(geos, -0.26, 0.52, -0.18, 0.28, 0.2, r() * 1e6, white);
+  } else if (species === 13) {
+    // agapanthus: a low rounded bed, no trunk, flower heads on top
+    crown(geos, 0, 0.42, 0, 0.44, 0.36, r() * 1e6, white);
+    crown(geos, 0.5, 0.32, 0.18, 0.3, 0.28, r() * 1e6, white);
+    crown(geos, -0.36, 0.3, -0.32, 0.28, 0.26, r() * 1e6, white);
+    for (let i = 0; i < 3; i++) {
+      const a = (i / 3) * Math.PI * 2 + 0.6;
+      crown(geos, Math.cos(a) * 0.22, 0.66, Math.sin(a) * 0.22, 0.1, 0.13, r() * 1e6, white);
+    }
   } else {
     // closed canopy: seven crowns of mixed height on a disc; the trunks
     // are hidden under it, two short ones show at the edge
@@ -401,10 +461,42 @@ function billboardAtlas() {
     for (const [x, y, rx, ry] of [[40, 62, 24, 7], [64, 56, 26, 7], [88, 62, 24, 7], [52, 76, 18, 6], [78, 76, 18, 6]]) blob(x, H - y, rx, ry);
   });
   cell(8, () => {
-    // vine / agapanthus: low wide mounds
-    blob(64, H - 26, 40, 24);
-    blob(100, H - 18, 24, 17);
-    blob(30, H - 16, 24, 16);
+    // vine row: a low line of small crowns
+    for (const x of [16, 40, 64, 88, 112]) blob(x, H - 30, 15, 22);
+  });
+  cell(9, () => {
+    // willow: a broad silver dome with trailing lower lobes
+    stem(64, H, H - 40, 4, 130);
+    blob(64, H - 80, 48, 40);
+    blob(96, H - 58, 26, 24);
+    blob(34, H - 56, 24, 22);
+  });
+  cell(10, () => {
+    // poplar: a tall narrow column
+    stem(64, H, H - 58, 3, 150);
+    blob(64, H - 92, 17, 40);
+    blob(64, H - 54, 20, 30);
+  });
+  cell(11, () => {
+    // reed: a tuft of tall thin blades
+    for (const [x, h] of [[40, 0.8], [50, 0.95], [60, 0.86], [72, 1], [84, 0.82], [92, 0.9]]) {
+      stem(x, H, H - H * h, 2, 150);
+      blob(x, H - H * h, 4, 12);
+    }
+  });
+  cell(12, () => {
+    // jacaranda: a broad flat-topped umbrella
+    stem(64, H, H - 46, 4, 120);
+    blob(64, H - 82, 46, 30);
+    blob(96, H - 70, 24, 20);
+    blob(34, H - 68, 24, 20);
+  });
+  cell(13, () => {
+    // agapanthus: a low bed with flower heads on top
+    blob(64, H - 30, 40, 28);
+    blob(102, H - 22, 22, 18);
+    blob(28, H - 20, 22, 17);
+    for (const x of [46, 64, 84]) blob(x, H - 52, 8, 12);
   });
   const tex = new THREE.CanvasTexture(cv);
   tex.colorSpace = THREE.NoColorSpace;
@@ -426,7 +518,7 @@ export function buildNature(opts) {
   const { data, project, heightAt } = opts;
   const group = new THREE.Group();
   group.name = 'nature';
-  const stats = { areas: 0, trees: 0, near: 0, far: 0, water: 0, rejected: 0, landPx: '', stream: 0, species: [] };
+  const stats = { areas: 0, trees: 0, near: 0, far: 0, water: 0, rejected: 0, landPx: '', stream: 0, bank: 0, species: [] };
   const uniforms = {
     uTime: { value: 0 },
     uSunView: { value: new THREE.Vector3(0, 1, 0) },
@@ -669,7 +761,7 @@ export function buildNature(opts) {
       const sp = SPECIES[s];
       const hM = sp.h[0] + rnd() * (sp.h[1] - sp.h[0]);
       // the whole clump keeps clear, not only its centre
-      const reach = hM * S * (s === 4 ? 0.62 : s === 3 ? 0.4 : 0.25);
+      const reach = hM * S * (s === 4 ? 0.62 : s === 3 ? 0.4 : s === 9 || s === 10 ? 0.3 : 0.25);
       if (blocked(x, z) || blocked(x + reach, z) || blocked(x - reach, z) || blocked(x, z + reach) || blocked(x, z - reach)) {
         stats.rejected++;
         continue;
@@ -690,6 +782,98 @@ export function buildNature(opts) {
       });
       n--;
     }
+  }
+
+  // ---- riverbank planting along the Douro. The two large Douro water
+  // polygons (never the sea or the ponds) are walked edge by edge; a short
+  // way out from the water line we drop willows, poplars and reed tufts,
+  // with a few agapanthus. Points that land in the water, on a street or
+  // by a building are rejected by the same occupancy test as every tree.
+  {
+    const bankBand = 9; // world units (~35 m) of riparian margin
+    const bankMinD = 5; // world units between bank clumps
+    // the river polygons only: below the sea, above the park ponds
+    const bankAreas = areas.filter((a) => a.k === 'water' && a.area > 30e3 && a.area < 1e6);
+    const bankRings = bankAreas.flatMap((a) => a.rings);
+    const bankBudget = opts.mobile ? 130 : 420;
+    const bankMix = [[9, 0.36], [11, 0.3], [10, 0.26], [13, 0.08]];
+    const rnd2 = lcg(20261102);
+    const bcell = bankMinD / Math.SQRT2;
+    const bgrid = new Map();
+    const bkey = (i, j) => (i * 73856093) ^ (j * 19349663);
+    let placed = 0;
+    for (const a of bankAreas) {
+      for (const ring of a.rings) {
+        for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+          if (placed >= bankBudget) break;
+          const p = ring[j];
+          const q = ring[i];
+          const dx = q.x - p.x;
+          const dz = q.z - p.z;
+          const len = Math.hypot(dx, dz);
+          if (len < 1e-3) continue;
+          const nx = -dz / len;
+          const nz = dx / len;
+          const steps = Math.max(1, Math.round(len / 6));
+          for (let k = 0; k < steps && placed < bankBudget; k++) {
+            const t = (k + rnd2()) / steps;
+            const bx = p.x + dx * t;
+            const bz = p.z + dz * t;
+            const d = 1.5 + rnd2() * bankBand;
+            // step onto the land side, then fall back to the other normal
+            let x = bx + nx * d;
+            let z = bz + nz * d;
+            if (inRings(x, z, bankRings)) {
+              x = bx - nx * d;
+              z = bz - nz * d;
+              if (inRings(x, z, bankRings)) continue;
+            }
+            const gi = Math.floor(x / bcell);
+            const gj = Math.floor(z / bcell);
+            let close = false;
+            for (let di = -2; di <= 2 && !close; di++) {
+              for (let dj = -2; dj <= 2 && !close; dj++) {
+                const o = bgrid.get(bkey(gi + di, gj + dj));
+                if (o && Math.hypot(o.x - x, o.z - z) < bankMinD) close = true;
+              }
+            }
+            if (close) continue;
+            let s = bankMix[bankMix.length - 1][0];
+            let acc = 0;
+            const roll = rnd2();
+            for (const [sp, w] of bankMix) {
+              acc += w;
+              if (roll < acc) {
+                s = sp;
+                break;
+              }
+            }
+            const sp = SPECIES[s];
+            const hM = sp.h[0] + rnd2() * (sp.h[1] - sp.h[0]);
+            const reach = hM * S * (s === 9 || s === 10 ? 0.3 : 0.2);
+            if (blocked(x, z) || blocked(x + reach, z) || blocked(x - reach, z) || blocked(x, z + reach) || blocked(x, z - reach)) {
+              stats.rejected++;
+              continue;
+            }
+            bgrid.set(bkey(gi, gj), { x, z });
+            tint.set(sp.tint).multiplyScalar(0.8 + rnd2() * 0.4);
+            tint.offsetHSL((rnd2() - 0.5) * 0.03, 0, 0);
+            trees.push({
+              x,
+              y: heightAt(x, z) - Math.min(0.35, hM * S * 0.12),
+              z,
+              h: hM * S,
+              s,
+              rot: rnd2() * Math.PI * 2,
+              tint: [tint.r, tint.g, tint.b],
+              phase: rnd2() * 6.283,
+            });
+            placed++;
+          }
+        }
+      }
+    }
+    stats.bank = placed;
   }
   stats.trees = trees.length;
 
@@ -953,6 +1137,7 @@ function seasonUniforms(s) {
     uPal: { value: sc.pal.map((h) => new THREE.Color(h)) },
     uBase: { value: new THREE.Color(SPECIES[s].tint) },
     uKind: { value: new THREE.Vector3(sc.share, sc.bare, sc.bloom) },
+    uBloom: { value: new THREE.Color(SPECIES[s].bloom) },
   };
   return speciesUniforms[s];
 }
@@ -1004,7 +1189,7 @@ const TREE_SEASON_COLOR = /* glsl */ `
   // spring blossom: whole trees, in specks over the crown
   float bloom = step(tHI, uKind.z) * seasonW.x * aCrown;
   float speck = smoothstep(0.3, 0.7, tHash(position.xz * 23.0 + position.y * 7.0 + tHI * 9.0));
-  vec3 blossom = mix(vec3(0.84, 0.44, 0.52), vec3(0.86, 0.72, 0.7), fract(tHI * 3.1));
+  vec3 blossom = uBloom * mix(vec3(0.8, 0.78, 0.92), vec3(1.18, 1.12, 1.02), fract(tHI * 3.1));
   float b = bloom * speck * 0.8;
   vTint = mix(leaf, blossom, b);
   // blossom and bare twigs do not glow against the sun like leaves
@@ -1023,7 +1208,7 @@ function treeMaterial(uniforms, s) {
     sh.vertexShader = sh.vertexShader
       .replace(
         '#include <common>',
-        `#include <common>\n${TREE_VERT_PARS}\nuniform vec3 uPal[5];\nuniform vec3 uBase;\nattribute float aCrown;\nattribute vec3 aTint;\nvarying float vCrown;\nvarying float vBack;\nvarying vec3 vTint;`,
+        `#include <common>\n${TREE_VERT_PARS}\nuniform vec3 uPal[5];\nuniform vec3 uBase;\nuniform vec3 uBloom;\nattribute float aCrown;\nattribute vec3 aTint;\nvarying float vCrown;\nvarying float vBack;\nvarying vec3 vTint;`,
       )
       .replace('#include <begin_vertex>', `#include <begin_vertex>\nvCrown = aCrown;\n${TREE_DEFORM}\n${TREE_SEASON_COLOR}`);
     sh.fragmentShader = sh.fragmentShader
@@ -1075,6 +1260,7 @@ function billboardMaterial(uniforms, atlas) {
       uBPal: { value: SPECIES.flatMap((_, s) => seasonUniforms(s).uPal.value) },
       uBBase: { value: SPECIES.map((_, s) => seasonUniforms(s).uBase.value) },
       uBKind: { value: SPECIES.map((_, s) => seasonUniforms(s).uKind.value) },
+      uBBloom: { value: SPECIES.map((_, s) => seasonUniforms(s).uBloom.value) },
     },
     vertexShader: /* glsl */ `
       #include <common>
@@ -1084,6 +1270,7 @@ function billboardMaterial(uniforms, atlas) {
       uniform vec3 uBPal[${CELLS * 5}];
       uniform vec3 uBBase[${CELLS}];
       uniform vec3 uBKind[${CELLS}];
+      uniform vec3 uBBloom[${CELLS}];
       attribute vec4 aInst;
       attribute vec4 aInfo;
       attribute vec3 aTint;
@@ -1109,7 +1296,7 @@ function billboardMaterial(uniforms, atlas) {
         vec3 own = seasonW.x * uBPal[s * 5] + seasonW.y * cSum + seasonW.z * cFall + seasonW.w * uBPal[s * 5 + 4];
         vec3 c = mix(ever, own, pal) * tint / max(base, vec3(1e-3));
         float bloom = step(h, k.z) * seasonW.x;
-        c = mix(c, vec3(0.84, 0.66, 0.7), bloom * 0.45);
+        c = mix(c, uBBloom[s], bloom * 0.45);
         vBare = step(hc, k.y) * seasonW.w;
         return c;
       }

@@ -19,6 +19,20 @@
 // centre line; one-way ways (a motorway carriageway, a roundabout) spread
 // their lanes around the way line. Roundabouts in OSM run in the direction
 // of travel, anticlockwise in Portugal, so following `ow` turns them right.
+//
+// Streetscape model on top of the network (all still three-free):
+//   - SIDEWALK_WIDTH_M / PAVEMENT_COLOR / KERB_COLOR: the sidewalk and kerb
+//     the urban classes carry, coloured by class;
+//   - roundaboutRings + net.roundaboutRings, and buildStreetscapeGeometry:
+//     the central island and the splitter islands at the arms, as geometry;
+//   - net.pedestrianZones / net.pedestrianZoneWay + pedestrianZonesOf: the
+//     car-free paved zones (Rua de Santa Catarina, Rua das Flores ...), which
+//     createFlow blocks by default;
+//   - BUS_LANE_COLOR / TRAM_LANE_COLOR + the transit bands in
+//     buildStreetscapeGeometry: bus/PSV lanes and street-running rail.
+// buildStreetscapeGeometry(net) returns one merged mesh per feature
+// (sidewalks, kerbs, islands, transit) of plain arrays, so the draw layer
+// uploads a few BufferGeometries instead of a mesh per way.
 
 // ------------------------------------------------------------ classes
 // laneM: lane width; lanes: default lanes both ways (oneWay: default on a
@@ -73,6 +87,100 @@ export function surfaceOf(f) {
   return SURFACE_COLOR[s] ?? SURFACE_DEFAULT[f.kind] ?? 0x66615a;
 }
 
+// ------------------------------------------------------------ streetscape
+// The street-level model: which urban way carries a sidewalk and a kerb, where
+// the roundabout islands sit, which lanes are bus/tram, and which named streets
+// are car-free pedestrian zones. The draw layer asks
+// `buildStreetscapeGeometry(net)` for one merged mesh per feature (sidewalks,
+// kerbs, islands, transit markings) instead of a mesh per way. All metre
+// values; geometry multiplies by net.S (roads.js RIBBON_LIFT for reference).
+export const SIDEWALK_WIDTH_M = {
+  primary: 2.4,
+  secondary: 2.4,
+  tertiary: 2.4,
+  primary_link: 2.0,
+  secondary_link: 2.0,
+  tertiary_link: 2.0,
+  unclassified: 1.8,
+  residential: 1.6,
+  living_street: 1.6,
+};
+export const KERB_H_M = 0.15; // kerb face height (a step up to the pavement)
+export const GAUGE_M = 1.435; // standard tram/light-rail gauge
+export const URBAN_R = 470; // world units (~1.9 km) around the origin: the centre
+// pavements (sRGB) by class: the Baixa's limestone paving is lighter than a
+// residential lane's worn concrete
+export const PAVEMENT_COLOR = {
+  primary: 0xa6a096,
+  secondary: 0x9f998f,
+  tertiary: 0x9a948a,
+  primary_link: 0xa6a096,
+  secondary_link: 0x9f998f,
+  tertiary_link: 0x9a948a,
+  unclassified: 0x948e84,
+  residential: 0x8f8980,
+  living_street: 0x8b857b,
+};
+export const KERB_COLOR = {
+  primary: 0xdcd7cf,
+  secondary: 0xd7d2ca,
+  tertiary: 0xd1ccc4,
+  primary_link: 0xdcd7cf,
+  secondary_link: 0xd7d2ca,
+  tertiary_link: 0xd1ccc4,
+  unclassified: 0xcac5bd,
+  residential: 0xc4bfb7,
+  living_street: 0xbfbab2,
+};
+export const ISLAND_COLOR = 0x5b7a3c;
+export const ISLAND_KERB_COLOR = 0xc4c0b8;
+export const BUS_LANE_COLOR = 0xa83b2e; // bus/PSV lane paint
+export const TRAM_LANE_COLOR = 0xbfae8e; // street-running rail
+
+// sRGB hex -> linear working colour (the same mapping THREE.Color applies), so
+// the plain arrays upload as vertex colours exactly like roads.js's lin().
+function toLinear(hex) {
+  const f = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  return [f(((hex >> 16) & 255) / 255), f(((hex >> 8) & 255) / 255), f((hex & 255) / 255)];
+}
+
+// one merged mesh: plain typed-array-friendly lists, no three
+function newMesh() {
+  return { position: [], normal: [], color: [], index: [] };
+}
+function vert(T, p, c, n) {
+  T.position.push(p[0], p[1], p[2]);
+  T.normal.push(n[0], n[1], n[2]);
+  T.color.push(c[0], c[1], c[2]);
+}
+// a quad a-b-c-d with a given normal, wound to agree with it
+function quad(T, a, b, c, d, col, n = [0, 1, 0]) {
+  const i = T.position.length / 3;
+  for (const p of [a, b, c, d]) vert(T, p, col, n);
+  const ux = b[0] - a[0];
+  const uy = b[1] - a[1];
+  const uz = b[2] - a[2];
+  const vx = c[0] - a[0];
+  const vy = c[1] - a[1];
+  const vz = c[2] - a[2];
+  const d2 = (uy * vz - uz * vy) * n[0] + (uz * vx - ux * vz) * n[1] + (ux * vy - uy * vx) * n[2];
+  if (d2 >= 0) T.index.push(i, i + 1, i + 2, i, i + 2, i + 3);
+  else T.index.push(i, i + 2, i + 1, i, i + 3, i + 2);
+}
+function tri(T, a, b, c, col, n = [0, 1, 0]) {
+  const i = T.position.length / 3;
+  for (const p of [a, b, c]) vert(T, p, col, n);
+  const ux = b[0] - a[0];
+  const uy = b[1] - a[1];
+  const uz = b[2] - a[2];
+  const vx = c[0] - a[0];
+  const vy = c[1] - a[1];
+  const vz = c[2] - a[2];
+  const d2 = (uy * vz - uz * vy) * n[0] + (uz * vx - ux * vz) * n[1] + (ux * vy - uy * vx) * n[2];
+  if (d2 >= 0) T.index.push(i, i + 1, i + 2);
+  else T.index.push(i, i + 2, i + 1);
+}
+
 export const LANE_M = 3; // nominal lane width (m)
 const MAX_STEP = 3; // world units between points
 // tunnel=yes and its variants: a bored road/rail tunnel, drawn with a portal
@@ -102,6 +210,141 @@ export function buildNetwork(roads, project, heightAt) {
   const net = build(roads, project, heightAt);
   memo.set(roads, net);
   return net;
+}
+
+// Rings of roundabout ways: closed ways, or one-way pieces chained end node to
+// start node until they close. Returns [{ pts: [global point], halfM, cx, cz }].
+// (roads.js draws the central island; the geometry builder below reuses this.)
+export function roundaboutRings(net) {
+  const rings = [];
+  const pieces = [];
+  net.ways.forEach((w, wi) => {
+    if (w.t.jn !== 'roundabout' && w.t.jn !== 'circular') return;
+    if (w.closed) {
+      const pts = [];
+      for (let i = w.start; i < w.start + w.n - 1; i++) pts.push(i);
+      if (pts.length >= 3) rings.push({ pts, halfM: w.widthM / 2, ways: [wi] });
+      return;
+    }
+    const a = net.endNode(w, 0);
+    const b = net.endNode(w, 1);
+    if (a >= 0 && b >= 0) pieces.push({ wi, a, b, used: false });
+  });
+  const byStart = new Map();
+  for (const p of pieces) {
+    if (!byStart.has(p.a)) byStart.set(p.a, []);
+    byStart.get(p.a).push(p);
+  }
+  for (const p0 of pieces) {
+    if (p0.used) continue;
+    const chain = [p0];
+    p0.used = true;
+    let end = p0.b;
+    let ok = false;
+    for (let guard = 0; guard < 16; guard++) {
+      if (end === p0.a) {
+        ok = true;
+        break;
+      }
+      const next = (byStart.get(end) || []).find((q) => !q.used);
+      if (!next) break;
+      next.used = true;
+      chain.push(next);
+      end = next.b;
+    }
+    if (!ok) continue;
+    const pts = [];
+    const ws = [];
+    let half = 0;
+    for (const p of chain) {
+      const w = net.ways[p.wi];
+      ws.push(p.wi);
+      half = Math.max(half, w.widthM / 2);
+      for (let i = w.start; i < w.start + w.n - 1; i++) pts.push(i);
+    }
+    if (pts.length >= 3) rings.push({ pts, halfM: half, ways: ws });
+  }
+  for (const ring of rings) {
+    let cx = 0;
+    let cz = 0;
+    for (const i of ring.pts) {
+      cx += net.X[i];
+      cz += net.Z[i];
+    }
+    ring.cx = cx / ring.pts.length;
+    ring.cz = cz / ring.pts.length;
+  }
+  return rings;
+}
+
+// The car-free pedestrian zones of the centre, derived from OSM alone: a
+// pedestrianized named street (highway=pedestrian / living_street) is car-free,
+// plus the small named car lanes that run right alongside it (the OSM pieces
+// still tagged residential along Rua de Santa Catarina, Rua das Flores). The
+// core must be a real pedestrianised stretch (>= ~240 m sampled), and a car
+// lane is only pulled in within ~64 m of that core, so a same-named street in
+// another parish and a genuine arterial of the same name stay car roads.
+// Returns the zones and a per-way flag for the traffic graph.
+export function pedestrianZonesOf(net) {
+  const { ways, X, Z } = net;
+  const wayZone = new Uint8Array(ways.length);
+  const CELL = 8; // world units (~32 m)
+  const key = (x, z) => Math.floor(x / CELL) * 100003 + Math.floor(z / CELL);
+  const byName = new Map();
+  ways.forEach((w, wi) => {
+    const name = w.t?.name;
+    if (!name || w.kind === 'rail' || w.tunnel) return;
+    const ped = w.hw === 'pedestrian' || w.hw === 'living_street';
+    const small = w.car && (w.hw === 'residential' || w.hw === 'unclassified' || w.hw === 'living_street' || w.hw === 'service');
+    if (!ped && !small) return;
+    let a = byName.get(name);
+    if (!a) byName.set(name, (a = []));
+    a.push(wi);
+  });
+  const zones = [];
+  for (const [name, list] of byName) {
+    const ped = list.filter((wi) => {
+      const h = ways[wi].hw;
+      return h === 'pedestrian' || h === 'living_street';
+    });
+    if (!ped.length) continue;
+    let pedPts = 0;
+    const core = new Set();
+    for (const wi of ped) {
+      const w = ways[wi];
+      pedPts += w.n;
+      for (let i = w.start; i < w.start + w.n; i++) core.add(key(X[i], Z[i]));
+    }
+    if (pedPts < 20) continue; // a real pedestrianised run, not a stray footway
+    const near = (wi) => {
+      const w = ways[wi];
+      for (let i = w.start; i < w.start + w.n; i++) {
+        const gx = Math.floor(X[i] / CELL);
+        const gz = Math.floor(Z[i] / CELL);
+        for (let dx = -1; dx <= 1; dx++) {
+          for (let dz = -1; dz <= 1; dz++) if (core.has((gx + dx) * 100003 + (gz + dz))) return true;
+        }
+      }
+      return false;
+    };
+    const members = [...ped];
+    for (const wi of list) if (!ped.includes(wi) && near(wi)) members.push(wi);
+    const zone = { name, ways: members, minX: Infinity, maxX: -Infinity, minZ: Infinity, maxZ: -Infinity };
+    for (const wi of members) {
+      const w = ways[wi];
+      wayZone[wi] = 1;
+      w.pedestrianZone = true;
+      w.paved = true;
+      for (let i = w.start; i < w.start + w.n; i++) {
+        zone.minX = Math.min(zone.minX, X[i]);
+        zone.maxX = Math.max(zone.maxX, X[i]);
+        zone.minZ = Math.min(zone.minZ, Z[i]);
+        zone.maxZ = Math.max(zone.maxZ, Z[i]);
+      }
+    }
+    zones.push(zone);
+  }
+  return { zones, wayZone };
 }
 
 function build(roads, project, heightAt) {
@@ -653,6 +896,27 @@ function build(roads, project, heightAt) {
     hiddenFeature,
     endNode,
   };
+  // ---- streetscape model: pedestrian zones, islands, sidewalk coverage
+  const ped = pedestrianZonesOf(net);
+  net.pedestrianZones = ped.zones;
+  net.pedestrianZoneWay = ped.wayZone;
+  net.roundaboutRings = roundaboutRings(net);
+  net.streetscapeStats = {
+    pedestrianZones: ped.zones.length,
+    pedestrianZoneWays: ped.wayZone.reduce((s, v) => s + v, 0),
+    sidewalkWays: ways.reduce((s, w) => {
+      if (!SIDEWALK_WIDTH_M[w.hw] || !w.car || w.tunnel || w.bridge) return s;
+      const m = w.start + (w.n >> 1);
+      return s + (PX[m] * PX[m] + PZ[m] * PZ[m] <= URBAN_R * URBAN_R ? 1 : 0);
+    }, 0),
+    roundabouts: net.roundaboutRings.length,
+  };
+  net.pedestrianZoneAt = (x, z) => {
+    for (const q of net.pedestrianZones) {
+      if (x >= q.minX && x <= q.maxX && z >= q.minZ && z <= q.maxZ) return q;
+    }
+    return null;
+  };
   net.graph = buildGraph(net);
   return net;
 }
@@ -752,12 +1016,16 @@ function buildGraph(net) {
 
 // ------------------------------------------------------------ flow
 // Vehicles on the graph, in flat typed arrays; no allocation per step.
-// opts: { N, rnd, blocked(x, z) -> bool, speedK(i) -> factor, lorryShare(way) }
+// opts: { N, rnd, blocked(x, z) -> bool, pedestrianZones -> bool, speedK(i),
+//         lorryShare(way) }
+// The car-free pedestrian zones of the network (Rua de Santa Catarina, Rua das
+// Flores ...) block their own ways by default, on top of the caller's blocked().
 export const VEHICLE = { car: 0, van: 1, lorry: 2 };
 const LEN_M = [4.4, 5.2, 13];
-export function createFlow(net, { N = 600, rnd = Math.random, blocked = null } = {}) {
+export function createFlow(net, { N = 600, rnd = Math.random, blocked = null, pedestrianZones = true } = {}) {
   const g = net.graph;
   const { ways, X, Z, Y, C, CAP, HID, S } = net;
+  const zoneWay = pedestrianZones ? net.pedestrianZoneWay : null;
   const nD = g.n;
   if (!nD) return null;
   // lanes in the direction of travel, speed (world/s), and spawn weight
@@ -785,10 +1053,11 @@ export function createFlow(net, { N = 600, rnd = Math.random, blocked = null } =
     dRound[d] = w.t.jn === 'roundabout' || w.t.jn === 'circular' ? 1 : 0;
     // car-free zones apply per edge (tunnels under them still carry traffic)
     const m = (g.A[d] + g.B[d]) >> 1;
-    dOk[d] = blocked && !w.tunnel && blocked(X[m], Z[m]) ? 0 : 1;
+    const inZone = !w.tunnel && (zoneWay ? zoneWay[g.way[d]] === 1 : false);
+    dOk[d] = inZone || (blocked && !w.tunnel && blocked(X[m], Z[m])) ? 0 : 1;
     dSpawn[d] = dOk[d] ? g.len[d] * (w.cls.spawn || 0) : 0;
   }
-  if (blocked) for (let d = 0; d < nD; d++) if (!dOk[d]) dTurn[d] = 0;
+  if (blocked || zoneWay) for (let d = 0; d < nD; d++) if (!dOk[d]) dTurn[d] = 0;
 
   const vd = new Int32Array(N); // directed lane
   const vs = new Float32Array(N); // distance along it (world)
@@ -1044,4 +1313,240 @@ export function createFlow(net, { N = 600, rnd = Math.random, blocked = null } =
       return g;
     },
   };
+}
+
+// ------------------------------------------------------------ streetscape geometry
+// One flat band along points i0..i1 of a way at lateral offset `off` (world,
+// left of travel positive), half width `half`, sitting `lift` over the surface.
+// The pavement band sits a kerb above the carriageway (raised), the markings
+// sit on it. Hidden points (a tunnel) are skipped.
+function band(T, net, w, off, half, lift, col) {
+  const { X, Z, HID } = net;
+  const o0 = off - half;
+  const o1 = off + half;
+  for (let i = w.start; i < w.start + w.n - 1; i++) {
+    if (HID[i] && HID[i + 1]) continue;
+    const ax = X[i];
+    const az = Z[i];
+    const bx = X[i + 1];
+    const bz = Z[i + 1];
+    let dx = bx - ax;
+    let dz = bz - az;
+    const L = Math.hypot(dx, dz);
+    if (L < 1e-5) continue;
+    dx /= L;
+    dz /= L;
+    const lx = dz;
+    const lz = -dx;
+    const a = [ax + lx * o0, net.surfaceY(i, o0) + lift, az + lz * o0];
+    const b = [ax + lx * o1, net.surfaceY(i, o1) + lift, az + lz * o1];
+    const c = [bx + lx * o1, net.surfaceY(i + 1, o1) + lift, bz + lz * o1];
+    const d = [bx + lx * o0, net.surfaceY(i + 1, o0) + lift, bz + lz * o0];
+    quad(T, a, b, c, d, col);
+  }
+}
+
+// bus/PSV lanes from the OSM tags the pipeline may carry (busway, psv,
+// bus:lanes, lanes:psv). Returns the sides (1 = left of travel, -1 = right).
+function busLaneSides(w) {
+  const t = w.t || {};
+  const has = (...keys) => keys.some((k) => t[k] !== undefined && t[k] !== 'no');
+  const sides = [];
+  if (has('busway:left', 'psv:forward', 'bus:lanes:forward')) sides.push(1);
+  if (has('busway:right', 'psv:backward', 'bus:lanes:backward')) sides.push(-1);
+  if (!sides.length && has('busway', 'psv', 'bus', 'bus:lanes', 'lanes:psv')) sides.push(1, -1);
+  return sides;
+}
+
+// Build the merged streetscape meshes of a network. Returns
+// { sidewalks, kerbs, islands, transit, counts } where each mesh is
+// { position, normal, color, index } of plain numbers (upload straight into a
+// THREE.BufferGeometry). `opts`: urbanR (world units), sidewalks, kerbs,
+// islands, transit (false to skip one), lift, kerbH (metres).
+export function buildStreetscapeGeometry(net, opts = {}) {
+  const S = net.S;
+  const { X, Z } = net;
+  const urbanR = opts.urbanR ?? URBAN_R;
+  const lift = opts.lift ?? 0.12; // road-surface lift (roads.js RIBBON_LIFT)
+  const detailLift = lift + 0.02;
+  const kerbH = (opts.kerbH ?? KERB_H_M) * S;
+  const out = { sidewalks: newMesh(), kerbs: newMesh(), islands: newMesh(), transit: newMesh() };
+  const pav = {};
+  const kcol = {};
+  for (const k of Object.keys(PAVEMENT_COLOR)) pav[k] = toLinear(PAVEMENT_COLOR[k]);
+  for (const k of Object.keys(KERB_COLOR)) kcol[k] = toLinear(KERB_COLOR[k]);
+  const islandCol = toLinear(ISLAND_COLOR);
+  const islandKerbCol = toLinear(ISLAND_KERB_COLOR);
+  const busCol = toLinear(BUS_LANE_COLOR);
+  const tramCol = toLinear(TRAM_LANE_COLOR);
+
+  // ---- sidewalks (raised) and kerbs, both sides, coloured by class
+  for (const w of net.ways) {
+    const swM = SIDEWALK_WIDTH_M[w.hw];
+    if (!swM || !w.car || w.tunnel || w.bridge) continue;
+    const m = w.start + (w.n >> 1);
+    if (X[m] * X[m] + Z[m] * Z[m] > urbanR * urbanR) continue;
+    const roadHalf = (w.widthM / 2) * S;
+    const swHalf = (swM * 0.5) * S;
+    const pc = pav[w.hw] || pav.residential;
+    const kc = kcol[w.hw] || kcol.residential;
+    for (const side of [1, -1]) {
+      const swOff = side * (roadHalf + 0.1 * S + swHalf);
+      if (opts.sidewalks !== false) band(out.sidewalks, net, w, swOff, swHalf, lift + kerbH, pc);
+    }
+    if (opts.kerbs !== false) kerbBand(out.kerbs, net, w, roadHalf, lift, kerbH, kc);
+  }
+
+  // ---- roundabout islands: central green island + splitter islands at arms
+  if (opts.islands !== false) {
+    for (const ring of net.roundaboutRings || roundaboutRings(net)) {
+      fillIsland(out.islands, out.kerbs, net, ring, lift, kerbH, islandCol, islandKerbCol);
+      splitterIslands(out.islands, net, ring, lift, islandCol);
+    }
+  }
+
+  // ---- bus / tram lane markings
+  if (opts.transit !== false) {
+    for (const w of net.ways) {
+      if (w.tunnel) continue;
+      const sides = busLaneSides(w);
+      if (sides.length) {
+        const roadHalf = (w.widthM / 2) * S;
+        for (const side of sides) band(out.transit, net, w, side * (roadHalf - 1.5 * S), 1.4 * S, detailLift, busCol);
+      }
+      if (w.kind === 'rail' && (w.t?.rw === 'light_rail' || w.t?.rw === 'tram')) {
+        for (const side of [1, -1]) band(out.transit, net, w, side * GAUGE_M * 0.5 * S, 0.09 * S, detailLift, tramCol);
+      }
+    }
+  }
+
+  out.counts = {
+    sidewalks: out.sidewalks.index.length / 3,
+    kerbs: out.kerbs.index.length / 3,
+    islands: out.islands.index.length / 3,
+    transit: out.transit.index.length / 3,
+  };
+  return out;
+}
+
+// a kerb face that follows the surface: bottom at the carriageway, top a kerb up
+function kerbBand(T, net, w, roadHalf, lift, kerbH, col) {
+  const { X, Z, HID } = net;
+  for (let i = w.start; i < w.start + w.n - 1; i++) {
+    if (HID[i] && HID[i + 1]) continue;
+    const ax = X[i];
+    const az = Z[i];
+    const bx = X[i + 1];
+    const bz = Z[i + 1];
+    let dx = bx - ax;
+    let dz = bz - az;
+    const L = Math.hypot(dx, dz);
+    if (L < 1e-5) continue;
+    dx /= L;
+    dz /= L;
+    const lx = dz;
+    const lz = -dx;
+    for (const side of [1, -1]) {
+      const off = side * (roadHalf + 0.05 * net.S);
+      const n = [side * lx, 0, side * lz];
+      const yb0 = net.surfaceY(i, side * roadHalf) + lift;
+      const yb1 = net.surfaceY(i + 1, side * roadHalf) + lift;
+      const yt0 = net.surfaceY(i, off) + lift + kerbH;
+      const yt1 = net.surfaceY(i + 1, off) + lift + kerbH;
+      const a = [ax + lx * off, yb0, az + lz * off];
+      const b = [bx + lx * off, yb1, bz + lz * off];
+      const c = [bx + lx * off, yt1, bz + lz * off];
+      const d = [ax + lx * off, yt0, az + lz * off];
+      quad(T, a, b, c, d, col, n);
+    }
+  }
+}
+
+// central island: the ring shrunk toward its centre, filled as a fan, with a
+// kerb rim down to the surface
+function fillIsland(T, K, net, ring, lift, kerbH, col, kerbCol) {
+  const { X } = net;
+  const pts = ring.pts;
+  const inset = (ring.halfM + 0.8) * net.S;
+  const n = pts.length;
+  const px = [];
+  const pz = [];
+  let cx = 0;
+  let cz = 0;
+  for (const i of pts) {
+    const dx = X[i] - ring.cx;
+    const dz = net.Z[i] - ring.cz;
+    const r = Math.hypot(dx, dz);
+    const k = r > inset ? (r - inset) / r : 0;
+    const x = ring.cx + dx * k;
+    const z = ring.cz + dz * k;
+    px.push(x);
+    pz.push(z);
+    cx += x;
+    cz += z;
+  }
+  cx /= n;
+  cz /= n;
+  const cy = net.heightAt(cx, cz) + lift + 0.05;
+  const v0 = T.position.length / 3;
+  vert(T, [cx, cy, cz], col, [0, 1, 0]);
+  for (let k = 0; k < n; k++) vert(T, [px[k], cy, pz[k]], col, [0, 1, 0]);
+  for (let k = 0; k < n; k++) {
+    const a = v0 + 1 + k;
+    const b = v0 + 1 + ((k + 1) % n);
+    T.index.push(v0, b, a);
+  }
+  // kerb rim (vertical faces around the island)
+  for (let k = 0; k < n; k++) {
+    const j = (k + 1) % n;
+    const ax = px[k];
+    const az = pz[k];
+    const bx = px[j];
+    const bz = pz[j];
+    let dx = bx - ax;
+    let dz = bz - az;
+    const L = Math.hypot(dx, dz) || 1;
+    dx /= L;
+    dz /= L;
+    const ox = dz;
+    const oz = -dx; // outward (ring runs one way round; both faces drawn)
+    const yb = cy - kerbH;
+    quad(K, [ax, yb, az], [bx, yb, bz], [bx, cy, bz], [ax, cy, az], kerbCol, [ox, 0, oz]);
+    quad(K, [bx, yb, bz], [ax, yb, az], [ax, cy, az], [bx, cy, bz], kerbCol, [-ox, 0, -oz]);
+  }
+}
+
+// splitter islands: a small triangle at every arm that meets a ring, pointing
+// inward, between the entering and leaving carriageways
+function splitterIslands(T, net, ring, lift, col) {
+  const { X, Z, nodeWays } = net;
+  const isRound = (w) => w.t.jn === 'roundabout' || w.t.jn === 'circular';
+  for (const wi of ring.ways || []) {
+    const w = net.ways[wi];
+    const end = w.start + w.n - 1;
+    for (let k = 0; k < w.jp.length; k += 2) {
+      const gp = w.jp[k];
+      const node = w.jp[k + 1];
+      const nw = nodeWays[node] || [];
+      let arm = false;
+      for (let m = 0; m < nw.length && !arm; m += 2) {
+        const o = net.ways[nw[m]];
+        if (o !== w && !isRound(o) && o.car) arm = true;
+      }
+      if (!arm) continue;
+      if (gp <= w.start || gp >= end) continue;
+      let dx = ring.cx - X[gp];
+      let dz = ring.cz - Z[gp];
+      const L = Math.hypot(dx, dz) || 1;
+      dx /= L;
+      dz /= L; // inward
+      const tx = -dz;
+      const tz = dx;
+      const y = net.Y[gp] + lift + 0.05;
+      const P = [X[gp], y, Z[gp]];
+      const w0 = 1.3 * net.S;
+      const in0 = 1.8 * net.S;
+      tri(T, [P[0] + tx * w0, y, P[2] + tz * w0], [P[0] - tx * w0, y, P[2] - tz * w0], [P[0] + dx * in0, y, P[2] + dz * in0], col);
+    }
+  }
 }

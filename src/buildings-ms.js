@@ -10,16 +10,20 @@
 // Every footprint is extruded with buildings.js extrudeBuilding (the same
 // walls, window grid, night lights and colours as the OSM ones) on the main
 // thread, at most SLICE_MS per frame, and draped on the drawn ground mesh.
+// The ML area-class heights are rebuilt as storey counts (2-5, the odd tower)
+// and the OSM roof treatment is forced on the compact footprints, so the ring
+// reads as the same fabric as the core (see msHeight / msRoofHint below).
 // Masks at run time: a footprint is skipped when it touches a landmark
 // outline or part (data/footprints.json, as loaded), a fitted landmark
-// plan, or has its centre inside a core OSM building.
+// plan, has its centre inside a core OSM building, or is a road/plaza blob.
 // ?ms=0 turns them off; ?ms=debug tints their roofs blue.
 import * as THREE from 'three';
 import { S } from './geo.js';
 import { assetUrl } from './data.js';
 import { dataPath } from './city.js';
 import { groundAxes } from './scene.js';
-import { BUILDING_UNIFORMS, createBuildingMaterial, extrudeBuilding } from './buildings.js';
+import { BUILDING_UNIFORMS, createBuildingMaterial, extrudeBuilding, lastPlan, hash } from './buildings.js';
+import { hexLinear, minRect } from './facades.js';
 
 const CORE_TILE_M = 2000;
 const GROUP = 3; // far ring tiles per merged block side
@@ -35,6 +39,19 @@ const CAST_U = 3000 * S; // shadows while the camera is within 3 km of the focus
 const VFAR_U = 6000 * S; // far LOD beyond this from the camera: roof-only houses
 const FOCUS_KEEP_U = 3000 * S; // ... and only beyond this from the focus
 const DEBUG_ROOF =new THREE.Color(0x2f7dff);
+// The pipeline's ML height is an area class, so most ring footprints land at
+// 3 m and read as flat slabs beside the OSM fabric. Rebuild a storey count
+// from the footprint (Porto: 2-5 storeys residential, the odd tower) and keep
+// any taller pipeline estimate. Rooflines get the OSM treatment (pitched on
+// compact footprints, flat on big sheds) plus a chimney on some pitched ones.
+const STOREY_M = 3.1;
+const TOWER_P = 0.025; // share of larger footprints that becomes a tower
+const MS_MIN_W_M = 2.2; // a footprint thinner than this is a road/viaduct ribbon
+const MS_MAX_M2 = 8000; // a blob this large is a plaza/garden the model misread
+const PITCH_MAX_M2 = 320; // forced pitched roofs stay small (cost + real rooflines)
+const PITCH_MAX_H_M = 15;
+const PITCH_MIN_FILL = 0.55; // footprint area / its min rectangle
+const CHIMNEY = hexLinear(0x8a4a34);
 
 // ------------------------------------------------------------ helpers
 // horizontal distance from (x, z) to a rectangle (as src/tiles.js)
@@ -168,6 +185,112 @@ function orientedBox(pts) {
   return [at(u0, v0), at(u1, v0), at(u1, v1), at(u0, v1)];
 }
 
+// ------------------------------------------------------------ shape, height, roofs
+// A stable per-building seed from its centre (the ring tiles and the core use
+// different job seeds; the footprint position is the same for both).
+export const seedOf = (f) => (Math.floor(f.cx / S) * 73856093) ^ (Math.floor(f.cz / S) * 19349663);
+
+// Residential height (m): 2-5 storeys from the footprint area, an occasional
+// tower, never below the pipeline's estimate (which carries a real MS height
+// tag or a tall OSM-neighbour mean). Big footprints are sheds/blocks: keep the
+// pipeline height, do not turn a warehouse into a six-storey block.
+export function msHeight(areaM2, baseH, seed) {
+  if (areaM2 > 900) return Math.max(baseH, 6);
+  const r = hash(seed ^ 0x51ed2701);
+  let storeys;
+  if (areaM2 < 40) storeys = 2;
+  else if (areaM2 < 90) storeys = 2 + (r > 0.4 ? 1 : 0);
+  else if (areaM2 < 180) storeys = 3 + (r > 0.45 ? 1 : 0);
+  else storeys = 4 + (r > 0.6 ? 1 : 0);
+  if (areaM2 >= 180 && hash(seed ^ 0x2f7d1e5b) < TOWER_P) storeys += 3 + Math.floor(hash(seed ^ 0x7b1d) * 5);
+  return Math.max(baseH, Math.min(45, storeys * STOREY_M + 0.3));
+}
+
+// The roof hint for extrudeBuilding, or null to let facades.js decide. The ML
+// outlines are noisier than OSM, so the generic path flattens many of them for
+// irregularity alone: force the roof on compact ones so the ring's roofline
+// matches the OSM core (gabled on elongated regular footprints, hipped
+// otherwise). Big and irregular ones stay flat, as in the core.
+export function msRoofHint(pts, areaM2, hM, seed) {
+  if (areaM2 > PITCH_MAX_M2 || hM > PITCH_MAX_H_M || pts.length > 24) return null;
+  const R = minRect(pts);
+  if (!R || R.area <= 0) return null;
+  const fill = (areaM2 * S * S) / R.area;
+  if (fill < PITCH_MIN_FILL) return null;
+  const len = R.u1 - R.u0;
+  const wid = R.v1 - R.v0;
+  if (len / Math.max(wid, 1e-6) >= 1.5 && fill >= 0.9 && hash(seed ^ 0x9a3f) > 0.35) return { r: 'gabled' };
+  return { r: 'hipped' };
+}
+
+// Footprints that read as roads, viaducts or plazas, not buildings. The
+// pipeline drops most of these; this is the cheap run-time safety net.
+export function badShape(f) {
+  if (f.areaM2 < 12 || f.areaM2 > MS_MAX_M2) return true;
+  const n = f.pts.length;
+  let per = 0;
+  for (let i = 0; i < n; i++) {
+    const a = f.pts[i];
+    const b = f.pts[(i + 1) % n];
+    per += Math.hypot(b.x - a.x, b.z - a.z);
+  }
+  const widthM = (2 * f.areaM2) / Math.max(per / S, 1e-6);
+  return widthM < MS_MIN_W_M && f.areaM2 > 50;
+}
+
+// A terracotta chimney box at the ridge of a pitched roof, on some of them.
+// It goes into T.near (the pitched-roof index block), which the middle LOD
+// drops, so a distant tile pays nothing for it. Returns true when added.
+export function addChimney(T, pts, plan, seed) {
+  if (pts.length > 20 || hash(seed ^ 0x11c4) > 0.25) return false;
+  const IDX = T.near || T.idx;
+  const R = minRect(pts);
+  if (!R) return false;
+  const len = R.u1 - R.u0;
+  const wid = R.v1 - R.v0;
+  if (len < 4 * S || wid < 3 * S) return false;
+  const { ux, uz } = R;
+  const at = (u, v) => ({ x: u * ux - v * uz, z: u * uz + v * ux });
+  const u = R.u0 + len * (0.3 + 0.4 * hash(seed ^ 0x7c3));
+  const v = R.v0 + wid * 0.5;
+  const c = at(u, v);
+  // the roof envelope is the lowest plane; a chimney stands on the highest
+  // plane under it (the ridge), so use the max plane height at the centre
+  let base = -Infinity;
+  for (const P of plan.planes) base = Math.max(base, P.ax * c.x + P.az * c.z + P.c);
+  if (!Number.isFinite(base)) return false;
+  const half = 0.45 * S;
+  const y0 = base - 0.4 * S;
+  const y1 = base + 1.2 * S;
+  const cs = [at(u - half, v - half), at(u + half, v - half), at(u + half, v + half), at(u - half, v + half)];
+  for (let i = 0; i < 4; i++) {
+    const A = cs[i];
+    const B = cs[(i + 1) % 4];
+    const L = Math.hypot(B.x - A.x, B.z - A.z);
+    const nx = (B.z - A.z) / L;
+    const nz = -(B.x - A.x) / L;
+    const v0 = T.pos.length / 3;
+    T.pos.push(A.x, y0, A.z, B.x, y0, B.z, B.x, y1, B.z, A.x, y1, A.z);
+    for (let q = 0; q < 4; q++) {
+      T.nor.push(nx, 0, nz);
+      T.col.push(CHIMNEY[0], CHIMNEY[1], CHIMNEY[2]);
+      T.wall.push(0, -1, 0, seed);
+    }
+    IDX.push(v0, v0 + 2, v0 + 1, v0, v0 + 3, v0 + 2);
+  }
+  const v0 = T.pos.length / 3;
+  for (const p of cs) {
+    T.pos.push(p.x, y1, p.z);
+    T.nor.push(0, 1, 0);
+    T.col.push(CHIMNEY[0], CHIMNEY[1], CHIMNEY[2]);
+    T.wall.push(0, -1, 0, seed);
+  }
+  const up = (cs[1].z - cs[0].z) * (cs[2].x - cs[0].x) - (cs[1].x - cs[0].x) * (cs[2].z - cs[0].z);
+  if (up >= 0) IDX.push(v0, v0 + 1, v0 + 2, v0, v0 + 2, v0 + 3);
+  else IDX.push(v0, v0 + 2, v0 + 1, v0, v0 + 3, v0 + 2);
+  return true;
+}
+
 // lod: the near/middle index blocks (buildings.js: pitched roofs in
 // `near`, their flat caps in `farCap`)
 const newT = (lod = false) => (lod ? { pos: [], nor: [], col: [], wall: [], idx: [], near: [], farCap: [] } : { pos: [], nor: [], col: [], wall: [], idx: [] });
@@ -289,7 +412,7 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
   const mode = new URLSearchParams(location.search).get('ms');
   const off = mode === '0';
   const tint = mode === 'debug';
-  const stats = { enabled: !off, debug: tint, core: 0, coreInput: 0, masked: 0, maskedOsm: 0, coreTiles: 0, ringTotal: 0, ringLoaded: 0, ringNear: 0, ringFar: 0, ringBuildings: 0, tris: 0, meshes: 0, gpuMB: 0, errors: 0, buildMs: 0 };
+  const stats = { enabled: !off, debug: tint, core: 0, coreInput: 0, masked: 0, maskedOsm: 0, thin: 0, pitched: 0, chimneys: 0, coreTiles: 0, ringTotal: 0, ringLoaded: 0, ringNear: 0, ringFar: 0, ringBuildings: 0, tris: 0, meshes: 0, gpuMB: 0, errors: 0, buildMs: 0 };
   debug.msStats = stats;
   const group = new THREE.Group();
   group.name = 'buildings-ms';
@@ -389,7 +512,7 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
   }
 
   // ---- jobs: extrude a list of footprints in slices
-  // job = { prio, recs, i, T, Tfar, decode(rec, i) -> [{x,z}] | null, h(rec), seed, done(packed) }
+  // job = { prio, recs, i, T, Tfar, decode(rec, i) -> [{x,z}] | null, h(rec, f), seed, done(packed) }
   function runJobs(t0) {
     while (jobs.length && performance.now() - t0 < SLICE_MS) {
       const J = jobs[0];
@@ -410,9 +533,21 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
           else stats.maskedOsm++;
           continue;
         }
-        const h = J.h(rec);
+        if (badShape(f)) {
+          stats.thin++;
+          continue;
+        }
+        const h = J.h(rec, f);
         const T = J.tileOf ? J.tileOf(f) : J.T;
-        extrudeBuilding(T, f.pts, h, 'ms', f.areaM2, J.seed + i, ground);
+        // the OSM roof treatment on the ML footprints (roofPlan from the
+        // footprint shape), so the ring's roofline reads like the core's
+        const hint = msRoofHint(f.pts, f.areaM2, h, seedOf(f));
+        extrudeBuilding(T, f.pts, h, 'ms', f.areaM2, J.seed + i, ground, false, hint);
+        const plan = lastPlan.plan;
+        if (plan && plan.planes.length) {
+          stats.pitched++;
+          if (f.areaM2 <= 220 && h >= 6 && h <= 13 && addChimney(T, f.pts, plan, seedOf(f))) stats.chimneys++;
+        }
         if (J.Tfar && f.areaM2 >= FAR_MIN) {
           const box = orientedBox(f.pts);
           extrudeBuilding(J.Tfar, box, h, 'ms', f.areaM2, J.seed + i, ground, false, FAR);
@@ -457,7 +592,7 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
       cents: coreCents,
       seed: 0x4d5300,
       decode: (b) => (Array.isArray(b.p) && b.p.length >= 3 && b.h > 0 ? b.p.map((q) => proj.project(q[0], q[1])) : null),
-      h: (b) => b.h,
+      h: (b, f) => msHeight(f.areaM2, b.h, seedOf(f)),
       tileOf(f) {
         const key = `${Math.floor(f.cx / S / coreTileM)},${Math.floor(f.cz / S / coreTileM)}`;
         let T = cells.get(key);
@@ -572,7 +707,7 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
         }
         return pts.length >= 3 ? pts : null;
       },
-      h: (rec) => rec[0] / 10,
+      h: (rec, f) => msHeight(f.areaM2, rec[0] / 10, seedOf(f)),
       done() {
         T.job = null;
         if (id !== T.reqId) return;
