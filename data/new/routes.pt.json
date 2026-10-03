@@ -138,5 +138,131 @@
         "note": "Elétrico 1 até ao terminal do Foz (Passeio Alegre), depois a pé até ao farol de Felgueiras."
       }
     ]
+  },
+  "gaia-vinho": {
+    "name": "Gaia e o vinho do Porto",
+    "subtitle": "A Ribeira, a Ponte Luís I, a Serra do Pilar e as caves do Cais de Gaia",
+    "duration": "≈ 4,5 horas",
+    "description": "O percurso começa na Ribeira e leva à outra margem do Douro. Suba ao tabuleiro superior da Ponte Luís I e atravesse a pé até ao mosteiro da Serra do Pilar — uma igreja redonda do século XVI e o melhor miradouro sobre o Porto. Daqui desça no Teleférico de Gaia até ao cais de Gaia, onde se alinham as caves de vinho. A visita com prova numa delas (Sandeman, Graham’s, Taylor’s) leva cerca de hora e meia. O regresso pode ser pela ponte ou pelo teleférico. Comece de manhã: as caves enchem-se e ao pôr do sol quererá estar no miradouro.",
+    "stops": [
+      {
+        "time": "10:00",
+        "note": "Um passeio pela Ribeira: fachadas coloridas, barcos rabelos e casas com arcadas. Daqui vê-se a Ponte Luís I."
+      },
+      {
+        "time": "10:40",
+        "note": "Suba ao tabuleiro superior da Ponte Luís I e atravesse o Douro a pé para o lado de Gaia. Da ponte abre-se um panorama da Ribeira e das caves."
+      },
+      {
+        "time": "11:10",
+        "note": "O mosteiro da Serra do Pilar, do século XVI, com a igreja redonda sob a cúpula e a galeria do claustro. Do miradouro vê-se todo o Porto."
+      },
+      {
+        "time": "12:10",
+        "note": "Desça no Teleférico de Gaia até ao cais de Gaia. Antigos barcos rabelos e armazéns de vinho alinham-se ao longo do rio."
+      },
+      {
+        "time": "12:45",
+        "note": "Visita e prova nas caves Sandeman, Graham’s ou Taylor’s. Aqui explicam como envelhece o vinho do Porto e o que distingue os estilos."
+      }
+    ],
+    "legs": [
+      {
+        "note": "Da Ribeira em subida até ao vão da ponte: pelas escadas dos Guindais ou pela Rua de Miragaia."
+      },
+      {
+        "note": "A pé pelo tabuleiro superior da Ponte Luís I sobre o Douro e subida ao mosteiro da Serra do Pilar."
+      },
+      {
+        "note": "Descida no Teleférico de Gaia (Jardim do Morro — Cais de Gaia); o perfil do percurso segue as ruas do monte."
+      },
+      {
+        "note": "Dois minutos ao longo do cais de Gaia até às caves de vinho."
+      }
+    ]
+  },
+  "igrejas-azulejos": {
+    "name": "Igrejas e azulejos",
+    "subtitle": "Cedofeita, Lapa, Carmo, Capela das Almas e Santo Ildefonso",
+    "duration": "≈ 3 horas",
+    "description": "Um percurso a pé pelas igrejas do Porto cujas fachadas barrocas se revestem de azulejos azuis e brancos. Comece na igreja românica de Cedofeita, a mais antiga da cidade, e suba à igreja da Lapa, com o seu rico altar barroco. Siga pela Rua das Carmelitas até à igreja do Carmo, cuja fachada lateral é toda de azulejo, e à igreja dos Carmelitas em frente. Pela Praça Guilherme Gomes Fernandes chegue à Capela das Almas — a igreja de azulejos mais reconhecível do Porto — e termine em Santo Ildefonso, com o enorme painel de azulejos na fachada ocidental. O percurso é quase todo pedonal e fica bem de manhã.",
+    "stops": [
+      {
+        "time": "10:00",
+        "note": "A igreja românica de Cedofeita, dos séculos XI–XII — a igreja mais antiga do Porto ainda de pé, reconstruída no interior em estilo barroco."
+      },
+      {
+        "time": "10:45",
+        "note": "A igreja da Lapa, com o seu rico altar barroco e a irmandade que a enriqueceu ao longo dos séculos."
+      },
+      {
+        "time": "11:35",
+        "note": "A igreja do Carmo: a fachada lateral é coberta de azulejos azuis e brancos, com a igreja dos Carmelitas ao lado."
+      },
+      {
+        "time": "12:15",
+        "note": "A Capela das Almas, na Rua de Santa Catarina: a fachada é um contínuo painel de azulejos com cenas da Paixão."
+      },
+      {
+        "time": "12:40",
+        "note": "A igreja de Santo Ildefonso, com o enorme painel de azulejos na fachada ocidental, voltada à Praça da Batalha."
+      }
+    ],
+    "legs": [
+      {
+        "note": "De Cedofeita para norte, até à igreja da Lapa."
+      },
+      {
+        "note": "Pela Rua das Carmelitas para sul, até à igreja do Carmo."
+      },
+      {
+        "note": "Pela Praça Guilherme Gomes Fernandes até à Rua de Santa Catarina."
+      },
+      {
+        "note": "Poucos minutos pela Rua de Santa Catarina até à Praça da Batalha."
+      }
+    ]
+  },
+  "museus-jardins": {
+    "name": "Museus e jardins",
+    "subtitle": "Soares dos Reis, Casa do Infante, a Alfândega, a Cordoaria e o Parque da Cidade",
+    "duration": "≈ 5 horas",
+    "description": "Um percurso pelos museus e pela verdura do Porto. Comece no Museu Nacional de Soares dos Reis, com escultura e pintura portuguesas, e desça ao rio até à Casa do Infante — a casa onde se diz ter nascido o infante D. Henrique. Siga o Douro até à Alfândega Nova, antiga alfândega e espaço de exposições, e suba à Cordoaria, antigo cordoal, com um largo sob plátanos antigos. O último troço é de táxi ou autocarro até ao Parque da Cidade, o grande parque urbano com lagos e dunas junto ao oceano. Vá em dia de semana: os museus fecham à segunda-feira, e o parque é bom em qualquer dia.",
+    "stops": [
+      {
+        "time": "10:00",
+        "note": "O Museu Nacional de Soares dos Reis: escultura e pintura portuguesas dos séculos XIX–XX no Palácio das Carrancas."
+      },
+      {
+        "time": "11:20",
+        "note": "A Casa do Infante, casa gótica do século XV onde se diz ter nascido o infante D. Henrique; hoje é o museu da cidade."
+      },
+      {
+        "time": "12:15",
+        "note": "A Alfândega Nova, de 1860 — antiga alfândega com estrutura de ferro, hoje centro de exposições e museu no Douro."
+      },
+      {
+        "time": "13:10",
+        "note": "A Cordoaria, antigo cordoal, hoje um largo sob plátanos antigos, junto à torre e ao hospital."
+      },
+      {
+        "time": "13:55",
+        "note": "O Parque da Cidade — o maior parque do Porto, com lagos, relvados e dunas que alcançam o Atlântico."
+      }
+    ],
+    "legs": [
+      {
+        "note": "Do museu Soares dos Reis, ruas abaixo até ao rio e à Casa do Infante."
+      },
+      {
+        "note": "Ao longo da margem do Douro até à Alfândega Nova."
+      },
+      {
+        "note": "Em subida, do rio até à Cordoaria."
+      },
+      {
+        "note": "O troço longo de táxi ou autocarro até ao Parque da Cidade; a bicicleta ao longo do rio é outra opção."
+      }
+    ]
   }
 }

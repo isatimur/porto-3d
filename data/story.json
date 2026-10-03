@@ -2,9 +2,9 @@
   "title_ru": "Порту: две тысячи лет",
   "title_en": "Porto: Two Thousand Years",
   "title_pt": "Porto: dois mil anos",
-  "subtitle_ru": "От Порта Кале до всемирного наследия — в десяти главах.",
-  "subtitle_en": "From Portus Cale to World Heritage, in ten chapters.",
-  "subtitle_pt": "De Portus Cale ao Património Mundial, em dez capítulos.",
+  "subtitle_ru": "От Порта Кале до всемирного наследия — в четырнадцати главах.",
+  "subtitle_en": "From Portus Cale to World Heritage, in fourteen chapters.",
+  "subtitle_pt": "De Portus Cale ao Património Mundial, em catorze capítulos.",
   "chapters": [
     {
       "id": "portus-cale",
@@ -102,6 +102,25 @@
       ]
     },
     {
+      "id": "ribeira-miragaia",
+      "era_ru": "XV–XVIII вв.",
+      "era_en": "15th–18th c.",
+      "era_pt": "séc. XV–XVIII",
+      "title_ru": "Рибейра и Мирагая",
+      "title_en": "Ribeira and Miragaia",
+      "title_pt": "A Ribeira e Miragaia",
+      "text_ru": "Средневековый Порту жил у воды. Две приходские общины тянулись вдоль берега Дору: Рибейра — торговая, с лодками, складами и таможней, и Мирагая — рыбацкая, с верфями и церковью Сан-Педру. Здесь строили корабли: в Рибейре снаряжали флот, ушедший в 1415 году в Сеуту, а позже отсюда выходили барки с бочками портвейна. Река поила город и время от времени его затапливала: наводнения сносили дома и мосты. Вдоль берега выросли таможенные постройки — старейшая таможня стояла у Рибейры, а в 1860 году ниже по реке поднялась новая Алфандега-Нова. До сих пор Рибейра и Мирагая остаются лицом Порту, обращённым к Дору.",
+      "text_en": "Medieval Porto lived by the water. Two parishes lined the bank of the Douro: the Ribeira, a trading quarter of boats, warehouses and customs, and Miragaia, a fishing quarter with shipyards and the church of São Pedro. Ships were built here: the fleet that sailed for Ceuta in 1415 was fitted out in the Ribeira, and later the boats carrying casks of port left from the same quay. The river fed the city and now and then drowned it, as floods swept away houses and bridges. Customs houses followed the shore — the oldest stood by the Ribeira, and in 1860 the new Alfândega Nova rose further downstream. To this day the Ribeira and Miragaia are Porto’s face turned towards the Douro.",
+      "text_pt": "O Porto medieval vivia da água. Duas freguesias alinhavam-se na margem do Douro: a Ribeira, bairro mercantil de barcos, armazéns e alfândega, e Miragaia, bairro piscatório com estaleiros e a igreja de São Pedro. Aqui se construíram navios: a frota que partiu para Ceuta em 1415 armou-se na Ribeira, e mais tarde os barcos que levavam pipas de vinho do Porto saíram do mesmo cais. O rio alimentava a cidade e, de tempos a tempos, afogava-a, com cheias que levavam casas e pontes. As alfândegas seguiram a margem — a mais antiga ficava na Ribeira, e em 1860 ergueu-se a nova Alfândega, rio abaixo. Até hoje a Ribeira e Miragaia são o rosto do Porto voltado ao Douro.",
+      "focus": ["ribeira", "miragaya-sao-pedro", "alfandega-nova"],
+      "time": "morning",
+      "sources": [
+        { "title": "Ribeira do Porto — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Ribeira_do_Porto" },
+        { "title": "Miragaia (Porto) — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Miragaia_(Porto)" },
+        { "title": "Alfândega Nova do Porto — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Edif%C3%ADcio_da_Alf%C3%A2ndega_Nova" }
+      ]
+    },
+    {
       "id": "vinho",
       "era_ru": "1756",
       "era_en": "1756",
@@ -121,6 +140,25 @@
       ]
     },
     {
+      "id": "gaia",
+      "era_ru": "XVI–XIX вв.",
+      "era_en": "16th–19th c.",
+      "era_pt": "séc. XVI–XIX",
+      "title_ru": "Гайя: монастырь и вино",
+      "title_en": "Gaia: Monastery and Wine",
+      "title_pt": "Gaia: mosteiro e vinho",
+      "text_ru": "Напротив Рибейры, на левом берегу Дору, лежит Гайя. На холме над рекой в 1538 году начали строить монастырь Серра-ду-Пилар — редкую для Португалии круглую церковь под куполом, окружённую галереей-клуатром. В 1832–1833 годах, во время осады Порту, именно с этого холма войска Мигела обстреливали город. Но Гайя вошла в историю прежде всего вином. С XVIII века на её набережной, Кайш-ди-Гайя, выросли винные погреба английских и португальских фирм — Sandeman, Graham’s, Taylor’s. Влажный воздух у реки помогал портвейну созревать, а барки-рабелу доставляли бочки с Верхнего Дору. И сегодня портвейн стареет в тёмных погребах Гайи, напротив старого Порту.",
+      "text_en": "Opposite the Ribeira, on the left bank of the Douro, lies Gaia. On the hill above the river the monastery of Serra do Pilar was begun in 1538 — a round church under a dome, rare in Portugal, ringed by a cloister gallery. In 1832–1833, during the Siege of Porto, it was from this hill that Miguel’s troops bombarded the city. But Gaia entered history above all through wine. From the 18th century its riverside, the Cais de Gaia, filled with the lodges of English and Portuguese houses — Sandeman, Graham’s, Taylor’s. The damp riverside air helped port mature, and rabelo boats brought the casks down from the Upper Douro. Port still ages in the dark lodges of Gaia, facing the old Porto.",
+      "text_pt": "Em frente à Ribeira, na margem esquerda do Douro, fica Gaia. No monte sobre o rio começou a erguer-se em 1538 o mosteiro da Serra do Pilar — uma igreja redonda sob uma cúpula, rara em Portugal, rodeada por uma galeria e claustro. Em 1832–1833, durante o Cerco do Porto, foi deste monte que as tropas de D. Miguel bombardearam a cidade. Mas Gaia entrou na história sobretudo pelo vinho. Desde o século XVIII, no seu cais, o Cais de Gaia, cresceram as caves de casas inglesas e portuguesas — Sandeman, Graham’s, Taylor’s. O ar húmido do rio ajudava o vinho do Porto a envelhecer, e os barcos rabelos traziam as pipas do Alto Douro. Ainda hoje o vinho do Porto estagia nas caves escuras de Gaia, defronte do velho Porto.",
+      "focus": ["serra-do-pilar", "cais-gaia", "caves-gaia"],
+      "time": "sunset",
+      "sources": [
+        { "title": "Mosteiro da Serra do Pilar — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Mosteiro_da_Serra_do_Pilar" },
+        { "title": "Vila Nova de Gaia — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Vila_Nova_de_Gaia" },
+        { "title": "Vinho do Porto — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Vinho_do_Porto" }
+      ]
+    },
+    {
       "id": "cerco",
       "era_ru": "1832–1833",
       "era_en": "1832–1833",
@@ -137,6 +175,46 @@
         { "title": "Siege of Porto — Wikipedia", "url": "https://en.wikipedia.org/wiki/Siege_of_Porto" },
         { "title": "Liberal Wars — Wikipedia", "url": "https://en.wikipedia.org/wiki/Liberal_Wars" },
         { "title": "Palácio da Bolsa — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Pal%C3%A1cio_da_Bolsa" }
+      ]
+    },
+    {
+      "id": "oitocentista",
+      "era_ru": "1834–1908",
+      "era_en": "1834–1908",
+      "era_pt": "1834–1908",
+      "title_ru": "Большие работы XIX века",
+      "title_en": "The Great Works of the 19th Century",
+      "title_pt": "As grandes obras do século XIX",
+      "text_ru": "После либеральных войн Порту принялся строить заново. В 1834 году у церкви Консейсан открылся рынок Больяу — крытый рынок нового типа, который и сегодня кормит город. В 1865 году в саду на западной окраине вырос Хрустальный дворец — Паласью-ди-Криштал, вдохновлённый лондонским Crystal Palace; вокруг него разбили парк с озёрами и аллеями. Ближе к концу века через старую сетку улиц прорубили Авенида душ Алиадуш — прямой проспект с ратушей и банками. В 1908 году в городе появился Колизей — театр-цирк с железным куполом. Камень и гранит Порту получили железо, стекло и новые проспекты: так родился современный город.",
+      "text_en": "After the Liberal Wars Porto set about rebuilding. In 1834 Bolhão market opened by the Conceição church — a covered market of a new kind that still feeds the city. In 1865 the Palácio de Cristal rose in a garden on the western edge, inspired by London’s Crystal Palace, with a park of lakes and avenues around it. Towards the end of the century Avenida dos Aliados was cut through the old street grid — a straight avenue of city hall and banks. In 1908 the Coliseum opened, a theatre-circus under an iron dome. Porto’s stone and granite gained iron, glass and new avenues: the modern city was born.",
+      "text_pt": "Depois das guerras liberais, o Porto pôs-se a reconstruir. Em 1834 abriu o Mercado do Bolhão, junto à igreja da Conceição — um mercado coberto de tipo novo, que ainda hoje alimenta a cidade. Em 1865 ergueu-se o Palácio de Cristal num jardim da zona ocidental, inspirado no Crystal Palace de Londres, com um parque de lagos e alamedas em volta. Já no fim do século, abriu-se a Avenida dos Aliados, rasgada na velha malha de ruas — uma avenida reta de Paços do Concelho e bancos. Em 1908 abriu o Coliseu, teatro-circo sob uma cúpula de ferro. A pedra e o granito do Porto ganharam ferro, vidro e avenidas novas: nascia a cidade moderna.",
+      "focus": ["mercado-bolhao", "palacio-cristal", "coliseu", "aliados"],
+      "time": "day",
+      "sources": [
+        { "title": "Palácio de Cristal — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Pal%C3%A1cio_de_Cristal_(Porto)" },
+        { "title": "Mercado do Bolhão — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Mercado_do_Bolh%C3%A3o" },
+        { "title": "Coliseu do Porto — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Coliseu_do_Porto" },
+        { "title": "Avenida dos Aliados — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Avenida_dos_Aliados" }
+      ]
+    },
+    {
+      "id": "campanha",
+      "era_ru": "1856–1916",
+      "era_en": "1856–1916",
+      "era_pt": "1856–1916",
+      "title_ru": "Кампанья и железные дороги",
+      "title_en": "Campanhã and the Railways",
+      "title_pt": "Campanhã e os caminhos de ferro",
+      "text_ru": "В 1856 году первый поезд связал Лиссабон с Каррегаду, и Порту стал ждать свою линию. Она пришла в 1877 году: на восточной окраине, в Кампанье, открылся вокзал — конечная Северной линии, а мост Марии Пии перевёл железную дорогу через Дору на юг. Поезда принесли в город уголь, зерно и людей и сделали Порту промышленным портом. В 1900 году начали строить новый центральный вокзал Сан-Бенту на месте бенедиктинского монастыря; его открыли в 1916 году, и вестибюль украсили двадцатью тысячами азулежу Жоржи Коласу. Так рельсы вошли в самое сердце старого города.",
+      "text_en": "In 1856 the first train linked Lisbon to Carregado, and Porto waited for its own line. It arrived in 1877: on the eastern edge, at Campanhã, a station opened as the terminus of the Northern Line, while the Maria Pia bridge carried the railway across the Douro to the south. Trains brought coal, grain and people and made Porto an industrial port. In 1900 work began on a new central station, São Bento, on the site of a Benedictine monastery; it opened in 1916, its hall decorated with twenty thousand azulejos by Jorge Colaço. So the rails reached the very heart of the old city.",
+      "text_pt": "Em 1856, o primeiro comboio ligou Lisboa ao Carregado, e o Porto esperou pela sua linha. Chegou em 1877: na periferia oriental, em Campanhã, abriu uma estação como terminal da Linha do Norte, enquanto a ponte de Maria Pia levava o caminho de ferro através do Douro para sul. Os comboios trouxeram carvão, cereais e gente, e fizeram do Porto um porto industrial. Em 1900 começou a construir-se uma nova estação central, São Bento, no lugar de um mosteiro beneditino; abriu em 1916, com o vestíbulo decorado por vinte mil azulejos de Jorge Colaço. Assim os carris chegaram ao coração da cidade velha.",
+      "focus": ["campanha", "sao-bento", "ponte-maria-pia"],
+      "time": "day",
+      "sources": [
+        { "title": "Estação de Campanhã — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Esta%C3%A7%C3%A3o_Ferrovi%C3%A1ria_de_Porto-Campanh%C3%A3" },
+        { "title": "Estação de São Bento — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Esta%C3%A7%C3%A3o_Ferrovi%C3%A1ria_de_Porto-S%C3%A3o_Bento" },
+        { "title": "Linha do Norte — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Linha_do_Norte" },
+        { "title": "Ponte de Maria Pia — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Ponte_de_Maria_Pia" }
       ]
     },
     {

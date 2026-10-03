@@ -515,3 +515,252 @@ export function createPeople({ lanes, spots, max, lite, shadows = false }) {
     },
   };
 }
+
+// ------------------------------------------------------------ crowd
+// A second, lighter population: walkers on fixed promenade paths (the quays
+// and avenues of the centre). porto-streetscape.js builds the paths from the
+// road network, so Porto's street life is alive even before
+// streetscape.json / pois.json land. One instanced draw, the same figure and
+// walk shader as the lane walkers; culled by distance and by the hour.
+// paths: [{ x, z, y: Float32Array, half: world units, ped: bool }]
+export function createCrowd({ paths, max, lite, reducedMotion = false }) {
+  const list = (paths || []).filter((p) => p && p.x && p.x.length >= 2);
+  if (!list.length || max < 1) return null;
+  const uniforms = { uPTime: { value: 0 } };
+  const geo = figure(lite);
+  const cap = Math.max(1, Math.round(reducedMotion ? max * 0.6 : max));
+  const iAnim = new THREE.InstancedBufferAttribute(new Float32Array(cap * 4), 4).setUsage(THREE.DynamicDrawUsage);
+  const iLook = new THREE.InstancedBufferAttribute(new Float32Array(cap * 4), 4).setUsage(THREE.DynamicDrawUsage);
+  geo.setAttribute('iAnim', iAnim);
+  geo.setAttribute('iLook', iLook);
+  const mesh = new THREE.InstancedMesh(geo, peopleMaterial(uniforms), cap);
+  mesh.name = 'porto-people';
+  mesh.frustumCulled = false;
+  mesh.castShadow = false;
+  mesh.receiveShadow = !lite;
+  mesh.count = 0;
+  mesh.visible = false;
+  mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  mesh.setColorAt(0, SHIRTS[0]);
+  mesh.instanceColor.setUsage(THREE.DynamicDrawUsage);
+
+  // cumulative arc length per path (world units)
+  const cum = list.map((p) => {
+    const n = p.x.length;
+    const c = new Float32Array(n);
+    let s = 0;
+    for (let i = 1; i < n; i++) {
+      s += Math.hypot(p.x[i] - p.x[i - 1], p.z[i] - p.z[i - 1]);
+      c[i] = s;
+    }
+    return c;
+  });
+  const total = cum.map((c) => c[c.length - 1] || 1);
+  const rnd = lcg(90210);
+  const base = reducedMotion ? 0.45 : 1;
+
+  const P = new Int32Array(cap); // path
+  const SS = new Float32Array(cap); // arc length along it
+  const D = new Int8Array(cap);
+  const V = new Float32Array(cap); // world units / s
+  const F = new Float32Array(cap); // lateral -1..1
+  const PH = new Float32Array(cap);
+  const CAD = new Float32Array(cap);
+  const SH = new Uint8Array(cap);
+  const PA = new Uint8Array(cap);
+  const SK = new Uint8Array(cap);
+  const SC = new Float32Array(cap);
+  const place = (i, pi) => {
+    P[i] = pi;
+    SS[i] = rnd() * total[pi];
+    D[i] = rnd() < 0.5 ? 1 : -1;
+    V[i] = (1.05 + rnd() * 0.5) * S * base;
+    F[i] = rnd() * 2 - 1;
+    PH[i] = rnd() * 6.283;
+    SH[i] = Math.floor(rnd() * SHIRTS.length);
+    PA[i] = Math.floor(rnd() * PANTS.length);
+    SK[i] = rnd() < 0.78 ? 0 : rnd() < 0.6 ? 1 : 2;
+    SC[i] = 0.92 + rnd() * 0.16;
+    CAD[i] = (0.9 + rnd() * 0.2) * base;
+  };
+
+  // paths near the focus (their samples within R)
+  let near = [];
+  let candX = Infinity;
+  let candZ = Infinity;
+  function gather(fx, fz, R) {
+    candX = fx;
+    candZ = fz;
+    const R2 = R * R;
+    near = [];
+    for (let pi = 0; pi < list.length; pi++) {
+      const p = list[pi];
+      for (let k = 0; k < p.x.length; k += 3) {
+        if ((p.x[k] - fx) ** 2 + (p.z[k] - fz) ** 2 < R2) {
+          near.push(pi);
+          break;
+        }
+      }
+    }
+  }
+
+  const pos = { x: 0, y: 0, z: 0, hx: 0, hz: 1 };
+  function locate(i) {
+    const p = list[P[i]];
+    const c = cum[P[i]];
+    const n = p.x.length;
+    let s = SS[i];
+    if (s < 0) s = 0;
+    if (s > c[n - 1]) s = c[n - 1];
+    let lo = 0;
+    let hi = n - 1;
+    while (lo + 1 < hi) {
+      const m = (lo + hi) >> 1;
+      if (c[m] <= s) lo = m;
+      else hi = m;
+    }
+    const seg = c[hi] - c[lo] || 1;
+    const u = (s - c[lo]) / seg;
+    const ax = p.x[lo];
+    const az = p.z[lo];
+    let tx = p.x[hi] - ax;
+    let tz = p.z[hi] - az;
+    const L = Math.hypot(tx, tz) || 1;
+    tx /= L;
+    tz /= L;
+    // pedestrians keep to the middle; along a carriageway they walk the kerb
+    const side = p.ped ? 1 : F[i] >= 0 ? 1 : -1;
+    const h = p.ped ? F[i] * (p.half - 0.35 * S) : p.half + (1.0 + 0.25 * Math.abs(F[i])) * S;
+    pos.x = ax + (p.x[hi] - ax) * u - tz * h * side;
+    pos.z = az + (p.z[hi] - az) * u + tx * h * side;
+    pos.y = p.y[lo] + (p.y[hi] - p.y[lo]) * u;
+    pos.hx = tx * D[i];
+    pos.hz = tz * D[i];
+    return pos;
+  }
+  function step(i, dt) {
+    const L = total[P[i]];
+    let s = SS[i] + D[i] * V[i] * dt;
+    if (s < 0) {
+      s = -s;
+      D[i] = 1;
+    } else if (s > L) {
+      s = 2 * L - s;
+      D[i] = -1;
+    }
+    if (s < 0) s = 0;
+    if (s > L) s = L;
+    SS[i] = s;
+  }
+  function inView(frustum, x, y, z, r) {
+    const pl = frustum.planes;
+    for (let k = 0; k < 6; k++) if (pl[k].normal.x * x + pl[k].normal.y * y + pl[k].normal.z * z + pl[k].constant < -r) return false;
+    return true;
+  }
+
+  const E = mesh.instanceMatrix.array;
+  const C = mesh.instanceColor.array;
+  const IA = iAnim.array;
+  const IL = iLook.array;
+  function write(n, x, y, z, hx, hz, sc, shirt, pants, skin, ph, walk, cad) {
+    const o = n * 16;
+    E[o] = hz * sc;
+    E[o + 1] = 0;
+    E[o + 2] = -hx * sc;
+    E[o + 3] = 0;
+    E[o + 4] = 0;
+    E[o + 5] = sc;
+    E[o + 6] = 0;
+    E[o + 7] = 0;
+    E[o + 8] = hx * sc;
+    E[o + 9] = 0;
+    E[o + 10] = hz * sc;
+    E[o + 11] = 0;
+    E[o + 12] = x;
+    E[o + 13] = y;
+    E[o + 14] = z;
+    E[o + 15] = 1;
+    const c = SHIRTS[shirt];
+    C[n * 3] = c.r;
+    C[n * 3 + 1] = c.g;
+    C[n * 3 + 2] = c.b;
+    const p = PANTS[pants];
+    IL[n * 4] = p.r;
+    IL[n * 4 + 1] = p.g;
+    IL[n * 4 + 2] = p.b;
+    IL[n * 4 + 3] = skin;
+    IA[n * 4] = ph;
+    IA[n * 4 + 1] = walk;
+    IA[n * 4 + 2] = 0;
+    IA[n * 4 + 3] = cad;
+  }
+
+  let active = 0;
+  let shown = 0;
+  let wasOn = false;
+  let time = 0;
+  function update(dt, camera, frustum, { fx, fz, R, on, demand = 1 }) {
+    time += dt;
+    uniforms.uPTime.value = time;
+    if (!on) {
+      mesh.visible = false;
+      shown = 0;
+      wasOn = false;
+      return;
+    }
+    const moved = (fx - candX) ** 2 + (fz - candZ) ** 2;
+    if (moved > 12 * 12 || !near.length) gather(fx, fz, R);
+    if (!near.length) {
+      mesh.visible = false;
+      shown = 0;
+      return;
+    }
+    const want = Math.min(cap, Math.max(0, Math.round((cap * demand) / DEMAND_MAX)));
+    if (!wasOn || moved > R * R * 0.25) {
+      for (let i = 0; i < want; i++) place(i, near[Math.floor(rnd() * near.length)]);
+    } else {
+      for (let i = active; i < want; i++) place(i, near[Math.floor(rnd() * near.length)]);
+    }
+    active = want;
+    wasOn = true;
+    const cx = camera.position.x;
+    const cz = camera.position.z;
+    const R2 = R * R;
+    const RV2 = (R * 1.05) ** 2;
+    let n = 0;
+    for (let i = 0; i < active; i++) {
+      if (dt > 0) step(i, dt);
+      const p = locate(i);
+      if ((p.x - fx) ** 2 + (p.z - fz) ** 2 > R2) {
+        place(i, near[Math.floor(rnd() * near.length)]);
+        continue;
+      }
+      if (n >= cap || (p.x - cx) ** 2 + (p.z - cz) ** 2 > RV2 * 1.6 || !inView(frustum, p.x, p.y + 0.2, p.z, 0.6)) continue;
+      write(n++, p.x, p.y, p.z, p.hx, p.hz, SC[i], SH[i], PA[i], SK[i], PH[i], reducedMotion ? 0.4 : 1, CAD[i]);
+    }
+    shown = n;
+    mesh.count = n;
+    mesh.visible = n > 0;
+    if (n) {
+      for (const [a, k] of [
+        [mesh.instanceMatrix, 16],
+        [mesh.instanceColor, 3],
+        [iAnim, 4],
+        [iLook, 4],
+      ]) {
+        a.clearUpdateRanges();
+        a.addUpdateRange(0, n * k);
+        a.needsUpdate = true;
+      }
+    }
+  }
+
+  return {
+    object: mesh,
+    update,
+    stats: { paths: list.length, max: cap, reducedMotion, trianglesEach: geo.attributes.position.count / 3 },
+    get shown() {
+      return shown;
+    },
+  };
+}

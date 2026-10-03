@@ -4,12 +4,13 @@
 //   node scripts/make-og.mjs --pages    # public/p/<id>/index.html only (fast, no browser)
 //   node scripts/make-og.mjs --icons    # public/icons/*.png
 //   node scripts/make-og.mjs --og       # public/og/<city>.jpg + public/og/<id>.jpg
-//   node scripts/make-og.mjs --og --only=se-braga,hero
-//   add --city <id> for another city (default braga)
+//   node scripts/make-og.mjs --og --only=ribeira,hero
+//   add --city <id> for another city (default porto)
 //
 // The OG renders need the app running (default: the Vite dev server,
-// CITY_URL or BRAGA_URL=http://localhost:5173). They use a headless Chromium with
-// SwiftShader, like the other screenshot scripts. PLAYWRIGHT_CORE and
+// CITY_URL or BRAGA_URL=http://localhost:5174 for porto-3d). They use a headless
+// Chromium with SwiftShader, like the other screenshot scripts. The hero camera
+// is overridable with CITY_HERO_FROM / CITY_HERO (JSON). PLAYWRIGHT_CORE and
 // CHROME_PATH override the paths below.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
@@ -17,13 +18,22 @@ import { existsSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { CITY } from './city-lib.mjs';
 
-// --city <id> picks the city (default braga). Braga reads src/locales/{en,pt}.js,
-// other cities src/locales/{en,pt}.<id>.js (an absent file counts as empty).
+// --city <id> picks the city (default porto). Porto reads
+// src/locales/{en,pt}.porto.js, Braga src/locales/{en,pt}.js, other cities
+// src/locales/{en,pt}.<id>.js (an absent file counts as empty).
 const ROOT = resolve(import.meta.dirname, '..');
-if (!CITY.domain) console.warn(`warning: cities/${CITY.id}.json has no domain; share pages use http://localhost:5173`);
-const SITE = CITY.domain || 'http://localhost:5173';
+// The window global main.js exposes its debug handle on (__porto, __braga, ...).
+const GLOBAL = process.env.CITY_GLOBAL || (CITY.id === 'braga' ? '__braga' : `__${CITY.id}`);
+// The canonical site for share/canonical tags. porto-3d.com is the real host
+// even though cities/porto.json leaves `domain` null (one Vercel project per
+// city); the local dev server is only the render target.
+const SITE = CITY.domain || (CITY.id === 'porto' ? 'https://porto-3d.com' : 'http://localhost:5173');
+if (!CITY.domain && CITY.id !== 'porto') console.warn(`warning: cities/${CITY.id}.json has no domain; share pages use http://localhost:5173`);
 const CITY_NAME = `${CITY.name.en} 3D`;
-const BASE = process.env.CITY_URL || process.env.BRAGA_URL || 'http://localhost:5173';
+// The dev server to render from: porto-3d runs on 5174 in this workspace
+// (5173 is taken by another project), so the port follows the city.
+const DEV_PORT = process.env.PORT || (CITY.id === 'porto' ? 5174 : 5173);
+const BASE = process.env.CITY_URL || process.env.BRAGA_URL || `http://localhost:${DEV_PORT}`;
 const CITY_QUERY = CITY.id === 'braga' ? '' : `&city=${CITY.id}`;
 const PLAYWRIGHT_CORE =
   process.env.PLAYWRIGHT_CORE ||
@@ -148,31 +158,40 @@ async function launch() {
 }
 
 // ------------------------------------------------------------ icons
-// A stylised Bom Jesus: the zigzag stair climbing to a two-tower church,
-// gold on the app's dark ink.
+// A stylised Douro bridge: a single concrete arch (the Ponte da Arrábida)
+// carrying the road deck between two river piers, gold on the app's dark ink.
 function iconSvg({ maskable = false } = {}) {
   const inset = maskable ? 0.16 : 0.06;
   const s = 512;
   const a = s * inset;
   const k = (s - 2 * a) / 100; // drawing on a 100-unit grid
   const P = (x, y) => `${(a + x * k).toFixed(1)},${(a + y * k).toFixed(1)}`;
-  const stair = [
-    [18, 92], [82, 92], [82, 84], [26, 84], [26, 76], [74, 76], [74, 68], [34, 68], [34, 60], [66, 60], [66, 52],
+  // Parabola from the left springing to the right, apex just under the deck.
+  const arch = `M${P(15, 87)} Q${P(50, -11)} ${P(85, 87)}`;
+  // Spandrel columns from the deck down to the arch (x, arch y).
+  const columns = [
+    [28, 61],
+    [39, 45],
+    [50, 38],
+    [61, 45],
+    [72, 61],
   ];
+  // Calm Douro water: four gentle humps under the piers.
+  const water = `M${P(5, 92)} q${(11 * k).toFixed(1)} ${(-3.5 * k).toFixed(1)} ${(22 * k).toFixed(1)} 0 t${(22 * k).toFixed(1)} 0 t${(22 * k).toFixed(1)} 0 t${(22 * k).toFixed(1)} 0`;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s} ${s}" width="${s}" height="${s}">
   <rect width="${s}" height="${s}" rx="${maskable ? 0 : s * 0.2}" fill="#14110d"/>
   <radialGradient id="glow" cx="50%" cy="38%" r="60%"><stop offset="0" stop-color="#3a2a14"/><stop offset="1" stop-color="#14110d" stop-opacity="0"/></radialGradient>
   <rect width="${s}" height="${s}" rx="${maskable ? 0 : s * 0.2}" fill="url(#glow)"/>
-  <g fill="none" stroke="#e0a948" stroke-width="${(3.2 * k).toFixed(1)}" stroke-linejoin="round" stroke-linecap="round">
-    <polyline points="${stair.map(([x, y]) => P(x, y)).join(' ')}"/>
+  <g fill="none" stroke="#e0a948" stroke-width="${(2.8 * k).toFixed(1)}" stroke-linejoin="round" stroke-linecap="round">
+    <path d="${arch}"/>
+    ${columns.map(([x, y]) => `<line x1="${(a + x * k).toFixed(1)}" y1="${(a + 33 * k).toFixed(1)}" x2="${(a + x * k).toFixed(1)}" y2="${(a + y * k).toFixed(1)}"/>`).join('')}
+    <path d="${water}" opacity="0.75"/>
   </g>
   <g fill="#e0a948">
-    <path d="M${P(36, 50)} L${P(36, 30)} L${P(42, 30)} L${P(42, 22)} L${P(45, 16)} L${P(48, 22)} L${P(48, 30)}
-             L${P(52, 30)} L${P(52, 22)} L${P(55, 16)} L${P(58, 22)} L${P(58, 30)} L${P(64, 30)} L${P(64, 50)} Z"/>
+    <rect x="${(a + 12 * k).toFixed(1)}" y="${(a + 32 * k).toFixed(1)}" width="${(7 * k).toFixed(1)}" height="${(57 * k).toFixed(1)}" rx="${(1.6 * k).toFixed(1)}"/>
+    <rect x="${(a + 81 * k).toFixed(1)}" y="${(a + 32 * k).toFixed(1)}" width="${(7 * k).toFixed(1)}" height="${(57 * k).toFixed(1)}" rx="${(1.6 * k).toFixed(1)}"/>
+    <rect x="${(a + 7 * k).toFixed(1)}" y="${(a + 28 * k).toFixed(1)}" width="${(86 * k).toFixed(1)}" height="${(5 * k).toFixed(1)}" rx="${(2 * k).toFixed(1)}"/>
   </g>
-  <path d="M${P(47, 50)} L${P(47, 40)} Q${P(50, 36)} ${P(53, 40)} L${P(53, 50)} Z" fill="#14110d"/>
-  <rect x="${a + 49.2 * k}" y="${a + 8 * k}" width="${1.6 * k}" height="${7 * k}" fill="#e0a948"/>
-  <rect x="${a + 47 * k}" y="${a + 10.2 * k}" width="${6 * k}" height="${1.6 * k}" fill="#e0a948"/>
 </svg>`;
 }
 async function makeIcons() {
@@ -205,14 +224,15 @@ export function removeStyle(id){document.querySelector('style[data-vite-dev-id="
 export function injectQuery(u){return u}
 export class ErrorOverlay extends HTMLElement {}`;
 
-// Hero: golden hour from behind the sanctuary, looking over the Bom Jesus
-// stair toward the Sé and the setting sun. World units (1 unit = 4 m) on
-// the line from Bom Jesus to the Sé: the camera sits `back` behind the
-// sanctuary and `up` above the ground, `side` to its right; the target is
-// `ahead` of it toward the city (kept close: far targets switch the roads
-// to their thick overview glow).
-const HERO_FROM = process.env.CITY_HERO_FROM || 'bom-jesus'; // Braga-specific default
-const HERO = JSON.parse(process.env.BRAGA_HERO || 'null') || { back: 120, up: 38, side: 35, ahead: 120, lift: 48 };
+// Hero: golden hour from the Gaia hillside, looking across the Douro to the
+// Ribeira and the bridges. World units (1 unit = 4 m). The camera sits `back`
+// behind the `from` landmark and `up` above the ground, `side` to its right;
+// the target is `ahead` of it toward the city (kept close: far targets switch
+// the roads to their thick overview glow).
+const HERO_FROM = process.env.CITY_HERO_FROM || (CITY.id === 'porto' ? 'serra-do-pilar' : 'bom-jesus');
+const HERO = JSON.parse(process.env.CITY_HERO || process.env.BRAGA_HERO || 'null') || (CITY.id === 'porto'
+  ? { back: 70, up: 26, side: 22, ahead: 95, lift: 30 }
+  : { back: 120, up: 38, side: 35, ahead: 120, lift: 48 });
 
 async function makeOg() {
   const b = browser || (await launch());
@@ -226,19 +246,40 @@ async function makeOg() {
     if (m.type() === 'error') errors.push(t.slice(0, 300));
   });
   page.on('pageerror', (e) => errors.push(`[pageerror] ${e.message}`));
-  await page.goto(`${BASE}/?intro=0&fx=1&ui=0&lang=en${CITY_QUERY}#time=sunset`, { waitUntil: 'load' });
-  await page.waitForFunction(() => window.__braga?.ready && window.__braga.postcard, null, { timeout: 240000 });
+  // fx=0 on purpose: under SwiftShader the EffectComposer's final pass is
+  // intermittently not composited when a screenshot lands, which produced
+  // blank (uniform-ink) OG frames. The plain renderer path is stable; the
+  // postcard still reads (sunset lighting is in the scene, not the bloom).
+  await page.goto(`${BASE}/?intro=0&fx=0&ui=0&lang=en${CITY_QUERY}#time=sunset`, { waitUntil: 'load' });
+  // SwiftShader at 2x is slow (the boot can take a couple of minutes under
+  // contention), so poll on an interval rather than on rAF and allow a long
+  // budget: the page is done when __porto.ready is true.
+  await page.waitForFunction((g) => window[g]?.ready, GLOBAL, { timeout: 600000, polling: 1000 });
   await page.waitForTimeout(2500);
+  // Wait for `n` freshly rendered frames after a pose change (SwiftShader
+  // frames can take seconds when other browsers share the CPU).
+  const waitFrames = async (n) => {
+    const before = await page.evaluate((g) => window[g].frames || 0, GLOBAL);
+    await page
+      .waitForFunction(({ b, n, g }) => (window[g].frames || 0) >= b + n, { b: before, n, g: GLOBAL }, { timeout: 180000, polling: 250 })
+      .catch(() => {});
+  };
   const shoot = async (name) => {
-    // SwiftShader frames can take seconds when other browsers share the CPU
-    const buf = await page.screenshot({ type: 'jpeg', quality: 82, timeout: 180000 });
-    write(resolve(ROOT, `public/og/${name}.jpg`), buf);
+    let best = null;
+    for (let i = 0; i < 3; i++) {
+      if (i) await page.waitForTimeout(2500);
+      const buf = await page.screenshot({ type: 'jpeg', quality: 82, timeout: 180000 });
+      if (!best || buf.length > best.length) best = buf;
+      if (buf.length > 12000) break;
+    }
+    if (best.length <= 12000) console.warn(`  ${name}: frame looks blank (${(best.length / 1024).toFixed(0)} KB)`);
+    write(resolve(ROOT, `public/og/${name}.jpg`), best);
   };
 
   if (!only.length || only.includes('hero')) {
-    // The hero looks from `from` (Braga: the Bom Jesus sanctuary) toward the start landmark.
-    const heroOk = await page.evaluate(({ hero, from, to }) => {
-      const d = window.__braga;
+    // The hero looks from `from` (Porto: the Serra do Pilar) toward the start landmark.
+    const heroOk = await page.evaluate(({ hero, from, to, g }) => {
+      const d = window[g];
       const bj = d.landmarks.find((l) => l.id === from);
       const se = d.landmarks.find((l) => l.id === to);
       if (!bj || !se) return false;
@@ -251,23 +292,50 @@ async function makeOg() {
       pos.y = d.heightAt(pos.x, pos.z) + hero.up;
       d.rig.flyTo(pos, tgt, 0.3);
       return true;
-    }, { hero: HERO, from: HERO_FROM, to: CITY.start_view?.landmark });
+    }, { hero: HERO, from: HERO_FROM, to: CITY.start_view?.landmark, g: GLOBAL });
     if (heroOk) {
-      await page.waitForTimeout(3500);
+      await waitFrames(2);
       await shoot(CITY.id);
     } else console.warn(`  hero: landmark ${HERO_FROM} or ${CITY.start_view?.landmark} missing, skipped`);
   }
+  // Per-landmark shots: aim the camera ourselves from the landmark geometry
+  // (base/top, size) toward the city (Ribeira). The app's own select()-and-
+  // frame path left the camera in a dark pose under the OG context, so we
+  // script the pose with rig.flyTo and verify the frame is not blank.
   for (const l of list) {
     if (only.length && !only.includes(l.id)) continue;
-    const before = await page.evaluate(() => window.__braga.flights);
-    await page.evaluate((id) => {
-      window.__braga.close?.();
-      location.hash = `place=${id}&time=sunset`;
-    }, l.id);
-    await page
-      .waitForFunction((n) => window.__braga.flights > n, before, { timeout: 60000 })
-      .catch(() => console.warn(`  ${l.id}: no flight end seen, shooting anyway`));
-    await page.waitForTimeout(1800);
+    const posed = await page.evaluate(({ id, g }) => {
+      const d = window[g];
+      const all = d.landmarks;
+      const lm = all.find((x) => x.id === id);
+      if (!lm) return false;
+      const V = d.camera.position.constructor;
+      const ref = all.find((x) => x.id === (id === 'ribeira' ? 'clerigos' : 'ribeira')) || lm;
+      const gnd = d.heightAt(lm.x, lm.z);
+      const base = Math.max(Number.isFinite(lm.base) ? lm.base : gnd, gnd - 0.5);
+      const top = Math.max(Number.isFinite(lm.top) ? lm.top : 0, base + 6);
+      const height = top - base;
+      let dx = ref.x - lm.x;
+      let dz = ref.z - lm.z;
+      let len = Math.hypot(dx, dz);
+      if (len < 1) { dx = 0; dz = 1; len = 1; }
+      dx /= len;
+      dz /= len;
+      // distance follows the subject's real extent (debug.landmarks is in
+      // world units; size_m is in metres, 1 unit = 4 m)
+      const big = Math.max(lm.size_m?.[0] || 14, lm.size_m?.[2] || 14, 14) / 4;
+      const dist = Math.min(Math.max(big * 2.4 + 22, 38), 240);
+      const side = dist * 0.3;
+      const up = Math.max(dist * 0.42 + height * 0.6, 22);
+      const tgt = new V(lm.x, base + height * 0.5, lm.z);
+      const dir = new V(dx, 0, dz);
+      const pos = new V(lm.x, 0, lm.z).addScaledVector(dir, -dist).addScaledVector(new V(-dz, 0, dx), side);
+      pos.y = Math.max(d.heightAt(pos.x, pos.z) + up, gnd + height + 16);
+      d.rig.flyTo(pos, tgt, 0.3);
+      return true;
+    }, { id: l.id, g: GLOBAL });
+    if (!posed) { console.warn(`  ${l.id}: missing from __porto.landmarks, skipped`); continue; }
+    await waitFrames(2);
     await shoot(l.id);
   }
   if (errors.length) console.warn('console errors:\n' + errors.join('\n'));

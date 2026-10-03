@@ -181,7 +181,7 @@ for (const l of landmarks) {
 const routesFile = readJson(dataPath('routes.json'));
 const routes = routesFile.routes;
 const MODES = new Set(['foot', 'bus', 'funicular', 'taxi']);
-if (!Array.isArray(routes) || routes.length !== 3) err('routes', 'need exactly 3 routes');
+if (!Array.isArray(routes) || routes.length < 3) err("routes", "need at least 3 routes");
 for (const r of routes || []) {
   const w = `route ${r.id}`;
   for (const k of ['id', 'name_ru', 'subtitle_ru', 'color', 'duration_ru', 'distance_km', 'description_ru', 'stops', 'legs']) if (!(k in r)) err(w, `missing ${k}`);

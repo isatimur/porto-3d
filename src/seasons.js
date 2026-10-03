@@ -1,4 +1,4 @@
-// Four seasons over Braga (3d-four-seasons skill, MengTo), and the render
+// Four seasons over Porto (3d-four-seasons skill, MengTo) and the render
 // quality switch (3d-retina-resolution).
 //
 // One shared state: blend weights [spring, summer, fall, winter] that start
@@ -6,21 +6,26 @@
 // 2.5 s), it never queues or restarts. Every consumer resolves its look from
 // its authored base values and these weights each frame, so nothing drifts:
 //
-//   - foliage (nature.js): per species and per crown: fresh green and
-//     blossom in spring, deep green in summer, ochre and rust on the
-//     broadleaf crowns in autumn while the eucalyptus and pines stay green,
-//     bare shrunken crowns in winter (the shadows follow);
+//   - foliage (nature.js): fresh green and blossom in spring, deep green in
+//     summer, ochre and rust on the broadleaf crowns in autumn while the
+//     eucalyptus and pines stay green, bare shrunken crowns in winter (the
+//     shadows follow);
 //   - ground (scene.js): grass and field tints, the woods turning in patches;
-//   - snow (scene.js chunk patch): settled snow above ~450 m (Sameiro, the
-//     top of Bom Jesus), a light dusting on the roofs, frost below;
+//   - snow (scene.js chunk patch): the line sits above Porto's highest hill,
+//     so settled snow effectively never lands; only a cold-snap frost and a
+//     faint roof dusting in winter (Porto is mild and oceanic);
 //   - light (scene.js applySeason): sun height and bearing, colour
 //     temperature and haze on top of the time of day and the weather;
-//   - particles: petals in spring and leaves in autumn (leaves.js), slow
-//     snow flakes in winter (weather.js), a faint heat haze in summer
+//   - particles: petals in spring and leaves in autumn (leaves.js), rare
+//     slow flakes in winter (weather.js), a faint heat haze in summer
 //     (effects.js).
 //
-// Default: the real season in Braga for today's date. Saved in localStorage
-// and in the hash as season= (when it differs from today's season).
+// Porto-correct climate (weather.js setClimate): winter is wet, misty and
+// dull, autumn damp and golden, spring fresh, summer dry and bright. The
+// bias is mild and rides on top of whatever weather state is chosen.
+//
+// Default: the real season for today's date. Saved in localStorage and in
+// the hash as season= (when it differs from today's season).
 //
 // Quality «авто · 2x»: auto follows the device pixel ratio (main.js caps it
 // at 2); 2x renders two drawing-buffer pixels per CSS pixel everywhere.
@@ -36,14 +41,14 @@ import { createLeaves } from './leaves.js';
 export const SEASONS = ['spring', 'summer', 'fall', 'winter'];
 const LABEL = { spring: 'весна', summer: 'лето', fall: 'осень', winter: 'зима' };
 const PRESETS = { spring: [1, 0, 0, 0], summer: [0, 1, 0, 0], fall: [0, 0, 1, 0], winter: [0, 0, 0, 1] };
-const SNOW_LINE_M = 450; // metres above sea level
+const SNOW_LINE_M = 450; // metres above sea level; above every Porto hill (~373 m)
 const STORE = 'porto-season';
 const STORE_Q = 'porto-quality';
 
 const norm = (name) => (name === 'autumn' ? 'fall' : name);
 const hashName = (key) => (key === 'fall' ? 'autumn' : key);
 
-// Astronomical seasons for the northern hemisphere (Braga, 41.5 N).
+// Astronomical seasons for the northern hemisphere (Porto, 41.15 N).
 export function seasonForDate(d = new Date()) {
   const md = (d.getMonth() + 1) * 100 + d.getDate();
   if (md >= 320 && md < 621) return 'spring';
@@ -226,6 +231,7 @@ export function createSeasons({ renderer, scene, camera, atmosphere, nature, fx,
   const light = { dir: atmosphere.sunDir, color: new THREE.Color(), ambient: new THREE.Color() };
   const _amb = new THREE.Color();
   const mix = { spring: 0, summer: 1, fall: 0, winter: 0 };
+  const climate = { mist: 0, fog: 0, haze: 0, grey: 0, swell: 0 };
   let sinceStats = 1;
   let sinceHash = 0;
   function update(dt) {
@@ -244,10 +250,21 @@ export function createSeasons({ renderer, scene, camera, atmosphere, nature, fx,
     SW.z = fa;
     SW.w = wi;
     const sm = THREE.MathUtils.smoothstep;
-    SN.x = sm(wi, 0.35, 0.95);
-    SN.y = 0.34 * sm(wi, 0.4, 1);
-    SN.w = 0.35 * wi;
+    // settled snow is gated by a line above Porto's highest hill, so the only
+    // winter white is a cold-snap frost and a faint dusting on the roofs
+    SN.x = 0.4 * sm(wi, 0.6, 1);
+    SN.y = 0.06 * sm(wi, 0.55, 1);
+    SN.w = 0.22 * wi;
     atmosphere.setSeason(weights);
+
+    // Porto-correct climate on top of the weather state (weather.js):
+    // winter wet and misty, autumn damp, spring fresh, summer dry and bright
+    climate.mist = 0.06 * sp + 0.01 * su + 0.2 * fa + 0.34 * wi;
+    climate.fog = 0.04 * sp + 0.1 * fa + 0.2 * wi;
+    climate.haze = 0.05 * sp + 0.12 * fa + 0.16 * wi;
+    climate.grey = 0.03 * sp + 0.07 * fa + 0.13 * wi;
+    climate.swell = 0.32 * wi + 0.12 * fa; // Atlantic westerlies roughen the sea
+    weather?.setClimate?.(climate);
 
     // particles
     mix.spring = sp;
@@ -261,7 +278,7 @@ export function createSeasons({ renderer, scene, camera, atmosphere, nature, fx,
     const camDist = focus ? camera.position.distanceTo(focus) : 300;
     leaves.update(reducedMotion ? 0 : dt, camera, camDist, mix, weather?.wind, light);
     const px = (renderer.getDrawingBufferSize(_db).y * 0.5) * camera.projectionMatrix.elements[5];
-    weather?.setSnow?.(wi * 0.6, px);
+    weather?.setSnow?.(wi * 0.1, px); // Porto rarely sees a flake: a hint, not a fall
     fx?.setHaze?.(fx.enabled ? su * 0.8 * (1 - atmosphere.night) * (reducedMotion ? 0 : 1) : 0);
 
     // a saved 2x waits for the low-end probe (or 6 s when there is none)
@@ -296,8 +313,10 @@ export function createSeasons({ renderer, scene, camera, atmosphere, nature, fx,
         season,
         today,
         weights: weights.map((w) => +w.toFixed(3)),
+        climate: { ...climate },
         leaves: { ...leaves.stats },
         snowFlakes: weather?.snowFlakes ?? 0,
+        seaState: weather?.seaState ?? 0,
         waterTriangles: nature?.water?.triangles ?? 0,
         quality,
         pixelRatio: renderer.getPixelRatio(),

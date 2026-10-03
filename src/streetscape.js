@@ -33,6 +33,7 @@ import { buildNetwork } from './road-network.js';
 import { RIBBON_LIFT, SIDEWALK_R, WALKED, sidewalkM, lampSites, lampGlow, LAMP_HEIGHT_M } from './roads.js';
 import { loadPois, createPoiSigns, isOpenAtHour, guessOpen } from './pois.js';
 import { createPeople, pedestrianDemand } from './people.js';
+import { buildPortoStreetLife } from './porto-streetscape.js';
 
 // ------------------------------------------------------------ calçada
 // pattern ids (aPat.x): 0 none (the vertex colour)
@@ -482,11 +483,22 @@ export function createStreetscape(ctx) {
   const stats = { status: 'loading' };
   let built = null;
   const t0 = performance.now();
+  // Porto's own street life first: it is built from the engine's data (roads,
+  // terrain, landmarks) and does not wait on streetscape.json / pois.json
+  let porto = null;
+  try {
+    porto = buildPortoStreetLife(ctx);
+    group.add(porto.object);
+    stats.porto = porto.stats;
+    stats.status = 'ready (porto)';
+  } catch (e) {
+    console.warn('[porto] porto street life failed', e);
+  }
   Promise.all([fetchStreet(), loadPois()])
     .then(([doc, pois]) => {
       try {
         built = build(ctx, group, doc, pois, stats);
-        stats.status = 'ready';
+        stats.status = porto ? 'ready (porto + data)' : 'ready';
         stats.buildMs = Math.round(performance.now() - t0);
       } catch (e) {
         stats.status = `failed: ${e.message}`;
@@ -494,13 +506,16 @@ export function createStreetscape(ctx) {
       }
     })
     .catch((e) => {
-      stats.status = `no data: ${e.message}`;
-      console.info(`[porto] ${dataPath('streetscape.json')} unavailable (${e.message}); no street level.`);
+      if (!porto) stats.status = `no data: ${e.message}`;
+      console.info(`[porto] ${dataPath('streetscape.json')} unavailable (${e.message}); Porto street life only.`);
     });
   return {
     object: group,
     stats,
     update(dt, frustum, view) {
+      // once the data-driven level is up its own people carry the streets,
+      // so the promenade crowd steps aside
+      porto?.update(dt, frustum, view, { suppressPeople: !!built });
       built?.update(dt, frustum, view);
     },
     get built() {

@@ -1864,5 +1864,131 @@ export const routes = {
         "note": "Tram 1 to the Foz terminus (Passeio Alegre), then on foot to the Felgueiras lighthouse."
       }
     ]
+  },
+  "gaia-vinho": {
+    "name": "Gaia and Port Wine",
+    "subtitle": "The Ribeira, the Luís I Bridge, Serra do Pilar and the Cais de Gaia lodges",
+    "duration": "≈ 4.5 hours",
+    "description": "The route begins at the Ribeira and leads to the other bank of the Douro. Climb to the upper deck of the Luís I Bridge and walk across to the monastery of Serra do Pilar — a 16th-century round church and the best viewpoint over Porto. From there ride the Teleférico de Gaia cable car down to the Cais de Gaia waterfront, where the wine lodges stand. A tour with tasting in one of them (Sandeman, Graham’s, Taylor’s) takes about an hour and a half. You can return over the bridge or by cable car. Start in the morning: the lodges get busy, and you will want to be back at the viewpoint by sunset.",
+    "stops": [
+      {
+        "time": "10:00",
+        "note": "A walk along the Ribeira waterfront: colourful façades, rabelo boats and arcaded houses. The Luís I Bridge is visible from here."
+      },
+      {
+        "time": "10:40",
+        "note": "Climb to the upper deck of the Luís I Bridge and walk across the Douro to the Gaia side. The bridge opens a panorama of the Ribeira and the lodges."
+      },
+      {
+        "time": "11:10",
+        "note": "The 16th-century monastery of Serra do Pilar, with its round domed church and cloister gallery. The viewpoint takes in the whole of Porto."
+      },
+      {
+        "time": "12:10",
+        "note": "Ride the Teleférico de Gaia cable car down to the Cais de Gaia waterfront. Old rabelo boats and wine warehouses line the river."
+      },
+      {
+        "time": "12:45",
+        "note": "A tour and tasting at the Sandeman, Graham’s or Taylor’s lodges. Here they explain how port is aged and how the styles differ."
+      }
+    ],
+    "legs": [
+      {
+        "note": "From the Ribeira uphill to the bridge span: by the Guindais steps or through Rua de Miragaia."
+      },
+      {
+        "note": "On foot across the upper deck of the Luís I Bridge over the Douro and up to the monastery of Serra do Pilar."
+      },
+      {
+        "note": "Down by the Teleférico de Gaia cable car (Jardim do Morro — Cais de Gaia); the route profile follows the streets of the hill."
+      },
+      {
+        "note": "A couple of minutes along the Cais de Gaia waterfront to the wine lodges."
+      }
+    ]
+  },
+  "igrejas-azulejos": {
+    "name": "Churches and Azulejos",
+    "subtitle": "Cedofeita, Lapa, Carmo, Capela das Almas and Santo Ildefonso",
+    "duration": "≈ 3 hours",
+    "description": "A walking route through the churches of Porto whose Baroque façades are clad in blue-and-white azulejos. Begin at the Romanesque church of Cedofeita, the oldest in the city, then climb to the church of Lapa with its rich Baroque altar. Follow Rua das Carmelitas to the church of Carmo, whose side façade is entirely tiled, and to the Carmelite church opposite. Through Praça Guilherme Gomes Fernandes reach the Capela das Almas — Porto’s most recognisable tiled church — and finish at Santo Ildefonso, with its huge azulejo panel on the west front. The route is almost entirely on foot and suits a morning.",
+    "stops": [
+      {
+        "time": "10:00",
+        "note": "The Romanesque church of Cedofeita, 11th–12th century — Porto’s oldest surviving church, rebuilt in Baroque style inside."
+      },
+      {
+        "time": "10:45",
+        "note": "The church of Lapa with its rich Baroque altar and the brotherhood that adorned the church over the centuries."
+      },
+      {
+        "time": "11:35",
+        "note": "The church of Carmo: its side façade is covered in blue-and-white azulejos, with the Carmelite church beside it."
+      },
+      {
+        "time": "12:15",
+        "note": "The Capela das Almas on Rua de Santa Catarina: the façade is one continuous tile panel depicting scenes of the Passion."
+      },
+      {
+        "time": "12:40",
+        "note": "The church of Santo Ildefonso with its huge azulejo panel on the west front, facing Praça da Batalha."
+      }
+    ],
+    "legs": [
+      {
+        "note": "From Cedofeita north to the church of Lapa."
+      },
+      {
+        "note": "Along Rua das Carmelitas south to the church of Carmo."
+      },
+      {
+        "note": "Through Praça Guilherme Gomes Fernandes to Rua de Santa Catarina."
+      },
+      {
+        "note": "A few minutes along Rua de Santa Catarina to Praça da Batalha."
+      }
+    ]
+  },
+  "museus-jardins": {
+    "name": "Museums and Gardens",
+    "subtitle": "Soares dos Reis, Casa do Infante, the Alfândega, Cordoaria and Parque da Cidade",
+    "duration": "≈ 5 hours",
+    "description": "A route through the museums and greenery of Porto. Begin at the National Museum Soares dos Reis with Portuguese sculpture and painting, then descend to the river at the Casa do Infante — the house where Prince Henry is said to have been born. Follow the Douro to the Alfândega Nova, the former customs house and exhibition space, and climb to the Cordoaria, a former ropewalk with a square under old plane trees. The last stretch is by taxi or bus to Parque da Cidade, the large city park with lakes and dunes by the ocean. Go on a weekday: the museums close on Mondays, while the park is good any day.",
+    "stops": [
+      {
+        "time": "10:00",
+        "note": "The National Museum Soares dos Reis: Portuguese sculpture and painting of the 19th–20th centuries in the Carrancas Palace."
+      },
+      {
+        "time": "11:20",
+        "note": "The Casa do Infante, a 15th-century Gothic house where Prince Henry the Navigator is said to have been born; today it is the city museum."
+      },
+      {
+        "time": "12:15",
+        "note": "The Alfândega Nova of 1860 — the former customs house with its iron structure, now an exhibition and museum centre on the Douro."
+      },
+      {
+        "time": "13:10",
+        "note": "The Cordoaria, a former ropewalk, now a square under old plane trees beside the tower and the hospital."
+      },
+      {
+        "time": "13:55",
+        "note": "Parque da Cidade — Porto’s largest park, with lakes, lawns and dunes reaching towards the Atlantic."
+      }
+    ],
+    "legs": [
+      {
+        "note": "From the Soares dos Reis museum down through the streets to the river and the Casa do Infante."
+      },
+      {
+        "note": "Along the Douro bank to the Alfândega Nova."
+      },
+      {
+        "note": "Uphill from the river to the Cordoaria."
+      },
+      {
+        "note": "The long leg by taxi or bus to Parque da Cidade; a bicycle along the river is another option."
+      }
+    ]
   }
 };

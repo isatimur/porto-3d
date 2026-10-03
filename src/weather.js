@@ -1,39 +1,77 @@
-// Sky and weather over Braga.
+// Sky and weather over Porto's Atlantic coast.
 //
 //   - a drifting cloud deck at 1500 m: one plane that follows the camera,
 //     its density from the shared cloud texture (scene.js CLOUD_GLSL). The
 //     same density, projected along the sun, dims the direct light of every
 //     lit material, so each cloud's shadow drifts over the terrain and the
 //     roofs exactly below it;
+//   - a low Atlantic sea-fog sheet: a second, low plane that thickens toward
+//     the water and the Foz, so maritime fog can roll in from the sea and
+//     leave the hills above it;
 //   - rain: line streaks in a box carried in front of the camera, sized to
-//     the view so they read as rain in a close-up and over the whole city;
-//     one GPU-driven draw, density is the draw range;
-//   - five states (clear, partly cloudy, overcast, rain, fog), each a set
-//     of dials that blend over 3 s from wherever the last blend stood. Wet
-//     ground dries slower than it gets wet.
+//     the view; drizzle is short and slow, a downpour is long and fast;
+//   - states (clear, partly cloudy, persistent overcast, drizzle, rain,
+//     downpour, sea fog, valley fog, nortada), each a set of dials that
+//     blend over 3 s from wherever the last blend stood. Wet ground dries
+//     slower than it gets wet.
 //
 // The atmosphere (scene.js) takes the sky side of each state through
-// setWeather(): the sun behind cloud, a grey sky, the valley fog.
+// setWeather(): the sun behind cloud, a grey sky, the valley fog. The sea
+// state is hinted to water.js through its own shared uniforms, uncontracted:
+// choppier in a storm, damped in fog.
 import * as THREE from 'three';
 import { WEATHER_UNIFORMS, CLOUD_GLSL, FOG_UNIFORMS } from './scene.js';
 import { S } from './geo.js';
+import { waterUniforms } from './water.js';
 
-export const WEATHERS = ['clear', 'partly', 'overcast', 'rain', 'fog'];
+export const WEATHERS = ['clear', 'partly', 'overcast', 'drizzle', 'rain', 'downpour', 'seafog', 'fog', 'nortada'];
 
+// Every state carries the full dial set, so a blend never reads undefined.
 // cover: deck cover 0..1; shadow: how much a cloud dims the sun under it;
 // dim/grey/fog/haze: the atmosphere dials; rain: streak density; wet: the
-// ground wetness it leads to
+// ground wetness it leads to; mist: the low sea-fog sheet 0..1; sea: how
+// strongly that sheet banks toward the Atlantic (Foz); swell: the sea state
+// hinted to the water (choppier in storm, calmer in fog); drop: drop size
+// and fall speed, so drizzle and downpour read differently at the same rain.
+const BASE = { cover: 0, shadow: 0, dim: 0, grey: 0, fog: 0, haze: 0, rain: 0, wet: 0, mist: 0, sea: 0, swell: 0, drop: 0 };
+const st = (o) => ({ ...BASE, ...o });
 const STATES = {
-  clear: { cover: 0, shadow: 0, dim: 0, grey: 0, fog: 0, haze: 0, rain: 0, wet: 0 },
-  partly: { cover: 0.36, shadow: 0.72, dim: 0.03, grey: 0.06, fog: 0, haze: 0, rain: 0, wet: 0 },
-  overcast: { cover: 0.9, shadow: 0.5, dim: 0.6, grey: 0.72, fog: 0, haze: 0.35, rain: 0, wet: 0 },
-  rain: { cover: 0.97, shadow: 0.45, dim: 0.74, grey: 0.86, fog: 0, haze: 1, rain: 1, wet: 1 },
-  fog: { cover: 0, shadow: 0, dim: 0.3, grey: 0.4, fog: 1, haze: 0, rain: 0, wet: 0.2 },
+  clear: st({}),
+  partly: st({ cover: 0.36, shadow: 0.72, dim: 0.03, grey: 0.06, swell: 0.05 }),
+  // persistent Atlantic overcast: a solid deck, a flat grey sky, damp air
+  overcast: st({ cover: 0.93, shadow: 0.5, dim: 0.62, grey: 0.78, haze: 0.42, mist: 0.16, sea: 0.3, swell: 0.15 }),
+  // Atlantic drizzle: light, small drops, frequent but never heavy
+  drizzle: st({ cover: 0.9, shadow: 0.5, dim: 0.5, grey: 0.78, fog: 0.05, haze: 0.6, rain: 0.28, wet: 1, mist: 0.22, sea: 0.35, swell: 0.3, drop: 0.16 }),
+  rain: st({ cover: 0.97, shadow: 0.45, dim: 0.74, grey: 0.86, haze: 1, rain: 1, wet: 1, mist: 0.1, sea: 0.2, swell: 0.5, drop: 0.5 }),
+  // a downpour: long, fast streaks and a genuinely rough sea
+  downpour: st({ cover: 1, shadow: 0.4, dim: 0.85, grey: 0.94, fog: 0.04, haze: 1, rain: 1, wet: 1, mist: 0.16, sea: 0.25, swell: 1, drop: 1 }),
+  // Atlantic sea fog: a low bank that thickens toward Foz and the water,
+  // rolling in under a still, grey sky
+  seafog: st({ cover: 0.3, shadow: 0.1, dim: 0.32, grey: 0.5, fog: 0.55, haze: 0.3, wet: 0.35, mist: 1, sea: 0.9, swell: 0.3 }),
+  // the old valley fog: dense, cold, still air low over the river
+  fog: st({ dim: 0.3, grey: 0.4, fog: 1, wet: 0.2, mist: 0.25, swell: 0.15 }),
+  // nortada: the clear, dry, windy summer day of the Portuguese coast, a
+  // strong north wind pushing the few clouds away and chopping the sea
+  nortada: st({ cover: 0.06, shadow: 0.12, dim: 0.02, grey: 0.04, haze: 0.06, swell: 0.65 }),
 };
-const DIALS = ['cover', 'shadow', 'dim', 'grey', 'fog', 'haze', 'rain'];
+// States that carry their own wind; the rest (including everything live mode
+// can select: clear, partly, overcast, rain, fog) follow the live/default
+// reading. Wind is `from` compass degrees and m/s, as setWind().
+const STATE_WIND = {
+  downpour: { from: 248, speed: 17 },
+  seafog: { from: 250, speed: 3 },
+  nortada: { from: 18, speed: 12 },
+};
+const DIALS = Object.keys(BASE).filter((k) => k !== 'wet');
+const CLIMATE_KEYS = ['mist', 'fog', 'haze', 'grey', 'swell'];
 const BLEND_S = 3;
 const DECK_M = 1500; // cloud base, metres above sea level
+const FOG_LOW_M = 24; // sea-fog sheet height, metres above sea level
 const PERIOD = 2600; // world units per texture repeat (10.4 km)
+// Shared water uniforms (water.js): the calm and storm ends of the shoaling
+// gain and the steepness clamp, so the sea state follows the weather.
+const SEA_GAIN = [1.6, 3.1];
+const SEA_Q = [0.9, 1.25];
 
 const ease = (t) => t * t * (3 - 2 * t);
 // c += src * k for colours (THREE.Color has no addScaledVector)
@@ -112,6 +150,85 @@ function cloudDeck() {
   mesh.scale.set(18000, 1, 18000);
   mesh.frustumCulled = false;
   mesh.renderOrder = 35; // after the street lamps: a deck seen from above hides them
+  mesh.castShadow = false;
+  mesh.receiveShadow = false;
+  mesh.visible = false;
+  return { mesh, uniforms };
+}
+
+// ------------------------------------------------------------ sea fog
+// A second, low horizontal sheet: Atlantic sea fog rolling in toward the Foz.
+// One quad that follows the camera, its density two octaves of the shared
+// cloud noise. It thickens toward the ocean bearing and out to sea (so the
+// hills and the upper city stand above it) and fades near the camera and at
+// the horizon. Cheap: one transparent draw, only while `mist` is up.
+function seaFogLayer() {
+  const uniforms = {
+    ...THREE.UniformsUtils.clone(THREE.UniformsLib.fog),
+    ...FOG_UNIFORMS,
+    ...WEATHER_UNIFORMS,
+    uMist: { value: 0 },
+    uSeaK: { value: 0 },
+    uSeaDir: { value: new THREE.Vector2(-1, 0) },
+    uFogCol: { value: new THREE.Color(0.8, 0.83, 0.87) },
+    uSunDir: { value: new THREE.Vector3(0, 1, 0) },
+  };
+  const mat = new THREE.ShaderMaterial({
+    uniforms,
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    fog: true,
+    vertexShader: /* glsl */ `
+      varying vec3 vW;
+      #include <fog_pars_vertex>
+      void main() {
+        vec4 w = modelMatrix * vec4(position, 1.0);
+        vW = w.xyz;
+        vec4 mvPosition = viewMatrix * w;
+        gl_Position = projectionMatrix * mvPosition;
+        #include <fog_vertex>
+      }`,
+    fragmentShader: /* glsl */ `
+      uniform float uMist;
+      uniform float uSeaK;
+      uniform vec2 uSeaDir;
+      uniform vec3 uFogCol;
+      uniform vec3 uSunDir;
+      varying vec3 vW;
+      ${CLOUD_GLSL}
+      #include <fog_pars_fragment>
+      void main() {
+        if (uMist < 0.002) discard;
+        // two octaves of the shared cloud noise read as a drifting bank
+        float n1 = texture2D(tCloud, vW.xz * cloudShape.y * 3.4 + cloudParams.xy * 1.7).r;
+        float n2 = texture2D(tCloud, vW.xz * cloudShape.y * 9.5 - cloudParams.xy * 1.1 + 0.31).g;
+        float d = clamp(n1 * 0.7 + n2 * 0.3, 0.0, 1.0);
+        // thicker toward the Atlantic (Foz) and out to sea, thinning inland
+        float sea = smoothstep(-600.0, 1200.0, dot(vW.xz, uSeaDir));
+        sea = mix(1.0, sea, uSeaK);
+        float dist = length(vW - cameraPosition);
+        float a = uMist * (0.28 + 0.72 * d) * sea;
+        a *= 1.0 - smoothstep(6500.0, 9000.0, dist);
+        a *= smoothstep(40.0, 160.0, dist); // no flat sheet in front of the lens
+        a *= smoothstep(5.0, 34.0, abs(cameraPosition.y - vW.y));
+        a = min(a, 0.6);
+        if (a < 0.004) discard;
+        // a touch of forward scatter into the sun keeps it lit, not chalky
+        float fwd = pow(max(dot(normalize(vW - cameraPosition), uSunDir), 0.0), 5.0);
+        gl_FragColor = vec4(uFogCol * (0.92 + 0.18 * fwd), a);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+        #include <fog_fragment>
+      }`,
+  });
+  mat.name = 'sea-fog';
+  const geo = new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2);
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.name = 'sea-fog';
+  mesh.scale.set(14000, 1, 14000);
+  mesh.frustumCulled = false;
+  mesh.renderOrder = 34; // below the cloud deck, above the lamps
   mesh.castShadow = false;
   mesh.receiveShadow = false;
   mesh.visible = false;
@@ -273,6 +390,9 @@ export function createWeather({ scene, atmosphere, datumM = 0, mobile = false, r
   scene.add(rain.lines);
   const snow = snowFlakes(mobile ? 1500 : 4000);
   scene.add(snow.points);
+  const lowFog = seaFogLayer();
+  lowFog.mesh.position.y = (FOG_LOW_M - datumM) * S;
+  scene.add(lowFog.mesh);
   let snowK = 0; // 0..1, from the season
   let snowPx = 500; // pixels per world unit at distance 1 (seasons.js)
 
@@ -282,8 +402,25 @@ export function createWeather({ scene, atmosphere, datumM = 0, mobile = false, r
   let blendT = 1;
   let wet = 0;
   let name = 'clear';
-  // wind: from the Atlantic (WSW) by default; live mode sets the real speed
+  // wind: from the Atlantic (WSW) by default; live mode sets the real speed.
+  // A state that names its own wind (drizzle, rain, downpour, seafog, fog,
+  // nortada) uses it; every other state follows the live/default reading.
   const wind = { x: 0.93, z: -0.37, speed: 6 }; // m/s at the deck
+  const baseWind = { from: 248, speed: 6 };
+  let stateWind = null;
+  function applyWind() {
+    const w = stateWind || baseWind;
+    const a = THREE.MathUtils.degToRad(w.from + 180); // blowing toward
+    wind.x = Math.sin(a);
+    wind.z = -Math.cos(a);
+    wind.speed = THREE.MathUtils.clamp(w.speed, 1, 25);
+  }
+  applyWind();
+  // the seasonal climate (src/seasons.js): a mild Porto bias on top of the
+  // chosen state, so winter reads wet and misty, summer dry and bright
+  const climate = { mist: 0, fog: 0, haze: 0, grey: 0, swell: 0 };
+  const _atmo = { dim: 0, grey: 0, fog: 0, haze: 0 };
+  const _wash = new THREE.Color();
   const offset = WEATHER_UNIFORMS.cloudParams.value;
   let time = 0;
   const listeners = new Set();
@@ -296,6 +433,8 @@ export function createWeather({ scene, atmosphere, datumM = 0, mobile = false, r
     if (cover != null) to.cover = THREE.MathUtils.clamp(cover, next === 'clear' ? 0 : 0.2, 1);
     blendT = instant ? 1 : 0;
     if (instant) Object.assign(cur, to);
+    stateWind = STATE_WIND[next] || null;
+    applyWind();
     for (const f of listeners) f(name);
     return true;
   }
@@ -314,7 +453,14 @@ export function createWeather({ scene, atmosphere, datumM = 0, mobile = false, r
     const wetTo = to.wet;
     wet += (wetTo - wet) * Math.min(1, dt / (wetTo > wet ? 1.3 : 4.5));
     if (reducedMotion) wet = wetTo;
-    atmosphere.setWeather(cur);
+    // the state's dials plus the season's bias; only dim/grey/fog/haze reach
+    // the atmosphere, the rest drive this module's own layers
+    _atmo.dim = cur.dim;
+    _atmo.grey = Math.min(1, cur.grey + climate.grey);
+    _atmo.fog = Math.min(1, cur.fog + climate.fog);
+    _atmo.haze = Math.min(1, cur.haze + climate.haze);
+    atmosphere.setWeather(_atmo);
+    const mist = Math.min(1, cur.mist + climate.mist);
 
     // ---- deck: drift, cover, shadow strength, colours
     const drift = reducedMotion ? 0 : (wind.speed * 6 * S * dt) / PERIOD; // six times the real speed
@@ -359,11 +505,13 @@ export function createWeather({ scene, atmosphere, datumM = 0, mobile = false, r
       u.uBox.value = box;
       camera.getWorldDirection(_fwd);
       u.uBoxMin.value.copy(camera.position).addScaledVector(_fwd, box * 0.5).subScalar(box / 2);
-      // a drop crosses the box in about a second, slanted by the wind
-      u.uFall.value.set(wind.x * 0.12, -1, wind.z * 0.12).multiplyScalar(box * 0.95);
-      u.uLen.value = box * 0.03;
+      // drizzle: short, slow drops; downpour: long, fast ones
+      const dropK = cur.drop;
+      const slant = 0.08 + 0.06 * dropK;
+      u.uFall.value.set(wind.x * slant, -1, wind.z * slant).multiplyScalar(box * (0.72 + 0.55 * dropK));
+      u.uLen.value = box * (0.02 + 0.024 * dropK);
       if (!reducedMotion) u.uTime.value = time;
-      u.uAlpha.value = 0.26 * cur.rain * (1 - 0.5 * atmosphere.night);
+      u.uAlpha.value = (0.17 + 0.16 * dropK) * cur.rain * (1 - 0.5 * atmosphere.night);
     }
 
     // ---- snow flakes: slow, a box that follows the view like the rain
@@ -386,12 +534,41 @@ export function createWeather({ scene, atmosphere, datumM = 0, mobile = false, r
       u.uColor.value.setRGB(0.9, 0.92, 0.96).multiplyScalar(lit * (1 - 0.6 * atmosphere.night));
       u.uAlpha.value = 0.75 * Math.min(1, snowK * 1.5);
     }
+
+    // ---- low Atlantic sea fog: a sheet low over the water, banked toward
+    // the Foz, rolling in from the sea while the hills stand above it
+    const onFog = mist > 0.004 && camDist < 9000;
+    lowFog.mesh.visible = onFog;
+    if (onFog) {
+      lowFog.mesh.position.x = camera.position.x;
+      lowFog.mesh.position.z = camera.position.z;
+      const u = lowFog.uniforms;
+      const st = atmosphere.state;
+      u.uMist.value = mist;
+      u.uSeaK.value = cur.sea;
+      const od = FOG_UNIFORMS.fogOcean.value; // toward the Atlantic, from scene.js
+      const ol = Math.hypot(od.x, od.z) || 1;
+      u.uSeaDir.value.set(od.x / ol, od.z / ol);
+      u.uSunDir.value.copy(sd);
+      u.uFogCol.value.copy(st.haze).lerp(st.scatter, 0.12);
+      _wash.setRGB(0.82, 0.84, 0.88);
+      u.uFogCol.value.lerp(_wash, 0.3 * Math.min(1, cur.grey + climate.grey));
+      u.uFogCol.value.multiplyScalar(0.86 + 0.2 * (1 - st.night));
+    }
+
+    // ---- sea state: hint the swell to the shared water uniforms (water.js
+    // is untouched): choppier in a storm, damped in sea fog, lively in the
+    // nortada. One write each frame to an existing, otherwise static uniform.
+    const swell = Math.min(1, cur.swell + climate.swell);
+    waterUniforms.uWSwellGain.value = SEA_GAIN[0] + (SEA_GAIN[1] - SEA_GAIN[0]) * swell;
+    waterUniforms.uWMaxQ.value = SEA_Q[0] + (SEA_Q[1] - SEA_Q[0]) * swell;
   }
 
   return {
     deck: deck.mesh,
     rain: rain.lines,
     snow: snow.points,
+    lowFog: lowFog.mesh,
     set,
     update,
     // winter flakes 0..1; px: drawing-buffer pixels per world unit at
@@ -399,6 +576,13 @@ export function createWeather({ scene, atmosphere, datumM = 0, mobile = false, r
     setSnow(k, px) {
       snowK = THREE.MathUtils.clamp(k, 0, 1);
       if (px > 0) snowPx = px;
+    },
+    // the seasonal bias applied on top of every state (src/seasons.js):
+    // mist/fog/haze/grey feed the atmosphere and the sea-fog sheet, swell
+    // the water hint
+    setClimate(c) {
+      if (!c) return;
+      for (const k of CLIMATE_KEYS) if (Number.isFinite(c[k])) climate[k] = THREE.MathUtils.clamp(c[k], 0, 1);
     },
     // the wind the clouds drift with: direction it blows toward (unit xz)
     // and speed in m/s; the falling leaves share it
@@ -411,10 +595,9 @@ export function createWeather({ scene, atmosphere, datumM = 0, mobile = false, r
     onChange: (f) => listeners.add(f),
     // live mode: the real wind (m/s, direction it blows FROM, degrees)
     setWind(speedMs, fromDeg) {
-      const a = THREE.MathUtils.degToRad(fromDeg + 180); // blowing toward
-      wind.x = Math.sin(a);
-      wind.z = -Math.cos(a);
-      wind.speed = THREE.MathUtils.clamp(speedMs, 1, 25);
+      baseWind.from = fromDeg;
+      baseWind.speed = THREE.MathUtils.clamp(speedMs, 1, 25);
+      applyWind();
     },
     get name() {
       return name;
@@ -427,6 +610,10 @@ export function createWeather({ scene, atmosphere, datumM = 0, mobile = false, r
     },
     get rainDrops() {
       return rain.lines.visible ? rain.lines.geometry.drawRange.count / 2 : 0;
+    },
+    // 0..1: the sea state hinted to the water, season bias included
+    get seaState() {
+      return Math.min(1, cur.swell + climate.swell);
     },
   };
 }
