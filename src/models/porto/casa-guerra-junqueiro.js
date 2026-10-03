@@ -94,6 +94,17 @@ function casaGuerraJunqueiro(k, site) {
   k.tree(-W / 2 + wing + 4, 0, -6, 6.5, { kind: 'topiary' });
   k.tree(W / 2 - wing - 4, 0, 6, 6.5, { kind: 'topiary' });
 
+  // --- detail: courtyard arcade, a canopied well and a tiled frieze
+  for (const [push, len] of [[{ z: zF - wing, ry: Math.PI }, W - 2 * wing], [{ z: zB + wing, ry: 0 }, W - 2 * wing]]) {
+    k.push(push);
+    k.arcade(len - 0.6, 3.4, 0.4, Math.max(2, Math.round((len - 0.6) / 4.0)), 1.6, 2.4, 'graniteLight');
+    k.pop();
+  }
+  k.box(3.2, 0.3, 3.2, 'graniteLight', 0, 2.0, 0);
+  k.cone(2.0, 1.2, 4, 'terracotta', 0, 2.3, 0);
+  k.box(6, 1.4, 0.14, 'azulejo', 0, 6.6, zF + 0.06, { mat: 4 });
+  k.box(6.4, 0.3, 0.3, 'graniteLight', 0, 6.25, zF + 0.12);
+
   done();
 }
 casaGuerraJunqueiro.metric = true;

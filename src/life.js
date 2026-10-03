@@ -10,26 +10,31 @@
 //     Elétricos on three real OSM routes — Infante <-> Passeio Alegre along
 //     the river, Clérigos <-> Passeio Alegre, and Carmo <-> Batalha — with
 //     1435 mm gauge rails set in the pavement, following the ground, easing
-//     to a stop and reversing at each terminus, each showing its number;
+//     to a stop and reversing at each terminus, each showing its number and
+//     lit interior with passengers hinted at the windows;
 //   - the Teleférico de Gaia (2011): two stations, two haul ropes and six
 //     cabins gliding between the Cais de Gaia and the Jardim do Morro, each
 //     cabin gently swaying; a cabin passes every ~20 s;
 //   - rolling stock on the Douro crossings (data/life.json `rail`): the
 //     Metro do Porto (Linha D) on the Luís I upper deck between Jardim do
-//     Morro and São Bento, and CP mainline trains (a locomotive and
-//     carriages) on the Ponte de São João to/from Campanhã. Each consist
-//     rides the real OSM alignment; on the bridge it holds the deck height
-//     (60 m Luís I upper, 66 m São João, dimensions.json), elsewhere it
-//     follows the terrain, ramping down off the bridge at the ends;
+//     Morro and São Bento, CP mainline trains (a locomotive and carriages)
+//     on the Ponte de São João to/from Campanhã, and the green CP Urbanos
+//     EMU on the same São João alignment. Each consist rides the real OSM
+//     alignment with its livery, pantograph and lit destination board; on the
+//     bridge it holds the deck height (60 m Luís I upper, 66 m São João,
+//     dimensions.json), elsewhere it follows the terrain, ramping down off
+//     the bridge at the ends;
 //   - river traffic on the Douro: rabelo boats (flat-bottomed, port casks,
-//     square sail) along the Ribeira, Douro cruisers down to the Foz and up
-//     to Freixo, and the small Gaia <-> Ribeira ferry, each on its own
-//     ordered path with a spreading, fading wake; rabelos also lie moored
-//     along the Cais de Gaia (data/life.json `boats`);
-//   - traffic on the primary and secondary streets: instanced cars and
-//     vans that follow the OSM polylines at 30-55 km/h in both directions,
-//     turning onto a connected street at each end; head and tail lights at
-//     night, drawn as points too, so from far away they are streams of light;
+//     a square sail with its red cross, a crew), Douro cruisers down to the
+//     Foz and up to Freixo, a three-deck barco-hotel and the small Gaia <->
+//     Ribeira ferry, each on its own ordered path with a spreading, fading
+//     wake; rabelos also lie moored along the Cais de Gaia (data/life.json
+//     `boats`);
+//   - traffic on the primary and secondary streets: instanced cars, vans and
+//     lorries, plus a few Porto taxis and STCP buses, that follow the OSM
+//     polylines at 30-55 km/h in both directions, turning onto a connected
+//     street at each end; head and tail lights at night, drawn as points too,
+//     so from far away they are streams of light;
 //   - birds: four boid flocks circling Bom Jesus, Sameiro, the Sé towers and
 //     the Rio Este; they scatter when the camera flies close;
 //   - fountains: a GPU particle spray on the fountains of Praça da
@@ -363,6 +368,15 @@ function tramGeometry() {
     box(0.18, 0.18, 0.1, 0.72, 0.72, TRAM_M / 2 - 0.02, 0xffe9b0, 1),
     box(W - 0.3, 0.5, 0.06, 0, 0.05, TRAM_M / 2 + 0.05, 0x24231f), // front fender
   ];
+  // interior light washing the clerestory, and passengers hinted as dark
+  // shapes just outside the lit window band
+  parts.push(box(W + 0.08, 0.07, TRAM_M - 2.0, 0, 1.86, 0.1, 0xffe9b0, 1));
+  for (const sgn of [-1, 1]) {
+    for (const z of [-2.6, -1.3, 0.6, 1.9]) {
+      parts.push(box(0.34, 0.5, 0.26, sgn * (W / 2 + 0.06), 0.92, z, 0x1b2026)); // torso
+      parts.push(box(0.22, 0.26, 0.22, sgn * (W / 2 + 0.06), 1.5, z, 0x1b2026)); // head
+    }
+  }
   const g = mergeGeometries(parts);
   g.scale(S, S, S);
   return g;
@@ -641,6 +655,55 @@ function metroGeometry() {
   // pantograph
   parts.push(box(0.1, 0.95, 0.1, 0, 2.55, -1.5, 0x3a3f42));
   parts.push(box(1.5, 0.08, 0.08, 0, 3.5, -1.5, 0x3a3f42));
+  // door leaves between the sections, a lit line-D board and a roof AC unit
+  for (let c = 0; c < 3; c++) {
+    const zc = z0 + SL * (c + 0.5);
+    for (const sgn of [-1, 1]) {
+      parts.push(box(0.06, 1.35, 1.15, sgn * (W / 2 + 0.03), 0.9, zc - SL / 2 + 1.9, 0x39424a));
+      parts.push(box(0.06, 1.35, 1.15, sgn * (W / 2 + 0.03), 0.9, zc + SL / 2 - 1.9, 0x39424a));
+    }
+  }
+  parts.push(box(W - 0.95, 0.12, 0.12, 0, 1.78, L / 2 + 0.07, 0xf9c212, 1));
+  parts.push(box(W - 1.4, 0.26, 0.5, 0, 2.42, -L / 2 + 3.0, 0x8a9095));
+  // the LRV is double-ended: a rear cab in yellow
+  parts.push(box(W, 1.9, 0.55, 0, 0.7, -L / 2 + 0.28, 0xf9c212));
+  parts.push(box(W - 0.5, 0.95, 0.16, 0, 1.35, -L / 2 - 0.02, 0x1f2a30, 1));
+  parts.push(box(W - 0.9, 0.3, 0.1, 0, 1.95, -L / 2 - 0.05, 0x14120f));
+  const g = mergeGeometries(parts);
+  g.userData.lengthM = L;
+  g.scale(S, S, S);
+  return g;
+}
+
+// CP Urbanos do Porto: a green-and-white electric multiple unit (no separate
+// locomotive), the suburban service over the São João. +z is the front.
+function urbanoGeometry(cars = 3) {
+  const W = 2.9;
+  const CAR = 24;
+  const L = cars * CAR;
+  const parts = [];
+  for (let c = 0; c < cars; c++) {
+    const zc = L / 2 - CAR * (c + 0.5);
+    parts.push(box(W, 0.5, CAR, 0, 0.25, zc, 0x1b1e21)); // skirt
+    parts.push(box(W, 1.7, CAR - 0.5, 0, 0.75, zc, 0xf0f1f2)); // white body
+    parts.push(box(W + 0.06, 0.72, CAR - 2.6, 0, 1.35, zc, 0x1f2a30, 1)); // windows
+    parts.push(box(W + 0.07, 0.34, CAR - 0.6, 0, 0.55, zc, 0x2e8b57)); // green band
+    parts.push(box(W - 0.22, 0.22, CAR - 1.2, 0, 2.5, zc, 0x9aa0a4)); // roof
+    for (const sgn of [-1, 1]) {
+      parts.push(box(0.06, 1.4, 1.1, sgn * (W / 2 + 0.03), 0.85, zc - CAR / 2 + 3.0, 0x39424a));
+      parts.push(box(0.06, 1.4, 1.1, sgn * (W / 2 + 0.03), 0.85, zc + CAR / 2 - 3.0, 0x39424a));
+    }
+  }
+  // cab at the +z end: face, glazing, lit destination and headlights
+  parts.push(box(W, 1.85, 0.5, 0, 0.7, L / 2 - 0.25, 0xf0f1f2));
+  parts.push(box(W - 0.4, 0.9, 0.14, 0, 1.35, L / 2 + 0.04, 0x1f2a30, 1));
+  parts.push(box(W - 0.8, 0.32, 0.1, 0, 1.98, L / 2 + 0.07, 0x14120f));
+  parts.push(box(W - 0.8, 0.1, 0.12, 0, 2.16, L / 2 + 0.08, 0x2e8b57, 1));
+  parts.push(box(0.22, 0.22, 0.1, -0.9, 0.8, L / 2 + 0.09, 0xffe9b0, 1));
+  parts.push(box(0.22, 0.22, 0.1, 0.9, 0.8, L / 2 + 0.09, 0xffe9b0, 1));
+  // pantograph on the middle car
+  parts.push(box(0.1, 0.95, 0.1, 0, 2.62, 0, 0x3a3f42));
+  parts.push(box(1.5, 0.08, 0.08, 0, 3.58, 0, 0x3a3f42));
   const g = mergeGeometries(parts);
   g.userData.lengthM = L;
   g.scale(S, S, S);
@@ -672,6 +735,13 @@ function mainlineGeometry(cars = 4) {
     parts.push(box(W + 0.07, 0.3, CAR - 0.8, 0, 0.55, zc, 0xc0392b));
     parts.push(box(W - 0.25, 0.22, CAR - 1.4, 0, 2.5, zc, 0x9aa0a4));
   }
+  // pantograph on the locomotive roof, a lit destination board and the mark
+  parts.push(box(0.1, 1.0, 0.1, 0, 2.62, lz, 0x3a3f42));
+  parts.push(box(1.6, 0.08, 0.08, 0, 3.72, lz, 0x3a3f42));
+  parts.push(box(1.6, 0.06, 0.06, 0, 3.25, lz + 0.5, 0x3a3f42));
+  parts.push(box(1.7, 0.32, 0.12, 0, 1.95, L / 2 + 0.06, 0x14120f));
+  parts.push(box(1.7, 0.1, 0.14, 0, 2.14, L / 2 + 0.07, 0xc0392b, 1));
+  parts.push(box(0.9, 0.3, 0.06, -W / 2 + 0.05, 1.0, lz, 0xc0392b));
   const g = mergeGeometries(parts);
   g.userData.lengthM = L;
   g.scale(S, S, S);
@@ -774,7 +844,7 @@ export function buildTrains({ project, heightAt, items = [], mobile = false, lit
   lines.forEach((L, li) => {
     const it = L.item;
     const service = it.service;
-    const geo = service === 'metro' ? metroGeometry() : mainlineGeometry(it.cars ?? 4);
+    const geo = service === 'metro' ? metroGeometry() : service === 'urbano' ? urbanoGeometry(it.cars ?? 3) : mainlineGeometry(it.cars ?? 4);
     const want = it.count ?? 1;
     const n = lite || mobile ? 1 : want;
     const mesh = new THREE.InstancedMesh(geo, mat, n);
@@ -868,6 +938,7 @@ export function buildTrains({ project, heightAt, items = [], mobile = false, lit
       services: lines.length,
       metro: lines.filter((L) => L.item.service === 'metro').length,
       mainline: lines.filter((L) => L.item.service === 'mainline').length,
+      urbano: lines.filter((L) => L.item.service === 'urbano').length,
       km: +(lines.reduce((s, L) => s + L.total, 0) / S / 1000).toFixed(1),
       onDeck: lines.filter((L) => L.deck).length,
       triangles: Math.round(tris),
@@ -1052,14 +1123,29 @@ function rabeloGeometry(sail = true) {
     box(0.16, 0.16, 4.8, W / 2 - 0.5, 0.9, -L / 2 - 1.3, 0x5b3d27), // steering oar
     box(3.0, 0.5, 0.5, 0, -0.1, L / 2 - 0.1, 0x3a2a1c), // small foredeck box
   ];
-  // port casks, lying along x in two rows of three
-  for (let i = 0; i < 3; i++) {
-    const z = -2.6 + i * 2.1;
-    parts.push(cyl(0.42, 1.05, 8, -0.85, 1.18, z, 0x7a4a28, 0, Math.PI / 2));
-    parts.push(cyl(0.42, 1.05, 8, 0.85, 1.18, z, 0x7a4a28, 0, Math.PI / 2));
+  // port casks, lying along x in two rows of four, oak and darker cooperage
+  for (let i = 0; i < 4; i++) {
+    const z = -3.3 + i * 2.0;
+    const tone = i % 2 ? 0x7a4a28 : 0x8a5a34;
+    parts.push(cyl(0.42, 1.05, 8, -0.85, 1.18, z, tone, 0, Math.PI / 2));
+    parts.push(cyl(0.42, 1.05, 8, 0.85, 1.18, z, tone, 0, Math.PI / 2));
   }
-  if (sail) parts.push(box(6.4, 7.0, 0.08, 0, 2.7, -0.5, 0xd9cdb0)); // square sail
-  else parts.push(box(6.8, 0.5, 0.5, 0, 9.55, -0.6, 0xd9cdb0)); // furled
+  // a pair lashed on top amidships
+  parts.push(cyl(0.42, 1.05, 8, 0, 2.26, -0.4, 0x6f4224, 0, Math.PI / 2));
+  parts.push(cyl(0.42, 1.05, 8, 0, 2.26, 0.7, 0x6f4224, 0, Math.PI / 2));
+  // crew: the helmsman aft and one forward, workwear with bare heads
+  parts.push(cyl(0.23, 1.02, 6, 0.55, 1.09, -L / 2 + 1.1, 0x2f3b4c));
+  parts.push(cyl(0.17, 0.3, 6, 0.55, 1.75, -L / 2 + 1.1, 0xd8b48c));
+  parts.push(cyl(0.23, 1.02, 6, -0.7, 1.09, L / 2 - 2.1, 0x6b3b2a));
+  parts.push(cyl(0.17, 0.3, 6, -0.7, 1.75, L / 2 - 2.1, 0xd8b48c));
+  if (sail) {
+    parts.push(box(6.4, 7.0, 0.08, 0, 2.7, -0.5, 0xd9cdb0)); // square sail
+    // the cross of the rabelo canvas, proud of both faces
+    parts.push(box(0.62, 7.0, 0.14, 0, 2.7, -0.5, 0xb03a2e));
+    parts.push(box(6.4, 0.62, 0.14, 0, 3.4, -0.5, 0xb03a2e));
+  } else {
+    parts.push(box(6.8, 0.5, 0.5, 0, 9.55, -0.6, 0xd9cdb0)); // furled along the yard
+  }
   const g = mergeGeometries(parts);
   g.scale(S, S, S);
   return g;
@@ -1081,6 +1167,14 @@ function cruiserGeometry() {
     cyl(0.1, 6.4, 6, 0, 3.2, -12.0, 0xcfcabf), // foremast
     box(0.1, 0.1, 3.0, 0, 8.3, -12.0, 0xcfcabf), // radar bar
   ];
+  // rails round the sun deck, lifebuoys on the cabin and the ensign aft
+  for (const sgn of [-1, 1]) parts.push(box(0.09, 0.5, L - 8.5, sgn * (W / 2 - 0.75), 2.98, -0.6, 0xcfcabf));
+  parts.push(box(W - 1.5, 0.5, 0.09, 0, 2.98, -14.5, 0xcfcabf));
+  parts.push(box(W - 1.5, 0.5, 0.09, 0, 2.98, 13.3, 0xcfcabf));
+  parts.push(cyl(0.34, 0.1, 8, -W / 2 + 0.28, 1.6, 3.0, 0xe86a2a, 0, Math.PI / 2)); // lifebuoy
+  parts.push(cyl(0.34, 0.1, 8, W / 2 - 0.28, 1.6, 3.0, 0xe86a2a, 0, Math.PI / 2));
+  parts.push(box(0.08, 0.7, 1.1, 0, 4.55, -L / 2 + 0.9, 0x187ec2)); // ensign
+  parts.push(box(2.2, 0.24, 0.12, 0, 2.05, L / 2 - 0.35, 0x14120f)); // name board
   const g = mergeGeometries(parts);
   g.scale(S, S, S);
   return g;
@@ -1098,6 +1192,43 @@ function ferryGeometry() {
     box(W - 0.2, 0.18, 7.4, 0, 2.7, 0.3, 0xf1f1ee), // cabin roof
     cyl(0.06, 3.2, 5, 0, 3.4, -3.2, 0xcfcabf), // mast
   ];
+  // wheelhouse glazing, rails, a lifebuoy and the flag
+  parts.push(box(W - 1.7, 0.62, 0.12, 0, 1.95, 2.45, 0x2a3a44, 1));
+  for (const sgn of [-1, 1]) parts.push(box(0.07, 0.42, 7.5, sgn * (W / 2 - 0.35), 2.88, 0.3, 0xcfcabf));
+  parts.push(box(W - 1.0, 0.42, 0.07, 0, 2.88, -3.35, 0xcfcabf));
+  parts.push(cyl(0.24, 0.08, 8, -W / 2 + 0.22, 1.7, 1.6, 0xe86a2a, 0, Math.PI / 2));
+  parts.push(box(0.07, 0.55, 0.9, 0, 3.9, -4.1, 0x187ec2));
+  const g = mergeGeometries(parts);
+  g.scale(S, S, S);
+  return g;
+}
+
+// A Douro barco-hotel: a long three-deck river cruise ship, white with two lit
+// cabin bands, a sun deck, lifeboats and a wheelhouse. +z is the bow; metres.
+function hotelGeometry() {
+  const W = 11;
+  const L = 78;
+  const parts = [
+    box(W, 1.8, L, 0, -1.0, 0, 0x233038), // lower hull
+    box(W - 0.4, 1.4, L - 1.4, 0, 0.7, 0, 0xf2f1ec), // hull topside
+    box(W - 0.8, 2.2, L - 3, 0, 2.0, 0, 0xf2f1ec), // deck 1
+    box(W - 0.5, 1.0, L - 7, 0, 2.2, -0.5, 0x25313a, 1), // deck 1 windows
+    box(W - 1.7, 2.0, L - 9, 0, 4.0, -0.9, 0xf2f1ec), // deck 2
+    box(W - 1.4, 0.9, L - 12, 0, 4.3, -1.3, 0x25313a, 1), // deck 2 windows
+    box(W - 3.2, 0.3, L - 16, 0, 6.0, -1.8, 0xe6e2d8), // sun deck
+    box(W - 3.4, 1.7, 7.0, 0, 6.3, L / 2 - 5.5, 0xf2f1ec), // wheelhouse
+    box(W - 3.3, 0.8, 6.4, 0, 7.0, L / 2 - 5.5, 0x25313a, 1), // bridge glazing
+    cyl(1.05, 2.6, 10, 0, 7.0, -L / 2 + 11, 0xd8d3c8), // funnel
+    cyl(0.12, 6.0, 6, 0, 7.6, L / 2 - 12, 0xcfcabf), // foremast
+    box(0.1, 0.1, 3.2, 0, 10.3, L / 2 - 12, 0xcfcabf), // radar bar
+    box(2.6, 0.6, 0.12, 0, 2.55, L / 2 - 0.4, 0x14120f), // name board
+    box(0.1, 0.9, 1.4, 0, 6.1, -L / 2 + 1.6, 0x187ec2), // ensign
+  ];
+  for (const sgn of [-1, 1]) {
+    parts.push(box(0.08, 0.5, L - 16, sgn * (W / 2 - 1.7), 6.3, -1.8, 0xd9d4c8)); // sun-deck rails
+    // a row of lifeboats along the deck-1 casing
+    for (let i = -1; i <= 1; i++) parts.push(box(1.1, 0.5, 3.2, sgn * (W / 2 - 0.9), 3.5, i * 14 - 3, 0xf0c04a));
+  }
   const g = mergeGeometries(parts);
   g.scale(S, S, S);
   return g;
@@ -1108,7 +1239,7 @@ export function buildBoats({ project, heightAt, mobile = false, lite = false, ca
   const items = cfg?.items;
   const mooredList = cfg?.moored || [];
   if (!Array.isArray(items) || !items.length) return null;
-  const TYPES = ['rabelo', 'cruiser', 'ferry'];
+  const TYPES = ['rabelo', 'cruiser', 'ferry', 'hotel'];
 
   // ---- the paths, subdivided and draped on the terrain (as trams)
   const STEP = 1.5; // world units between samples
@@ -1147,7 +1278,9 @@ export function buildBoats({ project, heightAt, mobile = false, lite = false, ca
             ? rabeloGeometry(false)
             : key === 'cruiser'
               ? cruiserGeometry()
-              : ferryGeometry(),
+              : key === 'hotel'
+                ? hotelGeometry()
+                : ferryGeometry(),
       );
     }
     return geoCache.get(key);
@@ -1423,6 +1556,7 @@ export function buildBoats({ project, heightAt, mobile = false, lite = false, ca
       rabelos: actors.filter((a) => a.type === 'rabelo').length,
       cruisers: actors.filter((a) => a.type === 'cruiser').length,
       ferries: actors.filter((a) => a.type === 'ferry').length,
+      hotels: actors.filter((a) => a.type === 'hotel').length,
       routes: items.length,
       triangles: geoTris,
       wakeTriangles: widx.length / 3,
@@ -1449,23 +1583,50 @@ export function buildBoats({ project, heightAt, mobile = false, lite = false, ca
 const CAR_FREE = () => CITY.traffic?.car_free || [];
 const PAINT = [0xf1f1ee, 0xa9afb4, 0x1d1f22, 0x2b3f63, 0x9e2a24, 0x8a7a66].map((h) => new THREE.Color(h));
 const LORRY_PAINT = [0xf1f1ee, 0xe8e4da, 0x2c4a7a, 0x9e2a24, 0x3d5c3a].map((h) => new THREE.Color(h));
+// Porto taxis (dark and cream) and the STCP bus livery (white, blue)
+const TAXI_PAINT = [0x1d1f22, 0xf1f1ee, 0x27435f].map((h) => new THREE.Color(h));
+const BUS_PAINT = [0xf1f1ee, 0x187ec2, 0xe8e4da].map((h) => new THREE.Color(h));
+// one palette per skin (0 car, 1 van, 2 lorry, 3 taxi, 4 bus)
+const PAINTS = [PAINT, PAINT, LORRY_PAINT, TAXI_PAINT, BUS_PAINT];
 // the main axes by their OSM name and ref (traffic-model.js AXIS_IDS order)
 const AXIS_OF = (t) => (t.name === 'Avenida da Liberdade' ? 1 : /EN 101/.test(t.ref || '') ? 2 : /A 11|CSB|EN 14/.test(t.ref || '') || /Circular Sul de Braga/.test(t.name || '') ? 3 : 0);
 const MAJOR = new Set(['motorway', 'trunk', 'primary', 'motorway_link', 'trunk_link', 'primary_link']);
 
-// 0 car, 1 van, 2 lorry; +z is the front (head lamps), metres to world
+// 0 car, 1 van, 2 lorry, 3 taxi, 4 bus; +z is the front (head lamps), metres
 function vehicleGeometry(type) {
   const parts =
-    type === 2
+    type === 4
       ? [
-          box(2.3, 0.45, 12.6, 0, 0.15, 0, 0x151515),
-          box(2.5, 2.7, 2.3, 0, 0.4, 5.1, 0xffffff), // cab
-          box(2.52, 0.9, 1.2, 0, 1.75, 5.7, 0x2f3438), // windscreen band
-          box(2.55, 3.1, 10, 0, 0.75, -1.3, 0xd8d6d0), // box trailer
+          box(2.5, 0.55, 12.0, 0, 0.2, 0, 0x1b1e21), // chassis
+          box(2.5, 2.35, 11.6, 0, 0.75, 0, 0xffffff), // STCP body
+          box(2.56, 0.95, 9.6, 0, 1.45, 0, 0x223039, 1), // lit windows
+          box(2.57, 0.16, 11.2, 0, 0.92, 0, 0x187ec2), // blue
+          box(2.57, 0.12, 11.2, 0, 1.08, 0, 0x2e8b57), // green
+          box(2.3, 0.22, 10.8, 0, 3.1, 0, 0x9aa0a4), // roof
+          box(1.9, 0.34, 0.12, 0, 2.4, 5.95, 0x14120f), // destination board
+          box(1.7, 0.1, 0.14, 0, 2.63, 5.96, 0xf6efdc, 1), // lit route
+          box(0.24, 0.24, 0.1, -0.85, 0.75, 6.02, 0xffe9b0, 1), // headlights
+          box(0.24, 0.24, 0.1, 0.85, 0.75, 6.02, 0xffe9b0, 1),
+          box(2.2, 1.3, 0.08, 0, 0.9, 6.0, 0x223039, 1), // windscreen
         ]
-      : type === 1
-        ? [box(1.9, 0.3, 4.6, 0, 0, 0, 0x151515), box(2.0, 1.95, 5.2, 0, 0.3, 0, 0xffffff), box(2.02, 0.7, 0.9, 0, 1.3, 2.0, 0x3a3f44)]
-        : [box(1.7, 0.3, 3.6, 0, 0, 0, 0x151515), box(1.8, 0.7, 4.4, 0, 0.3, 0, 0xffffff), box(1.6, 0.55, 2.3, 0, 1.0, -0.2, 0x4a4f55)];
+      : type === 3
+        ? [
+            box(1.7, 0.3, 3.7, 0, 0, 0, 0x151515),
+            box(1.8, 0.7, 4.5, 0, 0.3, 0, 0xffffff), // car body (tinted)
+            box(1.6, 0.55, 2.4, 0, 1.0, -0.2, 0x2b3036), // cabin glass
+            box(0.7, 0.2, 0.34, 0, 1.72, -0.1, 0xffe9b0, 1), // roof taxi sign
+            box(1.82, 0.16, 0.5, 0, 0.5, 1.7, 0x2b3f63), // livery band
+          ]
+        : type === 2
+          ? [
+              box(2.3, 0.45, 12.6, 0, 0.15, 0, 0x151515),
+              box(2.5, 2.7, 2.3, 0, 0.4, 5.1, 0xffffff), // cab
+              box(2.52, 0.9, 1.2, 0, 1.75, 5.7, 0x2f3438), // windscreen band
+              box(2.55, 3.1, 10, 0, 0.75, -1.3, 0xd8d6d0), // box trailer
+            ]
+          : type === 1
+            ? [box(1.9, 0.3, 4.6, 0, 0, 0, 0x151515), box(2.0, 1.95, 5.2, 0, 0.3, 0, 0xffffff), box(2.02, 0.7, 0.9, 0, 1.3, 2.0, 0x3a3f44)]
+            : [box(1.7, 0.3, 3.6, 0, 0, 0, 0x151515), box(1.8, 0.7, 4.4, 0, 0.3, 0, 0xffffff), box(1.6, 0.55, 2.3, 0, 1.0, -0.2, 0x4a4f55)];
   const g = mergeGeometries(parts);
   g.scale(S, S, S);
   return g;
@@ -1522,30 +1683,40 @@ function buildTraffic({ roads, project, heightAt, mobile, model, N: nCars }) {
   }
   weigh(model ? model.state.demand : 0);
 
-  // ---- vehicles: lorries on the motorways, vans everywhere
+  // ---- vehicles: lorries on the motorways, vans and cars everywhere, plus
+  // a few Porto taxis and STCP buses on the city streets. `vs` is the visible
+  // skin; `vt` (the physics type road-network.js owns) stays 0/1/2 — a bus
+  // behaves as the long lorry for lane and speed, a taxi as a car.
   const vt = flow.vt;
+  const vs = new Uint8Array(N); // skin: 0 car, 1 van, 2 lorry, 3 taxi, 4 bus
   const vc = new Uint8Array(N);
   function spawn(i) {
     flow.spawn(i);
     const d = flow.vd[i];
     const r = rnd();
-    vt[i] = r < (laneFast[d] ? 0.24 : 0.03) ? 2 : r < (laneFast[d] ? 0.36 : 0.15) ? 1 : 0;
-    vc[i] = vt[i] === 2 ? Math.floor(rnd() * LORRY_PAINT.length) : vt[i] ? (rnd() < 0.8 ? 0 : 1) : Math.floor(rnd() * PAINT.length);
+    let skin;
+    if (laneFast[d]) skin = r < 0.24 ? 2 : r < 0.36 ? 1 : 0;
+    else if (lanePrimary[d]) skin = r < 0.03 ? 4 : r < 0.12 ? 3 : r < 0.3 ? 1 : 0;
+    else skin = r < 0.015 ? 4 : r < 0.09 ? 3 : r < 0.24 ? 1 : r < 0.27 ? 2 : 0;
+    vs[i] = skin;
+    vt[i] = skin === 2 || skin === 4 ? 2 : skin === 1 ? 1 : 0;
+    vc[i] = Math.floor(rnd() * PAINTS[skin].length);
   }
   for (let i = 0; i < N; i++) spawn(i);
 
   const lampsCar = lampChunk(0.55, 0.85);
-  const LAMPS = [lampsCar, lampChunk(0.6, 0.95), lampChunk(0.8, 1.15)];
-  const NAMES = ['traffic-cars', 'traffic-vans', 'traffic-lorries'];
-  const meshes = [0, 1, 2].map((type) => {
-    const m = new THREE.InstancedMesh(vehicleGeometry(type), lifeMaterial({ roughness: 0.38, metalness: 0.25, lamps: LAMPS[type] }), type === 2 ? Math.ceil(N * 0.4) : N);
+  const LAMPS = [lampsCar, lampChunk(0.6, 0.95), lampChunk(0.8, 1.15), lampsCar, lampChunk(0.55, 0.95)];
+  const NAMES = ['traffic-cars', 'traffic-vans', 'traffic-lorries', 'traffic-taxis', 'traffic-buses'];
+  const CAP = [1, 1, 0.4, 1, 0.14];
+  const meshes = [0, 1, 2, 3, 4].map((type) => {
+    const m = new THREE.InstancedMesh(vehicleGeometry(type), lifeMaterial({ roughness: 0.38, metalness: 0.25, lamps: LAMPS[type] }), Math.ceil(N * CAP[type]));
     m.name = NAMES[type];
     m.frustumCulled = false; // culled per vehicle below
     m.castShadow = false;
     m.receiveShadow = true;
     m.count = 0;
     m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    m.setColorAt(0, PAINT[0]);
+    m.setColorAt(0, PAINTS[type][0]);
     m.instanceColor.setUsage(THREE.DynamicDrawUsage);
     return m;
   });
@@ -1660,7 +1831,7 @@ function buildTraffic({ roads, project, heightAt, mobile, model, N: nCars }) {
     return true;
   }
 
-  const counts = [0, 0, 0]; // visible cars, vans, lorries (reused every frame)
+  const counts = [0, 0, 0, 0, 0]; // visible cars, vans, lorries, taxis, buses
   const caps = meshes.map((m) => m.instanceMatrix.count);
   const streakAttrs = [lpAttr, ldAttr];
   function update(dt, camera, frustum, { night, camDist, width, height }) {
@@ -1674,7 +1845,7 @@ function buildTraffic({ roads, project, heightAt, mobile, model, N: nCars }) {
     } else active = Math.round(N * 0.5 * (1 - 0.2 * night));
     const bodies = camDist < 2800;
     const showLights = night > 0.02;
-    counts[0] = counts[1] = counts[2] = 0;
+    counts[0] = counts[1] = counts[2] = counts[3] = counts[4] = 0;
     let nl = 0;
     const cx = camera.position.x;
     const cz = camera.position.z;
@@ -1693,7 +1864,7 @@ function buildTraffic({ roads, project, heightAt, mobile, model, N: nCars }) {
       // inside a tunnel: out of sight until the other portal
       if (p.hidden) continue;
       if (!inView(frustum, p.x, p.y, p.z, 3)) continue;
-      const t = vt[i];
+      const t = vs[i];
       if (bodies && counts[t] < caps[t] && (p.x - cx) ** 2 + (p.z - cz) ** 2 < 2800 * 2800) {
         const m = meshes[t];
         const k = counts[t]++;
@@ -1719,10 +1890,10 @@ function buildTraffic({ roads, project, heightAt, mobile, model, N: nCars }) {
         e[o + 13] = p.y + 0.13;
         e[o + 14] = p.z;
         e[o + 15] = 1;
-        (t === 2 ? LORRY_PAINT : PAINT)[vc[i]].toArray(m.instanceColor.array, k * 3);
+        PAINTS[t][vc[i]].toArray(m.instanceColor.array, k * 3);
       }
       if (showLights) {
-        const half = (t === 2 ? 6.4 : t ? 2.6 : 2.2) * S;
+        const half = (t === 2 ? 6.4 : t === 4 ? 6.0 : t === 3 ? 2.2 : t ? 2.6 : 2.2) * S;
         const o = nl * 3;
         lp[o] = p.x + p.hx * half;
         lp[o + 1] = p.y + 0.13 + 0.7 * S;
@@ -1733,7 +1904,7 @@ function buildTraffic({ roads, project, heightAt, mobile, model, N: nCars }) {
         nl++;
       }
     }
-    for (let t = 0; t < 3; t++) {
+    for (let t = 0; t < meshes.length; t++) {
       const m = meshes[t];
       m.count = counts[t];
       m.visible = counts[t] > 0;
@@ -1758,7 +1929,7 @@ function buildTraffic({ roads, project, heightAt, mobile, model, N: nCars }) {
       }
       lmat.uniforms.uView.value.set(width, height);
     }
-    visible = counts[0] + counts[1] + counts[2];
+    visible = counts.reduce((s, n) => s + n, 0);
   }
 
   let laneLen = 0;
@@ -1776,6 +1947,7 @@ function buildTraffic({ roads, project, heightAt, mobile, model, N: nCars }) {
       lanes: nD,
       oneWay: g.rev.filter((r) => r < 0).length,
       vehicles: N,
+      skins: NAMES,
       laneKm: +(laneLen / S / 1000).toFixed(1),
       axisLanes: [1, 2, 3].map((a) => laneAxis.filter((v) => v === a).length),
     },

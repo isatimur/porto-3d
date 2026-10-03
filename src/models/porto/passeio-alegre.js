@@ -106,6 +106,15 @@ function passeio(k, site) {
     k.lamp(3.4, px, 0.18, D / 2 - D * 0.05);
   }
 
+  // --- detail: a river railing and two outer flower parterres
+  k.box(W * 0.9, 0.7, 0.25, 'graniteLight', 0, 0.18, D / 2 - D * 0.02);
+  for (let i = 0; i < 12; i++) {
+    const px = -W * 0.42 + (W * 0.84 * i) / 11;
+    k.cyl(0.05, 0.05, 1.2, 5, 'iron', px, 0.9, D / 2 - D * 0.02);
+  }
+  k.prism(rect(-W * 0.30, -D * 0.22, W * 0.12, D * 0.14), 0.18, 0.08, 'flowerPink');
+  k.prism(rect(W * 0.30, -D * 0.22, W * 0.12, D * 0.14), 0.18, 0.08, 'flowerRed');
+
   done();
 }
 passeio.metric = true;

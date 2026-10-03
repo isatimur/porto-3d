@@ -75,6 +75,29 @@ function carmo(k, site) {
       winArch: 'round', clock: false, urns: true, balustrade: false, cross: true,
     });
   }
+  // ---------------------------------------------------------- detail pass
+  // facade: scrolled volutes flanking the pediment, a carved cartouche over
+  // the portal and a cross on the gable apex
+  for (const s of [-1, 1]) {
+    k.box(0.55, 1.8, 0.6, 'granite', b.cx + s * (Wd / 2 + 1.2), 17.2, fz - 0.4);
+    k.cone(0.75, 1.0, 5, 'granite', b.cx + s * (Wd / 2 + 1.2), 19.0, fz - 0.3);
+  }
+  k.box(1.8, 1.1, 0.45, 'granite', b.cx, 11.2, fz + 0.5);
+  k.box(0.6, 0.6, 0.3, 'graniteLight', b.cx, 11.4, fz + 0.75);
+  k.box(0.14, 2.2, 0.14, 'iron', b.cx, 21.6, fz - 0.4);
+  k.box(1.0, 0.14, 0.14, 'iron', b.cx, 22.5, fz - 0.4);
+  // azulejo flank: a granite border frame and a string course over the tiles
+  onEdge(k, side, 0, 0.06);
+  k.box(side.len - 2.2, 0.4, 0.55, 'granite', 0, 9.9, 0.25);
+  k.box(side.len - 2.2, 0.4, 0.55, 'granite', 0, 1.9, 0.25);
+  for (let i = 0; i <= 2; i++) k.box(0.5, 8.4, 0.5, 'granite', -side.len / 2 + (side.len / 2) * i, 1.4, 0.22);
+  k.pop();
+  // a small sacristy volume and buttresses against the west flank
+  k.prism(rect(b.cx - Wd / 2 - 4.5, b.cz + 6, 7, 12), 0, 8.5, 'plaster');
+  k.corniceRing(7, 12, corniceProfile('eave', 0.5), 'granite', b.cx - Wd / 2 - 4.5, 8.2, b.cz + 6);
+  k.push({ x: b.cx - Wd / 2 - 4.5, z: b.cz + 6 });
+  k.hipRoof(7.2, 12.2, 2.4, 'terracotta', 0, 8.5, 0, { over: 0.5 });
+  k.pop();
   done();
 }
 carmo.metric = true;

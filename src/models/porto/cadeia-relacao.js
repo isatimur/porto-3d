@@ -84,6 +84,16 @@ function cadeiaRelacao(k, site) {
     k.pop();
   }
 
+  // --- detail: a dome lantern, entrance gates and a boundary coping
+  k.cyl(1.4, 1.7, 2.6, 10, 'graniteLight', 0, 15.2, 0);
+  k.dome(1.5, 'lead', 0, 17.8, 0, { seg: 12, rings: 5 });
+  k.box(0.12, 1.2, 0.12, 'iron', 0, 19.3, 0);
+  k.box(0.6, 0.12, 0.12, 'iron', 0, 19.75, 0);
+  k.box(0.12, 2.8, 0.12, 'iron', -2.4, 0, zF + 1.2);
+  k.box(0.12, 2.8, 0.12, 'iron', 2.4, 0, zF + 1.2);
+  k.box(5.0, 0.14, 0.14, 'iron', 0, 2.6, zF + 1.2);
+  k.corniceRing(W + 1.0, D + 1.0, corniceProfile('band', 0.4), 'graniteDark', 0, 1.2, 0);
+
   done();
 }
 cadeiaRelacao.metric = true;

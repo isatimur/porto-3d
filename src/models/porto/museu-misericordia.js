@@ -76,6 +76,18 @@ function builder(k, site) {
 
   // a low boundary wall with coping round the whole block
   k.corniceRing(W, D, corniceProfile('band', 0.35), 'graniteDark', b.cx, 1.4, b.cz);
+
+  // --- detail: cloister arcade columns, tiled panels and a door surround
+  for (let i = 0; i < 6; i++) {
+    const gxx = gx - W * 0.16 + (W * 0.32 * i) / 5;
+    k.cyl(0.22, 0.26, 4.6, 8, 'graniteLight', gxx, 0, gz - D * 0.19);
+    k.cyl(0.22, 0.26, 4.6, 8, 'graniteLight', gxx, 0, gz + D * 0.19);
+  }
+  k.box(W * 0.34, 0.4, 0.8, 'graniteLight', gx, 4.6, gz - D * 0.19);
+  for (const s of [-1, 1]) {
+    k.box(3.0, 4.0, 0.16, 'azulejo', gx + s * W * 0.14, 2.0, gz + D * 0.2 + 0.06, { mat: 4 });
+  }
+  k.box(2.0, 1.4, 0.3, 'doorBlue', b.cx + W * 0.24 + cw / 2 + 0.05, 7.4, cz);
   done();
 }
 builder.metric = true;

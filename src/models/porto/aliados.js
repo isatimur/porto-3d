@@ -120,6 +120,27 @@ function camara(k) {
   k.cyl(0.7, 0.2, 2.0, 8, COPPER, 0, ry0 + 5.6, tz, { mat: MAT.smooth });
   k.cyl(0.1, 0.1, 1.4, 5, 'iron', 0, ry0 + 7.4, tz);
   k.sphere(0.25, 'gold', 0, ry0 + 8.8, tz, { seg: 7, rings: 5, emit: 0.5 });
+
+  // ---------------------------------------------------------- detail pass
+  // tower: clock numerals, corner urns at the carillon cornice and louvre slats
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2;
+    k.box(0.14, 0.14, 0.08, 'dark', Math.sin(a) * 2.2, cy + 3.2 + Math.cos(a) * 2.2, czer + 0.5);
+  }
+  for (const [px, pz] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) k.cone(0.5, 1.1, 6, 'graniteLight', px * 3.6, by + 7.0, tz + pz * 3.6);
+  for (const [ry, off] of [[0, 5.0], [Math.PI, 5.0], [Math.PI / 2, 5.0], [-Math.PI / 2, 5.0]]) {
+    k.push({ y: by, z: tz, ry });
+    for (let i = 0; i < 7; i++) k.box(0.1, 4.4, 0.16, 'graniteLight', -1.35 + i * 0.45, 1.2, off + 0.28);
+    k.pop();
+  }
+  // facade: window head caps on the middle storeys and a parapet over the cornice
+  for (let s = 1; s <= 3; s++) {
+    for (let i = -6; i <= 6; i++) {
+      if (Math.abs(i) <= 1 && s >= 1) continue;
+      k.box(1.7, 0.3, 0.5, 'graniteLight', i * 4.4, 2.8 + s * 4.2 + 2.2, zf + 0.15);
+    }
+  }
+  k.box(Bw - 2, 0.8, 0.5, 'graniteLight', 0, Hh + 0.2, zf - 0.1);
   k.end('tower');
 }
 

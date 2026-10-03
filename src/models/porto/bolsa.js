@@ -56,6 +56,30 @@ function builder(k, site) {
   win(k, 0, 1.6, 4.4, 7.2, 26.0, { arch: 'round', pane: 'dark', bw: 0.4, depth: 0.5 });
   k.end('portico');
 
+  // ---------------------------------------------------------- detail pass
+  // portico order: column bases and capitals, and a triglyph frieze
+  for (let i = 0; i < 6; i++) {
+    const px = -7.5 + i * 3;
+    k.box(1.5, 0.5, 1.5, 'graniteLight', px, 0.95, 26.8);
+    k.box(1.4, 0.55, 1.4, 'graniteLight', px, 10.35, 26.8);
+    for (let f = -2; f <= 2; f++) k.box(0.1, 8.9, 0.1, 'granite', px + f * 0.22, 1.45, 27.4);
+  }
+  for (let i = 0; i < 15; i++) k.box(0.5, 0.7, 0.22, 'graniteLight', -8.4 + i * 1.2, 11.8, 25.4);
+  // ground-floor keystones and a continuous impost band on the outer faces
+  for (const e of edges(outer)) {
+    if (e.len < 8) continue;
+    onEdge(k, e, 0.6);
+    const n = Math.max(2, Math.round(e.len / 5.8));
+    for (let i = 0; i < n; i++) {
+      const u = -e.len / 2 + (e.len / n) * (i + 0.5);
+      k.box(0.9, 0.7, 0.45, 'graniteLight', u, 4.9, 0.18);
+    }
+    k.pop();
+  }
+  // attic: iron cresting along the lead roof and a row of carved chimneys
+  for (let i = -6; i <= 6; i++) k.lathe(PROFILES.finial, 5, 'bronze', i * 5.2, 23.0, OD / 2 - 0.6, { sr: 0.2, sh: 0.8, flat: true });
+  for (let i = -3; i <= 3; i++) k.box(1.2, 2.4, 1.2, 'graniteWarm', i * 9.5, 22.6, -OD / 2 + 3.0);
+
   // ------------------------------------------------------- inner courtyard
   k.begin('court');
   punchedWindows(k, court, 0, {

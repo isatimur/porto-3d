@@ -118,6 +118,23 @@ function builder(k, site) {
     k.box(10, 1.4, DECK_W + 1, 'graniteLight', ex, TOP - 6, 0);
   }
 
+  // --- detail pass: deck lighting masts, an under-deck inspection walkway
+  const masts = 22;
+  for (let i = 0; i < masts; i++) {
+    const px = -half + ((i + 0.5) * span) / masts;
+    for (const s of [-1, 1]) {
+      k.box(0.16, 3.2, 0.16, 'steel', px, TOP, s * (DECK_W / 2 - 0.5));
+      k.box(0.9, 0.18, 0.3, 'window', px + s * 0.4, TOP + 3.2, s * (DECK_W / 2 - 0.5), { emit: 0.5 });
+    }
+  }
+  for (const s of [-1, 1]) {
+    k.box(span, 0.6, 0.25, 'graniteDark', 0, deckBot(-river) - 0.6, s * (DECK_W / 2 - 2.2));
+  }
+  for (const s of [-1, 1]) {
+    const px = s * river;
+    k.box(PIER_W + 3, 0.6, PIER_D + 3, 'graniteLight', px, deckBot(px) - 3.0, 0);
+  }
+
   k.pop();
   k.end('main');
 }

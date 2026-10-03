@@ -60,6 +60,17 @@ function warehouse(k, cx, cz, w, d, h, sign) {
     k.pop();
   }
   if (sign) signBoard(k, sign, cx, h * 0.55, cz + d / 2 + 0.16, Math.min(w * 0.7, 28), 2.6);
+  // granite quoins, iron tie plates and a hoist beam with its pulley block
+  for (const [sx, sz] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+    for (let q = 0; q < 6; q++) k.box(0.5, 0.9, 0.5, 'granite', cx + sx * (w / 2 - 0.25), 0.9 + q * 2.0, cz + sz * (d / 2 - 0.25));
+  }
+  for (const s of [-1, 1]) {
+    const zf = cz + s * (d / 2 + 0.06);
+    k.segment([cx - w * 0.32, h * 0.82, zf], [cx + w * 0.32, h * 0.82, zf], 0.2, 0.2, 'iron');
+    k.box(1.0, 0.55, 1.0, 'wood', cx, h * 0.82 - 0.75, zf + 0.2);
+    k.cyl(0.3, 0.3, 0.22, 8, 'iron', cx, h * 0.82 - 1.2, zf + 0.2, { rx: Math.PI / 2 });
+    for (let i = -2; i <= 2; i++) k.box(0.16, 0.16, 0.14, 'iron', cx + i * (w * 0.18), h * 0.62, zf);
+  }
 }
 
 function builder(k, site) {
@@ -102,6 +113,13 @@ function builder(k, site) {
   for (let i = 0; i < Math.max(2, Math.round(L / 45)); i++) {
     k.lamp(4.4, -L / 2 + (L * (i + 0.5)) / Math.max(2, Math.round(L / 45)), 0, W / 2 - 2.5, { globe: true });
   }
+  // ---------------------------------------------------------- detail pass
+  // yard: cobbled apron strips, a weighbridge and stacked pallets by the doors
+  for (const yd of yards) k.prism(rect(yd.cx, yd.cz, yd.n * 3.2, yd.rows * 3.0), 0, 0.08, 'graniteGrey');
+  k.box(6.0, 0.4, 3.0, 'steel', -L * 0.16, 0, W / 2 - 6.0);
+  k.box(6.6, 0.3, 3.6, 'granite', -L * 0.16, 0, W / 2 - 6.0);
+  for (let i = 0; i < 5; i++) k.box(1.3, 0.45 * (i + 1), 1.1, 'wood', L * 0.4, 0, W / 2 - 8 - i * 0.1);
+  for (let i = 0; i < 4; i++) k.box(2.6, 0.2, 1.6, 'wood', -L * 0.4 + i * 0.6, i * 0.22, W / 2 - 5.4 + i * 0.5);
   k.end('main');
   k.pop();
 }

@@ -94,11 +94,25 @@ function builder(k, site) {
   // the Pavilhão Rosa Mota at the centre of the gardens
   pavilion(k, 0, 0, 0);
 
+  // ---------------------------------------------------------- detail pass
+  // pavilion: drum buttress pilasters, urns on the cornice, a folding glazed
+  // screen at the entrance and a stepped terrace with a balustrade
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2;
+    k.box(1.4, 9.4, 0.5, 'granite', Math.cos(a) * (23.6), 0.6, Math.sin(a) * (23.6), { ry: -a });
+    k.cone(0.5, 1.0, 6, 'graniteLight', Math.cos(a) * 23.5, 10.2, Math.sin(a) * 23.5);
+  }
+  for (let i = 0; i < 10; i++) k.box(1.6, 5.0, 0.3, 'glass', -8 + i * 1.8, 0.2, -24.9, { emit: 0.12, mat: MAT.flat });
+  for (let i = 0; i < 5; i++) k.box(0.2, 5.0, 0.4, 'graniteLight', -8 + i * 4, 0.2, -25.0);
+  k.prism(rect(0, -34, 26, 10), -0.2, 0.6, 'graniteLight');
+  k.prism(rect(0, -30, 24, 2.4), 0.4, 0.5, 'graniteLight');
+  k.balustrade(24, 0.9, 'graniteLight', 0, 0.9, -29, { cheap: true, d: 0.2, sp: 0.5 });
+
   // -------------------------------------------------------------- planting
   k.begin('trees');
   let placed = 0;
   let guard = 0;
-  while (placed < 26 && guard < 400) {
+  while (placed < 5 && guard < 400) {
     guard++;
     const tx = (rnd() - 0.5) * (L - 16);
     const tz = (rnd() - 0.5) * (W - 16);
@@ -106,14 +120,14 @@ function builder(k, site) {
     if (tz > W * 0.2) continue;                     // terraces kept open
     const kind = rnd();
     const h = 7 + rnd() * 6;
-    if (kind < 0.16) k.tree(tx, 0, tz, h, { kind: 'cypress' });
-    else if (kind < 0.3) k.tree(tx, 0, tz, h * 0.8, { kind: 'topiary' });
-    else k.tree(tx, 0, tz, h, { crown: rnd() > 0.5 ? 'round' : 'oval', lobes: 2 });
+    if (kind < 0.3) k.tree(tx, 0, tz, h, { kind: 'cypress' });
+    else if (kind < 0.5) k.tree(tx, 0, tz, h * 0.8, { kind: 'topiary' });
+    else k.tree(tx, 0, tz, h, { crown: rnd() > 0.5 ? 'round' : 'oval' });
     placed++;
   }
   // avenue of limes along the main walk
-  for (let i = 0; i < 12; i++) {
-    const tx = -L * 0.34 + (L * 0.68 * i) / 11;
+  for (let i = 0; i < 4; i++) {
+    const tx = -L * 0.34 + (L * 0.68 * i) / 3;
     if (Math.abs(tx) < 26) continue;
     k.tree(tx, 0, W * 0.17, 8, { crown: 'oval' });
   }
@@ -125,6 +139,9 @@ function builder(k, site) {
   k.hipRoof(14, 9, 3, 'terracotta', 0, 6, 0, { over: 0.6 });
   k.pop();
   k.corniceRing(14, 9, corniceProfile('band', 0.4), 'granite', -L * 0.32, 6, -W * 0.28);
+  // a pair of park lamps framing the museum villa
+  k.lamp(5, -L * 0.32 - 10, 0, -W * 0.28 + 8);
+  k.lamp(5, -L * 0.32 + 10, 0, -W * 0.28 + 8);
   k.pop();
 }
 builder.metric = true;

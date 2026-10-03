@@ -75,6 +75,19 @@ function ingleses(k, site) {
   // groynes: low rock breakwaters running into the surf
   for (const gx of [-W * 0.22, W * 0.08]) k.box(2.8, 0.7, D * 0.34, 'graniteDark', gx, 0.30, seaZ - D * 0.08);
 
+  // --- detail: a timber boardwalk, promenade lamps and more parasols
+  k.box(W * 0.8, 0.12, 1.6, 'wood', 0, 0.34, -D / 2 + D * 0.22);
+  for (let i = 0; i < 6; i++) {
+    const px = -W * 0.36 + (W * 0.72 * i) / 5;
+    k.lamp(3.2, px, 0.34, -D / 2 + D * 0.16, { globe: true });
+  }
+  for (let i = 0; i < 6; i++) {
+    const ux = -W * 0.25 + i * W * 0.09;
+    const uz = seaZ - D * 0.34 - (i % 2) * 3;
+    k.cyl(0.05, 0.05, 1.0, 5, 'wood', ux, 0.30, uz);
+    k.cone(1.0, 0.45, 8, i % 2 ? 'flowerRed' : 'flowerYellow', ux, 1.25, uz);
+  }
+
   done();
 }
 ingleses.metric = true;

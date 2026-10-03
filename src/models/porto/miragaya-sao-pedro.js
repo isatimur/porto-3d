@@ -100,6 +100,17 @@ function builder(k, site) {
   k.tree(cx + W * 0.42, 0, zF + 3, 6, { crown: 'oval' });
   k.tree(cx - W * 0.42, 0, zB + 2, 7, { crown: 'oval' });
   for (const sx of [-1, 1]) k.urn(1.0, 'graniteLight', cx + sx * (W / 2 - 0.7), H - 0.4, zF - 0.7, { seg: 7 });
+
+  // --- detail pass: tiled ridge, azulejo panels and a rear garth
+  for (let i = 0; i < 12; i++) {
+    const tz = cz - D / 2 + 2 + (i * (D - 4)) / 11;
+    k.box(0.5, 0.24, 0.44, 'terracotta', cx, H + 4.15, tz);
+  }
+  for (const sx of [-1, 1]) {
+    k.box(2.4, 3.2, 0.2, 'azulejo', cx + sx * 5.2, 4.6, zF + 0.16, { mat: MAT.azulejo });
+    k.box(2.8, 0.3, 0.3, 'graniteLight', cx + sx * 5.2, 4.2, zF + 0.22);
+  }
+  k.tree(cx, 0, zB + 5.5, 6.5, { crown: 'round' });
   done();
 }
 builder.metric = true;

@@ -113,6 +113,14 @@ function saoBentoVitoria(k, site) {
   for (let i = 0; i < 4; i++) k.tree(-36 + i * 9, 0, 34 - i * 2, 8 + (i % 2), { crown: 'round' });
   k.lamp(4.6, -4, 0.4, 30, { globe: true });
 
+  // --- detail: cloister well, a tower clock and a terrace balustrade
+  k.cyl(1.8, 2.1, 0.9, 14, 'graniteDark', mc.x, 0.2, mc.z);
+  k.cyl(0.35, 0.55, 1.8, 10, 'graniteLight', mc.x, 1.1, mc.z);
+  k.box(3.0, 0.3, 3.0, 'graniteLight', mc.x, 2.9, mc.z);
+  k.cyl(1.4, 1.4, 0.4, 16, 'granite', tx, 15.4, tz + 3.6, { rx: Math.PI / 2 });
+  k.cyl(1.1, 1.1, 0.22, 16, 'white', tx, 15.4, tz + 3.82, { rx: Math.PI / 2 });
+  k.balustrade(46, 1.0, 'graniteLight', 16, 1.1, 60.6, { cheap: true, d: 0.22, sp: 1.2, posts: 10 });
+
   done();
 }
 saoBentoVitoria.metric = true;

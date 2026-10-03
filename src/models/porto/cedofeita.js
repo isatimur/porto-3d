@@ -6,7 +6,7 @@
 import { corniceProfile, PROFILES } from '../kit.js';
 import { polyCornice, polyBand } from '../metric.js';
 import { rect, offset } from '../geom.js';
-import { win } from '../parts.js';
+import { win, bell } from '../parts.js';
 import { fitTo } from './site-fit.js';
 
 const W = 11.55;
@@ -129,6 +129,22 @@ function cedofeita(k, site) {
   for (let i = 0; i < 3; i++) k.tree(3.4 - i * 0.4, 0, -6 + i * 7, 6.5 + (i % 2), { crown: 'round' });
   for (let i = 0; i < 3; i++) k.tree(-7.5 + i * 0.6, 0, -8 + i * 9, 7 + (i % 2), { kind: 'cypress' });
   k.lamp(3.8, 3.0, 0.3, 9.5, { globe: true });
+
+  // --- detail pass: stone ridge, tower bell, Romanesque corbels, more graves
+  for (let i = 0; i < 9; i++) {
+    const tz = cz - dn / 2 + 1.5 + (i * (dn - 3)) / 8;
+    k.box(0.45, 0.22, 0.4, 'graniteLight', cx, 12.72, tz);
+  }
+  bell(k, 1.2, tx, 11.6, tz + 1.2);
+  for (const sx of [-1, 1]) {
+    for (let i = 0; i < 5; i++) k.box(0.5, 0.5, 0.8, 'graniteLight', cx + sx * (wn / 2 - 0.1), 9.05, cz - 6 + i * 3);
+  }
+  for (let i = 0; i < 6; i++) {
+    const gx = 2.6 - (i % 3) * 0.4;
+    const gz = -9 + i * 3.2;
+    k.box(1.1, 0.3, 0.7, 'graniteLight', gx, 0, gz);
+    k.box(0.5, 1.1, 0.18, 'graniteLight', gx, 0.3, gz - 0.35);
+  }
 
   done();
 }

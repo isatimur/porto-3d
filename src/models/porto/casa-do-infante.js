@@ -81,6 +81,22 @@ function builder(k, site) {
   k.pop();
   k.end('portal');
 
+  // --- detail: courtyard cloister arcade, a well and tiled wall panels
+  for (const e of edges(inner)) {
+    if (e.len < 36) continue;
+    k.push({ x: e.mx - e.nx * 0.05, z: e.mz - e.nz * 0.05, ry: e.ry + Math.PI });
+    k.arcade(e.len - 1.0, 4.2, 0.5, Math.max(2, Math.round((e.len - 1.0) / 5.5)), 1.9, 3.0, 'graniteLight');
+    k.pop();
+  }
+  k.cyl(1.3, 1.5, 0.9, 12, 'graniteLight', b.cx, 0.15, b.cz);
+  k.cyl(0.25, 0.35, 1.2, 8, 'granite', b.cx, 1.05, b.cz);
+  for (const e of edges(plan)) {
+    if (e.len < 8) continue;
+    k.push({ x: e.mx + e.nx * 0.07, z: e.mz + e.nz * 0.07, ry: e.ry });
+    k.box(e.len * 0.5, 1.6, 0.14, 'azulejo', 0, 1.0, 0, { mat: MAT.azulejo });
+    k.pop();
+  }
+
   k.end('main');
   done();
 }

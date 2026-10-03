@@ -205,6 +205,19 @@ const RAIL = {
       path: CP_NORTE,
       source: 'OSM Linha do Norte (Via Ascendente) across the Ponte de São João to Campanhã (ways 142939380, 1207413417, 543213029 + approaches); deck 66 m (dimensions.json ponte-sao-joao)',
     },
+    {
+      id: 'cp-urbano',
+      operator: 'CP Urbanos do Porto',
+      line: 'Urbano',
+      service: 'urbano',
+      colour: '#2E8B57',
+      speed_mps: 16,
+      count: 1,
+      cars: 3,
+      bridge: { site: 'ponte-sao-joao', deck_m: 66, span: [[41.13501, -8.60143], [41.14540, -8.58631]] },
+      path: CP_NORTE,
+      source: 'CP Urbanos do Porto sharing the Linha do Norte alignment across the Ponte de São João; deck 66 m (dimensions.json ponte-sao-joao)',
+    },
   ],
   source: 'OSM relation 2567504 (Metro Linha D) and Linha do Norte ways; ODbL, OpenStreetMap contributors',
 };
@@ -212,7 +225,7 @@ const RAIL = {
 function validateRail(r) {
   if (!Array.isArray(r.items) || !r.items.length) throw new Error('rail: no items');
   for (const it of r.items) {
-    if (!['metro', 'mainline'].includes(it.service)) throw new Error(`rail: ${it.id} bad service`);
+    if (!['metro', 'mainline', 'urbano'].includes(it.service)) throw new Error(`rail: ${it.id} bad service`);
     if (!Array.isArray(it.path) || it.path.length < 2) throw new Error(`rail: ${it.id} path needs >= 2 points`);
     if (!(it.speed_mps > 0)) throw new Error(`rail: ${it.id} speed must be > 0`);
     if (!(it.count >= 1)) throw new Error(`rail: ${it.id} count must be >= 1`);
@@ -224,6 +237,14 @@ function validateRail(r) {
       if (!(q[0] > 41.0 && q[0] < 41.3 && q[1] > -8.8 && q[1] < -8.4)) throw new Error(`rail: ${it.id} point off Porto`);
     }
   }
+  const byService = (s) => r.items.filter((it) => it.service === s).length;
+  r.counts = {
+    services: r.items.length,
+    consists: r.items.reduce((n, it) => n + it.count, 0),
+    metro: byService('metro'),
+    mainline: byService('mainline'),
+    urbano: byService('urbano'),
+  };
   return r;
 }
 
@@ -254,6 +275,8 @@ const FREIXO_PATH = [
 const FERRY_PATH = [
   [41.14, -8.6125], [41.13945, -8.6123], [41.13885, -8.6124], [41.1383, -8.6125],
 ];
+// A barco-hotel running the same Douro reach as the Foz cruisers.
+const HOTEL_PATH = FOZ_PATH;
 
 const BOATS = {
   name: 'River traffic on the Douro',
@@ -261,9 +284,12 @@ const BOATS = {
     { id: 'rabelo-1', type: 'rabelo', speed_mps: 3.2, phase: 0.0, sail: true, path: RABELO_PATH },
     { id: 'rabelo-2', type: 'rabelo', speed_mps: 3.2, phase: 0.34, sail: true, path: RABELO_PATH },
     { id: 'rabelo-3', type: 'rabelo', speed_mps: 3.2, phase: 0.67, sail: true, path: RABELO_PATH },
+    { id: 'rabelo-4', type: 'rabelo', speed_mps: 3.0, phase: 0.16, sail: true, path: RABELO_PATH },
+    { id: 'rabelo-5', type: 'rabelo', speed_mps: 3.4, phase: 0.82, sail: false, path: RABELO_PATH },
     { id: 'cruiser-foz-1', type: 'cruiser', speed_mps: 4.8, phase: 0.0, path: FOZ_PATH },
     { id: 'cruiser-foz-2', type: 'cruiser', speed_mps: 4.8, phase: 0.5, path: FOZ_PATH },
     { id: 'cruiser-freixo-1', type: 'cruiser', speed_mps: 4.6, phase: 0.2, path: FREIXO_PATH },
+    { id: 'hotel-1', type: 'hotel', speed_mps: 3.6, phase: 0.72, path: HOTEL_PATH },
     { id: 'ferry-1', type: 'ferry', speed_mps: 4.0, phase: 0.1, path: FERRY_PATH },
   ],
   moored: [
@@ -271,21 +297,26 @@ const BOATS = {
     { type: 'rabelo', p: [41.13785, -8.6168], yaw: 80, sail: false },
     { type: 'rabelo', p: [41.13815, -8.6145], yaw: 95, sail: false },
     { type: 'rabelo', p: [41.1399, -8.612], yaw: -90, sail: false },
+    { type: 'rabelo', p: [41.137925, -8.61665], yaw: 92, sail: false },
+    { type: 'rabelo', p: [41.138, -8.61565], yaw: 88, sail: false },
+    { type: 'cruiser', p: [41.139025, -8.61325], yaw: -90 },
   ],
   source: 'Authored over the OSM Douro channel / quays (ODbL, OpenStreetMap contributors)',
 };
 
 function validateBoats(b) {
   for (const it of b.items) {
-    if (!['rabelo', 'cruiser', 'ferry'].includes(it.type)) throw new Error(`boats: bad type ${it.type}`);
+    if (!['rabelo', 'cruiser', 'ferry', 'hotel'].includes(it.type)) throw new Error(`boats: bad type ${it.type}`);
     if (!Array.isArray(it.path) || it.path.length < 2) throw new Error(`boats: ${it.id} path needs >= 2 points`);
     if (!(it.speed_mps > 0)) throw new Error(`boats: ${it.id} speed must be > 0`);
     for (const q of it.path) if (!(q[0] > 41.0 && q[0] < 41.3 && q[1] > -8.8 && q[1] < -8.4)) throw new Error(`boats: ${it.id} point off the Douro`);
   }
   for (const m of b.moored) {
-    if (!['rabelo', 'cruiser', 'ferry'].includes(m.type)) throw new Error(`boats: bad moored type ${m.type}`);
+    if (!['rabelo', 'cruiser', 'ferry', 'hotel'].includes(m.type)) throw new Error(`boats: bad moored type ${m.type}`);
     if (!Array.isArray(m.p) || m.p.length !== 2) throw new Error('boats: moored point must be [lat, lon]');
   }
+  const byType = (t) => b.items.filter((it) => it.type === t).length;
+  b.counts = { rabelo: byType('rabelo'), cruiser: byType('cruiser'), ferry: byType('ferry'), hotel: byType('hotel'), moored: b.moored.length };
   return b;
 }
 

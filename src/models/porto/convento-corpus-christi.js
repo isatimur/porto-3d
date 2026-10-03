@@ -121,6 +121,20 @@ function builder(k, site) {
   for (let i = 0; i < 5; i++) k.tree(cx - cW * 0.28 + rnd() * cW * 0.56, 0.25, ccz - cD * 0.3 + rnd() * cD * 0.6, 6 + rnd() * 3, { crown: 'round' });
   k.end('garden');
 
+  // --- detail: cloister arcade, a lavabo fountain and a church bell gable
+  for (let i = 0; i < 5; i++) {
+    const gx = cx - cW * 0.16 + (cW * 0.32 * i) / 4;
+    k.cyl(0.16, 0.2, 3.6, 8, 'graniteLight', gx, 0.25, ccz - cD * 0.2);
+    k.cyl(0.16, 0.2, 3.6, 8, 'graniteLight', gx, 0.25, ccz + cD * 0.2);
+    k.box(0.5, 0.2, 0.5, 'graniteLight', gx, 3.85, ccz - cD * 0.2);
+    k.box(0.5, 0.2, 0.5, 'graniteLight', gx, 3.85, ccz + cD * 0.2);
+  }
+  k.cyl(1.6, 1.9, 0.8, 12, 'graniteLight', cx, 0.2, ccz);
+  k.cyl(0.3, 0.5, 1.6, 8, 'graniteLight', cx, 1.0, ccz);
+  k.lathe(PROFILES.basin, 10, 'graniteLight', cx, 2.6, ccz, { sr: 1.1, sh: 1.4, smooth: true });
+  k.box(3.2, 3.4, 0.8, 'graniteWarm', cx, 16, fz - 0.2);
+  k.surround({ x: 0, y: 17.0, w: 1.4, h: 2.0, arch: 'round' }, 0.24, 0.35, 'granite', fz + 0.25);
+
   done();
 }
 builder.metric = true;

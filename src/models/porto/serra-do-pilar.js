@@ -144,6 +144,25 @@ function builder(k, site) {
     }
   }
 
+  // --- detail: cloister floor tombs, benches and a sacristy by the church
+  for (let i = 0; i < 20; i++) {
+    const a = (i / 20) * Math.PI * 2;
+    k.box(1.4, 0.06, 2.8, 'graniteDark', Math.cos(a) * rc * 0.98, 0, zk + Math.sin(a) * rc * 0.98, { ry: -a });
+  }
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2;
+    k.box(1.2, 0.5, 0.5, 'wood', Math.cos(a) * (C - 1.6), 0, zk + Math.sin(a) * (C - 1.6), { ry: -a });
+  }
+  k.box(BW * 0.34, 6.5, 5.0, 'granite', BW * 0.26, 0, zc - R - 5.5);
+  k.push({ x: BW * 0.26, z: zc - R - 5.5 });
+  k.hipRoof(BW * 0.34, 5.0, 1.8, 'terracotta', 0, 6.5, 0);
+  k.pop();
+  // lantern gallery columns round the dome base
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2;
+    k.cyl(0.12, 0.12, 1.4, 6, 'graniteLight', Math.cos(a) * 1.5, y0 + (R - 0.2) + 3.2, zc + Math.sin(a) * 1.5);
+  }
+
   k.end('main');
   done();
 }

@@ -126,6 +126,25 @@ function builder(k, site) {
     }
   }
 
+  // --- detail pass: vertical hangers from the arch, soffit drains and lights
+  for (const z of [-RIB_Z, RIB_Z]) {
+    for (let i = 1; i < N; i += 2) {
+      const x = -af + (2 * af * i) / N;
+      const y = archAt(x);
+      if (y < DECK_Y - 6) k.segment([x, y + 1.0, z], [x, DECK_Y - 5.2, z], 0.5, 0.5, 'graniteDark');
+    }
+  }
+  for (const s of [-1, 1]) {
+    k.segment([s * (half - 4), DECK_Y - 5.0, s * (DECK_W / 2 - 1)], [s * af, SPRING_Y, s * (DECK_W / 2 - 1)], 0.35, 0.35, 'graniteDark', { round: true, seg: 4 });
+  }
+  for (let i = 0; i < 8; i++) {
+    const px = -half + ((i + 0.5) * span) / 8;
+    for (const s of [-1, 1]) {
+      k.box(0.14, 3.0, 0.14, 'steel', px, DECK_Y, s * (DECK_W / 2 - 1.2));
+      k.box(0.9, 0.16, 0.26, 'window', px + s * 0.4, DECK_Y + 3.0, s * (DECK_W / 2 - 1.2), { emit: 0.5 });
+    }
+  }
+
   k.pop();
   k.end('main');
 }

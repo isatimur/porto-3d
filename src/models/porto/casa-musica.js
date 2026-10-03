@@ -113,6 +113,37 @@ function casaMusica(k, site) {
   }
   k.cyl(24, 24, 0.06, 40, 'graniteLight', 0, 0.34, 0);
 
+  // ---------------------------------------------------------- detail pass
+  // horizontal formwork reveals crossing the vertical board joints
+  for (const e of E) {
+    const n = Math.max(2, Math.round(e.len / 5.5));
+    onEdge(k, e, 0, 0);
+    for (const yy of [4.2, 7.4, 11.0]) k.box(e.len, 0.14, 0.2, 'graniteGrey', 0, yy, 0.12);
+    k.pop();
+  }
+  // entrance: drum mullions, a revolving-door bay and a canopy soffit
+  for (let i = 0; i <= 10; i++) {
+    const a = Math.PI * 0.55 + (i / 10) * Math.PI * 0.9;
+    k.box(0.16, 6.6, 0.2, 'graniteLight', ex + Math.cos(a) * 9.0, 0.3, ez + Math.sin(a) * 9.0, { ry: -a });
+  }
+  k.cyl(2.2, 2.2, 6.4, 10, 'glass', ex - 3, 0.3, ez + 4.5, { emit: 0.1 });
+  for (let i = 0; i < 6; i++) k.box(0.12, 0.5, 0.12, 'iron', ex - 3 + Math.cos((i / 6) * Math.PI * 2) * 2.1, 6.6, ez + 4.5 + Math.sin((i / 6) * Math.PI * 2) * 2.1);
+  // roof plants: grille louvres and a service stair up the folded slab
+  for (let i = 0; i < 6; i++) k.box(2.6, 1.0, 0.2, 'graniteGrey', -20 + i * 8, 28.0, -2, { ry: 0.06 });
+  for (let i = 0; i < 8; i++) k.box(1.0, 0.16, 0.7, 'graniteGrey', -3, 23.6 + i * 0.55, -18 + i * 0.6);
+  // plaza: bollards, benches, a signage totem and rooted lamps
+  for (let i = 0; i < 16; i++) {
+    const a = (i / 16) * Math.PI * 2;
+    k.box(0.3, 0.9, 0.3, 'graniteGrey', Math.cos(a) * 30, 0.35, Math.sin(a) * 27);
+  }
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * Math.PI * 2 + 0.4;
+    k.box(2.2, 0.45, 0.7, 'wood', Math.cos(a) * 33, 0.35, Math.sin(a) * 30, { ry: -a });
+    k.box(2.2, 0.45, 0.7, 'wood', Math.cos(a) * 33, 0.8, Math.sin(a) * 30 - 0.5, { ry: -a });
+  }
+  k.box(0.5, 3.2, 0.5, 'graniteGrey', 30, 0.35, 20);
+  k.box(2.6, 1.6, 0.14, 'white', 30, 2.6, 20, { ry: -0.5 });
+
   k.pop();
 
   // a few steps to the plaza

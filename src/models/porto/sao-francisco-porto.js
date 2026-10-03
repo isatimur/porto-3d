@@ -128,6 +128,54 @@ function builder(k, site) {
     k.column(3.4, 0.34, 'graniteLight', px, 0, pz, { smooth: true });
   }
   k.end('cloister');
+
+  // ---------------------------------------------------------- detail pass
+  // buttresses: two-stage set-offs (weathered offsets) on each flank
+  for (const sx of [-1, 1]) {
+    for (let i = 0; i <= nb; i++) {
+      const bz = zB + 1.2 + ((D - 2.4) * i) / nb;
+      const bx = cx + sx * (W / 2 + 0.35);
+      k.box(1.5, 2.0, 1.5, 'graniteLight', bx, 3.6, bz);
+      k.box(1.0, 2.2, 1.0, 'graniteLight', bx, 5.6, bz);
+    }
+    // a hood mould over each lancet and a small gargoyle under the eaves
+    k.push({ x: cx + sx * (W / 2), z: cz, ry: sx > 0 ? Math.PI / 2 : -Math.PI / 2 });
+    for (let i = 0; i < nb - 1; i++) {
+      const wx = -D / 2 + 1.2 + ((D - 2.4) * (i + 0.5)) / nb;
+      k.box(2.3, 0.34, 0.5, 'graniteLight', wx, 11.5, 0.35);
+      k.box(0.4, 0.9, 0.7, 'graniteDark', wx + 0.6, 12.6, 0.5);
+    }
+    k.pop();
+  }
+  // west front: jamb statues in niches, crockets up the gable and an apex cross
+  k.push({ x: cx, z: zF });
+  for (const s of [-1, 1]) {
+    for (const yy of [3.6, 8.8]) {
+      k.box(1.1, 2.0, 0.5, 'graniteLight', s * 3.0, yy - 0.3, 0.85);
+      k.statue(1.7, 'graniteLight', s * 3.0, yy, 1.0, { pose: 'hold' });
+    }
+  }
+  for (const s of [-1, 1]) {
+    for (let i = 1; i < 5; i++) {
+      const t = i / 5;
+      k.cone(0.28, 0.5, 4, 'graniteLight', s * (fw / 2) * (1 - t), H + 5.5 + 5.4 * t, 0.6);
+    }
+  }
+  k.box(0.16, 2.8, 0.16, 'iron', 0, H + 11.2, 0.4);
+  k.box(1.2, 0.16, 0.16, 'iron', 0, H + 12.3, 0.4);
+  k.pop();
+  // cloister: capitals on the piers, a hood mould over the arcade and a
+  // small hexagonal fountain in the garth
+  k.push({ x: cx + W / 2 + 0.7, z: cz, ry: Math.PI / 2 });
+  for (let i = 0; i < 5; i++) {
+    const px = -(D - 7) / 2 + ((D - 7) / 4) * i;
+    k.box(0.7, 0.4, 0.7, 'graniteLight', px, 3.5, 0.15);
+  }
+  k.cornice(D - 6.4, corniceProfile('band', 0.4), 'graniteLight', 0, 5.2, 0.3);
+  k.pop();
+  k.lathe(PROFILES.basin, 8, 'graniteLight', gx + 0.5, 0, cz, { sr: 1.4, sh: 0.5, smooth: true });
+  k.cyl(0.24, 0.32, 1.4, 6, 'graniteLight', gx + 0.5, 0.3, cz);
+  k.cyl(0.5, 0.5, 0.16, 8, 'water', gx + 0.5, 1.6, cz, { emit: 0.4 });
   k.end('main');
 }
 builder.metric = true;

@@ -127,6 +127,38 @@ function serralves(k, site) {
   k.box(0.2, 0.2, 56, 'wood', V.cx + 40, 1.4, V.cz - 8);
   for (let i = 0; i < 18; i++) k.box(0.12, 0.7, 0.12, 'graniteLight', V.cx - 20 + i * 2.4, 0, V.cz + 44);
   k.box(43, 0.12, 0.12, 'graniteLight', V.cx - 0.4, 0.7, V.cz + 44);
+
+  // ---------------------------------------------------------- detail pass
+  // museum: horizontal board-marked reveals and a projecting rooflight housing
+  for (let i = 1; i < 5; i++) k.box(ML - 4, 0.12, 0.3, 'graniteGrey', mx, i * 1.2, mz + MD / 2 + 0.04);
+  for (let i = 1; i < 5; i++) k.box(ML - 4, 0.12, 0.3, 'graniteGrey', mx, i * 1.2, mz - MD / 2 - 0.04);
+  k.box(9, 1.2, 3.0, 'white', mx - ML / 2 + 20, MH + 0.4, mz);
+  // entrance: soffit ribs, door mullions and a wheelchair ramp kerb
+  for (let i = -3; i <= 3; i++) k.box(0.18, 0.5, 4.6, 'graniteGrey', mx + i * 1.8, 4.35, ez + 2.2);
+  for (let i = -3; i <= 3; i++) k.box(0.14, 2.4, 0.2, 'graniteLight', mx + i * 1.6, 1.4, ez + 2.0);
+  k.box(14, 0.3, 0.35, 'graniteLight', mx, 0.35, ez + 4.7);
+  // villa: stepped Art Deco window surrounds and roof urns on the wing
+  for (let s = 0; s < 2; s++) {
+    for (let i = 0; i < 5; i++) {
+      const wx = vx - VL / 2 + 5 + i * 7.5;
+      const wy = 1.6 + s * 3.6;
+      k.box(2.0, 0.28, 0.35, 'white', wx, wy + 2.3, vz + VD / 2 + 0.25);
+      k.box(0.28, 0.7, 0.35, 'white', wx - 0.9, wy + 1.9, vz + VD / 2 + 0.25);
+      k.box(0.28, 0.7, 0.35, 'white', wx + 0.9, wy + 1.9, vz + VD / 2 + 0.25);
+    }
+  }
+  for (const sx of [-1, 1]) k.urn(0.9, 'graniteLight', vx + sx * (VL / 2 - 2), VH + 0.6, vz + VD / 2 - 1.5, { seg: 6 });
+  // curved wing: a dentil cornice following the half-cylinder
+  for (let i = 0; i <= 10; i++) {
+    const a = Math.PI / 2 + (i / 10) * Math.PI;
+    k.box(0.5, 0.35, 0.5, 'white', wx + Math.cos(a) * 7.8, VH + 0.05, vz + Math.sin(a) * 7.8, { ry: -a });
+  }
+  // garden: a reflecting pool with a fountain jet and stone urns on the terrace
+  k.prism(rect(V.cx - 30, V.cz + 30, 16, 9), 0, 0.35, 'graniteLight');
+  k.prism(rect(V.cx - 30, V.cz + 30, 14.5, 7.5), 0.35, 0.12, 'water', { emit: 0.3 });
+  k.cyl(0.3, 0.4, 1.6, 8, 'graniteLight', V.cx - 30, 0.4, V.cz + 30);
+  k.cyl(0.14, 0.2, 2.4, 6, 'water', V.cx - 30, 1.8, V.cz + 30, { emit: 0.5 });
+  for (let i = 0; i < 6; i++) k.urn(0.8, 'graniteLight', V.cx - 24 + i * 9.5, 0.75, V.cz + 44, { seg: 6 });
 }
 serralves.metric = true;
 serralves.rule = { note: 'Serralves villa (Marques da Silva) + Siza museum bar, 1999', fitTo: true };

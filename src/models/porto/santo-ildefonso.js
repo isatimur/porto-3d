@@ -100,6 +100,26 @@ function builder(k, site) {
     }
   }
   k.end('height');
+
+  // --- detail pass: the full line of 1932 azulejo medallions, roof ridge and
+  // corner urns on the nave cornice
+  for (const sx of [-1, 1]) {
+    for (let i = 0; i < 3; i++) {
+      const wz = cz - D / 2 + 5 + i * ((D - 10) / 4);
+      k.push({ x: cx + sx * (W / 2 + 0.08), z: wz, ry: sx > 0 ? Math.PI / 2 : -Math.PI / 2 });
+      disc(k, 0.7, 0.2, 'azulejo', 0, 8.6, 0.35, { seg: 14, mat: MAT.azulejo });
+      disc(k, 0.5, 0.12, 'graniteLight', 0, 8.6, 0.5, { seg: 12 });
+      k.pop();
+    }
+  }
+  for (let i = 0; i < 10; i++) {
+    const wz = cz - D / 2 + 2.5 + (i * (D - 5)) / 11;
+    k.box(0.5, 0.24, 0.45, 'terracotta', cx, H + 4.65, wz);
+  }
+  for (const [sx, sz] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+    k.urn(1.0, 'graniteLight', cx + sx * (W / 2 - 0.5), H - 0.4, cz + sz * (D / 2 - 0.5), { seg: 7 });
+  }
+
   done();
 }
 builder.metric = true;

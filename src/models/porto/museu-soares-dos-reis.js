@@ -82,6 +82,22 @@ function builder(k, site) {
   }
 
   k.end('main');
+
+  // --- detail: roof dormers, chimneys and a parapet railing over the centre
+  for (const s of [-1, 1]) {
+    for (let i = 0; i < 4; i++) {
+      const dz = b.cz - b.d * 0.3 + i * b.d * 0.2;
+      const dx = b.cx + s * b.w * 0.22;
+      k.box(1.6, 1.4, 1.4, 'plaster', dx, bodyH + H * 0.16, dz);
+      k.hipRoof(1.8, 1.6, 0.7, 'terracotta', dx, bodyH + H * 0.16 + 1.4, dz, { over: 0.15 });
+    }
+  }
+  for (let i = 0; i < 5; i++) {
+    const x = b.cx - b.w * 0.3 + i * b.w * 0.15;
+    k.box(1.6, 2.6, 1.4, 'graniteDark', x, H * 0.72, b.cz - b.d * 0.3);
+  }
+  k.balustrade(15, 0.9, 'graniteLight', b.cx, H * 0.80, b.cz + b.d / 2 - 0.6, { cheap: true, d: 0.2, sp: 1.0 });
+
   done();
 }
 

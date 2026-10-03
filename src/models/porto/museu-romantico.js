@@ -76,6 +76,14 @@ function museuRomantico(k, site) {
     k.hipRoof(1.8, 1.2, 0.7, 'terracotta', xx, bodyH + 2.5, D / 2 - 2.4, { over: 0.15 });
   }
 
+  // --- detail: box parterre, a garden gazebo and a fountain basin
+  k.prism(rect(0, D / 2 + 10, W * 0.6, 6), 0, 0.7, 'hedge');
+  for (const s of [-1, 1]) k.box(1.4, 0.5, 1.4, 'hedge', s * W * 0.3, 0.7, D / 2 + 10);
+  k.cyl(1.4, 1.6, 0.6, 12, 'graniteLight', 0, 0.2, D / 2 + 10);
+  k.cyl(0.5, 0.3, 1.4, 8, 'graniteLight', 0, 0.8, D / 2 + 10);
+  for (const s of [-1, 1]) k.column(2.6, 0.16, 'graniteLight', -W * 0.32 + s * 1.6, 0.2, D / 2 + 6, { smooth: true });
+  k.dome(2.0, 'slate', -W * 0.32, 2.8, D / 2 + 6, { seg: 12, rings: 5 });
+
   done();
 }
 museuRomantico.metric = true;

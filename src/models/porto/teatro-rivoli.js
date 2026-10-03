@@ -86,6 +86,15 @@ function teatroRivoli(k, site) {
     k.pop();
   }
 
+  // --- detail pass: entrance canopy bulbs, a vertical sign and roof vents
+  for (let i = 0; i < 10; i++) k.sphere(0.11, 'white', -4.5 + i, 3.75, zF + 1.5, { seg: 5, rings: 3, emit: 0.5 });
+  k.box(0.5, 7.0, 0.3, 'graniteLight', -W * 0.28, 7.4, zF + 0.5);
+  k.box(2.2, 0.5, 0.3, 'window', -W * 0.28, 10.0, zF + 0.55, { emit: 0.4 });
+  for (let i = 0; i < 6; i++) {
+    k.box(1.2, 1.0, 1.2, 'graniteGrey', -W * 0.3 + i * W * 0.12, bodyH + 0.4, -D * 0.30);
+  }
+  k.cyl(0.09, 0.09, 2.2, 5, 'iron', W * 0.42, H, zF - 2);
+
   done();
 }
 teatroRivoli.metric = true;

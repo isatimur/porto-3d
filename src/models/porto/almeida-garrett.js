@@ -86,6 +86,15 @@ function builder(k, site) {
     const tz = b.cz + (i % 2 ? 1 : -1) * (S / 2 + 2.6);
     k.tree(tx, 0, tz, 6 + (i % 2) * 1.5, { crown: 'round' });
   }
+
+  // --- detail: a colonnaded porch bay and reading benches on the front
+  for (let i = 0; i < 4; i++) {
+    k.cyl(0.12, 0.14, 2.6, 8, 'graniteLight', b.cx - W * 0.3 + i * (W * 0.2), 0, b.cz + D / 2 - 0.6);
+  }
+  k.box(W * 0.7, 0.25, 1.2, 'graniteLight', b.cx, 2.6, b.cz + D / 2 - 0.6);
+  for (let i = 0; i < 4; i++) {
+    k.box(1.8, 0.4, 0.5, 'wood', b.cx - W * 0.3 + i * (W * 0.2), 0, b.cz + D / 2 - 1.4);
+  }
   done();
 }
 builder.metric = true;

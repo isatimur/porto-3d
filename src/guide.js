@@ -22,6 +22,15 @@ const VOICE_KEY = 'porto-guide-voice';
 const MAX_Q = 300;
 const NARROW = '(max-width: 900px)';
 const WEATHER_EN = { clear: 'clear', partly: 'partly cloudy', overcast: 'overcast', drizzle: 'drizzle', rain: 'rain', downpour: 'heavy rain', seafog: 'sea fog', fog: 'fog', nortada: 'clear and windy (nortada)' };
+// Time-budget prompts, keyed by language: they map onto the six curated
+// routes (3-6 h) and let the guide plan "what can I see in N hours?". Kept
+// here rather than in the locale files so this iteration touches only this
+// file; the API parses the number from the question in ru/en/pt alike.
+const TIME_CHIPS = {
+  ru: ['Что успеть за 3 часа?', 'Что посмотреть за 4 часа?', 'Что успеть за 6 часов?'],
+  en: ['What can I see in 3 hours?', 'What can I see in 4 hours?', 'What can I see in 6 hours?'],
+  pt: ['O que posso ver em 3 horas?', 'O que posso ver em 4 horas?', 'O que posso ver em 6 horas?'],
+};
 
 const MIC = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8a2.2 2.2 0 0 0-2.2 2.2v4a2.2 2.2 0 0 0 4.4 0V4A2.2 2.2 0 0 0 8 1.8z"/><path d="M4 7.6a4 4 0 0 0 8 0M8 11.6v2.6M5.6 14.2h4.8" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
 const SEND = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h9M8 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -212,7 +221,9 @@ export function createGuide({ landmarks, select, getActive, project, rig, reduce
     const key = i >= 0 ? landmarks[i]?.id : '';
     if (!force && key === suggFor) return;
     suggFor = key;
-    const qs = i >= 0 ? [t('Что здесь интересного?'), t('Как сюда дойти?'), t('Что рядом?')] : [t('Что я сейчас вижу?'), t('Что посмотреть за один день?'), t('Где выпить кофе в центре?')];
+    const qs = i >= 0
+      ? [t('Что здесь интересного?'), t('Как сюда дойти?'), t('Что рядом?')]
+      : [t('Что я сейчас вижу?'), ...(TIME_CHIPS[language] || TIME_CHIPS.en), t('Где выпить кофе в центре?')];
     sugg.replaceChildren(...qs.map((q) => {
       const b = h('button', { type: 'button' }, q);
       b.addEventListener('click', () => ask(q));
@@ -343,11 +354,14 @@ export function createGuide({ landmarks, select, getActive, project, rig, reduce
       }
     }
     if (r.ok && j && typeof j.answer === 'string') return { kind: 'ok', data: j, status: r.status };
+    // the server may send a ready visitor-facing `message` (localized 503s)
+    const message = j && typeof j.message === 'string' && j.message.trim() ? j.message.trim() : null;
     // the Vite dev server has no functions: a 404 or index.html
     if (!j) return { kind: import.meta.env.DEV || r.status === 404 ? 'not_configured' : 'error', status: r.status };
-    if (r.status === 503 && j.error === 'guide_not_configured') return { kind: 'not_configured', status: r.status };
-    if (r.status === 429) return { kind: 'rate', status: r.status };
-    return { kind: 'error', status: r.status, error: j.error };
+    if (r.status === 503 && j.error === 'guide_not_configured') return { kind: 'not_configured', status: r.status, message };
+    if (r.status === 503 && j.error === 'guide_busy') return { kind: 'rate', status: r.status, message };
+    if (r.status === 429) return { kind: 'rate', status: r.status, message };
+    return { kind: 'error', status: r.status, error: j.error, message };
   }
 
   async function ask(question, { voice = false } = {}) {
@@ -374,13 +388,13 @@ export function createGuide({ landmarks, select, getActive, project, rig, reduce
       if (a) showOnMap(a.placeId);
       if (voiceOn || voice) speak(res.data.answer);
     } else if (res.kind === 'not_configured') {
-      addNote(t('Гид пока не подключён. Загляните в карточку места или спросите в туристическом офисе.'), import.meta.env.DEV);
+      addNote(res.message || t('Гид пока не подключён. Загляните в карточку места или спросите в туристическом офисе.'), import.meta.env.DEV && !res.message);
     } else if (res.kind === 'rate') {
-      addNote(t('Слишком много вопросов. Подождите минуту.'));
+      addNote(res.message || t('Слишком много вопросов. Подождите минуту.'));
     } else if (res.kind === 'offline') {
       addNote(t('Нет связи. Проверьте интернет.'));
     } else {
-      addNote(t('Гид сейчас не отвечает. Попробуйте ещё раз.'));
+      addNote(res.message || t('Гид сейчас не отвечает. Попробуйте ещё раз.'));
     }
     refreshSuggestions(true);
   }

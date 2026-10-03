@@ -98,6 +98,29 @@ function santaClara(k, site) {
   for (let i = 0; i < 2; i++) k.tree(-8 + i * 4, 0, 18 - i * 2, 6 + i, { crown: 'oval' });
   k.lamp(4.2, 7, 0.35, 16, { globe: true });
 
+  // --- detail pass: Gothic ridge, buttress lanterns and a parvis garden
+  for (let i = 0; i < 10; i++) {
+    const tz = cz - dn / 2 + 2.2 + (i * (dn - 4.4)) / 9;
+    k.box(0.55, 0.26, 0.5, 'terracotta', cx, 16.75, tz);
+  }
+  for (const sx of [-1, 1]) {
+    for (let i = 0; i < 7; i++) {
+      const bz = cz - dn / 2 + 3 + i * 5;
+      k.sphere(0.2, 'graniteLight', cx + sx * (wn / 2 + 0.9), 11.05, bz, { seg: 6, rings: 4, flat: true });
+    }
+  }
+  for (const gz of [cz + dn / 2 + 0.55, cz - dn / 2 - 5.5]) {
+    k.box(0.14, 1.15, 0.14, 'iron', cx, 13.4, gz);
+    k.box(0.52, 0.12, 0.12, 'iron', cx, 14.05, gz);
+  }
+  // parvis garden: clipped hedges, cypresses and a statue on a pedestal
+  for (const sx of [-1, 1]) {
+    k.box(4.4, 0.65, 0.6, 'hedge', cx + sx * 3.4, 0, fz + 1.8);
+    k.tree(cx + sx * 5.2, 0, fz + 2.4, 5.2, { kind: 'cypress' });
+  }
+  k.box(1.0, 0.8, 1.0, 'graniteLight', cx, 0, fz + 1.4);
+  k.statue(1.6, 'graniteLight', cx, 0.8, fz + 1.4, { pose: 'pray' });
+
   done();
 }
 santaClara.metric = true;

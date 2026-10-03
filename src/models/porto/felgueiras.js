@@ -101,7 +101,41 @@ function builder(k, site) {
   k.box(2.6, 2.4, 2.6, 'white', hx + 6.5, y0, 1.4);
   k.cone(1.8, 1.3, 4, 'rust', hx + 6.5, y0 + 2.4, 1.4);
   // foam lines breaking along the mole
-  for (let i = 0; i < 12; i++) k.box(3.2, 0.06, 0.5, 'white', -L / 2 + (L * (i + 0.5)) / 12, -1.05, W / 2 + 3.2 + (i % 2) * 1.6, { flat: true, emit: 0.25 });
+  for (let i = 0; i < 12; i++) k.box(3.2, 0.06, 0.5, 'white', -L / 2 + (L * (i + 0.5)) / 12, -1.05, W / 2 + 3.2 + (i % 2) * 1.6, { emit: 0.25 });
+
+  // ---------------------------------------------------------- detail pass
+  k.begin('works');
+  // winch house with a mooring drum, and a small hand crane on the mole tip
+  const wx = tx - 20;
+  k.box(4.2, 3.0, 3.6, 'wood', wx, y0, 0);
+  k.push({ x: wx, z: 0 });
+  k.gableRoof(4.4, 3.8, 1.2, 'rust', 0, y0 + 3.0, 0, { over: 0.35 });
+  k.pop();
+  k.box(0.9, 1.8, 0.25, 'wood', wx, y0, 1.82);
+  k.cyl(1.5, 1.5, 0.5, 12, 'wood', wx, y0 + 0.4, -1.95, { rx: Math.PI / 2 });
+  k.cyl(0.35, 0.35, 0.6, 8, 'iron', wx, y0 + 0.4, -1.95, { rx: Math.PI / 2 });
+  // hand crane: mast, jib and pulley block
+  const cxr = tx - 30;
+  k.cyl(0.28, 0.38, 6.5, 8, 'iron', cxr, y0, -0.4);
+  k.segment([cxr, y0 + 6.3, -0.4], [cxr + 5.5, y0 + 4.6, -0.4], 0.22, 0.22, 'iron');
+  k.cyl(0.5, 0.5, 0.22, 10, 'iron', cxr + 5.5, y0 + 4.6, -0.4, { rx: Math.PI / 2 });
+  k.cyl(0.08, 0.08, 4.4, 5, 'iron', cxr + 5.5, y0 + 2.4, -0.4);
+  k.box(0.7, 0.7, 0.7, 'bronze', cxr + 5.5, y0 + 0.2, -0.4);
+  // fog bell on a timber frame near the house
+  const bx2 = tx - 8;
+  k.box(0.18, 3.2, 0.18, 'wood', bx2 - 0.8, y0, 2.4);
+  k.box(0.18, 3.2, 0.18, 'wood', bx2 + 0.8, y0, 2.4);
+  k.box(2.0, 0.18, 0.18, 'wood', bx2, y0 + 3.2, 2.4);
+  k.lathe([[0, 0], [0.5, 0], [0.46, 0.12], [0.34, 0.5], [0.3, 0.86], [0.12, 1], [0, 1]], 8, 'bronze', bx2, y0 + 2.2, 2.4, { sr: 1.1, sh: 1.1, smooth: true });
+  // stone steps down the sheltered face to the water, with a rope rail
+  for (let i = 0; i < 6; i++) k.box(2.2, 0.3, 0.9, 'graniteWarm', L / 2 - 18, 0.5 - i * 0.3, -W / 2 - 0.5 - i * 0.85);
+  for (let i = 0; i < 4; i++) k.box(0.08, 1.0, 0.08, 'iron', L / 2 - 18 - 0.9, 1.4 - i * 0.3, -W / 2 - 0.6 - i * 1.3);
+  // extra tetrapod blocks along the exposed side
+  for (let i = 0; i < 8; i++) {
+    const rx = -L / 2 + (L * (i + 0.5)) / 8;
+    k.box(1.6, 1.0, 1.6, 'graniteDark', rx, -1.1, -W / 2 - 2.2, { ry: (i % 3) * 0.4, rz: 0.2 });
+  }
+  k.end('works');
   k.end('house');
   k.pop();
 }

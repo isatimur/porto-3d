@@ -11,6 +11,13 @@
 // from a real sun position (src/live.js). Cloud shadows and wet ground
 // reach every lit material through the same chunk patching as the fog.
 //
+// Wet ground reflections: a small linear HDR cube of the same sky (rebuilt
+// with the PMREM environment) is sampled by the ground shader along the
+// reflected view ray, so puddles and the Douro quays mirror the horizon and
+// the low sun instead of a flat fog smear. The tone mapper is a custom ACES
+// with a gentle highlight shoulder (values under 0.75 are unchanged), so
+// water sparkle and white granite keep gradation instead of clipping.
+//
 // Fog: the stock fog chunks are replaced once, before any shader compiles,
 // by an exponential height fog with sun in-scattering. Every built-in and
 // line material shares it, including the landmark stone shader, so the far
@@ -23,8 +30,7 @@ import * as THREE from 'three';
 // Plain objects (not Vector3) on purpose: UniformsUtils.clone copies three.js
 // math objects per material but keeps plain objects by reference, so one
 // write here reaches every compiled material.
-export const FOG_UNIFORMS = {
-  fogSunDir: { value: { x: 0, y: 1, z: 0 } },
+export const FOG_UNIFORMS = {  fogSunDir: { value: { x: 0, y: 1, z: 0 } },
   // the lighting sun (cloud shadows); fogSunDir is the visible sun
   fogLightDir: { value: { x: 0, y: 1, z: 0 } },
   fogSunColor: { value: { x: 0, y: 0, z: 0 } },
@@ -41,6 +47,13 @@ export const FOG_UNIFORMS = {
   fogMaritime: { value: { x: 0, y: 0, z: 0, w: 0 } },
   fogSeaColor: { value: { x: 0, y: 0, z: 0 } },
 };
+
+// ------------------------------------------------------------ sky reflection
+// A linear HDR cube of the sky (no disk, no stars), rebuilt with the PMREM
+// environment and read by the ground shader for sharp sky/horizon/sun
+// reflections on wet paving. Shared by reference, like FOG_UNIFORMS: the
+// ground material holds this exact object, so createAtmosphere can fill it.
+export const SKY_REFLECT = { value: null };
 
 // ------------------------------------------------------------ weather uniforms
 // Shared the same way as FOG_UNIFORMS (plain objects, one write reaches
@@ -170,6 +183,20 @@ export function installAtmosphereFog() {
   fogInstalled = true;
   const C = THREE.ShaderChunk;
   WEATHER_UNIFORMS.tCloud.value = cloudTexture();
+  // Tone mapping: ACES with a gentle highlight shoulder. Below 0.75 in linear
+  // light the curve is exactly ACES, so mid-tones and the (CPU-mirrored) fog
+  // seam are untouched; above it the roll-off keeps specular water and white
+  // granite from clipping to flat white. CustomToneMapping is the hook three
+  // reserves in tonemapping_pars_fragment (a no-op by default).
+  C.tonemapping_pars_fragment = C.tonemapping_pars_fragment.replace(
+    'vec3 CustomToneMapping( vec3 color ) { return color; }',
+    `vec3 CustomToneMapping( vec3 color ) {
+  color = max( color, vec3( 0.0 ) );
+  vec3 over = max( color - vec3( 0.75 ), vec3( 0.0 ) );
+  color = color / ( vec3( 1.0 ) + over * toneMappingExposure * 0.5 );
+  return ACESFilmicToneMapping( color );
+}`,
+  );
   // Cloud shadows: the direct light of every lit, fogged material is dimmed
   // by the deck above the shaded point (projected along the sun). The fog
   // chunk already carries the world position (vFogWorld) and the sun
@@ -329,7 +356,10 @@ export const deviceDpr = () => Math.min(window.devicePixelRatio || 1, DPR.cap);
 export function createRenderer(canvas, { antialias = true } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias, powerPreference: 'high-performance', stencil: false });
   renderer.setPixelRatio(deviceDpr());
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  // CustomToneMapping is the shoulder-over-ACES curve installed in
+  // installAtmosphereFog (installAtmosphereFog must run first). OutputPass
+  // reads renderer.toneMapping, so post-processing follows the same curve.
+  renderer.toneMapping = THREE.CustomToneMapping;
   renderer.toneMappingExposure = 1.0;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.shadowMap.enabled = true;
@@ -360,7 +390,7 @@ const PRESETS = {
     zenith: 0x46699c, mid: 0xb3c0d4, haze: 0xdcd2c9, scatter: 0xffd3a0, scatterK: 0.75, scatterP: 5,
     disk: 0xfff1d8, diskI: 5,
     hemiSky: 0xc9d4e6, hemiGround: 0x5a4c3c, hemiI: 0.18,
-    env: 0.65, exposure: 1.25, density: 0.00026, falloff: 0.0035, night: 0,
+    env: 0.72, exposure: 1.25, density: 0.00026, falloff: 0.0035, night: 0,
   },
   day: {
     az: 165, el: 50,
@@ -368,7 +398,7 @@ const PRESETS = {
     zenith: 0x2d5fa8, mid: 0x86abd8, haze: 0xc7d3df, scatter: 0xfff1da, scatterK: 0.35, scatterP: 8,
     disk: 0xfffaf0, diskI: 6,
     hemiSky: 0xcbd9ee, hemiGround: 0x5b5040, hemiI: 0.2,
-    env: 0.8, exposure: 1.0, density: 0.00014, falloff: 0.003, night: 0,
+    env: 0.84, exposure: 1.0, density: 0.00014, falloff: 0.003, night: 0,
   },
   sunset: {
     az: 242, el: 12,
@@ -376,7 +406,7 @@ const PRESETS = {
     zenith: 0x33507f, mid: 0xa6adc4, haze: 0xd9c0ae, scatter: 0xf7bd78, scatterK: 0.85, scatterP: 5,
     disk: 0xffe6bf, diskI: 6,
     hemiSky: 0xc3c4d6, hemiGround: 0x5c4634, hemiI: 0.16,
-    env: 0.7, exposure: 1.3, density: 0.0002, falloff: 0.003, night: 0,
+    env: 0.78, exposure: 1.3, density: 0.0002, falloff: 0.003, night: 0,
   },
   night: {
     az: 140, el: 36,
@@ -384,7 +414,7 @@ const PRESETS = {
     zenith: 0x050914, mid: 0x0c1528, haze: 0x1b2438, scatter: 0x34405c, scatterK: 0.3, scatterP: 6,
     disk: 0xdfe8ff, diskI: 1.6,
     hemiSky: 0x33415e, hemiGround: 0x1a1612, hemiI: 0.22,
-    env: 0.4, exposure: 1.3, density: 0.0002, falloff: 0.003, night: 1,
+    env: 0.45, exposure: 1.3, density: 0.0002, falloff: 0.003, night: 1,
   },
 };
 
@@ -433,6 +463,17 @@ function acesInPlace(c, exposure) {
   c.g = THREE.MathUtils.clamp(-0.10208 * r + 1.10813 * g - 0.00605 * b, 0, 1);
   c.b = THREE.MathUtils.clamp(-0.00327 * r - 0.07276 * g + 1.07602 * b, 0, 1);
   return c;
+}
+
+// CPU mirror of the CustomToneMapping curve above (shoulder then ACES): the
+// fog colour is mixed in after tone mapping, so it must land on the exact
+// colour the sky has at the horizon or the far hills seam.
+function toneMapInPlace(c, exposure) {
+  const k = exposure * 0.5;
+  c.r /= 1 + Math.max(c.r - 0.75, 0) * k;
+  c.g /= 1 + Math.max(c.g - 0.75, 0) * k;
+  c.b /= 1 + Math.max(c.b - 0.75, 0) * k;
+  return acesInPlace(c, exposure);
 }
 
 // ------------------------------------------------------------ sky
@@ -675,11 +716,29 @@ export function createAtmosphere(renderer, scene, { reducedMotion = false, shado
   envScene.add(envSky);
   const pmrem = new THREE.PMREMGenerator(renderer);
   let envRT = null;
+  // A small linear HDR cube of the same sky, sampled by the ground shader for
+  // a sharp mirror of the horizon and the low sun on wet paving (the PMREM is
+  // too blurred at puddle roughness). Rendered into a fixed target - so the
+  // texture reference the ground material holds never changes - and refreshed
+  // with the environment, never per frame. Half the resolution on light mode.
+  const reflectScene = new THREE.Scene();
+  const reflectSky = new THREE.Mesh(sky.geometry, skyMaterial(skyU, true, WEATHER_UNIFORMS.cloudParams));
+  reflectSky.scale.setScalar(50);
+  reflectScene.add(reflectSky);
+  const reflectRT = new THREE.WebGLCubeRenderTarget(DPR.cap >= 2 ? 128 : 64, {
+    type: THREE.HalfFloatType,
+    generateMipmaps: false,
+    minFilter: THREE.LinearFilter,
+    magFilter: THREE.LinearFilter,
+  });
+  const reflectCam = new THREE.CubeCamera(0.1, 200, reflectRT);
+  SKY_REFLECT.value = reflectRT.texture;
   function rebuildEnv() {
     const next = pmrem.fromScene(envScene, 0, 0.1, 200);
     scene.environment = next.texture;
     envRT?.dispose();
     envRT = next;
+    reflectCam.update(renderer, reflectScene);
   }
 
   const hemi = new THREE.HemisphereLight(0xffffff, 0x000000, 0.2);
@@ -761,8 +820,8 @@ export function createAtmosphere(renderer, scene, { reducedMotion = false, shado
       scene.fog.color.copy(state.haze);
       _c.copy(state.scatter);
     } else {
-      acesInPlace(scene.fog.color.copy(state.haze), state.exposure);
-      acesInPlace(_c.copy(state.scatter), state.exposure).convertLinearToSRGB();
+      toneMapInPlace(scene.fog.color.copy(state.haze), state.exposure);
+      toneMapInPlace(_c.copy(state.scatter), state.exposure).convertLinearToSRGB();
     }
     sc.x = _c.r;
     sc.y = _c.g;
@@ -779,7 +838,7 @@ export function createAtmosphere(renderer, scene, { reducedMotion = false, shado
     if (linearOutput) {
       _sea.copy(state.haze).lerp(state.scatter, 0.16);
     } else {
-      acesInPlace(_sea.copy(state.haze).lerp(state.scatter, 0.16), state.exposure).convertLinearToSRGB();
+      toneMapInPlace(_sea.copy(state.haze).lerp(state.scatter, 0.16), state.exposure).convertLinearToSRGB();
     }
     const fsc = FOG_UNIFORMS.fogSeaColor.value;
     fsc.x = _sea.r;
@@ -970,6 +1029,11 @@ function fitShadow(sun, camera, dir) {
     cam.updateProjectionMatrix();
   }
   sun.shadow.normalBias = texel * 1.1;
+  // Softness: PCF spreads its five taps over `radius` texels. Tie the radius
+  // to a small world-space penumbra so a close landmark gets a readable soft
+  // contact edge while the overview keeps its crisper ~2-texel spread. Cost is
+  // unchanged (taps are fixed).
+  sun.shadow.radius = THREE.MathUtils.clamp(0.35 / texel, 2, 6);
   sun.target.position.copy(_focus);
   sun.position.copy(_focus).addScaledVector(dir, 3200);
   sun.updateMatrixWorld();
@@ -1098,6 +1162,7 @@ uniform sampler2D tLandW;
 uniform vec4 uLandRectW;
 uniform float uHasLandW;
 uniform vec4 uDemRect; // x0, zN, x1, zS: outside it there is no DEM data
+uniform samplerCube uSkyCube; // linear HDR sky for wet reflections
 varying vec3 vTWorld;
 float demOutside(vec2 p) {
   vec2 o = max(max(uDemRect.xy - p, p - uDemRect.zw), 0.0);
@@ -1189,6 +1254,39 @@ const GROUND_NORMAL = /* glsl */ `
   // outside the DEM the relief is a guess: shade it nearly flat
   normal = normalize(mix(normal, mat3(viewMatrix) * vec3(0.0, 1.0, 0.0), demOutside(vTWorld.xz) * 0.85));
 }
+`;
+
+// Wet paving: mirror the sky cube along the reflected view ray. The shared
+// wet patch already darkens and glosses up-facing surfaces and adds a flat
+// fog-coloured smear; here we cancel that smear on the ground (exactly, with
+// the same puddle mask) and replace it with a real, Fresnel-weighted
+// reflection, so squares and the Douro quays catch the horizon and the low
+// sun after rain. Replaces the stock end-of-lights chunk (which carries the
+// shared cloud shade), so it must re-include it.
+const GROUND_REFLECT = /* glsl */ `
+#include <lights_fragment_end>
+#ifdef USE_FOG
+{
+  vec3 rV = normalize( vViewPosition );
+  vec3 rN = normalize( ( vec4( normal, 0.0 ) * viewMatrix ).xyz );
+  // reflected view ray, back in world space for the cube
+  vec3 rR = normalize( ( vec4( reflect( - rV, normal ), 0.0 ) * viewMatrix ).xyz );
+  float rUp = smoothstep( 0.5, 0.92, rN.y );
+  float rWet = cloudShape.z * rUp;
+  float rPudN = texture2D( tCloud, vFogWorld.xz * 0.043 ).b;
+  float rPud = rWet * smoothstep( 0.56, 0.7, rPudN ) * smoothstep( 0.15, 0.7, cloudShape.w + 0.15 );
+  float rK = clamp( rWet * 0.30 + rPud * 0.85, 0.0, 1.0 );
+  if ( rK > 0.001 ) {
+    float rFres = 0.04 + 0.96 * pow( 1.0 - max( dot( normal, rV ), 0.0 ), 5.0 );
+    vec3 rCol = min( textureCube( uSkyCube, rR ).rgb, vec3( 4.0 ) );
+    // cancel the flat sky-smear the shared patch added (same mask), then add
+    // the directional reflection and a vertical low-sun streak on the stone
+    totalEmissiveRadiance -= fogColor * rPud * ( 0.04 + 0.1 * ( 1.0 - lookParams.x ) );
+    totalEmissiveRadiance += rCol * rFres * rK;
+    totalEmissiveRadiance += rCol * rPud * 0.10;
+  }
+}
+#endif
 `;
 
 // Hills shade the valleys at a low sun. The shadow caster is a proxy at
@@ -1296,6 +1394,7 @@ export function createGround(terrain) {
     uLandRectW: { value: new THREE.Vector4(0, 0, 1, 1) },
     uHasLandW: { value: 0 },
     uDemRect: { value: new THREE.Vector4(b.x0, b.zN, b.x1, b.zS) },
+    uSkyCube: SKY_REFLECT,
   };
   const mat = new THREE.MeshStandardMaterial({
     vertexColors: true,
@@ -1320,7 +1419,8 @@ export function createGround(terrain) {
     sh.fragmentShader = sh.fragmentShader
       .replace('#include <common>', `#include <common>\n${GROUND_PARS}`)
       .replace('#include <color_fragment>', GROUND_COLOR)
-      .replace('#include <normal_fragment_maps>', GROUND_NORMAL);
+      .replace('#include <normal_fragment_maps>', GROUND_NORMAL)
+      .replace('#include <lights_fragment_end>', GROUND_REFLECT);
   };
   const mesh = new THREE.Mesh(geo, mat);
   mesh.receiveShadow = true;

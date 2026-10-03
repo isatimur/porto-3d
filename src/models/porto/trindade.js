@@ -90,6 +90,20 @@ function builder(k, site) {
       win(k, -W / 2 + 3 + (i * (W - 6)) / 5, wy, 1.1, 1.8, cz - D / 2 + 12.1, { trim: 'granite', pane: 'glass', bw: 0.2, depth: 0.25, sill: true });
     }
   }
+  // --- detail pass: nave ridge, buttress lanterns and a niche statue
+  for (let i = 0; i < 14; i++) {
+    const tz = ncz - nd / 2 + 2 + (i * (nd - 4)) / 13;
+    k.box(0.5, 0.24, 0.44, 'terracotta', cx, 21.78, tz);
+  }
+  for (const s of [-1, 1]) {
+    for (let i = 0; i < 6; i++) {
+      const wz = ncz - nd / 2 + 3 + i * ((nd - 6) / 5);
+      k.sphere(0.2, 'granite', cx + s * (nw / 2 + 0.6), 10.6, wz, { seg: 6, rings: 4, flat: true });
+    }
+  }
+  k.surround({ x: 0, y: 9.0, w: 1.4, h: 2.4, arch: 'round' }, 0.24, 0.35, 'granite', cx, 0, fz + 0.3);
+  k.statue(1.6, 'graniteLight', cx, 9.05, fz + 0.6, { pose: 'pray' });
+
   k.end('main');
 
   done();

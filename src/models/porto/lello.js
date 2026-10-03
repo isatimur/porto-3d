@@ -105,6 +105,51 @@ function builder(k, site) {
   win(k, 0, 1.2, 2.0, 3.4, 0, { arch: 'pointed', pane: 'dark', bw: 0.25, depth: 0.3 });
   k.pop();
   for (const sx of [-1, 1]) k.box(0.7, 2.2, 0.7, 'graniteDark', sx * 2.4, H + 2.2, -3.0);
+
+  // ---------------------------------------------------------- detail pass
+  k.begin('detail');
+  // paired pilasters between the three upper lights, with carved capitals
+  for (const px of [-4.4, -1.2, 1.2, 4.4]) {
+    k.box(0.5, 6.4, 0.4, 'cream', px, 6.4, fz + 0.02);
+    k.box(0.7, 0.4, 0.55, 'graniteLight', px, 12.5, fz + 0.05);
+    k.box(0.7, 0.4, 0.55, 'graniteLight', px, 6.3, fz + 0.05);
+  }
+  // a quatrefoil frieze band across the facade above the lights
+  for (let i = 0; i < 9; i++) {
+    const qx = -4.0 + i;
+    k.cyl(0.22, 0.22, 0.28, 8, 'graniteLight', qx, 11.0, fz + 0.28, { rx: Math.PI / 2 });
+    k.cyl(0.1, 0.1, 0.3, 6, 'graniteDark', qx, 11.0, fz + 0.32, { rx: Math.PI / 2 });
+  }
+  // gable raking moulding and crockets up both slopes
+  k.push({ z: fz + 0.55 });
+  for (const sx of [-1, 1]) {
+    for (let i = 1; i < 5; i++) {
+      const t = i / 5;
+      k.box(0.5, 0.34, 0.5, 'graniteLight', sx * (W / 2) * (1 - t), H - 0.6 + 3.4 * t, 0, { rz: -sx * Math.atan2(3.4, W / 2) });
+    }
+  }
+  k.pop();
+  // slate ridge cresting and a pair of dormers on the roof
+  for (let i = -2; i <= 2; i++) k.lathe(PROFILES.finial, 5, 'graniteLight', i * 2.2, H + 2.6, 0.2, { sr: 0.14, sh: 0.6, flat: true });
+  for (const dz of [-2.6, 2.6]) {
+    k.box(1.4, 1.3, 1.2, 'cream', 0, H + 1.1, dz);
+    k.push({ z: dz });
+    k.gableRoof(1.2, 1.4, 0.7, 'graniteLight', 0, H + 2.4, 0, { over: 0.15, ridge: false, ry: Math.PI / 2 });
+    k.pop();
+    k.box(0.7, 0.7, 0.08, 'window', 0, H + 1.3, dz + 0.62, { emit: 0.3 });
+  }
+  // side buttresses carrying small pinnacles, and a rear turret
+  for (const sx of [-1, 1]) {
+    for (let i = 0; i < 3; i++) {
+      const bz = -4.5 + i * 4.5;
+      k.box(0.9, H + 0.4, 1.1, 'cream', sx * (W / 2 - 0.25), 0, bz);
+      k.cone(0.6, 1.8, 4, 'graniteLight', sx * (W / 2 - 0.25), H + 0.4, bz);
+      k.lathe(PROFILES.finial, 6, 'graniteLight', sx * (W / 2 - 0.25), H + 2.2, bz, { sr: 0.2, sh: 0.9, flat: true });
+    }
+  }
+  k.cyl(1.3, 1.4, H + 3.0, 8, 'cream', 0, 0, -6.5);
+  k.cone(1.5, 2.4, 8, "slate", 0, H + 3.0, -6.5);
+  k.end("detail");
   k.end('front');
   done();
 }

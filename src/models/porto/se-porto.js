@@ -114,6 +114,65 @@ function builder(k, site) {
   k.box(13.4, 0.5, 1.4, 'graniteLight', 0, 7.8, 0.7);
   k.pop();
   k.end('cloister');
+
+  // ---------------------------------------------------------- detail pass
+  // nave flanks: shallow buttress pilasters carrying a Romanesque corbel
+  // table under the eaves (twin brackets per bay)
+  for (const sx of [-1, 1]) {
+    const bx2 = sx * 10;
+    k.push({ x: bx2, z: -12, ry: sx > 0 ? Math.PI / 2 : -Math.PI / 2 });
+    for (let i = 0; i < 7; i++) {
+      const bz2 = -14 + i * 5;
+      k.box(0.7, 14.0, 1.1, 'graniteLight', bz2, 0, 0.35);
+      k.cone(0.55, 1.4, 4, 'graniteLight', bz2, 14.0, 0.35);
+    }
+    for (let i = 0; i < 22; i++) {
+      const cz2 = -21 + i * 2;
+      k.box(0.22, 0.36, 0.5, 'graniteLight', cz2, 13.2, 0.2);
+      k.cone(0.18, 0.3, 4, 'graniteLight', cz2, 13.0, 0.24);
+    }
+    k.pop();
+  }
+  // west portal: a tympanum relief, a central trumeau and a pair of jamb
+  // statues under the stepped archivolts
+  k.push({ x: 0, z: 10.5 });
+  k.box(2.6, 1.6, 0.5, 'granite', 0, 5.9, 0.9);
+  k.statue(1.5, 'graniteLight', 0, 6.1, 1.1, { pose: 'hold' });
+  for (const sx of [-1, 1]) {
+    k.box(0.5, 5.4, 0.5, 'granite', sx * 1.9, 0.4, 1.05);
+    k.statue(1.9, 'graniteLight', sx * 1.9, 0.5, 1.2, { pose: 'down' });
+  }
+  k.pop();
+  // central gable: apex cross and corner finials
+  k.box(0.16, 2.6, 0.16, 'iron', 0, 23.4, 10.7);
+  k.box(1.1, 0.16, 0.16, 'iron', 0, 24.5, 10.7);
+  for (const sx of [-1, 1]) k.lathe(PROFILES.finial, 6, 'graniteLight', sx * 5.0, 21.0, 10.7, { sr: 0.28, sh: 1.1, flat: true });
+  // twin towers: corner pinnacles and belfry louvres below the caps
+  for (const sx of [-1, 1]) {
+    const bx = sx * 10.5;
+    for (const [px, pz] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+      k.box(1.0, 2.2, 1.0, 'graniteLight', bx + px * 3.3, 24.0, 9 + pz * 3.3);
+      k.lathe(PROFILES.finial, 6, 'graniteLight', bx + px * 3.3, 26.0, 9 + pz * 3.3, { sr: 0.26, sh: 1.0, flat: true });
+    }
+    for (const ry of [0, Math.PI / 2, Math.PI, -Math.PI / 2]) {
+      k.push({ x: bx, z: 9, ry });
+      k.box(1.2, 3.2, 0.25, 'dark', 0, 20.6, 3.62, { mat: MAT.smooth });
+      for (let i = 0; i < 5; i++) k.box(0.1, 3.2, 0.3, 'graniteLight', -0.5 + i * 0.25, 20.6, 3.66);
+      k.pop();
+    }
+  }
+  // cloister: paired colonnettes with carved capitals in each bay of the walk
+  for (const [sx, sz, ry] of sides) {
+    k.push({ x: sx, z: sz, ry });
+    for (let i = 0; i < 4; i++) {
+      const px = -5.25 + i * 3.5;
+      for (const t of [-1, 1]) {
+        k.cyl(0.18, 0.2, 2.6, 6, 'graniteLight', px + t * 0.22, 0, 0.1);
+        k.box(0.6, 0.35, 0.55, 'graniteLight', px + t * 0.22, 2.6, 0.1);
+      }
+    }
+    k.pop();
+  }
   k.end('main');
   done();
 }

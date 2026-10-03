@@ -89,6 +89,27 @@ function builder(k, site) {
     openings: 1, windows: 1, clock: false, urns: false, balustrade: true, cross: true,
   });
   k.end('height');
+
+  // --- detail pass: tiled ridges, a tiled street dado and a crossing cupola
+  for (let i = 0; i < 10; i++) {
+    const tz = cz1 - D1 / 2 + 1.5 + (i * (D1 - 3)) / 9;
+    k.box(0.5, 0.24, 0.42, 'terracotta', cx, H1 + 3.75, tz);
+  }
+  for (let i = 0; i < 8; i++) {
+    const tz = cz2 - (D - D1) / 2 + 1.2 + (i * ((D - D1) - 2.4)) / 7;
+    k.box(0.45, 0.2, 0.4, 'terracotta', cx, H2 + 2.75, tz);
+  }
+  k.wall(W + 1.0, 1.4, 0.3, 'azulejo', [], cx, 0, zF + 0.22, { mat: MAT.azulejo });
+  for (const s of [-1, 1]) {
+    k.push({ x: cx + s * (W / 2 + 0.12), z: cz1, ry: s * Math.PI / 2 });
+    k.wall(D1 - 0.8, 1.4, 0.28, 'azulejo', [], 0, 0, 0, { mat: MAT.azulejo });
+    k.pop();
+  }
+  k.cyl(1.6, 1.8, 1.2, 10, 'graniteWarm', cx, H1 + 0.2, cz1 - D1 * 0.12);
+  k.dome(1.6, 'lead', cx, H1 + 1.4, cz1 - D1 * 0.12, { seg: 12, rings: 5 });
+  k.box(0.1, 0.9, 0.1, 'iron', cx, H1 + 3.0, cz1 - D1 * 0.12);
+  k.box(0.6, 0.1, 0.1, 'iron', cx, H1 + 3.4, cz1 - D1 * 0.12);
+
   done();
 }
 builder.metric = true;

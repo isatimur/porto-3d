@@ -106,6 +106,23 @@ function builder(k, site) {
   }
   k.end('flytower');
 
+  // --- detail pass: marquee bulbs, a canopy sign band and roof vents
+  for (let i = 0; i < 13; i++) {
+    const bx = b.cx - 9.6 + i * 1.6;
+    k.sphere(0.13, 'white', bx, 7.55, zf + bulge + 4.7, { seg: 5, rings: 3, emit: 0.5 });
+  }
+  k.box(halfW * 1.2, 0.35, 0.4, 'window', b.cx, 6.5, zf + bulge + 3.0, { emit: 0.4 });
+  for (let i = 0; i < 5; i++) {
+    k.box(1.6, 1.1, 1.6, 'graniteGrey', b.cx - b.w * 0.24 + i * b.w * 0.12, H, b.cz - b.d * 0.20);
+  }
+  for (const e of edges(rect(b.cx, b.cz, b.w, b.d))) {
+    if (e.len < b.d * 0.35) continue;
+    k.push({ x: e.mx + e.nx * 0.1, z: e.mz + e.nz * 0.1, ry: e.ry });
+    k.box(e.len * 0.9, 0.3, 0.5, 'graniteLight', 0, H + 0.15, 0);
+    k.pop();
+  }
+  k.statue(2.0, 'white', b.cx + halfW + 3.2, H * 0.94 - 0.2, zf - 2.4, { pose: 'raise' });
+
   k.end('main');
   done();
 }

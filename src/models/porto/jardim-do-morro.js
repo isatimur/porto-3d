@@ -120,6 +120,19 @@ function builder(k, site) {
     k.box(2.0, 0.45, 0.55, 'wood', bx * BW, 0.45, bz * BD - 0.28, { ry: br });
   }
 
+  // --- detail: a grotto footbridge, box parterres and a viewpoint statue
+  k.box(6.4, 0.4, 1.6, 'graniteLight', -hx * 0.47, 0.9, -hz * 0.47);
+  for (const s of [-1, 1]) {
+    k.cyl(0.8, 0.85, 0.6, 8, 'graniteDark', -hx * 0.47 + s * 1.8, 0.5, -hz * 0.47);
+    k.box(0.3, 1.0, 1.9, 'graniteLight', -hx * 0.47 + s * 2.8, 0.9, -hz * 0.47);
+  }
+  for (const [px, pz] of [[-0.2, 0.2], [0.2, 0.2], [-0.2, -0.25], [0.2, -0.25]]) {
+    k.box(6.0, 0.5, 1.0, 'hedge', px * BW, 0, pz * BD);
+    k.box(6.4, 0.16, 1.4, 'sand', px * BW, 0, pz * BD);
+  }
+  k.box(1.8, 1.5, 1.8, 'graniteLight', -hx * 0.60, 0.8, -hz + 1.0);
+  k.statue(2.2, 'graniteLight', -hx * 0.60, 2.3, -hz + 1.0, { pose: 'down' });
+
   done();
 }
 

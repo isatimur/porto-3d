@@ -108,6 +108,13 @@ function sealife(k, site) {
   // hedge planters along the forecourt edge
   for (let i = 0; i < 14; i++) k.ico(0.7, 1, 'hedge', -W * 0.42 + (W * 0.84 * i) / 13, 0.75, -D * 0.44, { jitter: 0.2, sy: 0.6 });
 
+  // --- detail: a forecourt flag, facade signage and a service-yard screen
+  k.cyl(0.06, 0.06, 5.0, 5, 'steel', W * 0.42, 0.25, D * 0.40);
+  k.box(1.2, 0.8, 0.04, 'doorBlue', W * 0.42 + 0.62, 4.6, D * 0.40);
+  k.box(2.6, 1.0, 0.2, 'doorBlue', -W * 0.22, 1.4, D * 0.44, { ry: 0.2 });
+  k.box(2.2, 0.6, 0.24, 'white', -W * 0.22, 1.9, D * 0.46, { ry: 0.2 });
+  for (let i = 0; i < 5; i++) k.box(0.18, 1.8, 0.6, 'steel', -W * 0.42 + i * W * 0.06, 0.25, -D * 0.42);
+
   done();
 }
 sealife.metric = true;

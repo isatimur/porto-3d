@@ -109,7 +109,40 @@ function dragao(k, site) {
     k.cyl(1.2, 1.8, 44, 8, 'steel', px, 0, pz);
     k.box(9, 6, 1.2, 'steel', px, 44, pz, { ry: Math.atan2(sx2, sz2) });
     k.box(8, 5, 0.4, 'window', px, 45, pz - sz2 * 0.8, { ry: Math.atan2(sx2, sz2), emit: 0.6 });
+    // a bank of four lamps in the mast head
+    for (let l = -1; l <= 1; l++) k.box(2.2, 1.6, 0.3, 'window', px + l * 2.4, 44.6, pz - sz2 * 1.0, { emit: 0.55 });
   }
+
+  // ---------------------------------------------------------- detail pass
+  // vomitories (entrance tunnels) cut through the facade shell
+  for (let i = 0; i < 16; i++) {
+    const a = (i / 16) * Math.PI * 2;
+    k.box(4.4, 5.5, 1.0, 'dark', Math.cos(a) * 116 * sx, 0, Math.sin(a) * 96 * sz, { ry: -a });
+    k.box(5.2, 0.6, 1.4, 'graniteGrey', Math.cos(a) * 117 * sx, 5.5, Math.sin(a) * 97 * sz, { ry: -a });
+  }
+  // radial access stairs climbing between the tiers
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2 + 0.13;
+    for (let s = 0; s < 8; s++) {
+      const r = (192 - s * 6) * sx;
+      k.box(2.6, 0.35, 1.1, 'graniteGrey', Math.cos(a) * r, 4 + s * 2.1, Math.sin(a) * r * (sz / sx), { ry: -a });
+    }
+  }
+  // blue seat mosaic on the lower tier (club colours) and aisle numbers
+  for (let s = 0; s < 24; s++) {
+    const a = (s / 24) * Math.PI * 2;
+    k.box(2.4, 0.42, 1.2, s % 2 ? 'doorBlue' : 'seat', Math.cos(a) * 88 * sx, 5.3, Math.sin(a) * 70 * sz, { ry: -a });
+  }
+  // advertising hoardings, dugouts and corner flags round the pitch
+  for (const s of [-1, 1]) {
+    for (let i = -6; i <= 6; i++) k.box(6.5, 1.0, 0.25, i % 2 ? 'white' : 'doorBlue', i * 7 * sx, 0.5, s * 56 * sz, { ry: s < 0 ? Math.PI : 0 });
+    for (let i = -4; i <= 4; i++) k.box(0.25, 1.0, 6.5, i % 2 ? 'white' : 'doorBlue', s * 65 * sx, 0.5, i * 7 * sz, { ry: s < 0 ? Math.PI / 2 : -Math.PI / 2 });
+    k.box(7, 2.0, 2.4, 'graniteGrey', s * 20 * sx, 0.2, s * 52 * sz, { mat: MAT.flat });
+  }
+  for (const [sx2, sz2] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) k.box(0.12, 1.8, 0.12, 'white', sx2 * 54 * sx, 0.2, sz2 * 36 * sz);
+  // one large scoreboard on the north stand
+  k.box(22, 8, 1.2, 'dark', 0, 30, 86 * sz);
+  k.box(20, 6, 0.4, 'window', 0, 30, 86 * sz - 0.6, { emit: 0.15 });
 }
 function THREEclamp(v, a, b) { return Math.min(b, Math.max(a, v)); }
 dragao.metric = true;

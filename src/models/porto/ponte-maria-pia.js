@@ -121,6 +121,32 @@ function builder(k, site) {
     k.box(9, 1.4, DECK_W + 2.5, 'graniteLight', ex, DECK_Y - 1.5, 0);
   }
 
+  // ---------------------------------------------------------- detail pass
+  // permanent way: sleepers, rail chairs and a pair of running rails
+  for (let i = 0; i < 60; i++) {
+    const x = -half + ((i + 0.5) * span) / 60;
+    k.box(0.9, 0.22, DECK_W - 0.6, 'wood', x, DECK_Y - 0.02, 0);
+  }
+  for (const z of [-1.5, 1.5]) {
+    for (let i = 0; i < 30; i++) k.box(0.24, 0.3, 0.5, 'iron', -half + ((i + 0.5) * span) / 30, DECK_Y + 0.2, z);
+  }
+  // gusset plates at the lattice nodes and masonry pier footings
+  for (let i = 0; i + 2 <= N; i += 2) {
+    const x0 = -af + (2 * af * i) / N;
+    const y0 = archAt(x0);
+    k.box(1.6, 1.6, 1.6, 'iron', x0, y0 - 0.8, -RIB_Z);
+    k.box(1.6, 1.6, 1.6, 'iron', x0, y0 - 0.8, RIB_Z);
+  }
+  for (const s of [-1, 1]) {
+    for (let p = 0; p < 6; p++) {
+      const x = s * (inner + ((p + 0.5) * (outer - inner)) / 6);
+      for (const sz of [-1, 1]) k.box(6, 1.6, 4, 'graniteDark', x, 0, sz * (DECK_W / 2 - 0.4));
+    }
+  }
+  // a narrow inspection walkway outboard of the track
+  k.box(span, 0.16, 1.1, 'steel', 0, DECK_Y - 0.1, DECK_W / 2 + 0.4);
+  for (let i = 0; i < 24; i++) k.box(0.12, 1.0, 0.12, 'iron', -half + ((i + 0.5) * span) / 24, DECK_Y - 0.1, DECK_W / 2 + 0.9);
+
   k.pop();
   k.end('main');
 }

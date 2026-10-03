@@ -93,6 +93,20 @@ function builder(k, site) {
     k.box(1.6, 3.0, 1.6, 'graniteDark', x, H * 0.72 + 2.0, b.cz - b.d * 0.28);
   }
 
+  // --- detail: dockside bollards, two quay cranes and a freestone cornice
+  for (let i = 0; i < 8; i++) {
+    k.cyl(0.4, 0.5, 1.0, 8, 'iron', b.cx - b.w / 2 + 3 + i * ((b.w - 6) / 7), 0.4, b.z1 + 5);
+  }
+  for (const cxx of [b.cx - b.w * 0.3, b.cx + b.w * 0.3]) {
+    k.box(0.5, 6.5, 0.5, 'iron', cxx, 0, b.z1 + 3.5);
+    k.box(4.5, 0.5, 0.5, 'iron', cxx + 2.0, 6.0, b.z1 + 3.5);
+    k.cyl(0.12, 0.12, 1.6, 5, 'iron', cxx + 4.2, 4.4, b.z1 + 3.5);
+  }
+  for (let i = 0; i < 10; i++) {
+    const x = b.cx - b.w * 0.42 + (b.w * 0.84 * i) / 9;
+    k.box(1.8, 2.4, 1.8, 'graniteDark', x, H * 0.72 + 1.8, b.cz + b.d * 0.28);
+  }
+
   k.end('main');
   done();
 }

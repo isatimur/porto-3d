@@ -116,6 +116,20 @@ function lapa(k, site) {
   for (let i = 0; i < 3; i++) k.tree(-20 + i * 7, 0, 24 - i * 1.5, 7.5 + i, { crown: 'round' });
   k.lamp(4.4, -4, 0.4, 24, { globe: true });
 
+  // --- detail: more graves, a memorial cross and cemetery gate arms
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 4; c++) {
+      const gx = x0 + 3.4 + c * 3.6;
+      const gz = z0 + 4 + r * 3.2;
+      k.box(0.9, 1.5, 0.3, 'graniteLight', gx, 0, gz);
+      k.cyl(0.22, 0.26, 1.2, 8, 'graniteLight', gx, 1.5, gz);
+    }
+  }
+  k.box(0.5, 3.8, 0.5, 'graniteLight', x0 + 1.0, 0, 0);
+  k.box(1.8, 0.5, 0.18, 'graniteLight', x0 + 1.0, 3.4, 0);
+  k.box(3.0, 1.4, 0.4, 'graniteLight', x0 + 1.6, 0, -1.2);
+  k.box(3.0, 1.4, 0.4, 'graniteLight', x0 + 1.6, 0, 1.2);
+
   done();
 }
 lapa.metric = true;

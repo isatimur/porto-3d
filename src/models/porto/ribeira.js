@@ -52,6 +52,12 @@ function builder(k, site) {
     const na = Math.max(1, Math.round(ww / 3.3));
     k.push({ x: cx, z: zF - 0.25, ry: 0 });
     k.arcade(ww - 0.3, gh, 0.75, na, (ww / na) * 0.62, gh - 0.55, 'graniteWarm');
+    // keystones and an impost band over the arcade
+    for (let i = 0; i < na; i++) {
+      const kx = -ww / 2 + (ww / na) * (i + 0.5);
+      k.box(0.55, 0.7, 0.35, 'graniteWarm', kx, gh - 0.95, zF + 0.15);
+    }
+    k.box(ww - 0.2, 0.35, 0.9, 'graniteWarm', 0, gh - 0.05, zF - 0.2);
     k.pop();
     // upper storeys of windows
     const sy = [gh + 0.7, gh + 4.2, gh + 7.7];
@@ -62,6 +68,23 @@ function builder(k, site) {
         const wx = -ww / 2 + (ww / nb) * (i + 0.5);
         win(k, cx + wx, wy, 1.0, 1.7, zF - 0.18, { trim: 'granite', pane: 'glass', bw: 0.2, depth: 0.28, sill: true, balcony: rnd() > 0.78 ? 'iron' : false });
       }
+    }
+    // wooden shutters and a wrought-iron flower box at each window
+    k.push({ x: cx, z: zF - 0.18, ry: 0 });
+    for (const wy of sy) {
+      if (wy + 1.9 > h) continue;
+      const nb = Math.max(1, Math.round(ww / 3.0));
+      for (let i = 0; i < nb; i++) {
+        const wx = -ww / 2 + (ww / nb) * (i + 0.5);
+        k.box(0.16, 1.7, 0.1, ww > 8 ? 'doorBlue' : 'maroon', wx - 0.62, wy, 0.16);
+        k.box(0.16, 1.7, 0.1, ww > 8 ? 'doorBlue' : 'maroon', wx + 0.62, wy, 0.16);
+        k.box(1.3, 0.28, 0.3, 'iron', wx, wy - 0.35, 0.34);
+      }
+    }
+    k.pop();
+    // granite quoins at the party walls
+    for (const s of [-1, 1]) {
+      for (let q = 0; q < 6; q++) k.box(0.5, 1.1, 0.5, 'granite', cx + s * (ww / 2 - 0.28), q * 2.0, zF - 0.42);
     }
     // cornice, tiled hip roof, chimneys
     k.cornice(ww, corniceProfile('eave', 0.4), 'granite', cx, h - 0.35, zF - 0.3);
@@ -85,6 +108,17 @@ function builder(k, site) {
   const nbo = Math.max(2, Math.round(L / 26));
   for (let i = 0; i < nbo; i++) {
     rabelo(k, -L / 2 + (L * (i + 0.5)) / nbo + (rnd() - 0.5) * 6, zF + 12 + rnd() * 8, Math.PI / 2 + (rnd() - 0.5) * 0.35);
+  }
+  // granite bollards and iron mooring rings along the quay edge
+  const nbol = Math.max(4, Math.round(L / 12));
+  for (let i = 0; i < nbol; i++) {
+    const bx = -L / 2 + (L * (i + 0.5)) / nbol;
+    k.cyl(0.22, 0.32, 0.75, 8, 'graniteDark', bx, 0.55, zF + 4.4);
+    k.cyl(0.18, 0.18, 0.22, 8, 'graniteDark', bx, 0.2, zF + 4.4);
+  }
+  // a low granite kerb and setts marking the quay edge
+  for (let i = 0; i < Math.max(6, Math.round(L / 3)); i++) {
+    k.box(2.8, 0.16, 0.5, 'granite', -L / 2 + (L * (i + 0.5)) / Math.max(6, Math.round(L / 3)), 0.45, zF + 6.6);
   }
   k.end('quay');
   k.pop();

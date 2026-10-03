@@ -75,6 +75,43 @@ function mercadoBolhao(k, site) {
     }
   }
   k.corniceRing(L, D, corniceProfile('band', 0.4), 'granite', b.cx, 8.6, cz);
+
+  // ---------------------------------------------------------- detail pass
+  // cast-iron trusses spanning the central nave (rafter pairs, tie and king post)
+  for (let i = 0; i < 6; i++) {
+    const tx = b.cx - L / 2 + (L * (i + 0.5)) / 6;
+    const hz = naveW / 2;
+    k.segment([tx, 9.3, cz - hz], [tx, 14.6, cz], 0.28, 0.28, 'iron');
+    k.segment([tx, 14.6, cz], [tx, 9.3, cz + hz], 0.28, 0.28, 'iron');
+    k.segment([tx, 9.3, cz - hz], [tx, 9.3, cz + hz], 0.22, 0.22, 'iron');
+    k.segment([tx, 12.0, cz], [tx, 14.6, cz], 0.16, 0.16, 'iron');
+    k.segment([tx, 12.0, cz], [tx, 9.3, cz - hz], 0.12, 0.12, 'iron');
+    k.segment([tx, 12.0, cz], [tx, 9.3, cz + hz], 0.12, 0.12, 'iron');
+  }
+  // stall counters and canvas awnings under the side aisles
+  for (const s of [-1, 1]) {
+    const sz = cz + s * (D / 2 - aisleW / 2);
+    for (let i = 0; i < 8; i++) {
+      const sx = b.cx - L / 2 + (L * (i + 0.5)) / 8;
+      k.box(3.6, 0.9, 1.6, 'wood', sx, 0, sz);
+      k.box(4.2, 0.2, 2.4, 'cream', sx, 3.6, sz + s * 1.1);
+      for (const t of [-1, 1]) k.box(0.12, 3.6, 0.12, 'iron', sx + t * 1.8, 0, sz + s * 1.9);
+    }
+  }
+  // clerestory tracery: mullions and a transom in each arched light
+  for (const s of [-1, 1]) {
+    for (const c of cler) {
+      const cx2 = b.cx + c.x;
+      const zf = cz + s * (naveW / 2) + s * 0.5;
+      for (const t of [-1, 0, 1]) k.box(0.12, c.h, 0.14, 'iron', cx2 + t * (c.w / 4), 9.5 + c.y, zf + 0.1);
+      k.box(c.w, 0.12, 0.14, 'iron', cx2, 9.5 + c.y + c.h * 0.55, zf + 0.1);
+    }
+  }
+  // hanging trade signs over the front arches
+  for (const t of [-3.4, 0, 3.4]) {
+    k.segment([b.cx + t, 8.4, fz + 0.9], [b.cx + t, 8.4, fz + 2.1], 0.08, 0.08, 'iron');
+    k.box(1.4, 0.6, 0.1, 'gold', b.cx + t, 7.7, fz + 2.0, { emit: 0.3 });
+  }
   done();
 }
 mercadoBolhao.metric = true;

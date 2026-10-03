@@ -114,6 +114,34 @@ function builder(k, site) {
     k.box(12, 1.6, DECK_W + 4, 'white', ex, DECK_Y - 1.5, 0);
   }
 
+  // ---------------------------------------------------------- detail pass
+  // arch intrados: soffit panels spanning between the two ribs, gusset
+  // plates under each node and a voussoir keystone at the crown
+  for (let i = 0; i < N; i++) {
+    const x = -af + (2 * af * i) / N;
+    const y = archAt(x);
+    k.box(1.4, 0.5, RIB_Z * 2 - 3.2, 'graniteGrey', x, y - 1.5, 0);
+    if (i % 3 === 0) k.box(2.6, 0.7, 1.2, 'graniteLight', x, y - 2.0, -RIB_Z);
+  }
+  k.box(3.4, 1.6, 2.0, 'graniteLight', 0, archAt(0) - 0.4, 0);
+  // spandrel capitals and pier footings
+  for (const z of [-RIB_Z, RIB_Z]) {
+    for (let i = 1; i < N; i += 2) {
+      const x = -af + (2 * af * i) / N;
+      const y = archAt(x);
+      if (y < DECK_Y - 3) k.box(2.0, 0.5, 2.0, 'graniteLight', x, DECK_Y - 2.6, z);
+    }
+  }
+  for (const s of [-1, 1]) {
+    for (const sz of [-1, 1]) k.box(6, 1.4, 6, 'graniteGrey', s * (half - 3), 0, sz * (DECK_W / 2 - 4));
+  }
+  // drainage downpipes under the deck edge and an inspection gantry
+  for (let i = 0; i < 8; i++) {
+    const x = -half + (span * (i + 0.5)) / 8;
+    k.box(0.35, 4.0, 0.35, 'graniteGrey', x, DECK_Y - 8.2, DECK_W / 2 - 0.6);
+  }
+  k.box(3.2, 0.25, DECK_W - 4, 'steel', -af + 8, DECK_Y - 6.0, 0);
+
   k.pop();
   k.end('main');
 }

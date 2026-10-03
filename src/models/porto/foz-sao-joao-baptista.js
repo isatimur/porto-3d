@@ -142,6 +142,22 @@ function builder(k, site) {
   k.tree(cx + W * 0.43, 0, zB + 2, 7.5, { crown: 'oval' });
   k.cyl(0.08, 0.1, 9, 6, 'white', cx, 4.4, zF + 3.6);
   k.box(1.4, 1.0, 0.05, 'maroon', cx + 0.7, 12.9, zF + 3.6);
+
+  // --- detail: rampart embrasures, a landward gate with arms and a beacon
+  for (const s of [-1, 1]) {
+    for (let i = 0; i < 8; i++) {
+      k.box(1.2, 0.5, 0.4, 'dark', cx - W / 2 + 3 + i * ((W - 6) / 7), 3.95, cz + s * (D / 2 - 0.3));
+      k.box(0.4, 0.5, 1.2, 'dark', cx + s * (W / 2 - 0.3), 3.95, cz - D / 2 + 3 + i * ((D - 6) / 7));
+    }
+  }
+  k.box(5.0, 4.6, 1.4, 'graniteLight', cx, 0, zB + 0.2);
+  k.gate(4.0, 3.4, 1.8, [{ x: 0, w: 2.2, h: 2.6 }], 'graniteDark', cx, 0, zB + 0.2);
+  k.box(2.2, 1.6, 0.4, 'granite', cx, 5.2, zB + 0.35);
+  for (let i = 0; i < 9; i++) k.box(1.2, 0.5, 0.9, 'granite', cx - W / 2 + 2 + i * ((W - 4) / 8), 3.65, zF + 0.7);
+  k.cyl(0.8, 1.0, 4.5, 8, 'graniteLight', cx + 3.6, 4.4, zF + 4.0);
+  k.cyl(1.0, 1.0, 0.3, 8, 'graniteDark', cx + 3.6, 8.9, zF + 4.0);
+  k.cyl(0.45, 0.45, 0.9, 8, 'window', cx + 3.6, 9.2, zF + 4.0, { emit: 0.85 });
+  k.cone(0.65, 0.7, 8, 'graniteLight', cx + 3.6, 10.1, zF + 4.0);
   done();
 }
 builder.metric = true;

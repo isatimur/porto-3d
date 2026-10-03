@@ -144,7 +144,50 @@ function builder(k, site) {
       k.box(9, h, DECK_W, 'graniteDark', x, 0, 0);
       k.box(10, 1, DECK_W + 1.5, 'graniteLight', x, h, 0);
       k.box(9.6, 0.7, DECK_W + 1, 'graniteLight', x, 2.2, 0);
+      k.box(9.4, 0.5, DECK_W + 0.6, 'graniteLight', x, h * 0.55, 0);
     }
+  }
+
+  // ---------------------------------------------------------- detail pass
+  // masonry pylons: voussoir course over the deck opening and a cornice,
+  // with an arched pedestrian passage at quay level
+  for (const s of [-1, 1]) {
+    const px = s * af;
+    for (let i = 0; i < 9; i++) k.box(1.9, 1.1, 1.0, 'graniteLight', px - 6 + i * 1.5, HIGH_Y + 3.0, DECK_W / 2 + 0.4);
+    k.box(PYLON_W + 3, 0.5, DECK_W + 2, 'graniteLight', px, HIGH_Y + 4.1, 0);
+    k.box(4.5, 5.2, DECK_W + 0.8, 'graniteDark', px, 0, 0);
+    k.box(5.6, 3.2, 1.2, 'graniteDark', px, 6.0, DECK_W / 2 + 0.1);
+  }
+  // arch ribs: voussoir blocks at the crown and springing, rivet plates
+  for (const z of [-RIB_Z, RIB_Z]) {
+    for (let i = 0; i <= N; i += 4) {
+      const x = -af + (2 * af * i) / N;
+      const y = archAt(x);
+      k.box(1.1, 1.1, 2.1, 'steel', x, y - 0.55, z);
+    }
+    for (let i = 2; i < N; i += 3) {
+      const x = -af + (2 * af * i) / N;
+      k.box(1.9, 0.18, 1.9, 'steel', x, archAt(x) + 0.85, z);
+    }
+  }
+  // hangers: diagonal stays lacing between consecutive verticals
+  for (const z of [-RIB_Z, RIB_Z]) {
+    for (let i = 2; i < N - 2; i += 2) {
+      const x0 = -af + (2 * af * i) / N;
+      const x1 = -af + (2 * af * (i + 1)) / N;
+      k.segment([x0, LOW_Y + 1.2, z], [x1, archAt(x1) - 1.0, z], 0.16, 0.16, 'steel');
+      k.segment([x1, LOW_Y + 1.2, z], [x0, archAt(x0) - 1.0, z], 0.16, 0.16, 'steel');
+    }
+  }
+  // upper deck: cast-iron lamp posts in the pylon bays and a portal brace
+  // over the crown of the arch
+  for (const s of [-1, 1]) {
+    k.cyl(0.16, 0.22, 2.4, 6, 'iron', s * (af - 6), HIGH_Y + 1.35, DECK_W / 2 - 1.2);
+    k.cyl(0.22, 0.16, 0.5, 6, 'window', s * (af - 6), HIGH_Y + 3.75, DECK_W / 2 - 1.2, { emit: 0.8 });
+  }
+  for (const z of [-RIB_Z, RIB_Z]) {
+    k.segment([-2, crownY + 1.0, z], [0, HIGH_Y + 1.2, z], 0.3, 0.3, 'iron');
+    k.segment([2, crownY + 1.0, z], [0, HIGH_Y + 1.2, z], 0.3, 0.3, 'iron');
   }
 
   k.pop();

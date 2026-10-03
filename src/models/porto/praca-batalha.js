@@ -99,6 +99,15 @@ function batalha(k, site) {
   for (const s of [-1, 1]) k.box(W * 0.7, 0.04, 0.25, 'steel', 0, 0.26, s * D * 0.30);
   for (let i = 0; i < 5; i++) k.tree(-W * 0.34 + i * W * 0.17, 0.22, -D * 0.42, 7.0 + (i % 2) * 2, { kind: 'round' });
 
+  // --- detail: square lamps, tram rails and the monument balustrade
+  for (const [lx, lz] of [[-W * 0.42, -D * 0.42], [W * 0.42, -D * 0.42], [-W * 0.42, D * 0.42], [W * 0.42, D * 0.42]]) k.lamp(5.0, lx, 0.22, lz, { globe: true });
+  for (const s of [-1, 1]) k.box(0.12, 0.08, D * 0.9, 'steel', s * W * 0.30, 0.24, 0);
+  k.box(9, 0.4, 9, 'graniteLight', mx, 0.22, mz);
+  for (let i = 0; i < 4; i++) {
+    const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
+    k.cyl(0.35, 0.45, 0.7, 8, 'graniteLight', mx + Math.cos(a) * 2.6, 0.22, mz + Math.sin(a) * 2.6);
+  }
+
   done();
 }
 

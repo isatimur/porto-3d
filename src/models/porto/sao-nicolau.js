@@ -84,6 +84,17 @@ function saoNicolau(k, site) {
   for (let i = 0; i < 2; i++) k.tree(-7.5 + i * 3, 0, 15 - i * 2, 5.5 + i, { crown: 'oval' });
   k.lamp(4.0, 6.0, 0.35, 15, { globe: true });
 
+  // --- detail pass: tiled ridge, upper azulejo panels and flank buttresses
+  for (let i = 0; i < 12; i++) {
+    const tz = cz - dn / 2 + 2 + (i * (dn - 4)) / 11;
+    k.box(0.5, 0.24, 0.44, 'terracotta', cx, 17.28, tz);
+  }
+  for (const sx of [-1, 1]) {
+    k.box(2.2, 3.0, 0.22, 'azulejo', cx + sx * 4.0, 8.4, fz + 0.14, { mat: 4 });
+    k.box(2.6, 0.3, 0.3, 'graniteLight', cx + sx * 4.0, 8.0, fz + 0.2);
+    for (let i = 0; i < 4; i++) k.box(0.7, 8.0, 1.0, 'granite', cx + sx * (wn / 2 + 0.6), 0, cz - 9 + i * 6);
+  }
+
   done();
 }
 saoNicolau.metric = true;

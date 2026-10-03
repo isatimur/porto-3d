@@ -145,6 +145,45 @@ function builder(k, site) {
   // side chapels
   k.prism(rectPts(cxc - 11, czc - 4, 7, 10), 0, 10, 'granite');
   k.prism(rectPts(cxc + 11, czc - 4, 7, 10), 0, 10, 'granite');
+
+  // ---------------------------------------------------------- detail pass
+  // nave: a Romanesque corbel table under the eaves (twin brackets at each
+  // bay), ridge cresting, and chalice finials stepping up the ridge
+  for (const s of [-1, 1]) {
+    const wz = czc + s * (cd / 2 + 0.02);
+    k.push({ x: cxc, z: wz, ry: s > 0 ? 0 : Math.PI });
+    for (let i = 0; i < 16; i++) {
+      const bx = -cw / 2 + (cw / 16) * (i + 0.5);
+      k.box(0.24, 0.42, 0.4, 'graniteLight', bx, 13.15, 0.18);
+      k.cone(0.2, 0.34, 4, 'graniteLight', bx, 12.9, 0.22);
+    }
+    k.pop();
+  }
+  for (let i = 0; i <= 8; i++) {
+    k.lathe(PROFILES.finial, 5, 'graniteLight', cxc - cw / 2 + (cw / 8) * i, 18.9, czc, { sr: 0.2, sh: 0.85, flat: true });
+  }
+  // curved front: a pair of pilasters framing the portal, niche statues and
+  // a keystone over the oculus
+  for (const sx of [-1, 1]) {
+    k.push({ x: cxc + sx * 4.0, z: fz - 1.6, ry: sx > 0 ? 0.35 : -0.35 });
+    k.box(0.7, 14.6, 0.35, 'graniteLight', 0, 0.2, 0);
+    k.box(0.95, 0.5, 0.5, 'graniteLight', 0, 14.8, 0.05);
+    k.box(0.95, 0.5, 0.5, 'graniteLight', 0, 0.2, 0.05);
+    k.pop();
+  }
+  for (const sx of [-1, 1]) {
+    k.surround({ x: cxc + sx * 8.0, y: 7.6, w: 1.5, h: 2.4, arch: 'round' }, 0.24, 0.3, 'graniteLight', fz - 0.4);
+    k.statue(1.35, 'graniteLight', cxc + sx * 8.0, 7.8, fz - 0.1, { pose: 'hold' });
+  }
+  // clock numerals on the two faces below the belfry
+  for (const ry of [0, Math.PI]) {
+    k.push({ x: tx, z: tz, ry });
+    for (let i = 0; i < 12; i++) {
+      const a = (i / 12) * Math.PI * 2;
+      k.box(0.12, 0.12, 0.06, 'dark', Math.sin(a) * 1.05, 48.5 + Math.cos(a) * 1.05, W / 2 + 0.42);
+    }
+    k.pop();
+  }
   k.end('church');
 }
 

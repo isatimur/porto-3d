@@ -132,6 +132,35 @@ function queijo(k, site) {
   k.box(1.6, 1.0, 0.05, 'white', W * 0.30 + 0.8, 11.0, D * 0.28);
   k.box(0.9, 0.66, 0.06, 'maroon', W * 0.30 + 0.7, 11.17, D * 0.28);
 
+  // --- detail pass: embrasures, more cannon, sentry boxes and a beacon light
+  for (const [p, q] of [[A, B], [B, C], [C, A]]) {
+    const len = Math.hypot(q[0] - p[0], q[1] - p[1]);
+    const n = Math.max(2, Math.round(len / 6));
+    const ry = Math.atan2(-(q[1] - p[1]), q[0] - p[0]);
+    k.push({ x: (p[0] + q[0]) / 2, z: (p[1] + q[1]) / 2, ry });
+    for (let i = 0; i < n; i++) {
+      const u = -len / 2 + (len / n) * (i + 0.5);
+      k.box(1.0, 0.5, 0.25, 'dark', u, wallH + 0.4, t / 2 + 0.02);
+    }
+    k.pop();
+  }
+  for (const [px, pz, ry] of [[A[0] * 0.55, A[1] * 0.75, 0.6], [B[0] * 0.55, B[1] * 0.75, -0.6], [0, D * 0.24, Math.PI]]) {
+    for (let i = 0; i < 3; i++) {
+      const u = (i - 1) * 1.5;
+      k.push({ x: px + u * Math.cos(ry), z: pz + u * Math.sin(ry), ry });
+      k.cyl(0.34, 0.42, 2.6, 10, 'iron', 0, 2.3, 0.9, { rx: Math.PI / 2 });
+      k.pop();
+    }
+  }
+  for (const [bx, bz] of [[A[0], A[1]], [B[0], B[1]]]) {
+    k.box(1.4, 2.2, 1.4, 'graniteLight', bx, 1.0, bz);
+    k.cone(1.0, 1.0, 4, 'graniteDark', bx, 3.2, bz);
+  }
+  k.cyl(0.9, 1.1, 5.5, 8, 'graniteLight', gx + 6.5, 1.1, gz);
+  k.cyl(1.1, 1.1, 0.4, 8, 'graniteDark', gx + 6.5, 6.6, gz);
+  k.cyl(0.5, 0.5, 1.0, 8, 'window', gx + 6.5, 7.0, gz, { emit: 0.85 });
+  k.cone(0.7, 0.8, 8, 'graniteLight', gx + 6.5, 8.0, gz);
+
   done();
 }
 queijo.metric = true;

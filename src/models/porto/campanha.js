@@ -94,6 +94,24 @@ function builder(k, site) {
   }
   k.end('trainshed');
 
+  // --- detail pass: trainshed trusses, platform fittings and canopy glazing
+  for (let i = 0; i <= 12; i++) {
+    const z = b.z0 + 6 + ((b.d - 12) * i) / 12;
+    k.segment([xPlat - shedW / 2, shedTop + 3.2, z], [xPlat, shedTop + 0.2, z], 0.16, 0.16, 'iron');
+    k.segment([xPlat, shedTop + 0.2, z], [xPlat + shedW / 2, shedTop + 3.2, z], 0.16, 0.16, 'iron');
+    k.box(shedW - 2, 0.12, 0.14, 'iron', xPlat, shedTop + 1.7, z);
+  }
+  for (let i = 0; i < 3; i++) {
+    const z = b.z0 + 10 + ((b.d - 20) * i) / 2;
+    k.box(2.2, 0.5, 0.6, 'wood', xPlat - 2.5, 0.45, z);
+    k.box(2.2, 0.5, 0.6, 'wood', xPlat + 2.5, 0.45, z);
+    k.lamp(4.2, xPlat, 0.45, z + 2, { globe: true });
+  }
+  for (let i = 0; i < 8; i++) {
+    const z = b.z0 + 9 + ((b.d - 18) * i) / 7;
+    k.box(shedW - 5, 0.05, 0.8, 'glass', xPlat, shedTop + 3.35, z, { mat: 0, emit: 0.08 });
+  }
+
   k.end('main');
   done();
 }

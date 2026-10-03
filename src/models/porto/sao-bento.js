@@ -85,6 +85,42 @@ function builder(k, site) {
   // iron and glass entrance canopy
   k.box(13, 0.25, 3.0, 'iron', 0, 8.2, pz + 3.6);
   for (const sx of [-1, 1]) k.segment([sx * 6, 8.3, pz + 5.0], [sx * 6, 1.0, pz + 4.6], 0.1, 0.1, 'iron', { round: true, seg: 4 });
+
+  // ---------------------------------------------------------- detail pass
+  // corner pavilions (torreões) capping both ends, each with a pyramidal
+  // slate cap and a finial
+  for (const sx of [-1, 1]) {
+    const ex = sx * 32.5;
+    k.prism(rectPts(ex, 0, 7.5, D + 2.5), 0, H + 1.6, 'granite');
+    polyCornice(k, rectPts(ex, 0, 7.5, D + 2.5), H + 1.6, corniceProfile('classic', 0.6), 'graniteLight');
+    k.push({ x: ex, z: 0 });
+    k.hipRoof(7.5, D + 2.5, 4.2, 'slate', 0, H + 1.6, 0, { over: 0.35 });
+    k.pop();
+    k.lathe(PROFILES.finial, 6, 'graniteLight', ex, H + 5.6, 0, { sr: 0.3, sh: 1.2, flat: true });
+    // two windows per face on the pavilions
+    win(k, ex, 2.4, 1.4, 3.0, D / 2 + 1.35, { trim: 'graniteLight', pane: 'glass', bw: 0.28, depth: 0.32, sill: true });
+    win(k, ex, 7.8, 1.4, 3.0, D / 2 + 1.35, { trim: 'graniteLight', pane: 'glass', bw: 0.28, depth: 0.32, sill: true });
+  }
+  // mansard: dormer pediments and slate ridge cresting along the ridge
+  for (let i = -3; i <= 3; i++) {
+    const x = i * 8.4;
+    k.box(3.0, 0.5, 2.0, 'graniteLight', x, H + 3.4, D / 2 - 1.9);
+    k.box(0.7, 0.5, 0.5, 'graniteLight', x, H + 4.6, D / 2 - 1.9);
+  }
+  for (let i = -5; i <= 5; i++) k.lathe(PROFILES.finial, 5, 'graniteLight', i * 6.4, H + 6.2, 0, { sr: 0.16, sh: 0.7, flat: true });
+  // facade: giant pilasters framing the three entrance arches
+  for (const px of [-9.8, -2.6, 2.6, 9.8]) {
+    k.box(0.9, 12.5, 0.5, 'graniteLight', px, 0.8, 11.15);
+    k.box(1.2, 0.55, 0.7, 'graniteLight', px, 13.3, 11.2);
+    k.box(1.2, 0.55, 0.7, 'graniteLight', px, 0.8, 11.2);
+  }
+  // chimneys on the main roof
+  for (let i = -2; i <= 2; i++) k.box(1.0, 2.4, 1.0, 'graniteWarm', i * 14, H + 5.6, -7.0);
+  // iron platform canopy trusses reaching back over the tracks
+  for (let i = -3; i <= 3; i++) {
+    k.box(0.3, 0.3, 9.0, 'iron', i * 8.0, 10.0, -7.0);
+    k.segment([i * 8.0, 10.0, -11.5], [i * 8.0, 6.5, -2.5], 0.18, 0.18, 'iron');
+  }
   done();
 }
 

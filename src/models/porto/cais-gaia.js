@@ -109,6 +109,16 @@ function builder(k, site) {
   for (let i = 0; i < nb; i++) rabelo(k, 18 + rnd() * 10, -L / 2 + 14 + ((L - 28) * (i + 0.5)) / nb + (rnd() - 0.5) * 8, Math.PI / 2 + (rnd() - 0.5) * 0.4);
   k.end('boats');
 
+  // --- detail: riverside bollards, quay signboards and a lodge plaque
+  for (let i = 0; i < 10; i++) {
+    const zz = -L / 2 + 12 + (i * (L - 24)) / 9;
+    k.cyl(0.28, 0.34, 0.9, 8, 'steel', 4.2, 1.0, zz);
+  }
+  for (let i = 0; i < 5; i++) {
+    k.box(0.25, 1.5, 3.4, 'doorBlue', 4.3, 3.0, -L / 2 + 14 + i * ((L - 28) / 4));
+    k.box(0.35, 0.4, 3.8, 'graniteLight', 4.25, 2.6, -L / 2 + 14 + i * ((L - 28) / 4));
+  }
+
   done();
 }
 builder.metric = true;

@@ -82,6 +82,16 @@ function cinemaBatalha(k, site) {
     k.pop();
   }
 
+  // --- detail pass: fin grooves, a vertical name sign and marquee bulbs
+  for (let i = 0; i < 5; i++) {
+    const x = tx - tw / 2 + 1.0 + i * ((tw - 2.0) / 4);
+    k.box(0.14, H - 5.0, 0.5, 'white', x, 4.4, zF + 0.32);
+  }
+  for (let i = 0; i < 10; i++) k.sphere(0.11, 'white', ex - 4.5 + i, 3.75, zF + 1.5, { seg: 5, rings: 3, emit: 0.5 });
+  k.box(0.5, 6.4, 0.3, 'graniteLight', ex, 7.4, zF + 0.5);
+  k.box(2.0, 0.45, 0.3, 'window', ex, 10.0, zF + 0.55, { emit: 0.4 });
+  k.cyl(0.4, 0.4, H - 4.4, 8, 'graniteLight', tx + tw * 0.34, 4.4, zF + 0.15, { mat: 8 });
+
   done();
 }
 cinemaBatalha.metric = true;

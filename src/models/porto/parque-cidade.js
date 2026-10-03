@@ -61,6 +61,17 @@ function builder(k, site) {
     else k.tree(x, 0, z, h, { crown: rnd() > 0.5 ? 'round' : 'oval', lobes: 1 + Math.floor(rnd() * 2) });
     placed++;
   }
+
+  // --- detail: a lake fountain and information pylons on the main walks
+  k.cyl(2.2, 2.8, 0.9, 14, 'graniteLight', c[0], 0.12, c[1] + b.d * 0.18);
+  k.cyl(0.4, 0.6, 2.4, 10, 'graniteLight', c[0], 1.0, c[1] + b.d * 0.18);
+  k.lathe([[0, 0], [1.0, 0], [0.9, 0.4], [0.6, 0.8], [0, 1]], 10, 'graniteLight', c[0], 3.4, c[1] + b.d * 0.18, { sr: 1.6, sh: 1.0, smooth: true });
+  for (let i = 0; i < 8; i++) {
+    const px = c[0] + (rnd() - 0.5) * b.w * 0.5;
+    const pz = c[1] + (rnd() - 0.5) * b.d * 0.5;
+    if (!inside(ground, px, pz)) continue;
+    k.box(0.5, 1.6, 0.9, 'graniteDark', px, 0, pz, { ry: rnd() * 6 });
+  }
   done();
 }
 builder.metric = true;

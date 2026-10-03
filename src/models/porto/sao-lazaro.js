@@ -86,6 +86,14 @@ function builder(k, site) {
   for (let i = 0; i < 8; i++) {
     k.lamp(4.0, c[0] - b.w * 0.3 + (b.w * 0.6 * i) / 7, 0, c[1] + b.d * 0.05, { globe: true });
   }
+
+  // --- detail: parterre kerbs, a north railing and an upper fountain jet
+  for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+    k.box(b.w * 0.24, 0.3, 0.4, 'graniteLight', c[0] + sx * b.w * 0.2, 0.4, c[1] + sz * b.d * 0.22);
+    k.box(0.4, 0.3, b.d * 0.27, 'graniteLight', c[0] + sx * b.w * 0.2, 0.4, c[1] + sz * b.d * 0.22);
+  }
+  k.box(b.w * 0.9, 0.5, 0.4, 'granite', c[0], 0.1, c[1] + b.d * 0.44);
+  k.cyl(0.25, 0.25, 0.3, 10, 'water', fx, 2.2, fz, { emit: 0.5 });
   done();
 }
 builder.metric = true;

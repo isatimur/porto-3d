@@ -95,7 +95,7 @@ const s = result.stats;
 const wantTrains = (rail?.items ?? []).reduce((n, r) => n + r.count, 0);
 if (s.trains !== wantTrains) fail(`trains: ${s.trains}, expected ${wantTrains}`);
 if (!(s.triangles > 0 && s.triangles < 4000)) fail(`triangles out of budget: ${s.triangles}`);
-if (liteResult.stats.trains !== 2) fail(`lite tier: ${liteResult.stats.trains} trains, expected 2`);
+if (liteResult.stats.trains !== (rail?.items ?? []).length) fail(`lite tier: ${liteResult.stats.trains} trains, expected ${rail?.items?.length}`);
 
 // ---- finite matrices
 for (const child of result.object.children) {

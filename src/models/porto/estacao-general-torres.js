@@ -85,6 +85,18 @@ function builder(k, site) {
     k.lamp(4.2, cx + (i % 2 ? 1 : -1) * (W / 2 - 1.2), 0.8, pz, { globe: true });
     k.box(1.8, 0.4, 0.5, 'wood', cx + (i % 2 ? -1 : 1) * (W / 2 - 1.4), 1.1, pz + 2);
   }
+  // --- detail pass: glazed canopy bays, name boards and platform clocks
+  for (let i = 0; i < nCol; i++) {
+    const pz = cZ0 + ((cZ1 - cZ0) * (i + 0.5)) / nCol;
+    k.box(W - 1.2, 0.06, 0.9, 'glass', cx, 5.63, pz, { mat: 0, emit: 0.06 });
+  }
+  k.box(0.35, 2.2, 0.2, 'doorBlue', cx + W / 2 - 0.2, 0.8, cZ0 + 3);
+  k.box(0.35, 2.2, 0.2, 'doorBlue', cx - W / 2 + 0.2, 0.8, cZ1 - 3);
+  for (const pz of [cZ0 + (cZ1 - cZ0) * 0.35, cZ0 + (cZ1 - cZ0) * 0.7]) {
+    k.box(2.0, 0.4, 0.5, 'wood', cx, 0.8, pz);
+    k.cyl(0.7, 0.7, 0.2, 14, 'granite', cx, 4.6, pz, { rx: Math.PI / 2 });
+    k.cyl(0.52, 0.52, 0.14, 12, 'white', cx, 4.75, pz, { rx: Math.PI / 2 });
+  }
   k.end('main');
 
   done();

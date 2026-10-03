@@ -695,18 +695,75 @@ float bRect(vec2 f, vec4 r) {
 float bBand(float u, float a, float b, float w) {
   return smoothstep(a - w, a + w, u) - smoothstep(b - w, b + w, u);
 }
-// the blue-and-white azulejo motif on a wall plane, p in metres: an inked
-// ground through a white lattice, a little glossier than plaster
-vec3 bAzulejo(vec2 p, vec3 ground, vec3 ink, float nearK) {
-  vec2 t = p / 0.14;
+// Azulejo on a wall plane, p in metres: an inked ground through a white
+// lattice, on a ~15 cm tile with grout, a little glossier than plaster.
+// motif picks one of four period patterns so a district is not one stamp:
+//   0 star/cross through the tile corners (the Raio manner), 1 pomegranate
+//   diamond, 2 baroque scroll rosette, 3 chevron border.
+vec3 bAzulejoMotif(vec2 p, vec3 ground, vec3 ink, float motif, float nearK) {
+  vec2 t = p / 0.15;
   vec2 tf = fract(t);
   vec2 ti = floor(t);
-  float d = abs(tf.x - 0.5) + abs(tf.y - 0.5);
-  float motif = clamp(step(d, 0.3) + step(0.62, d) * step(0.5, mod(ti.x + ti.y, 2.0)), 0.0, 1.0);
   float tw = fwidth(t.x);
-  float tk = (1.0 - smoothstep(0.18, 0.45, tw)) * nearK;
-  float grout = 1.0 - 0.18 * (1.0 - smoothstep(0.0, 0.06, min(min(tf.x, 1.0 - tf.x), min(tf.y, 1.0 - tf.y)))) * tk;
-  return mix(ground, mix(ground, ink, motif) * grout, tk);
+  float tk = (1.0 - smoothstep(0.16, 0.42, tw)) * nearK;
+  float grout = 1.0 - 0.22 * (1.0 - smoothstep(0.0, 0.055, min(min(tf.x, 1.0 - tf.x), min(tf.y, 1.0 - tf.y)))) * tk;
+  vec2 q = tf - 0.5;
+  float m;
+  if (motif < 0.5) {
+    float d = abs(q.x) + abs(q.y);
+    m = clamp(step(d, 0.30) + step(0.62, d) * step(0.5, mod(ti.x + ti.y, 2.0)), 0.0, 1.0);
+  } else if (motif < 1.5) {
+    float dia = abs(q.x) + abs(q.y);
+    m = step(dia, 0.34) * step(0.17, dia);
+    m = max(m, (1.0 - step(0.05, abs(q.x))) * (1.0 - step(0.05, abs(q.y))));
+    m = max(m, 1.0 - step(0.06, length(q)));
+  } else if (motif < 2.5) {
+    float r = length(q);
+    m = step(0.21, r) * step(r, 0.33);
+    m = max(m, 1.0 - step(0.07, r));
+    m = max(m, step(0.4, cos(4.0 * atan(q.y, q.x))) * step(r, 0.12));
+  } else {
+    m = 1.0 - step(0.05, abs(q.y - 0.22 * sign(q.x) * (0.5 - abs(q.x))));
+    m = max(m, 1.0 - step(0.05, abs(q.y + 0.18)));
+  }
+  return mix(ground, mix(ground, ink, clamp(m, 0.0, 1.0)) * grout, tk);
+}
+// Granite ashlar as a modulation on a base colour: staggered courses at a
+// real block height (Porto granite ~0.35-0.45 m), mortar joints with a bevel
+// and per-block tone/pitting. p in metres, courseH in metres.
+vec3 bAshlar(vec3 base, vec2 p, float courseH, float nearK) {
+  float ch = max(courseH, 0.14);
+  float row = floor(p.y / ch);
+  float fy = fract(p.y / ch);
+  float bw = 0.62 + 0.34 * fract(sin(row * 12.9898) * 43758.5453);
+  float xo = fract(row * 0.5) * bw;
+  float cx = (p.x + xo) / bw;
+  float fx = fract(cx);
+  float jy = fwidth(p.y / ch);
+  float jx = fwidth(cx);
+  float hz = 1.0 - smoothstep(0.0, 0.045 + jy, min(fy, 1.0 - fy));
+  float vt = 1.0 - smoothstep(0.0, 0.035 + jx, min(fx, 1.0 - fx));
+  float joint = clamp(max(hz, vt), 0.0, 1.0) * (1.0 - smoothstep(0.18, 0.5, max(jy, jx)));
+  float bh = fract(sin(dot(floor(vec2(cx, row)), vec2(12.9898, 78.233))) * 43758.5453);
+  float pit = fract(sin(dot(floor(p * 11.0), vec2(41.3, 289.1))) * 24634.6345);
+  vec3 tone = mix(vec3(0.9, 0.92, 0.95), vec3(1.05, 1.0, 0.9), bh);
+  float face = (0.9 + 0.18 * bh) * (0.95 + 0.08 * pit);
+  float arris = smoothstep(0.0, 0.04, fy) * (1.0 - smoothstep(0.04, 0.09, fy));
+  vec3 c = base * tone * face;
+  c = mix(c, c * 0.5, joint * 0.8 * nearK);
+  c += (c * 0.18 + vec3(0.008)) * arris * nearK;
+  return c;
+}
+// Plaster: pale lime-wash with a per-building hue drift (0 ochre, 1 rose,
+// 2 blue, 3 neutral), a fine render grain and low-frequency mottling.
+vec3 bPlaster(vec3 col, float grain, float variant, float nearK) {
+  vec3 tint = variant < 0.5 ? vec3(1.05, 0.98, 0.86)
+           : variant < 1.5 ? vec3(1.04, 0.95, 0.94)
+           : variant < 2.5 ? vec3(0.94, 0.98, 1.04)
+           : vec3(1.0);
+  col *= mix(vec3(1.0), tint, 0.5 * nearK);
+  col *= 1.0 - 0.06 * (1.0 - grain) * nearK;
+  return col;
 }
 `;
 
@@ -717,6 +774,9 @@ const vec3 B_STONE = vec3(0.44, 0.42, 0.37);
 const vec3 B_GLASS = vec3(0.035, 0.042, 0.05);
 const vec3 B_IRON = vec3(0.018, 0.018, 0.02);
 const vec3 B_FRAME = vec3(0.52, 0.52, 0.5);
+const vec3 B_SKY = vec3(0.40, 0.50, 0.64);
+const vec3 B_STREET = vec3(0.12, 0.115, 0.10);
+const vec3 B_LINEN = vec3(0.72, 0.70, 0.64);
 `;
 
 export const FACADE_FRAG = /* glsl */ `
@@ -771,16 +831,25 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
   float glassK = 0.0; // how much of this pixel is window glass (lit at night)
   float shopK = 0.0; // ... shop window
 
-  // ---- azulejo: tiled upper floors
+  // ---- plaster variants: pale lime-wash with a per-building hue drift
+  // (ochre, rose, blue) and a fine render mottle, only on plaster fronts
+  #ifndef BRG_WIN_LITE
+  if (bNear > 0.0 && bY > g0 && (bSt == 1.0 || bSt == 3.0 || bSt == 5.0)) {
+    col = bPlaster(col, bGr.y, bHash(vec2(bSd * 613.0, 5.0)), bNear);
+  }
+  #endif
+
+  // ---- azulejo: tiled upper floors, several period motifs per panel
   if (bSt == 2.0 && bY > g0) {
     float az = bHash(vec2(bSd * 91.0, 7.0));
+    float motif = floor(az * 4.0);
     vec3 ink = az < 0.55 ? vec3(0.03, 0.09, 0.36) : az < 0.8 ? vec3(0.03, 0.2, 0.12) : vec3(0.62, 0.38, 0.05);
     vec3 ground = vec3(0.62, 0.63, 0.62) * 0.78;
     vec3 mean = mix(ground, ink, 0.32);
     #ifdef BRG_WIN_LITE
     col = mean * bAo;
     #else
-    col = bAzulejo(vec2(bX, bY), ground, ink, bNear) * bAo;
+    col = bAzulejoMotif(vec2(bX, bY), ground, ink, motif, bNear) * bAo;
     // glazed: a little glossier
     roughnessFactor = mix(roughnessFactor, 0.45, 0.6);
     #endif
@@ -790,8 +859,9 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
   // Porto manner: a small share of houses wear a tiled upper facade
   if (bSt == 1.0 && bY > g0 && bNear > 0.0 && bHash(vec2(bSd * 451.0, 3.0)) > 0.84) {
     float azi = bHash(vec2(bSd * 91.0, 7.0));
+    float motif = floor(azi * 4.0);
     vec3 ink = azi < 0.6 ? vec3(0.03, 0.09, 0.36) : azi < 0.85 ? vec3(0.03, 0.2, 0.12) : vec3(0.55, 0.34, 0.05);
-    col = mix(col, bAzulejo(vec2(bX, bY), vec3(0.62, 0.63, 0.62) * 0.8, ink, bNear), 0.85 * bNear);
+    col = mix(col, bAzulejoMotif(vec2(bX, bY), vec3(0.62, 0.63, 0.62) * 0.8, ink, motif, bNear), 0.85 * bNear);
     roughnessFactor = mix(roughnessFactor, 0.45, 0.5 * bNear);
   }
 #endif
@@ -871,44 +941,76 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
       glassK = max(glassK, o * oa);
     }
     }
-    // granite courses up close
+    // granite ashlar: staggered courses of a real block height, mortar
+    // rebate and per-block tone/pitting, on the ground floor and plinth
     #ifndef BRG_WIN_LITE
-    if (bHist && bNear > 0.0) {
-      float cy = bY / 0.45;
-      float cx = bX / 0.9 + 0.5 * mod(floor(cy), 2.0);
-      float jw = fwidth(cy);
-      float j = (1.0 - smoothstep(0.0, 0.06 + jw, fract(cy))) + (1.0 - smoothstep(0.0, 0.03 + fwidth(cx), fract(cx)));
-      col *= 1.0 - 0.2 * clamp(j, 0.0, 1.0) * bNear * (1.0 - smoothstep(0.15, 0.4, jw)) * (1.0 - glassK);
+    if (bNear > 0.0) {
+      if (bHist) col = mix(col, bAshlar(col, vec2(bX, bY), 0.4, bNear), 1.0 - glassK);
+      else if (bSt == 3.0 && bY < 0.9) col = bAshlar(col, vec2(bX, bY), 0.34, bNear);
     }
     #endif
   }
 
-  // ---- upper windows
+  // ---- upper windows: several opening types and real glazing
   if (inside > 0.0 && bY >= g0) {
     float hw = bHash(id + vec2(bSd * 211.0, bSd * 97.0));
+    float hw2 = bHash(id.yx + vec2(bSd * 353.0, bSd * 137.0));
     vec3 glass = bSt == 4.0 ? vec3(0.045, 0.06, 0.075) : B_GLASS;
     float gk = win * aa;
+    // window type: guillotine sash (<0.6), round-arched (0.6..0.85), plain
+    // casement (>=0.85); shopfronts are drawn on the ground floor
+    float archK = 0.0;
+    float archCxm = 0.0;
+    float archRad = 0.0;
+    float archSpring = -1.0;
+    float archMask = 1.0;
+    #ifndef BRG_WIN_LITE
+    if (bNear > 0.0 && bSt != 4.0 && bSt != 6.0) {
+      float Wx = wr.z - wr.x;
+      archRad = (Wx * cw * 0.5) / fh;      // head radius in f.y units
+      archSpring = wr.w - archRad;
+      archCxm = (wr.x + wr.z) * 0.5;
+      float fits = step(wr.y + 0.05, archSpring);
+      float isArch = fits * step(0.6, hw2) * step(hw2, 0.85);
+      archK = isArch;
+      float dxa = abs(f.x - archCxm);
+      float dya = f.y - archSpring;
+      float rect = step(wr.y, f.y) * step(f.y, archSpring);
+      float circ = step(0.0, dya) * step(dxa * dxa + dya * dya, archRad * archRad);
+      archMask = mix(1.0, clamp(rect + circ, 0.0, 1.0), isArch);
+      gk *= archMask;
+    }
+    #endif
     #ifndef BRG_WIN_LITE
     if (bHist && bNear > 0.0) {
-      // shutters: open beside the window, or closed over it
+      // shutters: open beside the window, or closed over it (not on arches)
       vec3 wood = bSd < 0.4 ? vec3(0.03, 0.075, 0.04) : bSd < 0.7 ? vec3(0.09, 0.04, 0.018) : vec3(0.55, 0.55, 0.52);
-      float open = step(hw, 0.6);
-      float closed = step(0.6, hw) * step(hw, 0.78);
+      float open = step(hw, 0.6) * (1.0 - archK);
+      float closed = step(0.6, hw) * step(hw, 0.78) * (1.0 - archK);
       float sh = (bRect(f, vec4(wr.x - 0.17, wr.y, wr.x - 0.01, wr.w)) + bRect(f, vec4(wr.z + 0.01, wr.y, wr.z + 0.17, wr.w))) * open * inside;
       float slat = 0.75 + 0.25 * smoothstep(0.3, 0.7, fract(bY / 0.09));
       float sk = bNearK;
       col = mix(col, wood * mix(1.0, slat, bNear), sh * sk);
       gk *= 1.0 - closed * bNear;
       col = mix(col, wood * mix(1.0, slat, bNear), win * closed * sk);
-      // stone surround
+      // stone surround; on an arched opening the corner spandrels are filled
+      // and a carved arch ring follows the head
       float fr = bRect(f, vec4(wr.x - 0.05, wr.y - 0.03, wr.z + 0.05, wr.w + 0.04)) * inside - win;
-      col = mix(col, B_STONE, fr * sk);
+      float spand = win * (1.0 - archMask) * inside;
+      col = mix(col, B_STONE, clamp(fr + spand, 0.0, 1.0) * sk);
+      if (archK > 0.5) {
+        float dxq = abs(f.x - archCxm);
+        float dyq = f.y - archSpring;
+        float rr = sqrt(max(dxq * dxq + dyq * dyq, 0.0));
+        float ring = step(archRad, rr) * step(rr, archRad + 0.055) * step(0.0, dyq) * inside;
+        col = mix(col, B_STONE * 1.1, ring * sk);
+      }
     } else if (bNear > 0.0 && bSt != 6.0) {
       // painted surround; a roller-shutter box over the window
       float fr = bRect(f, vec4(wr.x - 0.04, wr.y - 0.03, wr.z + 0.04, wr.w + 0.03)) * inside - win;
       col = mix(col, bSt == 4.0 ? col * 0.8 : B_FRAME, fr * bNearK);
       if (bSt != 4.0) {
-        float box = bRect(f, vec4(wr.x, wr.w - 0.12, wr.z, wr.w)) * inside;
+        float box = bRect(f, vec4(wr.x, wr.w - 0.12, wr.z, wr.w)) * inside * (1.0 - archK);
         col = mix(col, vec3(0.22, 0.22, 0.21), box * bNearK);
         gk *= 1.0 - box * bNear;
       } else {
@@ -919,30 +1021,70 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
     }
     #endif
 #ifndef BRG_WIN_LITE
-    // recessed reveal: a shadow under the lintel and down each jamb, and a
-    // light stone sill with its own shadow line below the opening
+    // recessed reveal: a shadowed lintel, lit jamb returns on one side and a
+    // shaded one on the other, a stone sill and a shadow line below it
     if (bNear > 0.0 && bSt != 6.0) {
       float fw = max(fwidth(f.x), fwidth(f.y));
       float sK = bNear * (1.0 - smoothstep(0.15, 0.45, fw));
       float sill = bRect(f, vec4(wr.x - 0.075, wr.y - 0.085, wr.z + 0.075, wr.y - 0.015)) * inside;
       float sillUnder = bRect(f, vec4(wr.x - 0.08, wr.y - 0.12, wr.z + 0.08, wr.y - 0.085)) * inside;
-      float lintel = bRect(f, vec4(wr.x - 0.02, wr.w, wr.z + 0.02, wr.w + 0.055)) * inside;
-      float jamb = (bRect(f, vec4(wr.x - 0.03, wr.y, wr.x + 0.008, wr.w)) + bRect(f, vec4(wr.z - 0.008, wr.y, wr.z + 0.03, wr.w))) * inside;
-      col = mix(col, B_STONE * (bHist ? 1.12 : 1.02), sill * sK);
-      col *= 1.0 - clamp(lintel + jamb * 0.7, 0.0, 1.0) * 0.45 * sK;
+      float lintel = bRect(f, vec4(wr.x - 0.02, wr.w, wr.z + 0.02, wr.w + 0.055)) * inside * (1.0 - archK);
+      float jambL = bRect(f, vec4(wr.x - 0.03, wr.y, wr.x + 0.008, wr.w)) * inside;
+      float jambR = bRect(f, vec4(wr.z - 0.008, wr.y, wr.z + 0.03, wr.w)) * inside;
+      col = mix(col, B_STONE * (bHist ? 1.16 : 1.02), sill * sK);
+      col = mix(col, B_STONE * 0.84, (jambR + lintel) * 0.7 * sK);
+      col = mix(col, B_STONE * 1.05, jambL * 0.5 * sK);
       col *= 1.0 - 0.5 * sillUnder * sK;
     }
 #endif
+    #ifndef BRG_WIN_LITE
+    if (bNear > 0.0) {
+      // AO inside the reveal: the opening's corners recede
+      float ex = min(f.x - wr.x, wr.z - f.x) / max(wr.z - wr.x, 1e-3);
+      float ey = min(f.y - wr.y, wr.w - f.y) / max(wr.w - wr.y, 1e-3);
+      float ao = clamp(min(ex, ey) * 2.2, 0.0, 1.0);
+      glass = mix(glass, glass * 0.35, (1.0 - ao) * 0.7);
+    }
+    #endif
     // glass is not flat black: a per-pane value, a skyward gradient and a
     // faint diagonal sheen so the grid reads as glazing, not holes
     vec3 glassLit = glass * (0.72 + 0.75 * hw) + vec3(0.02, 0.028, 0.036) * smoothstep(0.25, 1.0, f.y);
     float sheen = smoothstep(0.8, 1.0, sin(6.2831 * (f.x * 0.6 + f.y * 0.9) + hw * 6.0));
     glassLit += vec3(0.05, 0.06, 0.07) * sheen;
+    #ifndef BRG_WIN_LITE
+    if (bNear > 0.0) {
+      // sky and street reflection at a grazing angle (Fresnel), broken up by
+      // a soft streak; lace curtains or a linen blind on some windows
+      vec3 V = normalize(vViewPosition);
+      vec3 N = normalize(normal);
+      vec3 Rf = reflect(-V, N);
+      float fres = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 3.0);
+      float up = clamp(Rf.y * 1.5 + 0.35, 0.0, 1.0);
+      vec3 refl = mix(B_STREET, B_SKY, up);
+      glassLit = mix(glassLit, glassLit * 0.35 + refl, (0.10 + 0.55 * fres) * bNear);
+      float streak = smoothstep(0.7, 1.0, sin(5.0 * f.x + 3.0 * f.y + hw * 7.0));
+      glassLit += vec3(0.10, 0.115, 0.13) * streak * bNear * (1.0 - smoothstep(0.0, 0.6, up - 0.4));
+      float ordWin = (bSt == 4.0 || bSt == 6.0) ? 0.0 : 1.0;
+      float curt = step(hw, 0.42) * (1.0 - archK) * ordWin;
+      float dTop = wr.w - f.y;
+      float hemDepth = (wr.w - wr.y) * (0.35 + 0.45 * fract(hw2 * 7.0));
+      hemDepth -= 0.018 * sin(((f.x - wr.x) / max(wr.z - wr.x, 1e-3)) * 12.0 + hw * 3.0);
+      float cloth = step(dTop, hemDepth);
+      float lace = smoothstep(0.35, 0.8, fract(f.x * 18.0 + f.y * 6.0));
+      glassLit = mix(glassLit, B_LINEN * (0.82 + 0.22 * lace), cloth * curt * 0.8 * bNear);
+      // guillotine sash: a meeting rail across the middle and thin glazing bars
+      float guill = step(hw2, 0.6) * (1.0 - archK) * ordWin;
+      float rail = bBand(f.y, (wr.y + wr.w) * 0.5 - 0.014, (wr.y + wr.w) * 0.5 + 0.014, fwidth(f.y));
+      float barV = bBand(f.x, (wr.x + wr.z) * 0.5 - 0.007, (wr.x + wr.z) * 0.5 + 0.007, fwidth(f.x));
+      glassLit = mix(glassLit, B_FRAME * 0.45, clamp(rail + barV * 0.9, 0.0, 1.0) * guill * bNear);
+    }
+    #endif
     col = mix(col, glassLit, gk * 0.9);
     glassK = max(glassK, gk);
     roughnessFactor = mix(roughnessFactor, 0.35, gk);
     #ifndef BRG_WIN_LITE
-    // wrought-iron balconies: the first floor of most centre houses, some others
+    // wrought-iron balconies: the first floor of most centre houses, some
+    // others, with the railing's shadow cast down the wall
     if (bHist && bNear > 0.0) {
       float yb = bY - g0 - id.y * fh;
       float hasB = id.y < 0.5 ? step(bSd, 0.8) : step(bHash(vec2(id.y, bSd * 17.0)), 0.22);
@@ -952,6 +1094,9 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
       float rail = bBand(yb, 0.95, 1.03, bw);
       float bars = bBand(yb, 0.14, 0.95, bw) * (1.0 - smoothstep(0.12, 0.3, abs(fract(bX / 0.13) - 0.5) * 2.0 - 0.5));
       float bk = span * bNear * (1.0 - smoothstep(0.2, 0.5, fwidth(bX / 0.13)));
+      float castSh = step(yb, 0.04) * (1.0 - smoothstep(0.0, 0.7, -yb));
+      float barsSh = 0.7 + 0.3 * smoothstep(0.1, 0.4, abs(fract(bX / 0.13) - 0.5));
+      col *= 1.0 - 0.30 * castSh * span * bNear * barsSh;
       col = mix(col, B_STONE * 0.9, slab * span * bNear);
       col = mix(col, B_IRON, clamp(rail + bars * 0.85, 0.0, 1.0) * bk);
     }
@@ -1003,25 +1148,31 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
 }
 #ifndef BRG_WIN_LITE
 else if (bNear > 0.0) {
-  // roofs: terracotta courses and channels on the pitched ones
+  // roofs: Portuguese canal tiles — rows lapping down the slope, convex
+  // covers across it, a shaded eave and a capped ridge
   vec3 nW = (vec4(normal, 0.0) * viewMatrix).xyz;
   if (nW.y > 0.3 && nW.y < 0.985) {
     vec2 dir = normalize(nW.xz);
-    float u = dot(vBW.xz, dir) * 4.0 / 0.33;
-    float v = dot(vBW.xz, vec2(-dir.y, dir.x)) * 4.0 / 0.22;
-    float k = (1.0 - smoothstep(0.2, 0.5, max(fwidth(u), fwidth(v)))) * bNear;
-    float course = 1.0 - smoothstep(0.0, 0.2, fract(u));
-    float ch = abs(fract(v) - 0.5) * 2.0;
+    float mU = 4.0; // metres per world unit
+    float along = dot(vBW.xz, dir) * mU / 0.36;       // course index down-slope
+    float across = dot(vBW.xz, vec2(-dir.y, dir.x)) * mU / 0.21; // tile width
+    float k = (1.0 - smoothstep(0.2, 0.5, max(fwidth(along), fwidth(across)))) * bNear;
+    float frow = fract(along);
+    float ftile = fract(across);
+    // the lap: a shadow at the lower edge of each course of tiles; convex
+    // barrel covers with a water channel between them
+    float lap = 1.0 - smoothstep(0.0, 0.11, frow);
+    float barrel = 0.5 + 0.5 * cos(6.2831 * ftile);
     float sd = vWall.w - 2.0 * floor(vWall.w * 0.5);
-    float mott = 0.9 + 0.2 * bHash(floor(vec2(u, v)) + sd * 31.0);
-    diffuseColor.rgb *= mix(1.0, (1.0 - 0.3 * course - 0.14 * ch * ch) * mott, k);
-    // aWall.z carries 0 at the eave .. 1 at the ridge: a shadowed eave and a
-    // lighter ridge cap so the slope reads as tiled, capped and overhanging
+    float mott = 0.9 + 0.2 * bHash(floor(vec2(along, across)) + sd * 31.0);
+    diffuseColor.rgb *= mix(1.0, (1.0 - 0.34 * lap - 0.18 * (1.0 - barrel)) * mott, k);
+    // aWall.z carries 0 at the eave .. 1 at the ridge: a shadowed eave, a
+    // lighter ridge cap and a distinct ridge line
     float hN = clamp(vWall.z, 0.0, 1.0);
-    float eave = 1.0 - smoothstep(0.0, 0.045, hN);
-    float ridge = smoothstep(0.955, 1.0, hN);
-    diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * 0.6, eave * k);
-    diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * 1.12 + vec3(0.015), ridge * k);
+    float eave = 1.0 - smoothstep(0.0, 0.05, hN);
+    float ridge = smoothstep(0.95, 1.0, hN);
+    diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * 0.55, eave * k);
+    diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * 1.14 + vec3(0.02), ridge * k);
   }
 }
 #endif

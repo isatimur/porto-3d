@@ -76,6 +76,13 @@ function builder(k, site) {
     k.box(2.2, 0.5, 0.6, 'wood', x, 0, c[1] + 6, { ry: 0 });
     if (i % 3 === 0) k.lamp(4.2, x, 0, c[1] + 8, { globe: true });
   }
+
+  // --- detail: a Nasoni-style fountain and two more bronze figures
+  k.lathe([[0, 0], [0.3, 0], [0.2, 0.35], [0.22, 0.55], [0.95, 0.66], [1, 1], [0.9, 1], [0, 0.88]], 12, 'graniteLight', c[0] + ob.L * 0.3, 0, c[1] + ob.W * 0.3, { sr: 2.2, sh: 1.6, smooth: true });
+  k.cyl(0.35, 0.5, 2.0, 10, 'graniteLight', c[0] + ob.L * 0.3, 1.6, c[1] + ob.W * 0.3);
+  k.sphere(0.3, 'water', c[0] + ob.L * 0.3, 3.7, c[1] + ob.W * 0.3, { seg: 8, rings: 5, emit: 0.4 });
+  k.box(2.0, 1.0, 2.0, 'graniteLight', c[0] - ob.L * 0.1, 0, c[1] + ob.W * 0.32);
+  k.statue(2.2, 'bronze', c[0] - ob.L * 0.1, 1.0, c[1] + ob.W * 0.32, { pose: 'raise' });
   done();
 }
 builder.metric = true;

@@ -124,6 +124,19 @@ function builder(k, site) {
   k.tree(cx - W * 0.42, 0, zB + 2, 7.5, { crown: 'oval' });
   k.tree(cx + W * 0.42, 0, zB + 2, 7, { crown: 'round' });
   for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) k.urn(1.1, 'graniteLight', cx + sx * (W / 2 - 0.6), H - 0.5, cz + sz * (D / 2 - 0.6), { seg: 7 });
+
+  // --- detail pass: tiled ridge and tiled narthex panels on the lower flanks
+  for (let i = 0; i < 12; i++) {
+    const tz = cz - D / 2 + 2 + (i * (D - 4)) / 11;
+    k.box(0.5, 0.24, 0.44, 'terracotta', cx, H + 4.35, tz);
+  }
+  for (const s of [-1, 1]) {
+    k.push({ x: cx + s * (W / 2 + 0.1), z: cz - 3, ry: s * Math.PI / 2 });
+    k.wall(7.0, 2.2, 0.28, 'azulejo', [], 0, 0, 0, { mat: MAT.azulejo });
+    k.box(7.2, 0.28, 0.4, 'graniteLight', 0, 2.2, 0.05);
+    k.pop();
+  }
+  k.lamp(4.2, cx, 0, zF + 5.0, { globe: true });
   done();
 }
 builder.metric = true;

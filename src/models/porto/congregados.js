@@ -94,6 +94,17 @@ function builder(k, site) {
   k.pop();
   k.end('back');
 
+  // --- detail pass: nave ridge tiles, two facade niches and an azulejo dado
+  for (let i = 0; i < 12; i++) {
+    const tz = ncz - nd / 2 + 2 + (i * (nd - 4)) / 11;
+    k.box(0.5, 0.24, 0.44, 'terracotta', cx, 20.95, tz);
+  }
+  for (const s of [-1, 1]) {
+    k.surround({ x: 0, y: 6.9, w: 1.3, h: 2.2, arch: 'round' }, 0.22, 0.35, 'granite', cx + s * 4.6, 0, zF + 0.15);
+    k.statue(1.5, 'graniteLight', cx + s * 4.6, 6.95, zF + 0.55, { pose: 'pray' });
+  }
+  k.box(2.6, 0.4, 0.3, 'azulejo', cx, 0.2, zF + 0.2, { mat: MAT.azulejo });
+
   done();
 }
 builder.metric = true;

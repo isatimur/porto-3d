@@ -92,6 +92,21 @@ function builder(k, site) {
     k.box(9.5, 1.2, 2 * dz + HALF_DECK, 'graniteLight', ex, DECK_Y - 2.5, 0);
   }
 
+  // --- detail pass: pier cap bearings, scuppers and deck lighting
+  for (const px of piers) {
+    for (const s of [-1, 1]) {
+      k.box(6.5, 0.5, 2.0, 'graniteDark', px, DECK_Y - 2.1, s * dz);
+    }
+  }
+  for (const s of [-1, 1]) k.box(span, 0.15, 0.15, 'steel', 0, DECK_Y + 1.3, s * (2 * dz - 0.6));
+  for (let i = 0; i < 16; i++) {
+    const px = -half + ((i + 0.5) * span) / 16;
+    for (const s of [-1, 1]) {
+      k.box(0.14, 2.8, 0.14, 'steel', px, DECK_Y + 1.5, s * (2 * dz - 1.0));
+      k.box(0.9, 0.16, 0.26, 'window', px + s * 0.4, DECK_Y + 4.3, s * (2 * dz - 1.0), { emit: 0.5 });
+    }
+  }
+
   k.pop();
   k.end('main');
 }

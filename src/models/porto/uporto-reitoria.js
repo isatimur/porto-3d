@@ -102,6 +102,31 @@ function uportoReitoria(k, site) {
   lion(k, b.cx + 13, zFront + 7.5, -0.25);
   k.lamp(5, b.cx - W / 2 - 4, 0, zFront + 12);
   k.lamp(5, b.cx + W / 2 + 4, 0, zFront + 12);
+
+  // ---------------------------------------------------------- detail pass
+  // facade: window head caps, a first-floor string course and corner pilasters
+  for (const s of [-1, 1]) {
+    for (let i = 0; i < 3; i++) {
+      const px = s * (W / 2 - 8 - i * 7);
+      k.box(2.0, 0.35, 0.5, 'graniteLight', px, 5.2, zFront + 0.35);
+      k.box(2.0, 0.35, 0.5, 'graniteLight', px, 12.2, zFront + 0.35);
+    }
+  }
+  k.prism(offset(bodyP, 0.12), 5.0, 0.35, 'graniteLight');
+  for (const sx of [-1, 1]) k.box(0.7, H, 0.5, 'graniteLight', b.cx + sx * (W / 2 - 0.35), 0, zFront + 0.2);
+  // roofline parapet with corner urns and chimneys
+  k.box(W - 1.5, 0.9, 0.5, 'granite', b.cx, H + 0.9, zFront - 0.1);
+  for (const sx of [-1, 1]) {
+    k.cone(0.55, 1.2, 6, 'graniteLight', b.cx + sx * (W / 2 - 1.2), H + 1.8, zFront - 0.2);
+    k.box(1.1, 2.2, 1.1, 'graniteWarm', b.cx + sx * (W / 2 - 6), H + 1.8, b.cz - 2);
+  }
+  // pediment tympanum: a clock wreath and a laurel roundel
+  k.cyl(1.5, 1.5, 0.35, 16, 'graniteLight', b.cx, 17.0, zFront + 5.1, { rx: Math.PI / 2 });
+  k.cyl(1.15, 1.15, 0.2, 16, 'white', b.cx, 17.0, zFront + 5.35, { rx: Math.PI / 2 });
+  k.box(0.14, 1.1, 0.08, 'dark', b.cx, 17.0, zFront + 5.5);
+  k.box(0.7, 0.12, 0.08, 'dark', b.cx + 0.28, 17.0, zFront + 5.5);
+  // garden: stone urns on the square's piers
+  for (const s of [-1, 1]) k.urn(1.1, 'graniteLight', b.cx + s * (W / 2 + 8), 0, zFront + 6, { seg: 6 });
   done();
 }
 uportoReitoria.metric = true;
