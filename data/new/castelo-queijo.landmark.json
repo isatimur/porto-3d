@@ -42,7 +42,20 @@
       "_commons": "File:Forte de São Francisco Xavier do Queijo.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "aojEmMNOjgo",
+      "title": "Forte de S. Francisco Xavier - Castelo do Queijo, Porto",
+      "channel": "Viaje Comigo - Susana Ribeiro",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "O4HTi7NBWmg",
+      "title": "PORTO EM FOTOGRAFIA - FORTE DE S. FRANCISCO XAVIER OU CASTELO DO QUEIJO",
+      "channel": "António Amen",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Forte_de_S%C3%A3o_Francisco_Xavier_do_Queijo",

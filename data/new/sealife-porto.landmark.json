@@ -42,7 +42,20 @@
       "_commons": "File:Sea life Porto (10).JPG"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "onzB7DnAtAg",
+      "title": "Conheça o incrível SEA LIFE Porto | Roteiro de Viagem em Portugal",
+      "channel": "Janela Infinita 8K",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "ZtwB_Q9O6dg",
+      "title": "SEA LIFE - Porto, Portugal [HD]",
+      "channel": "Hugo Domingues",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://en.wikipedia.org/wiki/Sea_Life_Porto",

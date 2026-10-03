@@ -41,7 +41,20 @@
       "_commons": "File:POR Porto Batalha 01.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "utBwu8XyHnE",
+      "title": "Visita ao Cinema Batalha",
+      "channel": "Câmara Municipal do Porto",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "vZ9yjX0DwKA",
+      "title": "Cinema Batalha voltou a abrir portas",
+      "channel": "Câmara Municipal do Porto",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Batalha_Centro_de_Cinema",

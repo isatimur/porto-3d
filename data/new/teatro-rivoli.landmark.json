@@ -41,7 +41,20 @@
       "_commons": "File:Auditório Teatro Rivoli.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "EvLhPRZam7Q",
+      "title": "Estreia de \"Intermitências\" no Teatro Rivoli",
+      "channel": "Câmara Municipal do Porto",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "5-f-mmAXgaE",
+      "title": "90º Aniversário Teatro Rivoli — Vídeo-resumo",
+      "channel": "Teatro Municipal do Porto",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Teatro_Rivoli",

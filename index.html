@@ -36,6 +36,7 @@
     />
   </head>
   <body>
+    <a class="skip-link" href="#main-content">К содержанию</a>
     <div id="app">
       <canvas id="scene" aria-label="Трёхмерная карта Порту"></canvas>
       <div id="labels" aria-hidden="true"></div>
@@ -194,7 +195,7 @@
       </section>
       <div class="clusters" id="clusters" aria-hidden="true"></div>
 
-      <nav class="side glass" aria-label="Места и маршруты">
+      <nav class="side glass" id="main-content" tabindex="-1" aria-label="Места и маршруты">
         <div class="side-switch" id="side-switch" role="tablist" aria-label="Раздел" hidden>
           <button type="button" role="tab" id="tab-places" aria-controls="view-places" aria-selected="true">Места</button>
           <button type="button" role="tab" id="tab-routes" aria-controls="view-routes" aria-selected="false" tabindex="-1">Маршруты</button>
@@ -208,7 +209,7 @@
         </div>
       </nav>
 
-      <aside class="detail glass" id="detail" hidden aria-labelledby="detail-title">
+      <aside class="detail glass" id="detail" hidden role="dialog" aria-labelledby="detail-title">
         <div class="detail-head">
           <button type="button" class="detail-back" id="detail-back" hidden></button>
           <p class="detail-meta" id="detail-meta"></p>
@@ -271,7 +272,7 @@
         </div>
       </aside>
 
-      <aside class="detail route-panel glass" id="route-panel" hidden aria-labelledby="route-title">
+      <aside class="detail route-panel glass" id="route-panel" hidden role="dialog" aria-labelledby="route-title">
         <div class="detail-head">
           <p class="detail-meta" id="route-meta"></p>
           <h2 id="route-title"></h2>
@@ -314,7 +315,7 @@
       </div>
       <p class="toast" id="toast" role="status" aria-live="polite" hidden></p>
 
-      <div class="cinema" id="cinema" hidden>
+      <div class="cinema" id="cinema" role="dialog" aria-modal="true" aria-label="Кино" hidden>
         <div class="cinema-bar cinema-bar-top" aria-hidden="true"></div>
         <div class="cinema-bar cinema-bar-bottom" aria-hidden="true"></div>
         <p class="cinema-brand" aria-hidden="true">Порту <span>·</span> <em>Кино</em> <span class="cinema-count" id="cinema-count"></span></p>
@@ -338,7 +339,7 @@
         </div>
       </div>
 
-      <section class="story" id="story" hidden tabindex="-1" aria-label="История Порту">
+      <section class="story" id="story" role="dialog" aria-modal="true" hidden tabindex="-1" aria-label="История Порту">
         <div class="story-scroll">
           <div class="story-track"></div>
         </div>

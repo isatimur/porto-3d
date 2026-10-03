@@ -41,7 +41,20 @@
       "_commons": "File:Igreja de São Bento da Vitória.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "_zn5pbEMBx0",
+      "title": "Porto - Portugal - Mosteiro de São Bento da Vitória",
+      "channel": "José Couto (\"Agostinho\")",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "lsSGOhUuc1Q",
+      "title": "25 anos 25 temas: As ruínas do Mosteiro de S. Bento da Vitória",
+      "channel": "Arquivo Distrital do Porto",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Mosteiro_de_S%C3%A3o_Bento_da_Vit%C3%B3ria",

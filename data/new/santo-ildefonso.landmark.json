@@ -41,7 +41,20 @@
       "_commons": "File:Igreja de Santo Ildefonso in Porto (1).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "G_fqxX2Ntck",
+      "title": "Church of Saint Ildefonso | Porto Portugal",
+      "channel": "Walking the Tour",
+      "lang": "en"
+    },
+    {
+      "youtube_id": "8_Dt6f0Pfo0",
+      "title": "PORTO - Igreja de Santo Ildefonso (Church of Saint Ildefonso)",
+      "channel": "Massimo Nalli",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Igreja_de_Santo_Ildefonso",

@@ -53,8 +53,29 @@
       "_commons": "File:Ponte do Infante - Porto.JPG"
     }
   ],
-  "videos": [],
-  "panorama": null,
+  "videos": [
+    {
+      "youtube_id": "5leg9enl80A",
+      "title": "Porto Portugal 2022 - Walk to Ponte Infante Dom Henrique",
+      "channel": "OhMyPortugal",
+      "lang": "en"
+    },
+    {
+      "youtube_id": "t24TM5MQxFM",
+      "title": "Great views on Porto from Ponte Infante Dom Henrique bridge",
+      "channel": "Real Travel Clips",
+      "lang": "en"
+    }
+  ],
+  "panorama": {
+    "src": "assets/pano/ponte-infante.jpg",
+    "caption_ru": "Панорама 360° у моста Инфанти Дон Энрике",
+    "credit": {
+      "author": "skfd",
+      "license": "CC BY-SA 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Mapillary_(6FDT7i1xndOjK2JChYz9y5)_(skfd)_2022-02-20_15H42M20S000.jpg"
+    }
+  },
   "sources": [
     "https://pt.wikipedia.org/wiki/Ponte_Infante_Dom_Henrique",
     "https://en.wikipedia.org/wiki/Infante_Dom_Henrique_Bridge",

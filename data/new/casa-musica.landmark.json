@@ -52,7 +52,20 @@
       "_commons": "File:Casa da Música, Porto, Portugal (54828599094).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "bVQ7PeWN7y0",
+      "title": "Casa da Música - PORTO - PORTUGAL",
+      "channel": "360portugal",
+      "lang": "other"
+    },
+    {
+      "youtube_id": "bVgMBlwJn6c",
+      "title": "Inside Casa da Música, Porto - With Backstage Access, Portugal",
+      "channel": "The Sound Travels",
+      "lang": "en"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://en.wikipedia.org/wiki/Casa_da_M%C3%BAsica",

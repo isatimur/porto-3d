@@ -40,7 +40,20 @@
       "_commons": "File:Altar-mor Igreja da Misericórdia do Porto 01.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "7BFLnvXE9-Q",
+      "title": "MMIPO - Museu e Igreja da Misericórdia do Porto faz 8 anos 8 a promover história, arte e cultura.",
+      "channel": "Misericórdia do Porto",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "OdcUMEqFvgg",
+      "title": "MMIPO - Museu da Misericórdia do Porto",
+      "channel": "Misericórdia do Porto",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Santa_Casa_da_Miseric%C3%B3rdia_do_Porto",

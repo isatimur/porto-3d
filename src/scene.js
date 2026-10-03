@@ -61,6 +61,10 @@ export const WEATHER_UNIFORMS = {
   cloudShape: { value: { x: 375, y: 1 / 2600, z: 0, w: 0 } },
   seasonW: { value: { x: 0, y: 1, z: 0, w: 0 } },
   seasonSnow: { value: { x: 0, y: 0, z: 65, w: 0 } },
+  // Night/weather look, written once in apply() from the resolved lighting
+  // state: x night 0..1, y reserved, z reserved, w reserved. A plain object,
+  // so the single write reaches every lit material (see FOG_UNIFORMS).
+  lookParams: { value: { x: 0, y: 0, z: 0, w: 0 } },
 };
 
 // Declarations for shaders that read the season (lit materials get them
@@ -68,6 +72,12 @@ export const WEATHER_UNIFORMS = {
 export const SEASON_GLSL = /* glsl */ `
 uniform vec4 seasonW;
 uniform vec4 seasonSnow;
+`;
+
+// Night look, shared like the season. Injected with the clouds so the wet
+// patch below can warm the streets after dark.
+export const LOOK_GLSL = /* glsl */ `
+uniform vec4 lookParams;
 `;
 
 // Cloud density at a point of the deck (world xz), 0 clear .. 1 cloud.
@@ -168,6 +178,7 @@ export function installAtmosphereFog() {
 #ifdef USE_FOG
 ${CLOUD_GLSL}
 ${SEASON_GLSL}
+${LOOK_GLSL}
 #endif`;
   C.lights_fragment_end += `
 #ifdef USE_FOG
@@ -211,11 +222,22 @@ if (seasonSnow.x + seasonSnow.y + seasonSnow.w > 0.001) {
 if (cloudShape.z > 0.001) {
   vec3 brgWN = (vec4(normal, 0.0) * viewMatrix).xyz;
   float brgWet = cloudShape.z * smoothstep(0.5, 0.9, brgWN.y);
-  float brgPud = brgWet * smoothstep(0.56, 0.7, texture2D(tCloud, vFogWorld.xz * 0.043).b);
-  material.diffuseContribution *= 1.0 - 0.3 * brgWet - 0.18 * brgPud;
-  material.diffuseColor *= 1.0 - 0.3 * brgWet - 0.18 * brgPud;
-  material.roughness = mix(material.roughness, 0.3, brgWet * 0.7);
+  // low-frequency puddle patches: the ground that stays wet longest, more of
+  // them the heavier the rain (cloudShape.w)
+  float brgPudN = texture2D(tCloud, vFogWorld.xz * 0.043).b;
+  float brgPud = brgWet * smoothstep(0.56, 0.7, brgPudN) * smoothstep(0.15, 0.7, cloudShape.w + 0.15);
+  // calçada and asphalt read dark and glossy when wet
+  float brgDark = clamp(0.34 * brgWet + 0.22 * brgPud, 0.0, 0.62);
+  material.diffuseContribution *= 1.0 - brgDark;
+  material.diffuseColor *= 1.0 - brgDark;
+  material.roughness = mix(material.roughness, 0.3, brgWet * 0.72);
   material.roughness = mix(material.roughness, 0.07, brgPud);
+  // a little extra specular energy, so the shared sky IBL reads as a wet sheen
+  material.specularColor = mix(material.specularColor, vec3(0.2), brgWet * 0.65);
+  // puddles mirror the sky/horizon colour (fogColor is the horizon sky)
+  totalEmissiveRadiance += fogColor * brgPud * (0.04 + 0.1 * (1.0 - lookParams.x));
+  // night: warm city light smears across the wet stone and reflects windows
+  totalEmissiveRadiance += vec3(1.0, 0.6, 0.32) * (brgWet * lookParams.x * (0.3 + 0.7 * brgPudN)) * 0.05;
 }
 #endif`;
   C.fog_pars_vertex = /* glsl */ `
@@ -426,6 +448,7 @@ const SKY_FRAG = /* glsl */ `
   uniform vec3 uMaritimeDir, uSeaHaze;
   uniform vec2 uScatterK;
   uniform float uDiskI, uNight, uEnv, uMaritime;
+  uniform vec4 uCloud;
   varying vec3 vDir;
   float hash13(vec3 p) {
     p = fract(p * 0.1031);
@@ -453,6 +476,10 @@ const SKY_FRAG = /* glsl */ `
     col += mix(uScatter, uHaze, 0.5) * max(dot(d, -uSunDir), 0.0) * exp(-max(h, 0.0) * 7.0) * smoothstep(-0.01, 0.05, h) * lowSun * 0.22;
     col += uScatter * pow(max(dot(dh, normalize(vec2(uSunDir.x, uSunDir.z) + vec2(1e-4))), 0.0), 4.0) * exp(-max(h, 0.0) * 4.0) * lowSun * 0.16;
     col += uScatter * pow(sd, 14.0) * 0.35 * above;
+    // how clear the sky is (cloud cover is shared by weather.js): a clear
+    // night goes deep and starry, an overcast one keeps a lifted city glow
+    float clear = 1.0 - clamp(uCloud.z, 0.0, 1.0);
+    col *= 1.0 - 0.32 * uNight * clear * smoothstep(-0.02, 0.2, h);
     // stars, then the sun or moon: not in the environment map (fireflies)
     float sky = 1.0 - uEnv;
     if (uNight > 0.001 && sky > 0.5) {
@@ -461,10 +488,10 @@ const SKY_FRAG = /* glsl */ `
       float r = hash13(id);
       vec3 f = fract(p) - 0.5;
       float s = step(0.9965, r) * smoothstep(0.22, 0.0, length(f)) * (0.35 + 0.65 * fract(r * 91.7));
-      col += vec3(0.85, 0.9, 1.0) * s * uNight * smoothstep(0.02, 0.25, h) * 1.6;
+      col += vec3(0.85, 0.9, 1.0) * s * uNight * smoothstep(0.02, 0.25, h) * (0.2 + 0.8 * clear) * 1.9;
     }
     float disk = smoothstep(0.99965, 0.99985, dot(d, uSunDir));
-    col += uDisk * (disk * uDiskI + pow(sd, 400.0) * uDiskI * 0.12) * sky * above;
+    col += uDisk * (disk * uDiskI + pow(sd, 400.0) * uDiskI * 0.12) * sky * above * (0.7 + 0.3 * clear);
     // environment only: dark earth below the horizon, lit by the sky colour
     col = mix(col, uGround, smoothstep(0.02, -0.14, h) * uEnv);
     gl_FragColor = vec4(col, 1.0);
@@ -472,13 +499,13 @@ const SKY_FRAG = /* glsl */ `
     #include <colorspace_fragment>
   }`;
 
-function skyMaterial(uniforms, env) {
+function skyMaterial(uniforms, env, cloud) {
   return new THREE.ShaderMaterial({
     side: THREE.BackSide,
     depthWrite: false,
     depthTest: false,
     fog: false,
-    uniforms: { ...uniforms, uEnv: { value: env ? 1 : 0 } },
+    uniforms: { ...uniforms, uCloud: cloud, uEnv: { value: env ? 1 : 0 } },
     vertexShader: SKY_VERT,
     fragmentShader: SKY_FRAG,
   });
@@ -634,7 +661,7 @@ export function createAtmosphere(renderer, scene, { reducedMotion = false, shado
     uSeaHaze: { value: new THREE.Color() },
     uMaritime: { value: 0 },
   };
-  const sky = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 24), skyMaterial(skyU, false));
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 24), skyMaterial(skyU, false, WEATHER_UNIFORMS.cloudParams));
   sky.scale.setScalar(9000);
   sky.renderOrder = -10;
   sky.frustumCulled = false;
@@ -643,7 +670,7 @@ export function createAtmosphere(renderer, scene, { reducedMotion = false, shado
 
   // environment: the same sky, no disk or stars, earth below the horizon
   const envScene = new THREE.Scene();
-  const envSky = new THREE.Mesh(sky.geometry, skyMaterial(skyU, true));
+  const envSky = new THREE.Mesh(sky.geometry, skyMaterial(skyU, true, WEATHER_UNIFORMS.cloudParams));
   envSky.scale.setScalar(50);
   envScene.add(envSky);
   const pmrem = new THREE.PMREMGenerator(renderer);
@@ -709,6 +736,8 @@ export function createAtmosphere(renderer, scene, { reducedMotion = false, shado
     norm(hemi.groundColor.copy(skyU.uGround.value));
     hemi.intensity = state.hemiI;
     scene.environmentIntensity = state.env;
+    // the wet-ground warm reflection reads this: 0 by day, 1 deep at night
+    WEATHER_UNIFORMS.lookParams.value.x = state.night;
     renderer.toneMappingExposure = state.exposure;
 
     // mixed in linear light (post-processing on) the same haze reads about

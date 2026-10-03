@@ -50,8 +50,29 @@
       "_commons": "File:2025-Arosa Alva auf dem Douro in Porto - 27 (54885786459).jpg"
     }
   ],
-  "videos": [],
-  "panorama": null,
+  "videos": [
+    {
+      "youtube_id": "AoxQtlKWu3Y",
+      "title": "Ponte de D. Luís I - Metro do Porto | 2018",
+      "channel": "Linha 2",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "6rDtrRtwsw4",
+      "title": "⁴ᴷ⁶⁰ Walking across Ponte de Dom Luís I from Vila Nova de Gaia to Porto, Portugal",
+      "channel": "Walking & Driving Incognito",
+      "lang": "en"
+    }
+  ],
+  "panorama": {
+    "src": "assets/pano/ponte-luis-i.jpg",
+    "caption_ru": "Панорама 360° у моста Луиша I над Дору",
+    "credit": {
+      "author": "skfd",
+      "license": "CC BY-SA 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Mapillary_(6FDT7i1xndOjK2JChYz9y5)_(skfd)_2022-02-20_15H36M24S000.jpg"
+    }
+  },
   "sources": [
     "https://en.wikipedia.org/wiki/Dom_Lu%C3%ADs_I_Bridge",
     "https://pt.wikipedia.org/wiki/Ponte_de_D._Lu%C3%ADs",

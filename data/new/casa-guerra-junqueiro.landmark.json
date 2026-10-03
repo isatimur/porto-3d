@@ -41,7 +41,20 @@
       "_commons": "File:Museu de Guerra Junqueiro I.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "xSWLvl5wUAk",
+      "title": "Requalificação dos espaços da Casa-Museu Guerra Junqueiro",
+      "channel": "Câmara Municipal do Porto",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "ErQzUZBapc4",
+      "title": "Casa Museu Guerra Junqueiro",
+      "channel": "DR Cultura Norte",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Casa-Museu_Guerra_Junqueiro",

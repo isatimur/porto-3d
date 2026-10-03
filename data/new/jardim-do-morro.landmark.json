@@ -52,7 +52,20 @@
       "_commons": "File:Monastery of Serra do Pilar and Jardim do Morro.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "dAILnAb4V5w",
+      "title": "Conheça o Jardim do Morro | Vila Nova de Gaia Walking Tour 4K",
+      "channel": "Walking the Tour",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "KNgF4hnwS08",
+      "title": "Porto's Best Attractions: Jardim do Morro, D. Luis I Bridge, Gaia, and Ribeira Unveiled",
+      "channel": "Zen Walks",
+      "lang": "en"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Jardim_do_Morro",

@@ -41,7 +41,20 @@
       "_commons": "File:Azulejo facade of the Capela das Almas in Porto (3).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "ifzudH8TS4k",
+      "title": "CAPELA DAS ALMAS,  Porto",
+      "channel": "pedrodoporto",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "ICEpiDza76k",
+      "title": "Chapel of Souls in Porto, Portugal. Capela das Almas (Capela de Santa Catarina) em Porto, Portugal.",
+      "channel": "Professor G Travel",
+      "lang": "en"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Capela_de_Santa_Catarina_(Santo_Ildefonso)",

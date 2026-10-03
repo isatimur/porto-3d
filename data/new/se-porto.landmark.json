@@ -52,7 +52,20 @@
       "_commons": "File:Oporto. Portugal.... (54042254813).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "dPGWo12J_8U",
+      "title": "Sé Catedral do Porto - Portugal",
+      "channel": "360portugal",
+      "lang": "other"
+    },
+    {
+      "youtube_id": "4kMhfhpK_38",
+      "title": "Porto Cathedral Portugal | Full Walking Tour Inside Sé do Porto",
+      "channel": "Walking the Tour",
+      "lang": "en"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/S%C3%A9_do_Porto",

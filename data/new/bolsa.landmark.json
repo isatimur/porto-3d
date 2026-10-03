@@ -52,7 +52,20 @@
       "_commons": "File:Palácio da Bolsa do Porto. Ph Ivan Stesso.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "Z8JHdoJ7dcw",
+      "title": "🟧  Palacio da Bolsa en OPORTO",
+      "channel": "Viajando con infravg",
+      "lang": "other"
+    },
+    {
+      "youtube_id": "U2KJzpQbk4c",
+      "title": "Portugal, Palácio da Bolsa: Essential Guide to Porto's Historic Gem",
+      "channel": "European Ribbon",
+      "lang": "en"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Pal%C3%A1cio_da_Bolsa",

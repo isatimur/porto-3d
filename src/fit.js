@@ -459,6 +459,23 @@ export function fitLandmark(l, ctx) {
     hv: ((b.x1 - b.x0) / 2 + margin) * S,
   });
   const box2 = (b3) => ({ x0: b3.min.x, x1: b3.max.x, z0: b3.min.z, z1: b3.max.z });
+  // The building mask: the model's own mass (the builder's 'mask' group if it
+  // has one, else the main block, else the whole model box), as one oriented
+  // rectangle in the site frame. It is used to skip OSM grey mass and nature
+  // under a landmark, so the whole built block must be covered.
+  //
+  // check-fit.mjs reports "building masks overlapping" with a separating-axis
+  // test on these rectangles. That test is deliberately coarse: two genuinely
+  // adjacent footprints that only share a boundary (Palácio da Bolsa and Igreja
+  // de São Francisco, whose OSM polygons touch but do not intersect) still have
+  // overlapping oriented boxes, because a rectangle covering a whole building
+  // necessarily reaches the shared wall of its neighbour. The report is
+  // therefore a false positive for adjacent landmarks, and it is benign: the
+  // masks only decide whether to *skip* a street-level building, so an overlap
+  // can never draw a wrong building — at worst it skips one already covered by
+  // the two landmarks. Tightening the rectangles below the real footprint to
+  // silence it would let OSM mass reappear inside a landmark, so the warning is
+  // documented here rather than weakened.
   const maskBox = groups.mask || groups.main || mb;
   const plan = planOf(box2(maskBox));
   let padPlan = planOf(box2(mb), 2);

@@ -34,7 +34,6 @@ import { TREE_TABLES } from './nature.js';
 
 const LAND_PX = 64; // land-cover pixels per tile side (~15 m)
 const GROUP = 3; // far LOD: tiles per merged block side
-const MAX_INFLIGHT = 6;
 const SLICE_MS = 2; // main-thread budget per frame for new geometry
 const SCHEDULE_S = 0.25;
 const VFAR_U = 6000 * S; // far tiles beyond this from the camera: roof-only houses
@@ -75,6 +74,10 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
 
   const NEAR_M = mobile ? 2000 : 4000;
   const MEM_CAP = (mobile ? 120 : 350) * 1048576;
+  // phones fetch and build fewer tiles at once, and hold fewer near-LOD
+  // draw calls (each near tile is 3 meshes); desktops keep the full budget
+  const MAX_INFLIGHT = mobile ? 3 : 6;
+  const MAX_NEAR = mobile ? 28 : 110;
   const TREE_CAP = nature?.streamCap ?? 0;
 
   const matB = createBuildingMaterial({ fade: true });
@@ -554,6 +557,8 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     _frustum.setFromProjectionMatrix(_pm);
     const nearU = NEAR_M * S;
     const cands = [];
+    let nearShown = 0;
+    for (const T of tiles.values()) if (T.state === 'shown' && T.lod === 'near') nearShown++;
     for (const T of tiles.values()) {
       const dCam = rectDist(T.rect, cam.x, cam.z);
       const dFoc = rectDist(T.rect, focus.x, focus.z);
@@ -577,7 +582,16 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
       }
       if (T.loading || T.state === 'failed' || d >= R) continue;
       if (clock < T.retryAt) continue; // after an error (a failed LOD switch too)
-      if (T.state === 'idle' || (T.state === 'shown' && T.lod !== lodWant)) cands.push({ T, lod: lodWant, p: T.prio * (lodWant === 'near' ? 3 : 1) * (T.state === 'shown' ? 0.8 : 1) });
+      // phones/light: don't fetch off-screen tiles far from the orbit focus
+      // (they only cost fill-in when the camera turns); close tiles and the
+      // focus's tiles always stream
+      const nearFocus = dFoc < FOCUS_KEEP_U;
+      if (mobile && !inView && !nearFocus && d3 > nearU * 2) continue;
+      let lod = lodWant;
+      // near-LOD draw-call cap: beyond ~85 % of the near radius, a tile
+      // beyond the cap streams as a far block instead of 3 near meshes
+      if (lod === 'near' && T.state !== 'shown' && nearShown >= MAX_NEAR && d3 > nearU * 0.85) lod = 'far';
+      if (T.state === 'idle' || (T.state === 'shown' && T.lod !== lodWant)) cands.push({ T, lod, p: T.prio * (lod === 'near' ? 3 : 1) * (T.state === 'shown' ? 0.8 : 1) });
     }
     cands.sort((a, b) => b.p - a.p);
     let sent = 0;

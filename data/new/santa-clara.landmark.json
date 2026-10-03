@@ -41,7 +41,20 @@
       "_commons": "File:87007-Porto (49051756048).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "qM7HIdNj_i8",
+      "title": "Igreja de Santa Clara 4K   Porto",
+      "channel": "raiugas",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "RANnw18Lr14",
+      "title": "Igreja de Santa Clara - Porto interiors | Portugal - 4K",
+      "channel": "My Heart On Travel",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Igreja_de_Santa_Clara_(Porto)",

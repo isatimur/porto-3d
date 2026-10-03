@@ -52,7 +52,20 @@
       "_commons": "File:Igreja de São Francisco (Porto) 01.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "VPeYU3tjYGE",
+      "title": "Visita Guiada à Igreja de São Francisco, no Porto - Portugal",
+      "channel": "João Santos",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "roTJ7ZnBCC8",
+      "title": "Visita Guiada - S02E24 - Igreja de São Francisco Porto",
+      "channel": "Cultura Archivist",
+      "lang": "en"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Igreja_de_S%C3%A3o_Francisco_(Porto)",

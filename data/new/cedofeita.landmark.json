@@ -41,7 +41,20 @@
       "_commons": "File:Igreja de São Martinho de Cedofeita (Porto).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "cUJMkeL-lS0",
+      "title": "A IGREJA ROMÂNICA DE CEDOFEITA NO PORTO",
+      "channel": "portugallook",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "zFwKiy9Llgs",
+      "title": "SÃO MARTINHO DE CEDOFEITA - Mitos e Mentiras da História #31",
+      "channel": "Rádio Transforma",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Igreja_de_S%C3%A3o_Martinho_de_Cedofeita",

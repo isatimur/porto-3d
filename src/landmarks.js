@@ -25,6 +25,18 @@ const LOD_ON_PX = 0.75;
 const LOD_OFF_PX = 0.9;
 const TAN_HALF_FOV = Math.tan(THREE.MathUtils.degToRad(38 / 2)); // main.js camera
 
+// Distance LOD (performance): within the near radius a landmark draws its
+// real geometry (plus the screen-size cluster LOD below). Beyond it, the
+// detailed mesh is hidden and one shared instanced massing box stands in,
+// so a 60-landmark city spends its triangles only around the camera while
+// every landmark stays visible, labelled and pickable (pins and picking use
+// the fitted box, not the mesh). Bigger landmarks keep full detail farther
+// out (sizeK x bounding radius). Phones (lite) get the tighter radius.
+const LOD_TIER = {
+  high: { nearM: 2200, sizeK: 3 },
+  low: { nearM: 1400, sizeK: 2 },
+};
+
 // Vertex clustering of a non-indexed geometry: every vertex moves to the
 // mean position of its grid cell; triangles that collapse (two corners in
 // one cell) or repeat (same three cells) are dropped. The other attributes
@@ -281,6 +293,14 @@ function glassMaterial() {
   });
 }
 
+// Far placeholder: a plain box, no shadows, one instanced draw for all the
+// landmarks beyond the near radius. Reads as the model's mass at a distance.
+function massingMaterial() {
+  const m = new THREE.MeshStandardMaterial({ color: 0xb3ab9e, roughness: 0.95, metalness: 0 });
+  m.name = 'landmarks-massing';
+  return m;
+}
+
 // Put a moving part on its track at t (0 = first point, 1 = last, by arc
 // length): position, heading along the track, pitch with the slope.
 // The part's local +z points toward increasing t.
@@ -312,7 +332,12 @@ function poseOnTrack(m, t) {
 
 // fits: fitLandmark() results, one per landmark in list order.
 // outlines: per landmark the OSM outline in world {x, z} (or null).
-export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick) {
+// opts.lite: phone/light tier, opts.massing: draw far landmarks as boxes.
+export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opts = {}) {
+  const tier = opts.lite ? LOD_TIER.low : LOD_TIER.high;
+  const LOD_NEAR_U = tier.nearM * S;
+  const LOD_SIZE_K = tier.sizeK;
+  const MASSING = opts.massing !== false;
   const group = new THREE.Group();
   group.name = 'landmarks';
   const material = stoneMaterial(list.length);
@@ -412,6 +437,11 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick) {
       outline,
       draped: !!fit.draped, // climbs the real slope (Bom Jesus): framing uses the box bottom
       type: g.userData.type,
+      // distance-LOD state, recomputed in updateLod(); catOn follows the
+      // category filter (setHiddenCategories)
+      catOn: true,
+      lodNear: true,
+      lodFar: false,
       x: fit.target.cx,
       z: fit.target.cz,
       base: fit.base,
@@ -468,6 +498,20 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick) {
   pins.frustumCulled = false;
   group.add(pins);
 
+  // Far LOD: one instanced box per landmark, sized to its fitted box. Only
+  // the ones beyond the near radius are drawn (scale 0 otherwise), so the
+  // whole distant city is one draw call.
+  const massing = MASSING ? new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), massingMaterial(), items.length) : null;
+  if (massing) {
+    massing.name = 'landmark-massing';
+    massing.frustumCulled = false;
+    massing.castShadow = false;
+    massing.receiveShadow = false;
+    massing.userData.castOrig = false; // keep tiles.js' shadow pass off it
+    massing.count = items.length;
+    group.add(massing);
+  }
+
   // Labels (HTML). Buttons so they are focusable and clickable.
   for (const it of items) {
     const el = document.createElement('button');
@@ -494,33 +538,82 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick) {
   const _scl = new THREE.Vector3();
   const _rot = new THREE.Quaternion();
   const _up = new THREE.Vector3(0, 1, 0);
+  const _mc = new THREE.Vector3();
+  const _msz = new THREE.Vector3();
+  const _mq = new THREE.Quaternion(); // identity: massing boxes stay axis-aligned
 
   // Pins keep a constant screen size (height = PIN_ANGLE x distance), so a
   // 10 m tower seen from the whole-city view is still a findable gold mark.
   // far LOD (LOD_K above): device pixels per world unit at distance 1
   let pxPerUnit = 900 / 2 / TAN_HALF_FOV;
+
+  // Distance LOD: decide per landmark whether it draws its own geometry or
+  // the shared massing box. Then apply category + LOD visibility and write
+  // the massing instance matrices.
   function updateLod(camPos) {
     let built = false;
     for (const it of items) {
-      const mesh = it.meshes[0];
-      const L = (mesh.userData.lod ??= { full: mesh.geometry, far: null, r: 0 });
-      if (!L.r) {
-        if (!L.full.boundingSphere) L.full.computeBoundingSphere();
-        L.r = L.full.boundingSphere.radius;
-      }
       const d = Math.max(1, camPos.distanceTo(it.center));
-      const cellPx = ((L.r / LOD_K) * pxPerUnit) / d;
-      const onFar = mesh.geometry !== L.full;
-      const want = it.index !== activeIndex && cellPx < (onFar ? LOD_OFF_PX : LOD_ON_PX);
-      if (want && !L.far) {
-        if (built) continue; // one build per frame
-        L.far = clusterGeometry(L.full, L.r / LOD_K);
-        built = true;
+      const R = LOD_NEAR_U + it.radius * LOD_SIZE_K;
+      it.lodFar = d > (it.lodFar ? R * 0.9 : R); // 10 % hysteresis
+      it.lodNear = !it.lodFar;
+      const active = it.index === activeIndex;
+      const mesh = it.meshes[0];
+      // within the near radius (or the selection), keep the real geometry;
+      // tiny-on-screen models still fall back to the vertex-clustered copy
+      if (it.lodNear) {
+        const L = (mesh.userData.lod ??= { full: mesh.geometry, far: null, r: 0 });
+        if (!L.r) {
+          if (!L.full.boundingSphere) L.full.computeBoundingSphere();
+          L.r = L.full.boundingSphere.radius;
+        }
+        const cellPx = ((L.r / LOD_K) * pxPerUnit) / d;
+        const onFar = mesh.geometry !== L.full;
+        const want = !active && cellPx < (onFar ? LOD_OFF_PX : LOD_ON_PX);
+        if (want && !L.far) {
+          if (built) {
+            mesh.geometry = L.full; // one cluster build per frame
+            continue;
+          }
+          L.far = clusterGeometry(L.full, L.r / LOD_K);
+          built = true;
+        }
+        const geo = want ? L.far : L.full;
+        if (mesh.geometry !== geo) mesh.geometry = geo;
       }
-      const geo = want ? L.far : L.full;
-      if (mesh.geometry !== geo) mesh.geometry = geo;
     }
+    applyVisibility();
   }
+
+  // Category filter + distance LOD in one place: the detailed meshes and
+  // movers draw only when their category is on and they are near (the
+  // selection always full); the massing boxes cover the rest.
+  function applyVisibility() {
+    for (const it of items) {
+      const full = it.catOn && (it.lodNear || it.index === activeIndex);
+      for (const m of it.meshes) m.visible = full;
+      for (const mv of it.movers) mv.visible = full;
+      if (it.outline) it.outline.visible = full;
+      it.label.visible = it.catOn;
+      if (!massing) continue;
+      if (it.catOn && !full) {
+        it.box.getCenter(_mc);
+        it.box.getSize(_msz);
+        _msz.x = Math.max(_msz.x, 1);
+        _msz.y = Math.max(_msz.y, 1);
+        _msz.z = Math.max(_msz.z, 1);
+        _m.compose(_mc, _mq, _msz);
+        it.massing = true;
+      } else {
+        _m.makeScale(0, 0, 0);
+        _m.setPosition(0, -1e5, 0); // collapse: nothing drawn for it
+        it.massing = false;
+      }
+      massing.setMatrixAt(it.index, _m);
+    }
+    if (massing) massing.instanceMatrix.needsUpdate = true;
+  }
+  applyVisibility();
 
   function updatePins(time, animate, camPos) {
     if (camPos) updateLod(camPos);
@@ -547,12 +640,8 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick) {
   function setHiddenCategories(set) {
     hidden.clear();
     for (const c of set) hidden.add(c);
-    for (const it of items) {
-      const on = !hidden.has(it.data.category);
-      for (const m of it.meshes) m.visible = on;
-      if (it.outline) it.outline.visible = on;
-      it.label.visible = on;
-    }
+    for (const it of items) it.catOn = !hidden.has(it.data.category);
+    applyVisibility();
   }
 
   function setActive(index) {
@@ -565,6 +654,7 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick) {
       FOCUS.uFocus.value.copy(it.center);
       FOCUS.uFocusR.value = it.radius * 0.85;
     }
+    applyVisibility();
   }
 
   const _ray = new THREE.Vector3();
@@ -602,6 +692,7 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick) {
     group,
     items,
     pins,
+    massing,
     material,
     report,
     outlineMaterial: outlineMat,
@@ -611,6 +702,8 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick) {
     pick,
     shrink,
     realScale,
+    // the distance-LOD radius of this tier, in metres (for reports/tests)
+    nearRadiusM: tier.nearM,
     // dpr: drawing-buffer pixels per CSS pixel, for the far LOD
     setResolution(w, h, dpr = 1) {
       outlineMat.resolution.set(w, h);
@@ -619,6 +712,44 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick) {
     // for tests: how many models draw their far LOD now
     get lodCount() {
       return items.filter((it) => it.meshes[0].userData.lod && it.meshes[0].geometry !== it.meshes[0].userData.lod.full).length;
+    },
+    // for reports: full / screen-cluster / massing counts in the last LOD pass
+    get lodStats() {
+      let full = 0;
+      let cluster = 0;
+      let massingN = 0;
+      for (const it of items) {
+        if (!it.catOn) continue;
+        if (it.lodNear || it.index === activeIndex) {
+          const L = it.meshes[0].userData.lod;
+          if (L && it.meshes[0].geometry !== L.full) cluster++;
+          else full++;
+        } else massingN++;
+      }
+      return { full, cluster, massing: massingN, total: items.length, nearRadiusM: tier.nearM };
+    },
+    // for reports: the triangles the landmark layer actually draws now
+    get drawnStats() {
+      let fullTris = 0;
+      let meshes = 0;
+      let massingN = 0;
+      for (const it of items) {
+        const full = it.catOn && (it.lodNear || it.index === activeIndex);
+        if (!full) {
+          if (it.catOn) massingN++;
+          continue;
+        }
+        for (const m of it.meshes) {
+          if (!m.visible) continue;
+          const g = m.geometry;
+          const count = g.index ? g.index.count : g.attributes.position.count;
+          const drawn = g.drawRange && g.drawRange.count !== Infinity ? Math.min(count, g.drawRange.count) : count;
+          fullTris += drawn / 3;
+          meshes++;
+        }
+        for (const mv of it.movers) if (mv.visible && mv.geometry.index) fullTris += mv.geometry.index.count / 3;
+      }
+      return { fullTris: Math.round(fullTris), meshes, massing: massingN, massingTris: massingN * 12 };
     },
   };
 }

@@ -41,7 +41,20 @@
       "_commons": "File:Foz do Douro - Porto - Portugal (17264169176).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "TRTYxlM4KQc",
+      "title": "Praia dos Ingleses = English Beach in Porto 🇵🇹",
+      "channel": "Beach Adventures with Kris ESC",
+      "lang": "en"
+    },
+    {
+      "youtube_id": "XTZVtOLabj8",
+      "title": "A walk around the beaches of Porto | Matosinhos, Castelo do Queijo, ingleses beach | Porto, Portugal",
+      "channel": "KaimarkLifestyle",
+      "lang": "en"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://www.aguasdoporto.pt/pt/praias-do-porto/praia-dos-ingleses",

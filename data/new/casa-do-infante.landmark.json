@@ -42,7 +42,14 @@
       "_commons": "File:Casa do Infante 00.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "spOA0shSIAI",
+      "title": "Casa do Infante",
+      "channel": "Câmara Municipal do Porto",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Casa_do_Infante",

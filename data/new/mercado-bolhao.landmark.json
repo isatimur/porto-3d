@@ -64,6 +64,19 @@
       "_commons": "File:Mercado do Bolhão (Porto).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "WgjX3d1o8-c",
+      "title": "A Walking Tour of Mercado do Bolhão | Porto's Historic Market",
+      "channel": "Walking The City",
+      "lang": "en"
+    },
+    {
+      "youtube_id": "e_gMJwdum4E",
+      "title": "Mercado do Bolhão. Porto's Historic Market",
+      "channel": "Walk with us - Singapore ",
+      "lang": "en"
+    }
+  ],
   "panorama": null
 }

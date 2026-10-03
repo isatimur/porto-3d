@@ -394,9 +394,11 @@ export function createEffects(renderer, scene, camera, { reducedMotion = false }
       // threshold keeps the city crisp and the pins small (close-ups and
       // the night keep the full glow)
       const far = overviewK() * (1 - night);
-      bloom.threshold = BLOOM_THRESHOLD + 0.08 * far;
-      bloom.strength = (0.32 + 0.12 * night) * (1 - 0.35 * far);
-      bloom.radius = 0.45 + 0.1 * night - 0.2 * far;
+      // at night the emissive things (lamps, lit windows, wet reflections)
+      // get a slightly lower threshold and a tighter, stronger glow
+      bloom.threshold = BLOOM_THRESHOLD + 0.08 * far - 0.06 * night;
+      bloom.strength = (0.32 + 0.16 * night) * (1 - 0.35 * far);
+      bloom.radius = 0.45 + 0.08 * night - 0.2 * far;
     },
     render() {
       composer.render();

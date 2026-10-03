@@ -40,8 +40,29 @@
       "_commons": "File:Jardim de São Lázaro statue.jpg"
     }
   ],
-  "videos": [],
-  "panorama": null,
+  "videos": [
+    {
+      "youtube_id": "GZxcZg2ZP6U",
+      "title": "Exposição de Sardinheiras no  Jardim de S. Lázaro",
+      "channel": "Câmara Municipal do Porto",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "y8HFwwpMmfw",
+      "title": "Porto - Portugal - Jardim de São Lázaro",
+      "channel": "José Couto (\"Agostinho\")",
+      "lang": "pt"
+    }
+  ],
+  "panorama": {
+    "src": "assets/pano/sao-lazaro.jpg",
+    "caption_ru": "Панорама 360° в саду Сан-Лазару (Jardim de São Lázaro)",
+    "credit": {
+      "author": "skfd",
+      "license": "CC BY-SA 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Mapillary_(6FDT7i1xndOjK2JChYz9y5)_(skfd)_2022-02-20_15H52M50S000.jpg"
+    }
+  },
   "sources": [
     "https://pt.wikipedia.org/wiki/Jardim_de_S%C3%A3o_L%C3%A1zaro",
     "http://doc-it.fe.up.pt/geowiki/space/Jardim+de+S.+Lazaro/Historia+do+Jardim+de+S.+Lazaro",

@@ -665,6 +665,11 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
   const lamps = streetLamps(net);
   if (lamps) group.add(lamps);
   counts.lamps = lamps ? lamps.geometry.attributes.position.count : 0;
+  // warm light pools on the ground under each main-street lamp: one merged
+  // additive draw, off by day. Light mode: coarser discs.
+  const pools = lampPools(net, heightAt, { seg: lite ? 8 : 12 });
+  if (pools) group.add(pools);
+  counts.lampPools = pools ? pools.geometry.attributes.position.count : 0;
 
   if (hint) legendToggle((on) => api.setTunnelHint(on));
 
@@ -693,6 +698,10 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
       if (lamps) {
         lamps.material.uniforms.uNight.value = w;
         lamps.visible = w > 0.02;
+      }
+      if (pools) {
+        pools.material.uniforms.uNight.value = w;
+        pools.visible = w > 0.02;
       }
     },
     // with post-processing, the main streets' core and glow go above the
@@ -852,6 +861,99 @@ export function lampSites(net) {
 function streetLamps(net) {
   return lampGlow(lampSites(net));
 }
+// Warm light pools on the ground under the main-street lamps: the same sites
+// as the glows, as flat additive discs draped on the terrain. One draw,
+// invisible by day; skipped on raised bridge decks (the pool belongs to the
+// street below). `seg` rings per disc.
+function lampPools(net, heightAt, { seg = 12, radiusM = 5.5 } = {}) {
+  const R = radiusM * S;
+  const { X, Z, Y, G, C, HID } = net;
+  const pos = [];
+  const aR = [];
+  const idx = [];
+  let count = 0;
+  for (const w of net.ways) {
+    if ((w.kind !== 'primary' && w.kind !== 'secondary') || w.tunnel) continue;
+    const half = (w.widthM / 2 + 1.2) * S;
+    const step = LAMP_M * S;
+    let s = step * 0.5;
+    let side = 1;
+    let i = w.start;
+    const end = w.start + w.n - 1;
+    while (s < w.len) {
+      while (i < end - 1 && C[i + 1] < s) i++;
+      if (!HID[i]) {
+        const L = Math.max(1e-6, C[i + 1] - C[i]);
+        const u = (s - C[i]) / L;
+        const ux = (X[i + 1] - X[i]) / L;
+        const uz = (Z[i + 1] - Z[i]) / L;
+        const x = X[i] + ux * (s - C[i]) - uz * half * side;
+        const z = Z[i] + uz * (s - C[i]) + ux * half * side;
+        const base = Y[i] + (Y[i + 1] - Y[i]) * u;
+        // only where the street is on the ground
+        if (base - (G[i] + (G[i + 1] - G[i]) * u) < 2.0 * S) {
+          const lift = RIBBON_LIFT + 0.06;
+          const v0 = pos.length / 3;
+          pos.push(x, base + lift, z);
+          aR.push(0);
+          for (let k = 0; k < seg; k++) {
+            const a = (k / seg) * Math.PI * 2;
+            const px = x + Math.cos(a) * R;
+            const pz = z + Math.sin(a) * R;
+            pos.push(px, heightAt(px, pz) + lift, pz);
+            aR.push(1);
+          }
+          for (let k = 0; k < seg; k++) idx.push(v0, v0 + 1 + k, v0 + 1 + ((k + 1) % seg));
+          count++;
+        }
+      }
+      side = -side;
+      s += step;
+    }
+  }
+  if (!count) return null;
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.setAttribute('aR', new THREE.Float32BufferAttribute(aR, 1));
+  geo.setIndex(pos.length / 3 > 65535 ? new THREE.Uint32BufferAttribute(idx, 1) : new THREE.Uint16BufferAttribute(idx, 1));
+  geo.computeBoundingSphere();
+  const mat = new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    polygonOffset: true,
+    polygonOffsetFactor: -1,
+    polygonOffsetUnits: -6,
+    uniforms: { uNight: { value: 0 } },
+    vertexShader: /* glsl */ `
+      attribute float aR;
+      varying float vR;
+      varying float vFade;
+      void main() {
+        vR = aR;
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        gl_Position = projectionMatrix * mv;
+        vFade = 1.0 - smoothstep(1400.0, 3500.0, -mv.z);
+      }`,
+    fragmentShader: /* glsl */ `
+      uniform float uNight;
+      varying float vR;
+      varying float vFade;
+      void main() {
+        float pool = pow(1.0 - clamp(vR, 0.0, 1.0), 2.2);
+        vec3 sodium = vec3(1.0, 0.5, 0.17);
+        gl_FragColor = vec4(sodium * pool * uNight * vFade * 0.4, 1.0);
+      }`,
+  });
+  mat.toneMapped = false;
+  mat.name = 'lamp-pools';
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.name = 'lamp-pools';
+  mesh.frustumCulled = false;
+  mesh.renderOrder = 29; // under the glow points (30)
+  mesh.visible = false;
+  return mesh;
+}
 // The warm glow of lamps at night: one Points draw. sizeU: the glow's size
 // in world units (2.4: about 10 m); name: the object's name.
 export function lampGlow(pos, { sizeU = 2.4, name = 'street-lamps', maxPx = 12 } = {}) {
@@ -882,10 +984,11 @@ export function lampGlow(pos, { sizeU = 2.4, name = 'street-lamps', maxPx = 12 }
         vec2 p = gl_PointCoord * 2.0 - 1.0;
         float r = dot(p, p);
         if (r > 1.0) discard;
-        float core = exp(-r * 12.0);
-        float halo = exp(-r * 3.0) * 0.22;
-        vec3 sodium = vec3(1.0, 0.58, 0.24);
-        gl_FragColor = vec4(sodium * (core * 2.4 + halo) * uNight * vFade, 1.0);
+        // a tight, warm sodium core with a small halo: a lamp, not a haze
+        float core = exp(-r * 16.0);
+        float halo = exp(-r * 4.5) * 0.14;
+        vec3 sodium = vec3(1.0, 0.53, 0.19);
+        gl_FragColor = vec4(sodium * (core * 2.6 + halo) * uNight * vFade, 1.0);
       }`,
   });
   mat.toneMapped = false;

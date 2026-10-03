@@ -41,7 +41,20 @@
       "_commons": "File:Porto Campanhã Intl (14297436143).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "Z1u7pERBISU",
+      "title": "Estação de Campanhã - Hyperlapse",
+      "channel": "Linha 2",
+      "lang": "other"
+    },
+    {
+      "youtube_id": "YAOvdwU8kEg",
+      "title": "Comboios de Portugal, Takargo & MEDWAY Trains at Estação de Porto Campanhã",
+      "channel": "European Rail",
+      "lang": "en"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Esta%C3%A7%C3%A3o_Ferrovi%C3%A1ria_de_Porto-Campanh%C3%A3",

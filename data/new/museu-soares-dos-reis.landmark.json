@@ -41,7 +41,20 @@
       "_commons": "File:Museu Nacional de Soares dos Reis (10).JPG"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "sONjMQUW_Ts",
+      "title": "Visita Guiada ao Museu Soares dos Reis, no Porto - Portugal (1)",
+      "channel": "João Santos",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "uG_wZrp8jIg",
+      "title": "Visita Guiada - S14E05 - Museu Nacional Soares dos Reis, Porto",
+      "channel": "Cultura Archivist",
+      "lang": "en"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Museu_Nacional_Soares_dos_Reis",

@@ -42,7 +42,20 @@
       "_commons": "File:Coliseu do Porto September 2004.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "QkiKG1YblGg",
+      "title": "O que existia no local onde hoje se ergue o Coliseu Porto Ageas?",
+      "channel": "Coliseu Porto Ageas",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "NKGF_gvZTag",
+      "title": "Coliseu do Porto recebe obras de requalificação",
+      "channel": "Câmara Municipal do Porto",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Coliseu_do_Porto",

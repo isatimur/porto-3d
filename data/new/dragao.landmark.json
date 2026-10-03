@@ -52,7 +52,20 @@
       "_commons": "File:Call for a Win, Ask for Glory.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "hsPJoq2O1H4",
+      "title": "Estádio do Dragão",
+      "channel": "FC Porto",
+      "lang": "other"
+    },
+    {
+      "youtube_id": "ztPQ0CIFJtI",
+      "title": "⚽ FC Porto Football Stadium Tour (Estádio do Dragão)",
+      "channel": "Ultimate Bucket List",
+      "lang": "en"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://en.wikipedia.org/wiki/Est%C3%A1dio_do_Drag%C3%A3o",

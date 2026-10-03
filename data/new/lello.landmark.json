@@ -65,6 +65,19 @@
       "_commons": "File:Exterior view of Livraria Lello 01.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "rilSSafFTUw",
+      "title": "Livraria Lello Porto: Um Novo Capítulo",
+      "channel": "Livraria Lello Porto",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "5nNqQX97x0E",
+      "title": "How To Visit Livraria Lello: Skip the Line + Best Time (2025)",
+      "channel": "The Planet D Travel",
+      "lang": "en"
+    }
+  ],
   "panorama": null
 }

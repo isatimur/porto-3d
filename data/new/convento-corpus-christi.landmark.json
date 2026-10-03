@@ -53,7 +53,20 @@
       "_commons": "File:Conv corpus christi 2.JPG"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "XqQ6FjcSXoU",
+      "title": "Convento \"Corpus Christi\"  (Vila Nova de Gaia)",
+      "channel": "Jorauger ML",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "t4T9Ep79DLA",
+      "title": "#155 | Cetárias do Convento Corpus Christi | Roman tanks in Corpus Christi Convent",
+      "channel": "ERA Arqueologia",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Convento_de_Corpus_Christi",

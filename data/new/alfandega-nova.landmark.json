@@ -42,8 +42,29 @@
       "_commons": "File:A Alfândega do Porto (485528411).jpg"
     }
   ],
-  "videos": [],
-  "panorama": null,
+  "videos": [
+    {
+      "youtube_id": "yqjrEWWyXKk",
+      "title": "Edifício da Alfândega Nova do Porto",
+      "channel": "Museu dos Transportes e Comunicações",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "hdp-BLJtkqQ",
+      "title": "Alfândega do Porto",
+      "channel": "Museu dos Transportes e Comunicações",
+      "lang": "pt"
+    }
+  ],
+  "panorama": {
+    "src": "assets/pano/alfandega-nova.jpg",
+    "caption_ru": "Панорама 360° у Новой таможни (Alfândega Nova) на берегу Дору",
+    "credit": {
+      "author": "skfd",
+      "license": "CC BY-SA 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Mapillary_(6FDT7i1xndOjK2JChYz9y5)_(skfd)_2022-02-20_15H39M20S000.jpg"
+    }
+  },
   "sources": [
     "https://pt.wikipedia.org/wiki/Alf%C3%A2ndega_Nova_(Porto)",
     "https://www.museudostransportes.org/",

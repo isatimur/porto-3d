@@ -146,7 +146,20 @@ export function createLiveBus({ scene, camera, renderer, project, heightAt, mobi
       start: Int32Array.from(p.trips, (q) => q[0]),
       svc: Int16Array.from(p.trips, (q) => q[1]),
     }));
-    data = { shapes, routes, days, patterns, stops: j.stops, LANE, trips: patterns.reduce((s, p) => s + p.start.length, 0), valid: j.valid };
+    const ymd = (s) => (/^\d{4}-\d{2}-\d{2}$/.test(String(s || '')) ? +String(s).replace(/-/g, '') : 0);
+    data = {
+      shapes,
+      routes,
+      days,
+      patterns,
+      stops: j.stops,
+      LANE,
+      trips: patterns.reduce((s, p) => s + p.start.length, 0),
+      valid: j.valid,
+      // the feed's calendar window; 0 means "not declared"
+      validFrom: ymd(j.valid?.from),
+      validTo: ymd(j.valid?.to),
+    };
   }
 
   // ---- the clock
@@ -222,6 +235,13 @@ export function createLiveBus({ scene, camera, renderer, project, heightAt, mobi
   }
 
   function select(T) {
+    // outside the feed's own validity window the timetable is not in
+    // service: place nothing rather than show a stale school-holiday pattern
+    if ((data.validFrom && clock.ymd < data.validFrom) || (data.validTo && clock.ymd > data.validTo)) {
+      running = 0;
+      nSel = 0;
+      return;
+    }
     const today = clock.weekday;
     const yday = (today + 6) % 7;
     const focus = camera.userData.focus;

@@ -53,7 +53,20 @@
       "_commons": "File:1 Mosteiro da Serra do Pilar Claustro IMG 7360.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "ooV6x_PK2SI",
+      "title": "MOSTEIRO DO SERRA DO PILAR, PORTO, PORTUGAL",
+      "channel": "McDAGOS",
+      "lang": "en"
+    },
+    {
+      "youtube_id": "4WLy-QooMH0",
+      "title": "Ep #22 - Mosteiro da Serra do Pilar - Porto, Portugal 🇵🇹",
+      "channel": "A ROTA",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Mosteiro_da_Serra_do_Pilar",

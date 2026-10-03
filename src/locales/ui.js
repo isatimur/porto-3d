@@ -48,6 +48,7 @@ export const messages = {
   'Маршруты': ['Percursos', 'Routes'], 'пешком': ['a pé', 'on foot'], 'автобус, такси': ['autocarro, táxi', 'bus, taxi'],
   'автобус': ['autocarro', 'bus'], 'такси': ['táxi', 'taxi'], 'фуникулёр': ['funicular', 'funicular'],
   'Места и маршруты': ['Locais e percursos', 'Places and routes'], 'Раздел': ['Secção', 'Section'], 'Места': ['Locais', 'Places'],
+  'К содержанию': ['Ir para o conteúdo', 'Skip to content'],
   'Фильтр по категориям': ['Filtrar por categoria', 'Filter by category'], 'Закрыть': ['Fechar', 'Close'],
   'Разделы карточки': ['Secções do local', 'Place details'], 'Обзор': ['Visão geral', 'Overview'], 'История': ['História', 'History'],
   'Галерея': ['Galeria', 'Gallery'], 'Видео': ['Vídeo', 'Video'], 'Фото недоступно': ['Fotografia indisponível', 'Photo unavailable'],

@@ -41,7 +41,20 @@
       "_commons": "File:Igreja de São Pedro de Miragaia, Porto, Portugal (2270331578).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "Yy7fltLHAVQ",
+      "title": "Igreja de S. Pedro de Miragaia, Porto.",
+      "channel": "pedrodoporto",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "ZH7ZuuoP3kU",
+      "title": "Porto - Portugal - Igreja de São Pedro de Miragaia",
+      "channel": "José Couto (\"Agostinho\")",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Igreja_de_S%C3%A3o_Pedro_de_Miragaia",

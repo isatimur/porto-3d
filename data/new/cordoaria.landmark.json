@@ -40,7 +40,20 @@
       "_commons": "File:ThirteenLaughing.JPG"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "MJqK4nuBj6E",
+      "title": "Porto - Portugal - Jardim da Cordoaria",
+      "channel": "José Couto (\"Agostinho\")",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "bf4j1e6y49I",
+      "title": "포르투 도심 속, 트램이 지나다니는 정원 | Cordoaria의 정원 - Jardim da Cordoaria, Porto",
+      "channel": "Hunny Porto - 허니포르투",
+      "lang": "other"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Jardim_de_Jo%C3%A3o_Chagas",

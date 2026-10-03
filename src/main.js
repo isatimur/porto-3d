@@ -225,7 +225,7 @@ async function start() {
   debug.buildings = city.stats;
   mark('buildings');
 
-  const marks = buildLandmarks(landmarks, fits, heightAt, outlines, (i) => select(i));
+  const marks = buildLandmarks(landmarks, fits, heightAt, outlines, (i) => select(i), { lite: LITE, massing: true });
   scene.add(marks.group);
   debug.landmarks = marks.items.map((it) => ({
     id: it.data.id,
@@ -1480,8 +1480,12 @@ async function start() {
       frameTriangles: renderer.info.render.triangles,
       sceneTriangles: Math.round(sceneTris),
       meshes,
+      tier: TIER.tier,
+      landmarksLod: marks.lodStats,
       buildings: city.stats,
       landmarks: marks.report,
+      tiles: tiles?.stats ?? debug.tilesStats ?? null,
+      ms: ms?.stats ?? debug.msStats ?? null,
       nature: nature?.stats ?? null,
       lamps: roadLayer.counts.lamps,
       fx: fx.enabled,
@@ -1579,7 +1583,7 @@ async function start() {
   applyHash();
   window.addEventListener('hashchange', applyHash);
 
-  Object.assign(debug, { select, close, openRoute, exitRoute, startTour, stopTour, ui, panorama, routes, rig, landmarksRealScale: marks.realScale, shrink: marks.shrink });
+  Object.assign(debug, { select, close, openRoute, exitRoute, startTour, stopTour, ui, panorama, routes, rig, landmarksRealScale: marks.realScale, shrink: marks.shrink, lodStats: () => marks.lodStats, landmarkDraw: () => marks.drawnStats });
   Object.defineProperty(debug, 'touring', { get: () => !!tour });
   installShare({ renderer, scene, camera, fx, setFx, atmosphere, roadLayer, routeLayer, marks, landmarks, routes, ui, getSize: () => size });
   // the talking guide (guide.js, api/guide.js) is parked until later; ?guide=1 turns it on for testing

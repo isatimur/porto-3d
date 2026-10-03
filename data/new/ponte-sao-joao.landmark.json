@@ -53,7 +53,20 @@
       "_commons": "File:Ponte S. Joao - Porto.JPG"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "U9caYIBMsqI",
+      "title": "Construção da Ponte de São João, do arquitecto Edgar Cardoso, na cidade do Porto - HD",
+      "channel": "Eng. CarrussOpinions with Dinis Carlos",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "Rdkh57lqHCc",
+      "title": "Alfa Pendular na Ponte de S. João | 2018",
+      "channel": "Linha 2",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Ponte_de_S%C3%A3o_Jo%C3%A3o",

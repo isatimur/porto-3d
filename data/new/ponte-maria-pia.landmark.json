@@ -50,7 +50,20 @@
       "_commons": "File:Full moon over D. Maria Pia brigde July 2023.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "900dmkz2mpM",
+      "title": "Caminhos da História - 2017 - E31 - Eiffel e a Ponte Dona Maria Pia",
+      "channel": "Cultura Archivist",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "rYT3-DpDRK0",
+      "title": "Reanimar a Ponte Maria Pia - Reportagem RTP",
+      "channel": "W Global Communication",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://en.wikipedia.org/wiki/Maria_Pia_Bridge",

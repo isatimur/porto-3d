@@ -40,7 +40,14 @@
       "_commons": "File:Chafariz quinta da macieirinha.png"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "axpRLYxwRvg",
+      "title": "Museu Romântico reabriu à cidade",
+      "channel": "Câmara Municipal do Porto",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Museu_Rom%C3%A2ntico_da_Quinta_da_Macieirinha",

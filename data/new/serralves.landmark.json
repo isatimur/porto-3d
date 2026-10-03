@@ -52,7 +52,20 @@
       "_commons": "File:Fundação serralves (39740190953).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "MxJ_pC29IAw",
+      "title": "Fundação de Serralves",
+      "channel": "fundacaoserralves",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "vt6_B-0V--I",
+      "title": "Jardim e Museu de Serralves no Porto!",
+      "channel": "Luli Monteleone",
+      "lang": "en"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://en.wikipedia.org/wiki/Serralves",

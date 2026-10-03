@@ -41,7 +41,20 @@
       "_commons": "File:Cadeia da Relação - 11.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "4zJHpdGK0I4",
+      "title": "A Zoomiee visita a Antiga Cadeia e Tribunal da Relação do Porto",
+      "channel": "Centro Português de Fotografia",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "M_Tvt9YEQQg",
+      "title": "📍Cadeia da Relação | Porto aqui tão perto #5",
+      "channel": "Rádio Portuense",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Cadeia_da_Rela%C3%A7%C3%A3o",

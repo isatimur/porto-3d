@@ -41,7 +41,14 @@
       "_commons": "File:Igreja de São João Baptista - 0073.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "3qjhwGZehsY",
+      "title": "Igreja de S. João da Foz do Douro - cidade do Porto",
+      "channel": "Baptista de Barros",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Forte_de_S%C3%A3o_Jo%C3%A3o_Baptista_da_Foz",

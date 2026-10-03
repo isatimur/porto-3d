@@ -40,7 +40,20 @@
       "_commons": "File:Parque da Cidade Lago.JPG"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "1LM4lJFQCZE",
+      "title": "Parque da Cidade do Porto - Portugal - Drone - Imagem Aérea",
+      "channel": "Imagem Aérea",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "tsmuaTx-EAI",
+      "title": "Parque da Cidade do Porto | Porto | Portugal 4K",
+      "channel": "Touristing",
+      "lang": "other"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Parque_da_Cidade_do_Porto",

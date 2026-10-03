@@ -42,7 +42,20 @@
       "_commons": "File:D. Pedro V, Praça da Batalha, Porto .jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "m4tjNFhM3PI",
+      "title": "Praça da Batalha - Porto - Portugal",
+      "channel": "TIP InfoPoint",
+      "lang": "en"
+    },
+    {
+      "youtube_id": "_sHuRmXPrNU",
+      "title": "Praça da Batalha e suas curiosidades - Porto - Portugal 2023",
+      "channel": "Destinos Diversos",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Pra%C3%A7a_da_Batalha_(Porto)",

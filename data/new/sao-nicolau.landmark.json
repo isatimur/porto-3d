@@ -41,7 +41,14 @@
       "_commons": "File:Church of St. Nicholas (48114750581).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "7gJT5T4eY9k",
+      "title": "Porto - Portugal - Igreja de S. Nicolau",
+      "channel": "José Couto (\"Agostinho\")",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Igreja_de_S%C3%A3o_Nicolau_(Porto)",

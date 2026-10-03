@@ -63,6 +63,19 @@
       "_commons": "File:Iglesia do Carmo (50741749157).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "MGOQRQ9xCFs",
+      "title": "Igreja do Carmo in Porto, Portugal - A Walk Around (in 4k)",
+      "channel": "Professor G Travel",
+      "lang": "en"
+    },
+    {
+      "youtube_id": "LeU9NC0h4EU",
+      "title": "PORTO - Igreja do Carmo (Church of Our Lady of Carmo)",
+      "channel": "Massimo Nalli",
+      "lang": "pt"
+    }
+  ],
   "panorama": null
 }

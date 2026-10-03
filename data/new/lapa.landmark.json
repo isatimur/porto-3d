@@ -41,7 +41,20 @@
       "_commons": "File:Igreja da Lapa - Porto - Portugal (53401906606).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "gntlqhstMkk",
+      "title": "Visita Guiada - S10E11 - D. Pedro IV e a Igreja da Lapa, Porto",
+      "channel": "Cultura Archivist",
+      "lang": "en"
+    },
+    {
+      "youtube_id": "z83FIzGVhuk",
+      "title": "📍 Igreja da Lapa - Porto Aqui Tão Perto",
+      "channel": "Rádio Portuense",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Igreja_da_Lapa_(Porto)",

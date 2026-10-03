@@ -41,7 +41,20 @@
       "_commons": "File:Igreja Nova de Ramalde 35.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "iSy2xLmg2Qs",
+      "title": "Igreja Antiga da Paróquia de Ramalde",
+      "channel": "paroquiaramalde",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "WE2SQ2BrL2c",
+      "title": "Porto - Portugal - Igreja de Ramalde",
+      "channel": "José Couto (\"Agostinho\")",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Ramalde",

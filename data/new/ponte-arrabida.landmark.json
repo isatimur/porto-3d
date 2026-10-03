@@ -50,7 +50,20 @@
       "_commons": "File:A view of Arrábida bridge (3938894926).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "CCaKCcmTe_w",
+      "title": "Arrábida Bridge Construction (1958)",
+      "channel": "Luis Rebelo de Carvalho",
+      "lang": "other"
+    },
+    {
+      "youtube_id": "KrZ_-J0PANw",
+      "title": "Porto Bridge Climb. Ponte da Arrabida, Oporto, Portugal",
+      "channel": "John Croy Findlay | Edinburgh",
+      "lang": "en"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://en.wikipedia.org/wiki/Arr%C3%A1bida_Bridge",

@@ -53,7 +53,20 @@
       "_commons": "File:Vila Nova de Gaia (51784290730).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "hPDSb5aMO0o",
+      "title": "Ponte do Freixo",
+      "channel": "António Nogueira Ramos",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "aAYWf8iJtsg",
+      "title": "Time Lapse da Ponte do Freixo - Porto",
+      "channel": "Miguel Martins Photography",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Ponte_do_Freixo",

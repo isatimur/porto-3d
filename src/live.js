@@ -101,10 +101,15 @@ export function sunTimes(date = new Date(), lat = HERE().lat, lon = HERE().lon) 
 // WMO weather_code (Open-Meteo) to a map state and a label.
 export function weatherFromCode(code, cloud = 0, precip = 0) {
   const c = Number(code);
+  // Porto's own states are used where a WMO code names them: 51-57 is the
+  // Atlantic drizzle, 80-82 the showers the city calls a downpour. Fog (45,
+  // 48) stays the plain valley fog; sea fog and the nortada are local
+  // readings with no WMO code of their own (chosen by hand in the menu).
   if (c === 45 || c === 48) return { state: 'fog', label: 'туман' };
   if (c >= 95) return { state: 'rain', label: 'гроза' };
-  if ((c >= 80 && c <= 82) || (c >= 61 && c <= 67)) return { state: 'rain', label: c >= 80 ? 'ливень' : 'дождь' };
-  if (c >= 51 && c <= 57) return { state: 'rain', label: 'морось' };
+  if (c >= 80 && c <= 82) return { state: 'downpour', label: 'ливень' };
+  if (c >= 61 && c <= 67) return { state: 'rain', label: 'дождь' };
+  if (c >= 51 && c <= 57) return { state: 'drizzle', label: 'морось' };
   if ((c >= 71 && c <= 77) || c === 85 || c === 86) return { state: 'overcast', label: 'снег' };
   if (precip > 0.2) return { state: 'rain', label: 'дождь' };
   if (c === 3 || cloud >= 88) return { state: 'overcast', label: 'пасмурно' };
@@ -122,7 +127,20 @@ function coverFor(state, reading) {
 }
 
 // ------------------------------------------------------------ controls
-const WEATHER_LABEL = { clear: 'ясно', partly: 'облачно', overcast: 'пасмурно', rain: 'дождь', fog: 'туман' };
+// The selectable states, in menu order. Includes Porto's Atlantic states
+// (drizzle, downpour, seafog, nortada); every one of them is a key of
+// weather.js STATES, so weather.set(name) accepts them.
+const WEATHER_LABEL = {
+  clear: 'ясно',
+  partly: 'облачно',
+  overcast: 'пасмурно',
+  drizzle: 'морось',
+  rain: 'дождь',
+  downpour: 'ливень',
+  seafog: 'морской туман',
+  fog: 'туман',
+  nortada: 'нортада',
+};
 
 const CSS = `
 .life-weather { position: relative; }

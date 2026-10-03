@@ -50,8 +50,29 @@
       "_commons": "File:2014-P23 Porto (15088780623).jpg"
     }
   ],
-  "videos": [],
-  "panorama": null,
+  "videos": [
+    {
+      "youtube_id": "c4SSHVjtgE8",
+      "title": "Cais da Ribeira Walking Tour 4K | Historic Porto District Portugal",
+      "channel": "Walking the Tour",
+      "lang": "en"
+    },
+    {
+      "youtube_id": "SWDiEbs-QK0",
+      "title": "Porto / 4k walking tour / Ribeira / From Rua das Flores to Cais da Ribeira / Cais da Estiva",
+      "channel": "ELE - Walks & Travels",
+      "lang": "en"
+    }
+  ],
+  "panorama": {
+    "src": "assets/pano/ribeira.jpg",
+    "caption_ru": "Панорама 360°: набережная Рибейра, река Дору и мост Луиша I",
+    "credit": {
+      "author": "skfd",
+      "license": "CC BY-SA 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Mapillary_(6FDT7i1xndOjK2JChYz9y5)_(skfd)_2022-02-20_15H36M20S000.jpg"
+    }
+  },
   "sources": [
     "https://whc.unesco.org/en/list/755",
     "https://en.wikipedia.org/wiki/Porto",

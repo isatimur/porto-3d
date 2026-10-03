@@ -21,7 +21,7 @@ const ENDPOINT = '/api/guide';
 const VOICE_KEY = 'porto-guide-voice';
 const MAX_Q = 300;
 const NARROW = '(max-width: 900px)';
-const WEATHER_EN = { clear: 'clear', partly: 'partly cloudy', overcast: 'overcast', rain: 'rain', fog: 'fog' };
+const WEATHER_EN = { clear: 'clear', partly: 'partly cloudy', overcast: 'overcast', drizzle: 'drizzle', rain: 'rain', downpour: 'heavy rain', seafog: 'sea fog', fog: 'fog', nortada: 'clear and windy (nortada)' };
 
 const MIC = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8a2.2 2.2 0 0 0-2.2 2.2v4a2.2 2.2 0 0 0 4.4 0V4A2.2 2.2 0 0 0 8 1.8z"/><path d="M4 7.6a4 4 0 0 0 8 0M8 11.6v2.6M5.6 14.2h4.8" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
 const SEND = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h9M8 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';

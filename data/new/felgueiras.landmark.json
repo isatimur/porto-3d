@@ -52,7 +52,20 @@
       "_commons": "File:Farol de Felgueiras - Porto - Portugal (14083320406).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "6DmuatYVK_Q",
+      "title": "Farolim de Felgueiras e Barra do Douro vistos do alto | Drone 4K | Porto, Portugal",
+      "channel": "Studio Vistta",
+      "lang": "other"
+    },
+    {
+      "youtube_id": "Kkk0Jx8Pgzk",
+      "title": "Porto - Portugal - Farolim das Felgueiras",
+      "channel": "José Couto (\"Agostinho\")",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Farolim_de_Felgueiras",

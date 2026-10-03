@@ -52,7 +52,14 @@
       "_commons": "File:Blue-Tiled Beauty Igreja dos Congregados in the Heart of Porto (54784662223).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "Xc9Kw0_lx7w",
+      "title": "IGREJA DOS CONGREGADOS, Porto",
+      "channel": "pedrodoporto",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Igreja_dos_Congregados",

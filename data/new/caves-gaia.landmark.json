@@ -50,7 +50,14 @@
       "_commons": "File:Porto -i---i- (26121982607).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "9oaEw3d--_M",
+      "title": "Porque é que as caves do vinho do Porto são em Gaia?!",
+      "channel": "Portoalities - Your blog about Porto",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://en.wikipedia.org/wiki/Vila_Nova_de_Gaia",

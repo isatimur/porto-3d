@@ -40,7 +40,14 @@
       "_commons": "File:Jardins do Palácio de Cristal - Porto - Portugal (49788513552).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "0G_RvfND51M",
+      "title": "Visita à Biblioteca Municipal Almeida Garrett",
+      "channel": "Escola Profitecla",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Biblioteca_Municipal_Almeida_Garrett",

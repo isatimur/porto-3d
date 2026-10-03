@@ -52,7 +52,20 @@
       "_commons": "File:Clerigos igreja.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "Z4v25-3vd-g",
+      "title": "Reabertura da Igreja e Torre dos Clérigos",
+      "channel": "Câmara Municipal do Porto",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "4-LmIoNpvQA",
+      "title": "The Clérigos’ Church and Tower in Porto, PORTUGAL",
+      "channel": "Europa Nostra",
+      "lang": "en"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Igreja_e_Torre_dos_Cl%C3%A9rigos",

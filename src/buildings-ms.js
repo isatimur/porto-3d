@@ -25,7 +25,7 @@ const CORE_TILE_M = 2000;
 const GROUP = 3; // far ring tiles per merged block side
 const SLICE_MS = 1.5;
 const SCHEDULE_S = 0.25;
-const MAX_FETCH = 4;
+const MAX_FETCH_HIGH = 4;
 // far LOD: smaller footprints are left out. OSM tiles use 20 m²; the ML
 // footprints hold many more sheds and annexes, and below 60 m² a box beyond
 // 4 km is about a pixel. 60 m² cost ~655k tris in the overview; 100 m²
@@ -305,6 +305,11 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
   scene.add(group);
 
   const NEAR_M = lite ? LITE_U / S : mobile ? 2000 : 4000;
+  // phones fetch fewer tiles at once and hold a smaller ring; the far
+  // threshold is larger so the ring costs fewer triangles on a phone
+  const MAX_FETCH = mobile ? 2 : MAX_FETCH_HIGH;
+  const RING_LOAD_MAX = mobile ? 60 : 180;
+  const FAR_MIN = mobile ? 160 : FAR_MIN_M2;
   // light mode: 1 km core blocks, so the 1.5 km limit cuts finely
   const coreTileM = lite ? 1000 : CORE_TILE_M;
   const material = createBuildingMaterial({ fade: true });
@@ -328,6 +333,10 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
   const tiles = api.tiles;
   const groups = new Map();
   let buildSum = 0;
+  // frustum culling for the ring: an off-screen tile only streams when it is
+  // close or near the orbit focus (phones), so turning costs nothing
+  const _frustum = new THREE.Frustum();
+  const _pm = new THREE.Matrix4();
 
   // ---- masks: landmark outlines and parts, fitted plans, core OSM centres
   function makeMasks() {
@@ -404,7 +413,7 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
         const h = J.h(rec);
         const T = J.tileOf ? J.tileOf(f) : J.T;
         extrudeBuilding(T, f.pts, h, 'ms', f.areaM2, J.seed + i, ground);
-        if (J.Tfar && f.areaM2 >= FAR_MIN_M2) {
+        if (J.Tfar && f.areaM2 >= FAR_MIN) {
           const box = orientedBox(f.pts);
           extrudeBuilding(J.Tfar, box, h, 'ms', f.areaM2, J.seed + i, ground, false, FAR);
           extrudeBuilding(J.Tvf, box, h, 'ms', f.areaM2, J.seed + i, ground, true);
@@ -509,7 +518,8 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
       const sw = proj.project(s, w);
       const ne = proj.project(n, e);
       const key = `${t.x}_${t.y}`;
-      tiles.set(key, { key, x: t.x, y: t.y, n: t.n, rect: { x0: sw.x, x1: ne.x, zN: ne.z, zS: sw.z }, url: assetUrl(dataPath(`tiles-ms/${key}.json`)), state: 'idle', lod: null, near: null, far: null, mesh: null, born: 0, reqId: 0, job: null, prio: 0, tries: 0 });
+      const rect = { x0: sw.x, x1: ne.x, zN: ne.z, zS: sw.z };
+      tiles.set(key, { key, x: t.x, y: t.y, n: t.n, rect, box: new THREE.Box3(new THREE.Vector3(rect.x0, -100, rect.zN), new THREE.Vector3(rect.x1, 400, rect.zS)), url: assetUrl(dataPath(`tiles-ms/${key}.json`)), state: 'idle', lod: null, near: null, far: null, mesh: null, born: 0, reqId: 0, job: null, prio: 0, tries: 0 });
     }
     stats.ringTotal = tiles.size;
   }
@@ -661,8 +671,12 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
     const altU = Math.max(0, cam.y - heightAt(cam.x, cam.z));
     const R = radiusFor(altU / S, mobile);
     const nearU = NEAR_M * S;
+    _pm.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+    _frustum.setFromProjectionMatrix(_pm);
     const cands = [];
     let changed = false;
+    let builtCount = 0;
+    for (const T of tiles.values()) if (T.state === 'built') builtCount++;
     for (const T of tiles.values()) {
       const dCam = rectDist(T.rect, cam.x, cam.z);
       const dFoc = rectDist(T.rect, focus.x, focus.z);
@@ -695,7 +709,14 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
         if (T.mesh) setMid(T.mesh.geometry, d3);
         continue;
       }
-      if (T.state === 'idle' && d < R && !(clock < T.retryAt) && !(lite && d3 > nearU)) cands.push(T);
+      if (T.state !== 'idle' || d >= R || clock < T.retryAt || (lite && d3 > nearU)) continue;
+      // off-screen ring tiles only stream when close or near the focus
+      const nearFocus = dFoc < FOCUS_KEEP_U;
+      const inView = _frustum.intersectsBox(T.box);
+      if (mobile && !inView && !nearFocus && d3 > nearU * 1.5) continue;
+      // ring cap: keep the loaded tile count inside the tier's budget
+      if (builtCount >= RING_LOAD_MAX && d3 > nearU) continue;
+      cands.push(T);
     }
     // light mode: a core block shows only within 1.5 km of the camera or the focus
     if (lite) {

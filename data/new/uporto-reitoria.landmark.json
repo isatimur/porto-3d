@@ -64,6 +64,19 @@
       "_commons": "File:Museu de História Natural e da Ciência da Universidade do Porto (3).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "tQwoc_IpYjA",
+      "title": "Universidade do Porto deu as boas-vindas aos novos estudantes",
+      "channel": "Universidade do Porto",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "4Pe50sconbs",
+      "title": "Estudar e viver na Universidade do Porto [promo]",
+      "channel": "Universidade do Porto",
+      "lang": "pt"
+    }
+  ],
   "panorama": null
 }

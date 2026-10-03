@@ -630,7 +630,7 @@ export function createAtmosphere() {
   const now = $('#now-btn');
   const api = { open() {}, close() {}, get isOpen() { return false; } };
   if (!pop || !btn) return api;
-  const opts = [...pop.querySelectorAll('[data-atmo]')];
+  let opts = [...pop.querySelectorAll('[data-atmo]')];
   const target = (key) => {
     const [kind, v] = key.split(':');
     if (kind === 'live') return document.getElementById('live-toggle');
@@ -640,7 +640,35 @@ export function createAtmosphere() {
     return null;
   };
   const pressed = (n) => n?.getAttribute('aria-pressed') === 'true';
+  // index.html lists the five states Braga had. Porto's live.js builds the
+  // full weather menu (#weather-menu) with drizzle, downpour, sea fog and
+  // nortada too; mirror every state here, in menu order, so all of them are
+  // reachable from «Атмосфера». Labels come from the menu (already localized).
+  const weatherRow = pop.querySelector('[data-atmo^="weather:"]')?.closest('.atmo-row') || null;
+  function syncWeatherOptions() {
+    const menu = document.getElementById('weather-menu');
+    if (!menu || !weatherRow) return;
+    const states = [...menu.querySelectorAll('button[data-weather]')].filter((b) => b.dataset.weather !== 'live');
+    if (!states.length) return;
+    const have = new Map([...weatherRow.querySelectorAll('[data-atmo^="weather:"]')].map((o) => [o.dataset.atmo.slice(8), o]));
+    for (const b of states) {
+      const v = b.dataset.weather;
+      let o = have.get(v);
+      if (!o) {
+        o = document.createElement('button');
+        o.type = 'button';
+        o.className = 'atmo-opt atmo-minor';
+        o.dataset.atmo = `weather:${v}`;
+        o.setAttribute('aria-pressed', 'false');
+      }
+      const label = (b.textContent || '').trim();
+      if (label && o.textContent !== label) o.textContent = label;
+      weatherRow.append(o); // re-append: keeps menu order, keeps state/listeners
+    }
+  }
   function sync() {
+    syncWeatherOptions();
+    opts = [...pop.querySelectorAll('[data-atmo]')];
     const liveBtn = target('live');
     const live = pressed(liveBtn);
     for (const o of opts) {

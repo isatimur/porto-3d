@@ -53,7 +53,20 @@
       "_commons": "File:Igreja Trindade (Porto).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "UM5bcLX0EkM",
+      "title": "PORTO - Igreja da Santíssima Trindade (Trinidade Church)",
+      "channel": "Massimo Nalli",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "o_KQjiNlZyU",
+      "title": "Porto - Portugal - Igreja da Trindade",
+      "channel": "José Couto (\"Agostinho\")",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Igreja_da_Trindade_(Porto)",

@@ -52,7 +52,14 @@
       "_commons": "File:Avenida Diogo Leite (14216531759).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "kBLQCOScQ98",
+      "title": "PORTO - CAIS DE GAIA | 4K 60fps HDR | VILA NOVA DE GAIA, PORTUGAL 🇵🇹 | WALKING TOUR | JULY 2024",
+      "channel": "Wander Walks",
+      "lang": "other"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Cais_de_Gaia",

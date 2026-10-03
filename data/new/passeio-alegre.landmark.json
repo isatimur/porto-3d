@@ -42,7 +42,20 @@
       "_commons": "File:Chalet Suiço.jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "wv-c07IBu1o",
+      "title": "💖 Jardim do Passeio Alegre - Porto - Mais Portugal",
+      "channel": "Mais Portugal",
+      "lang": "pt"
+    },
+    {
+      "youtube_id": "4cv4JK5rJ84",
+      "title": "Jardim do Passeio Alegre | Porto",
+      "channel": "SlowLife Portugal",
+      "lang": "pt"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Jardim_do_Passeio_Alegre",

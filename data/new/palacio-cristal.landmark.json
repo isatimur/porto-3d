@@ -52,7 +52,20 @@
       "_commons": "File:Aros (22549071177).jpg"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "youtube_id": "MKUXYqEzS68",
+      "title": "PORTO Portugal Jardins do Palácio de Cristal PORTO 4K HDR ASMR 🇵🇹",
+      "channel": "Zen Walks",
+      "lang": "other"
+    },
+    {
+      "youtube_id": "3GWoX4ge9q0",
+      "title": "Jardins do Palácio de Cristal, Porto!",
+      "channel": "Luli Monteleone",
+      "lang": "en"
+    }
+  ],
   "panorama": null,
   "sources": [
     "https://pt.wikipedia.org/wiki/Pal%C3%A1cio_de_Cristal_(Porto)",
