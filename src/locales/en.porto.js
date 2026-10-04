@@ -1721,6 +1721,255 @@ export const landmarks = {
       }
     ],
     "panorama": null
+  },
+  "bessa": {
+    "name": "Estádio do Bessa Século XXI",
+    "year": "2003",
+    "short": "Boavista's home ground, opened in 2003: a compact single-tier bowl under a continuous lightweight roof, built on the site of the old Bessa stadium.",
+    "long": "The Estádio do Bessa Século XXI is the home of Boavista FC in western Porto. Rebuilt for Euro 2004, it replaced the old Estádio do Bessa of 1972. Its tight single-tier bowl and unbroken roof make it one of the most intimate and atmospheric grounds in Portugal.",
+    "history": "Boavista is Porto's fourth most decorated club, founded in 1903. Its first ground on this spot dates from the early 20th century, and in 1972 a new stadium opened here, known to fans simply as the Bessa. Through the 1970s and 1980s it built the club's reputation as a stubborn opponent for the big three.\n\nWhen Portugal won the right to host Euro 2004, the old ground was judged obsolete. The new stadium was designed by Grupo 3 with Ferreira Arquitectos and built in 2001-2003. It opened in 2003 and hosted group-stage matches at Euro 2004.\n\nThe design is built around compactness: a single tier of seats surrounds the pitch, and a light metal roof runs over the whole bowl with almost no gaps. With no empty corners, every spectator sits close to the action and the crowd noise stays in. Grey concrete and glass give the outside a restrained, functional character.\n\nThe Bessa's sporting history is tied to Boavista's greatest feat: in 2000/2001 the club won the Portuguese title, breaking the dominance of the country's \"big three\". It later hosted Champions League and Europa League nights. Today it is both a stadium and a landmark on the Boavista side of the city, a short walk from Casa da Música and the metro.",
+    "facts": [
+      "Opened in 2003, ahead of Euro 2004.",
+      "Replaced the old Bessa stadium of 1972.",
+      "Home of Boavista FC, founded in 1903.",
+      "A single-tier bowl with a continuous lightweight roof.",
+      "Boavista were Portuguese champions in 2000/2001.",
+      "Capacity of roughly 28,000."
+    ],
+    "tip": "With no match on, the stadium is easy to see from outside on the way to Casa da Música. On match days, take the metro (Casa da Música or Boavista) and walk. Bring a windbreaker: the western stands can be breezy off the Atlantic.",
+    "gallery": [
+      {
+        "caption": "The single-tier bowl of the Estádio do Bessa."
+      },
+      {
+        "caption": "An exterior view of the stadium in Porto."
+      }
+    ],
+    "panorama": null
+  },
+  "teatro-sa-da-bandeira": {
+    "name": "Teatro Sá da Bandeira",
+    "year": "1859",
+    "short": "An 1859 theatre on Rua Sá da Bandeira: a neoclassical front of tall arched windows, later converted into a cinema and now awaiting a new life.",
+    "long": "The Teatro Sá da Bandeira is one of Porto's oldest theatre halls, opened in 1859 on the street named after Marshal Sá da Bandeira. Its sober neoclassical front of arcaded windows recalls the city's theatrical boom in the second half of the 19th century.",
+    "history": "The mid-19th century was a time of theatrical expansion in Porto: after the Teatro de São João and other stages, the city wanted another large hall. The Teatro Sá da Bandeira opened in 1859 on the street named for Marshal Sá da Bandeira, a hero of the Liberal Wars, and soon became a centre of city culture.\n\nIts facade is restrained neoclassical: a rusticated ground floor, tall arched windows on the upper tier framed by pilasters, and a heavy crowning cornice with an attic. Behind that modest stone face lay a large tiered auditorium for drama, operetta and musical shows.\n\nIn the 20th century, like many European theatres, Sá da Bandeira was converted into a cinema: the stage became a screen and the auditorium a picture house. This prolonged its life but gradually stripped away part of its original theatre decoration. By the early 21st century the building had declined and closed.\n\nToday the theatre stands in central Porto as a reminder of the city's theatre age, its future a subject of debate about restoration and cultural reuse. Even closed, its upright facade on Rua Sá da Bandeira remains a notable point between Liberty Square and Santa Catarina.",
+    "facts": [
+      "Opened in 1859 on Rua Sá da Bandeira.",
+      "Named after Marshal Sá da Bandeira of the Liberal Wars.",
+      "Neoclassical front with rustication, arcaded windows and an attic.",
+      "Used as a cinema during the 20th century.",
+      "Closed by the early 21st century, awaiting restoration."
+    ],
+    "tip": "The theatre is closed, but its facade is easy to see from Rua Sá da Bandeira in central Porto, between Liberty Square and Santa Catarina. Combine it with a walk to the Bolhão market.",
+    "gallery": [
+      {
+        "caption": "The neoclassical front on Rua Sá da Bandeira."
+      },
+      {
+        "caption": "The theatre by night."
+      }
+    ],
+    "panorama": null
+  },
+  "teatro-nacional-sao-joao": {
+    "name": "Teatro Nacional São João",
+    "year": "1920",
+    "short": "Portugal's leading drama theatre: José Marques da Silva's monumental 1918-1920 building on Praça da Batalha, on the site of the old São João theatre.",
+    "long": "The Teatro Nacional São João is Portugal's foremost drama stage, standing on Praça da Batalha in Porto. Built in 1918-1920 to a design by José Marques da Silva, it continues the line of the São João theatre founded in the late 18th century.",
+    "history": "The story of the São João theatre in Porto reaches back to 1793, when the city's first playhouse opened on Praça da Batalha. The building was rebuilt several times and eventually judged unfit for a large stage, leaving the city in need of a new theatre.\n\nThe new theatre was built in 1918-1920 to a design by the architect José Marques da Silva, author of many of Porto's key modern and monumental buildings. He conceived a solemn front with a giant columned order, a high attic and a sculptural crest, and behind it a large auditorium and a stage house with a fly tower.\n\nIn the 20th century the theatre knew highs and lows: its hall hosted cinema and touring shows while the fabric decayed. In the 1990s a major renovation brought it back to life as a modern multi-purpose centre, and it was handed to the Teatro Nacional São João company.\n\nToday it is Portugal's main drama stage and a focus of Porto's theatre life, hosting classics and contemporary work. Its facade on Praça da Batalha, with its giant order and allegorical figures, remains one of the city's most recognisable ceremonial fronts.",
+    "facts": [
+      "Opened in 1920, designed by José Marques da Silva.",
+      "Stands on the site of the São João theatre of 1793.",
+      "Portugal's main drama stage.",
+      "Monumental front with a giant columned order.",
+      "Renovated in the 1990s for a modern stage.",
+      "Address: Praça da Batalha, Porto."
+    ],
+    "tip": "Check the evening programme: the theatre stages both classics and new work. Praça da Batalha is best seen together with the Santo Ildefonso church and São Bento station nearby.",
+    "gallery": [
+      {
+        "caption": "The monumental front on Praça da Batalha."
+      },
+      {
+        "caption": "A detail of the theatre facade."
+      }
+    ],
+    "panorama": null
+  },
+  "igreja-da-vitoria": {
+    "name": "Church of Nossa Senhora da Vitória",
+    "year": "1539",
+    "short": "An old parish church on Rua de São Bento da Vitória: modest outside, with azulejos and a rich interior, a monument of the 16th-18th centuries.",
+    "long": "The Church of Nossa Senhora da Vitória is one of the oldest parish churches in Porto, standing on Rua de São Bento da Vitória below the cathedral hill. It dates from the 16th century and was rebuilt in the 18th and 19th, keeping its sober granite look.",
+    "history": "The church was founded in 1539 and was originally linked to the quarter beside the monastery of São Bento da Vitória. The name \"Vitória\" (Victory) refers to a religious dedication common in Portugal in an age of wars and sea voyages.\n\nOver time the modest 16th-century building was rebuilt. The biggest changes came in the 18th and 19th centuries, giving the church its present form: a single-nave volume with narrow buttresses, a stone portal, a rose window and a bell gable above the facade. Inside survive a carved altarpiece and azulejos typical of Portuguese Baroque.\n\nThe church stands in the historic Vitória quarter, one of the oldest parts of Porto, beside the monastery of São Bento da Vitória and near the cathedral. This maze of narrow streets between the Sé and the Ribeira keeps the memory of the medieval and Baroque city.\n\nToday the Igreja da Vitória is still an active parish church and an architectural monument. Modest outside, it opens into Baroque decoration inside and makes a quiet stop on the way from the cathedral to the Douro.",
+    "facts": [
+      "Founded in 1539.",
+      "On Rua de São Bento da Vitória, in the Vitória quarter.",
+      "Rebuilt in the 18th and 19th centuries.",
+      "A single-nave church with a bell gable over the front.",
+      "A carved altarpiece and azulejos inside.",
+      "An active parish and an architectural monument."
+    ],
+    "tip": "Step inside when it is open: the interior of this modest-looking church is a pleasant surprise. Combine it with the cathedral and the monastery of São Bento da Vitória, a short walk away on one of the most characteristic hills of Porto.",
+    "gallery": [
+      {
+        "caption": "The church of Nossa Senhora da Vitória."
+      },
+      {
+        "caption": "The church seen with the São Bento da Vitória monastery."
+      }
+    ],
+    "panorama": null
+  },
+  "igreja-carmelitas": {
+    "name": "Igreja das Carmelitas",
+    "year": "1622",
+    "short": "A 17th-century Carmelite church at Largo do Carmo, a neighbour and facade twin of the Carmo church: sober Baroque with a gilded interior.",
+    "long": "The Igreja das Carmelitas is a Baroque church of the Discalced Carmelites, built in 1619-1622 at Largo do Carmo. It stands tight against the later Carmo church and together they form one of the most recognisable church ensembles in Porto.",
+    "history": "The Discalced Carmelites settled in Porto in the early 17th century and in 1619 began building their own church by the city wall, on the site of today's Largo do Carmo. Work finished in 1622, and the church received a dedication tied to Carmelite spirituality.\n\nThe church follows early Baroque: a single-nave volume, a restrained stone facade and a rich interior with carved retables and gilding. Over time the interior was renewed more than once, following the taste of the 17th and 18th centuries, when Porto prized lavish gilded altarpieces.\n\nWhat makes the place unusual is its neighbour: between the Carmelite church and the later Carmo church is squeezed a narrow house, the \"Casa Escondida\" (Hidden House), separating the two sanctuaries. As a result the two churches read as a double ensemble, though they belong to different communities and periods.\n\nToday the Igreja das Carmelitas is still an active church and a monument to the order's history in Porto. Its facade and interior attract pilgrims and travellers walking Rua das Carmelitas from Liberty Square toward the Clérigos tower.",
+    "facts": [
+      "Built in 1619-1622 by the Discalced Carmelites.",
+      "At Largo do Carmo in central Porto.",
+      "Beside the later Carmo church (1756-1768).",
+      "The two churches are parted by the narrow \"Casa Escondida\".",
+      "A rich Baroque interior with gilded retables.",
+      "An active church and a monument of the order."
+    ],
+    "tip": "Look at the two churches together, Carmelitas and Carmo: from Rua das Carmelitas they read as a single facade composition. The Clérigos tower and Liberty Square are a short walk away.",
+    "gallery": [
+      {
+        "caption": "The Carmelite church in Porto."
+      },
+      {
+        "caption": "The two Carmelite and Carmo churches together."
+      }
+    ],
+    "panorama": null
+  },
+  "casa-museu-marta-ortigao-sampaio": {
+    "name": "Casa-Museu Marta Ortigão Sampaio",
+    "year": "1900",
+    "short": "A house-museum in Foz holding a collection of painting, jewellery and decorative arts bequeathed to the city by Marta Ortigão Sampaio.",
+    "long": "The Casa-Museu Marta Ortigão Sampaio is a quiet museum in the Foz district of western Porto. In a house arranged as a lived-in collection, it shows 19th and 20th-century Portuguese painting, jewellery, furniture and objects from Marta Ortigão Sampaio’s bequest.",
+    "history": "Marta Ortigão Sampaio belonged to a well-known Porto family and spent her life collecting art and decorative objects. Her collection grew around the memory of the painter Aurélia de Souza and her sister Sofia Martins de Souza, aunts whose work holds an important place in Portuguese art at the turn of the 20th century.\n\nAfter the patron's death, her Foz house and collection were bequeathed to the city of Porto. In the early 21st century it opened as a house-museum, combining a domestic setting with an art collection. Part of the display is devoted to Aurélia de Souza's painting, alongside works by Sofia Martins de Souza and other Portuguese authors.\n\nThe building itself is a typical well-off Foz villa of the late 19th and early 20th centuries: two storeys, stone detailing, a fireplace, high ceilings and a small garden. The interiors deliberately keep the atmosphere of a private home, where art sits beside furniture, rugs and everyday objects.\n\nThe house-museum later absorbed archives and a library, becoming a research centre. Today it belongs to Porto's municipal museum network and remains one of the city's most intimate museums, its rooms still reading as rooms of a home rather than gallery spaces.",
+    "facts": [
+      "A house-museum in Foz, western Porto.",
+      "Named after the collector Marta Ortigão Sampaio.",
+      "Holds painting, jewellery and decorative arts.",
+      "Its collection is linked to the painter Aurélia de Souza and her sister Sofia.",
+      "Part of Porto's municipal museum network.",
+      "The museum library is open to researchers."
+    ],
+    "tip": "Check the opening hours before visiting: the museum is small. It stands near the Foz gardens and the river mouth, so it pairs well with a walk to the ocean and the church of São João Baptista.",
+    "gallery": [
+      {
+        "caption": "A work from the museum collection by Sofia Martins de Souza."
+      },
+      {
+        "caption": "Santo António (1902) by Aurélia de Souza, held at the museum."
+      }
+    ],
+    "panorama": null
+  },
+  "mercado-matosinhos": {
+    "name": "Mercado Municipal de Matosinhos",
+    "year": "1952",
+    "short": "Matosinhos' large covered market: stone arcades, a tall tiled roof and fish stalls in a town that lives by the sea and the port.",
+    "long": "The Mercado Municipal de Matosinhos is one of the main public halls of Porto’s coastal neighbour. Opened in 1952, it combines stone arcades, a tall tiled roof with a lantern, and rows of stalls trading fish and local produce in the mornings.",
+    "history": "Matosinhos grew as a fishing and port settlement north of the Douro mouth, and its market has always been the heart of everyday life. In the 1930s the town decided to replace ad-hoc trading with a new covered market, designed in 1936.\n\nConstruction and opening fell in the post-war years: the new market hall welcomed its first customers in 1952. It gained a spacious hall under a tall roof, stone arcades on the sides and a lantern along the ridge that brought daylight onto the stalls.\n\nThe market's architecture joins usefulness and monumentality: granite piers, wide gabled entrance arches, a tiled roof and ventilation turrets. The morning fish trade is tied to the port and fleet of Matosinhos, a town still called the sardine capital.\n\nToday the market is still working and still a meeting place: fish, vegetables, cheese and local pastries are sold here. It stands beside the Matosinhos town hall and other public buildings, forming the civic centre of the town with the neighbouring squares.",
+    "facts": [
+      "Opened in 1952, designed in 1936.",
+      "In the centre of Matosinhos, north of Porto.",
+      "Stone arcades and a tall tiled roof.",
+      "A ridge lantern lights the market hall.",
+      "Linked to the fishing trade and port of Matosinhos.",
+      "A working market and the town’s civic centre."
+    ],
+    "tip": "Come in the morning: the market is at its liveliest before noon, with fish, vegetables and coffee in the nearby cafes. Reach it by metro (Matosinhos Sul) or tram line 500 along the ocean, and walk on to the sea.",
+    "gallery": [
+      {
+        "caption": "The market hall of Matosinhos."
+      },
+      {
+        "caption": "The Mercado Municipal de Matosinhos."
+      }
+    ],
+    "panorama": null
+  },
+  "camara-matosinhos": {
+    "name": "Câmara Municipal de Matosinhos",
+    "year": "1980",
+    "short": "Matosinhos' town hall: a modern horizontal block with ribbon glazing and a glazed atrium, the civic centre of the coastal town.",
+    "long": "The Câmara Municipal de Matosinhos is the administrative building of Porto’s coastal neighbour, set in its civic centre beside the market. A modern block of long horizontal floors, ribbon glazing and a tall glazed atrium over the entrance.",
+    "history": "Matosinhos long remained a fishing and industrial fringe of Porto, gaining city status only late in the 20th century. As its population grew and it separated from neighbouring municipalities, it needed administrative buildings of its own to express a new civic identity.\n\nThe present town hall rose in the centre of Matosinhos, beside the market and the main squares. Its architecture is typical of late 20th-century Portuguese civic design: a long, calm volume, a marked horizontal of floors, ribbon glazing and a strict stone frame.\n\nThe composition is built around an entrance atrium: a tall glazed volume marks the main door and acts as the building's light core. In front of the town hall lies a square with flags, trees and benches, used for civic ceremonies and gatherings.\n\nToday the Câmara Municipal de Matosinhos remains the administrative heart of the town and part of its public centre. With the market, gardens and nearby streets it forms the civic ensemble by which Matosinhos is read as a city in its own right, not just a suburb of Porto.",
+    "facts": [
+      "The administrative building of the city of Matosinhos.",
+      "In the civic centre, beside the town market.",
+      "A modern horizontal block with ribbon glazing.",
+      "A tall glazed atrium over the main entrance.",
+      "A square with flags and trees in front.",
+      "Matosinhos gained city status late in the 20th century."
+    ],
+    "tip": "The building is interesting from outside, but entry is usually only for business. Combine it with the market opposite and a walk to the port of Matosinhos; the nearest metro is Matosinhos Sul.",
+    "gallery": [
+      {
+        "caption": "The town hall of Matosinhos."
+      },
+      {
+        "caption": "The entrance atrium seen from the columns."
+      }
+    ],
+    "panorama": null
+  },
+  "farol-leca": {
+    "name": "Farol de Leça",
+    "year": "1926",
+    "short": "One of Portugal's tallest lighthouses: a 46-metre tower of 1926 on the Atlantic shore at Leça da Palmeira, north of the Douro mouth.",
+    "long": "The Farol de Leça, also known as the Boa Nova lighthouse, is a 46-metre tower on the rocky shore of Leça da Palmeira in Matosinhos. Among the tallest in the country, since 1926 it has marked the approaches to the port of Leixões and the Douro mouth.",
+    "history": "Navigation near the Douro mouth has always needed reliable marks: ocean ships and river traffic meet here, and the shore is rocky and dangerous. Small lights already existed on this stretch in the 19th century, but rising traffic in the early 20th demanded a more powerful lighthouse.\n\nThe present Farol de Leça was built in 1926 on the Boa Nova headland at Leça da Palmeira. Its octagonal tower, 46 metres high, became one of Portugal's tallest lighthouses. The lantern on top, with a rotating lens, cast a long flashing light, and the keeper's house and service buildings stood at its foot.\n\nThe lighthouse was modernised more than once, with changes of light source and equipment, until the station was automated late in the 20th century. Today the Farol de Leça runs without a resident keeper, and its white tower with a red band remains a landmark along the whole Matosinhos coast.\n\nNear the lighthouse run the coastal road and a walking path along the ocean, linking Foz with Leça da Palmeira. The lighthouse is one of the recognisable symbols of the north bank of the Douro and a draw for walks by the sea.",
+    "facts": [
+      "46 metres tall, among Portugal’s tallest lighthouses.",
+      "Built in 1926 at Leça da Palmeira.",
+      "Also known as the Boa Nova lighthouse.",
+      "An octagonal tower with a lantern and rotating lens.",
+      "Automated late in the 20th century.",
+      "Marks the approaches to Leixões and the Douro mouth."
+    ],
+    "tip": "Go at sunset: the lighthouse is beautiful against the Atlantic. A coastal path leads to it from Foz; take a bus or taxi, as parking by the lighthouse is limited. Bring a windbreaker: the headland is always breezy.",
+    "gallery": [
+      {
+        "caption": "The lighthouse at Leça da Palmeira."
+      },
+      {
+        "caption": "The Farol de Leça from the coastal path."
+      }
+    ],
+    "panorama": null
+  },
+  "paco-episcopal": {
+    "name": "Episcopal Palace of Porto",
+    "year": "1734",
+    "short": "The bishop’s palace by Porto cathedral: a Baroque residence rebuilt by Nicolau Nasoni in 1734-1745, now a museum and the diocesan centre.",
+    "long": "The Paço Episcopal do Porto is the former residence of the bishops of Porto, standing on a terrace beside the cathedral. A Baroque ensemble around an inner court, it was rebuilt in 1734-1745 to a design by Nicolau Nasoni and is now open as a museum.",
+    "history": "A bishop's residence existed on this spot by the cathedral hill from the deep Middle Ages: the bishops of Porto governed city and diocese for centuries from a fortified quarter beside the Sé. The old buildings suffered repeatedly from war and time.\n\nIn 1734 the bishop of Porto entrusted the rebuilding of the palace to the Italian architect Nicolau Nasoni, by then the author of many Baroque buildings in the city, including the Clérigos church. Work ran to 1745, producing an extensive ensemble with an inner court, a ceremonial staircase and a richly adorned entrance pavilion.\n\nThe palace is built of granite in a restrained Baroque manner: wings embrace an open courtyard, a pavilion with the bishop's arms rises over the entrance, and high tiled roofs close the volume. From the palace terrace there is a view over the old city and the river.\n\nIn 1910 the Paço Episcopal was declared a national monument. In the 20th century it housed diocesan offices and some rooms were adapted as a museum. Today the palace remains the centre of the diocese of Porto while opening to visitors, showing Baroque interiors and collections of church art.",
+    "facts": [
+      "Rebuilt in 1734-1745 to a design by Nicolau Nasoni.",
+      "Beside Porto cathedral.",
+      "A Baroque ensemble with an inner court and ceremonial stair.",
+      "An entrance pavilion carries the bishop’s arms.",
+      "A national monument since 1910.",
+      "Today a diocesan centre and museum."
+    ],
+    "tip": "The palace opens to visitors on a timetable; check the hours on site. It stands next to the cathedral and the terrace over the Douro, so it fits easily into a walk through the historic centre and the Vitória quarter.",
+    "gallery": [
+      {
+        "caption": "The Episcopal Palace in Porto."
+      },
+      {
+        "caption": "The palace beside the cathedral."
+      }
+    ],
+    "panorama": null
   }
 };
 

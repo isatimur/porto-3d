@@ -56,7 +56,14 @@ for (const it of boats.items) {
 for (const m of boats.moored) if (!inWater(m.p[0], m.p[1])) fail(`moored ${m.type}: ${m.p} is not on water`);
 
 // ---- build the real builder through Vite SSR
-const server = await createServer({ server: { middlewareMode: true }, appType: 'custom', logLevel: 'error' });
+// One-shot SSR load: no listening server, no HMR / file watching, no dep
+// pre-bundling scan — deterministic and it leaves no open handles behind.
+const server = await createServer({
+  server: { middlewareMode: true, hmr: false, ws: false, watch: null },
+  appType: 'custom',
+  logLevel: 'error',
+  optimizeDeps: { noDiscovery: true },
+});
 let result;
 try {
   const mod = await server.ssrLoadModule('/src/life.js');

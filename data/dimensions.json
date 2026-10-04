@@ -2707,5 +2707,375 @@
       }
     ],
     "confidence": "medium"
+  },
+  "bessa": {
+    "footprint_m": {
+      "length": 170.3,
+      "width": 132.5,
+      "matches_osm": true,
+      "note": "OSM way 1152784750, leisure=stadium (2003 bowl): 170.3 x 132.5 m, axis bearing 27.6 deg."
+    },
+    "height_m": {
+      "total": 30
+    },
+    "elements": {},
+    "facade_faces": "none",
+    "facade_azimuth_deg": 27.6,
+    "facade_axis_rel": "OSM outline orientation (bearing 27.6 deg)",
+    "facade_note": "No facade; the OSM outline axis only orients the bowl.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "OSM way 1152784750, leisure=stadium (2003 bowl): 170.3 x 132.5 m, axis bearing 27.6 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Estádio do Bessa Século XXI (2003): single-tier bowl with a continuous roof, about 30 m above the pitch; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "teatro-sa-da-bandeira": {
+    "footprint_m": {
+      "length": 62.7,
+      "width": 35.2,
+      "matches_osm": true,
+      "note": "OSM way 214833466, building=public (Teatro Sá da Bandeira): 62.7 x 35.2 m, bearing 160.9 deg."
+    },
+    "height_m": {
+      "total": 22
+    },
+    "elements": {},
+    "facade_faces": "S",
+    "facade_azimuth_deg": 160.9,
+    "facade_axis_rel": "OSM outline orientation (bearing 160.9 deg)",
+    "facade_note": "Facade direction taken from the OSM outline principal axis (bearing 160.9 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "OSM way 214833466, building=public (Teatro Sá da Bandeira): 62.7 x 35.2 m, bearing 160.9 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Tall auditorium block with a stage house, about 22 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "teatro-nacional-sao-joao": {
+    "footprint_m": {
+      "length": 62.2,
+      "width": 24.5,
+      "matches_osm": true,
+      "note": "OSM way 210757796, building=public (Teatro Nacional São João): 62.2 x 24.5 m, bearing 24.4 deg."
+    },
+    "height_m": {
+      "total": 26
+    },
+    "elements": {},
+    "facade_faces": "NE",
+    "facade_azimuth_deg": 24.4,
+    "facade_axis_rel": "OSM outline orientation (bearing 24.4 deg)",
+    "facade_note": "Facade direction taken from the OSM outline principal axis (bearing 24.4 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "OSM way 210757796, building=public (Teatro Nacional São João): 62.2 x 24.5 m, bearing 24.4 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Marques da Silva theatre (1918-1920): monumental block with a fly tower, about 26 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "igreja-da-vitoria": {
+    "footprint_m": {
+      "length": 37.2,
+      "width": 18,
+      "matches_osm": true,
+      "note": "OSM way 211107606, building=church (Igreja da Vitória): 37.2 x 18 m, bearing 106.8 deg."
+    },
+    "height_m": {
+      "total": 20
+    },
+    "elements": {},
+    "facade_faces": "E",
+    "facade_azimuth_deg": 106.8,
+    "facade_axis_rel": "OSM outline orientation (bearing 106.8 deg)",
+    "facade_note": "Facade direction taken from the OSM outline principal axis (bearing 106.8 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "OSM way 211107606, building=church (Igreja da Vitória): 37.2 x 18 m, bearing 106.8 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Igreja de Nossa Senhora da Vitória (1524, rebuilt 18th-19th c.): single nave, about 20 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "igreja-carmelitas": {
+    "footprint_m": {
+      "length": 37.1,
+      "width": 19.9,
+      "matches_osm": true,
+      "note": "OSM way 229772732, building=church (Igreja dos Carmelitas): 37.1 x 19.9 m, bearing 174.9 deg."
+    },
+    "height_m": {
+      "total": 25
+    },
+    "elements": {},
+    "facade_faces": "S",
+    "facade_azimuth_deg": 174.9,
+    "facade_axis_rel": "OSM outline orientation (bearing 174.9 deg)",
+    "facade_note": "Facade direction taken from the OSM outline principal axis (bearing 174.9 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "OSM way 229772732, building=church (Igreja dos Carmelitas): 37.1 x 19.9 m, bearing 174.9 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Igreja das Carmelitas (1619-1622), the Carmo’s twin: nave about 25 m, the same order as the adjacent Carmo; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "casa-museu-marta-ortigao-sampaio": {
+    "footprint_m": {
+      "length": 14.2,
+      "width": 9,
+      "matches_osm": true,
+      "note": "OSM way 571755385 (Nossa Senhora de Fátima 299, area=yes) plus the house w571755386: 14.2 x 9 m, bearing 150.5 deg."
+    },
+    "height_m": {
+      "total": 12
+    },
+    "elements": {},
+    "facade_faces": "SE",
+    "facade_azimuth_deg": 150.5,
+    "facade_axis_rel": "OSM outline orientation (bearing 150.5 deg)",
+    "facade_note": "Facade direction taken from the OSM outline principal axis (bearing 150.5 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "OSM way 571755385 (Nossa Senhora de Fátima 299, area=yes) plus the house w571755386: 14.2 x 9 m, bearing 150.5 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Casa-Museu Marta Ortigão Sampaio: two-storey 19th-century house, about 12 m; no published height, the museum is mapped only as a node."
+      }
+    ],
+    "confidence": "low"
+  },
+  "mercado-matosinhos": {
+    "footprint_m": {
+      "length": 95.2,
+      "width": 57,
+      "matches_osm": true,
+      "note": "OSM way 107811578, building=commercial (Mercado Municipal de Matosinhos): 95.2 x 57 m, bearing 145.6 deg."
+    },
+    "height_m": {
+      "total": 15
+    },
+    "elements": {},
+    "facade_faces": "SE",
+    "facade_azimuth_deg": 145.6,
+    "facade_axis_rel": "OSM outline orientation (bearing 145.6 deg)",
+    "facade_note": "Facade direction taken from the OSM outline principal axis (bearing 145.6 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "OSM way 107811578, building=commercial (Mercado Municipal de Matosinhos): 95.2 x 57 m, bearing 145.6 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Mercado Municipal de Matosinhos (opened 1952): two-level market hall, tall roof ridge about 15 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "camara-matosinhos": {
+    "footprint_m": {
+      "length": 96,
+      "width": 56.2,
+      "matches_osm": true,
+      "note": "OSM way 107823039, building=yes (Câmara Municipal de Matosinhos): 96 x 56.2 m, bearing 159.8 deg."
+    },
+    "height_m": {
+      "total": 14
+    },
+    "elements": {},
+    "facade_faces": "S",
+    "facade_azimuth_deg": 159.8,
+    "facade_axis_rel": "OSM outline orientation (bearing 159.8 deg)",
+    "facade_note": "Facade direction taken from the OSM outline principal axis (bearing 159.8 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "OSM way 107823039, building=yes (Câmara Municipal de Matosinhos): 96 x 56.2 m, bearing 159.8 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Câmara Municipal de Matosinhos: two office levels with a taller glazed entrance block, about 14 m; no published height."
+      }
+    ],
+    "confidence": "medium"
+  },
+  "farol-leca": {
+    "footprint_m": {
+      "length": 8.2,
+      "width": 8.1,
+      "matches_osm": true,
+      "note": "OSM way 1424430396, man_made=lighthouse (Farol de Leça): octagonal tower 8.2 x 8.1 m, bearing 31.8 deg."
+    },
+    "height_m": {
+      "total": 46
+    },
+    "elements": {},
+    "facade_faces": "none",
+    "facade_azimuth_deg": 31.8,
+    "facade_axis_rel": "OSM outline orientation (bearing 31.8 deg)",
+    "facade_note": "A lighthouse has no facade; the OSM outline is the tower plan.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "OSM way 1424430396, man_made=lighthouse (Farol de Leça): octagonal tower 8.2 x 8.1 m, bearing 31.8 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "url": "https://www.wikidata.org/wiki/Q10280159",
+        "fact": "lighthouse height",
+        "value": "P2048 = 46 m (Farol de Leça, 1926)"
+      }
+    ],
+    "confidence": "high"
+  },
+  "paco-episcopal": {
+    "footprint_m": {
+      "length": 59.2,
+      "width": 49,
+      "matches_osm": true,
+      "note": "OSM way 210507256, the outer ring of relation 2880744, Paço Episcopal do Porto: 59.2 x 49 m, bearing 75.6 deg."
+    },
+    "height_m": {
+      "total": 26
+    },
+    "elements": {},
+    "facade_faces": "E",
+    "facade_azimuth_deg": 75.6,
+    "facade_axis_rel": "OSM outline orientation (bearing 75.6 deg)",
+    "facade_note": "Facade direction taken from the OSM outline principal axis (bearing 75.6 deg); provisional until the detailed survey.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width",
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box and orientation",
+        "reasoning": "OSM way 210507256, the outer ring of relation 2880744, Paço Episcopal do Porto: 59.2 x 49 m, bearing 75.6 deg."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "tallest element",
+        "reasoning": "Paço Episcopal (Nicolau Nasoni, rebuilt 1734-1745): seven levels around a courtyard (OSM building:levels=7), rooftop about 26 m; no published height."
+      }
+    ],
+    "confidence": "medium"
   }
 }

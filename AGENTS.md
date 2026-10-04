@@ -47,7 +47,7 @@ npm run check:geo           # footprints, buildings, terrain, landmark osm
 npm run check:dimensions    # real-world dimensions + sources
 npm run check:fit           # 1:1 fit vs OSM (>=97 %, hard fail)
 npm run check:traffic       # street network + traffic invariants
-npm run check:models        # triangle budgets (4k..40k/model, <=600k total)
+npm run check:models        # triangle budgets (4k..40k/model, <=900k total)
 ```
 
 ## Data Pipeline

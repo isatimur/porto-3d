@@ -32,7 +32,8 @@ import { getFacadeConfig } from './facades.js';
 import { SURFACE, STRUCTURE_COLORS } from './roads.js';
 import { TREE_TABLES } from './nature.js';
 
-const LAND_PX = 64; // land-cover pixels per tile side (~15 m)
+const LAND_PX = 32; // land-cover pixels per tile side (~30 m): the wide mask
+// is 4x smaller than 64, so its upload no longer stalls streaming on mobile
 const GROUP = 3; // far LOD: tiles per merged block side
 const SLICE_MS = 2; // main-thread budget per frame for new geometry
 const SCHEDULE_S = 0.25;
@@ -79,6 +80,11 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
   const MAX_INFLIGHT = mobile ? 3 : 6;
   const MAX_NEAR = mobile ? 28 : 110;
   const TREE_CAP = nature?.streamCap ?? 0;
+  // adaptive governor (main.js): < 1 shrinks the streamed radius, the near-LOD
+  // draw-call cap and the per-frame integration budget together.
+  let budgetScale = 1;
+  const maxNear = () => Math.max(12, Math.round(MAX_NEAR * budgetScale));
+  const sliceMs = () => SLICE_MS * Math.max(0.4, budgetScale);
 
   const matB = createBuildingMaterial({ fade: true });
   const matS = fadeMaterial({ roughness: 0.92, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 });
@@ -540,10 +546,11 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
   // ------------------------------------------------------------ scheduling
   const _frustum = new THREE.Frustum();
   const _pm = new THREE.Matrix4();
+  const _cands = []; // reused each schedule: no per-tick allocation
   function radiusFor(altM) {
     if (altM > (mobile ? 6000 : 4500)) return Infinity;
     const r = 3000 * Math.pow(Math.max(altM, 300) / 300, 0.517);
-    return (mobile ? r / 2 : r) * S;
+    return (mobile ? r / 2 : r) * S * budgetScale;
   }
 
   function schedule() {
@@ -556,7 +563,8 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     _pm.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
     _frustum.setFromProjectionMatrix(_pm);
     const nearU = NEAR_M * S;
-    const cands = [];
+    _cands.length = 0;
+    const nearCap = maxNear();
     let nearShown = 0;
     for (const T of tiles.values()) if (T.state === 'shown' && T.lod === 'near') nearShown++;
     for (const T of tiles.values()) {
@@ -590,12 +598,12 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
       let lod = lodWant;
       // near-LOD draw-call cap: beyond ~85 % of the near radius, a tile
       // beyond the cap streams as a far block instead of 3 near meshes
-      if (lod === 'near' && T.state !== 'shown' && nearShown >= MAX_NEAR && d3 > nearU * 0.85) lod = 'far';
-      if (T.state === 'idle' || (T.state === 'shown' && T.lod !== lodWant)) cands.push({ T, lod, p: T.prio * (lod === 'near' ? 3 : 1) * (T.state === 'shown' ? 0.8 : 1) });
+      if (lod === 'near' && T.state !== 'shown' && nearShown >= nearCap && d3 > nearU * 0.85) lod = 'far';
+      if (T.state === 'idle' || (T.state === 'shown' && T.lod !== lodWant)) _cands.push({ T, lod, p: T.prio * (lod === 'near' ? 3 : 1) * (T.state === 'shown' ? 0.8 : 1) });
     }
-    cands.sort((a, b) => b.p - a.p);
+    _cands.sort((a, b) => b.p - a.p);
     let sent = 0;
-    for (const c of cands) {
+    for (const c of _cands) {
       if (inflight >= MAX_INFLIGHT) break;
       // memory cap: a new tile only if it fits, after dropping lower-priority ones
       if (c.T.state !== 'shown' && gpuBytes > MEM_CAP * 0.92 && !evictFor(c.p)) break;
@@ -651,18 +659,22 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     }
     // new geometry within the frame budget
     const t0 = performance.now();
-    while (ready.length && performance.now() - t0 < SLICE_MS) integrate(ready.shift());
+    const budget = sliceMs();
+    while (ready.length && performance.now() - t0 < budget) integrate(ready.shift());
     for (const G of groups.values()) {
-      if (performance.now() - t0 >= SLICE_MS) break;
+      if (performance.now() - t0 >= budget) break;
       if (G.dirty) rebuildGroup(G);
     }
     sinceLines += dt;
-    if (linesDirty && sinceLines > 1 && performance.now() - t0 < SLICE_MS) {
+    if (linesDirty && sinceLines > 1 && performance.now() - t0 < budget) {
       sinceLines = 0;
       rebuildLines();
     }
     sinceLand += dt;
-    if (landDirty && sinceLand > 0.8) {
+    // The wide land-cover mask is one texture: uploading it 4x a second while
+    // tiles stream stalls the compositor on mobile. Batch during active
+    // streaming (quiet < 2) and flush as soon as it settles, or after 3 s.
+    if (landDirty && sinceLand > 0.8 && (quiet >= 2 || sinceLand > 3)) {
       sinceLand = 0;
       landDirty = false;
       land.tex.needsUpdate = true;
@@ -741,6 +753,13 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     group,
     stats,
     update,
+    // adaptive governor: < 1 shrinks the streamed radius, near cap and slice
+    setBudgetScale(k) {
+      budgetScale = Math.min(1, Math.max(0.25, k || 1));
+    },
+    get budgetScale() {
+      return budgetScale;
+    },
     get index() {
       return index;
     },

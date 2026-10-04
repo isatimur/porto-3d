@@ -1,0 +1,65 @@
+{
+  "id": "igreja-carmelitas",
+  "name_pt": "Igreja das Carmelitas",
+  "name_ru": "Церковь кармелитов",
+  "category": "religious",
+  "year": "1622",
+  "short_ru": "Кармелитская церковь XVII века у Ларгу-ду-Карму, соседка церкви Карму и её «близнец» по фасаду: строгий барокко и позолоченный интерьер.",
+  "long_ru": "Церковь кармелитов (Igreja das Carmelitas) — барочный храм ордена босых кармелитов, построенный в 1619–1622 годах у Ларгу-ду-Карму. Она стоит вплотную к более поздней церкви Карму и вместе с ней образует один из самых узнаваемых церковных ансамблей Порту.",
+  "history_ru": "Орден босых кармелитов обосновался в Порту в начале XVII века и в 1619 году начал строить собственную церковь у городской стены, на месте нынешнего Ларгу-ду-Карму. Работы завершились в 1622 году, и храм получил посвящение, связанное с кармелитской духовностью.\n\nЦерковь выдержана в духе раннего барокко: однонефный объём, сдержанный каменный фасад и богатое внутреннее убранство с резными алтарями и позолотой. Со временем её интерьер неоднократно обновлялся, следуя вкусам XVII–XVIII веков, когда в Порту ценились пышные золочёные ретабло.\n\nОсобенность этого места — необычное соседство: между церковью кармелитов и построенной позже церковью Карму зажата узкая «Casa Escondida» («Скрытый дом»), разделяющая две святыни. Из-за этого две церкви воспринимаются как двойной ансамбль, хотя принадлежат разным общинам и разному времени.\n\nСегодня Igreja das Carmelitas остаётся действующим храмом и памятником истории ордена в Порту. Её фасад и интерьер привлекают как паломников, так и путешественников, идущих по улице Кармелиташ от площади Свободы к Torre dos Clérigos и площади Либерадде.",
+  "facts_ru": [
+    "Построена в 1619–1622 годах орденом босых кармелитов.",
+    "Стоит у Ларгу-ду-Карму в центре Порту.",
+    "Соседствует с более поздней церковью Карму (1756–1768).",
+    "Две церкви разделяет узкий дом «Casa Escondida».",
+    "Богатый барочный интерьер с позолоченными алтарями.",
+    "Действующий храм и памятник истории ордена."
+  ],
+  "tip_ru": "Смотрите на ансамбль двух церквей вместе: кармелитов и Карму — с улицы Кармелиташ они читаются как единый фасадный орнамент. Отсюда рукой подать до башни Клеригуш и площади Свободы.",
+  "sources": [
+    {
+      "title": "Igreja dos Carmelitas — Wikipédia",
+      "url": "https://pt.wikipedia.org/wiki/Igreja_dos_Carmelitas"
+    },
+    {
+      "title": "Igreja dos Carmelitas (Q10300948)",
+      "url": "https://www.wikidata.org/wiki/Q10300948"
+    },
+    {
+      "title": "Igreja do Carmo (Porto) — Wikipédia",
+      "url": "https://pt.wikipedia.org/wiki/Igreja_do_Carmo_(Porto)"
+    }
+  ],
+  "gallery": [
+    {
+      "img": "assets/img/igreja-carmelitas-1.jpg",
+      "kind": "exterior",
+      "caption_ru": "Церковь кармелитов — общий вид",
+      "credit": {
+        "author": "Vitor Oliveira from Torres Vedras, PORTUGAL",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_dos_Carmelitas_-_Porto_-_Portugal_(1800463429).jpg"
+      },
+      "_commons": "File:Igreja dos Carmelitas - Porto - Portugal (1800463429).jpg"
+    },
+    {
+      "img": "assets/img/igreja-carmelitas-2.jpg",
+      "kind": "exterior",
+      "caption_ru": "Церковь кармелитов — фасад",
+      "credit": {
+        "author": "Dafema",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_dos_Carmelitas_03.jpg"
+      },
+      "_commons": "File:Igreja dos Carmelitas 03.jpg"
+    }
+  ],
+  "videos": [],
+  "panorama": null,
+  "image": "assets/img/igreja-carmelitas.jpg",
+  "image_credit": {
+    "author": "Vitor Oliveira from Torres Vedras, PORTUGAL",
+    "license": "CC BY-SA 2.0",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_do_Carmo_-_Porto_-_Portugal_(18904939303).jpg"
+  }
+}

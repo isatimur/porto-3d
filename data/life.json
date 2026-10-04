@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-03",
+ "generated": "2026-10-04",
  "sources": {
   "funicular": "OSM Overpass railway=funicular (Guindais), chained; passing-loop tracks generated with a +-1.4 m lateral ramp",
   "tram": "OSM Overpass relation 6077696 (STCP Tram 1 Infante <-> Passeio Alegre), chained and decimated to 25 m",
@@ -1845,8 +1845,8 @@
        -8.60143
       ],
       [
-       41.1454,
-       -8.58631
+       41.14185,
+       -8.59117
       ]
      ]
     },
@@ -2076,8 +2076,8 @@
        -8.60143
       ],
       [
-       41.1454,
-       -8.58631
+       41.14185,
+       -8.59117
       ]
      ]
     },

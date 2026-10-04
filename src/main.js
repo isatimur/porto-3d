@@ -531,6 +531,75 @@ async function start() {
   let probe = fxForced || (fxSaved === 'on' && !LITE) ? null : { skip: 20, n: 0, sum: 0, t0: 0 };
   let probeLow = false; // the probe found a slow device
 
+  // ------------------------------------------------------------ governor
+  // The one-shot probe above catches the first slow visit. On top of it a
+  // rolling window keeps watching the frame interval once the app is ready:
+  // when the device cannot hold the target the governor steps the expensive
+  // knobs down — drawing-buffer ratio, shadow map, post stack, landmark and
+  // nature near-LOD radii, tile budget — and steps them back up when there is
+  // headroom again. This is adaptive, not a static cap: a fast machine keeps
+  // the full tier, a slow one loses only what it cannot afford. An explicit
+  // ?quality=high/low (and a saved choice) sets the ceiling, so the governor
+  // never turns a phone into a desktop tier or the other way round.
+  const BASE_DPR = DPR.cap;
+  const BASE_SHADOW = LITE ? 1024 : 4096;
+  // Step down only when the median frame clearly misses the target, step back
+  // up only with real headroom: a phone holding ~30 fps keeps its quality, a
+  // desktop running at 30 fps gives some up, and a downscaled desktop recovers
+  // once it is back under 18 ms.
+  const GOV_DOWN_MS = LITE ? 38 : 21; // ~26 fps light, ~48 fps high
+  const GOV_UP_MS = LITE ? 26 : 18;
+  const GOV_MAX = 3;
+  const GOV_STEPS = [
+    { dpr: 1, shadow: 1, radius: 1, post: 0 },
+    { dpr: 0.82, shadow: 0.5, radius: 0.8, post: 1 },
+    { dpr: 0.66, shadow: 0.25, radius: 0.62, post: 2 },
+    { dpr: 0.5, shadow: 0.25, radius: 0.5, post: 3 },
+  ];
+  let govLevel = 0;
+  let govCooldown = 0;
+  const govWin = [];
+  function applyGovLevel(level) {
+    const s = GOV_STEPS[level];
+    DPR.cap = level === 0 ? BASE_DPR : Math.max(1, +(BASE_DPR * s.dpr).toFixed(2));
+    atmosphere.setShadowSize(level === 0 ? BASE_SHADOW : Math.max(1024, Math.round(BASE_SHADOW * s.shadow)));
+    marks.setNearRadiusM((LITE ? 1400 : 2200) * s.radius);
+    nature?.setNearRadius((LITE ? 160 : 220) * s.radius);
+    tiles?.setBudgetScale(s.radius);
+    fx.setPostLevel(s.post);
+    resize();
+    debug.governor = { level, dpr: DPR.cap, shadow: atmosphere.sun.shadow.mapSize.x, radiusK: s.radius, post: s.post };
+  }
+  // rawDt is the wall-clock frame interval; the median ignores one-off long
+  // tasks (tile integration, a shadow-map rebuild) so a single hitch does not
+  // downscale a device that is otherwise holding the target.
+  function governorTick(rawDt) {
+    if (probe) return; // the first-visit probe owns the start
+    if (debug.frames < 120 || document.hidden) return;
+    if (govCooldown > 0) { govCooldown--; return; }
+    govWin.push(rawDt);
+    if (govWin.length < 40) return;
+    const sorted = govWin.slice().sort((a, b) => a - b);
+    const medMs = sorted[sorted.length >> 1] * 1000;
+    govWin.length = 0;
+    debug.frameMs = +medMs.toFixed(1);
+    if (medMs > GOV_DOWN_MS && govLevel < GOV_MAX) {
+      applyGovLevel(++govLevel);
+      govCooldown = 200;
+    } else if (medMs < GOV_UP_MS && govLevel > 0) {
+      applyGovLevel(--govLevel);
+      govCooldown = 300;
+    }
+  }
+  debug.governor = { level: 0, dpr: DPR.cap, shadow: BASE_SHADOW, radiusK: 1, post: 0 };
+  // test/debug hook: force a governor level (0 full .. 3 cheapest)
+  debug.setGovernorLevel = (n) => {
+    govLevel = Math.max(0, Math.min(GOV_MAX, n | 0));
+    govWin.length = 0;
+    govCooldown = 300;
+    applyGovLevel(govLevel);
+  };
+
   const indexById = new Map(landmarks.map((l, i) => [l.id, i]));
   const routeById = new Map(routes.map((r) => [r.id, r]));
   let active = -1; // landmark index in the detail panel
@@ -1417,6 +1486,7 @@ async function start() {
       debug.interactive = true;
     }
     if (probe) probeFrame(rawDt);
+    else governorTick(rawDt);
     if (debug.frames === 3) logStats();
   }
 

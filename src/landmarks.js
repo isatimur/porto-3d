@@ -335,7 +335,8 @@ function poseOnTrack(m, t) {
 // opts.lite: phone/light tier, opts.massing: draw far landmarks as boxes.
 export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opts = {}) {
   const tier = opts.lite ? LOD_TIER.low : LOD_TIER.high;
-  const LOD_NEAR_U = tier.nearM * S;
+  // the adaptive governor (main.js) can shrink this at runtime
+  let lodNearU = tier.nearM * S;
   const LOD_SIZE_K = tier.sizeK;
   const MASSING = opts.massing !== false;
   const group = new THREE.Group();
@@ -554,7 +555,7 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
     let built = false;
     for (const it of items) {
       const d = Math.max(1, camPos.distanceTo(it.center));
-      const R = LOD_NEAR_U + it.radius * LOD_SIZE_K;
+      const R = lodNearU + it.radius * LOD_SIZE_K;
       it.lodFar = d > (it.lodFar ? R * 0.9 : R); // 10 % hysteresis
       it.lodNear = !it.lodFar;
       const active = it.index === activeIndex;
@@ -702,8 +703,15 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
     pick,
     shrink,
     realScale,
-    // the distance-LOD radius of this tier, in metres (for reports/tests)
-    nearRadiusM: tier.nearM,
+    // the distance-LOD radius of this tier, in metres (for reports/tests);
+    // the adaptive governor may shrink it at runtime
+    get nearRadiusM() {
+      return lodNearU / S;
+    },
+    // adaptive: shrink the radius the full landmark meshes draw within
+    setNearRadiusM(m) {
+      lodNearU = Math.max(300, m) * S;
+    },
     // dpr: drawing-buffer pixels per CSS pixel, for the far LOD
     setResolution(w, h, dpr = 1) {
       outlineMat.resolution.set(w, h);
@@ -726,7 +734,7 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
           else full++;
         } else massingN++;
       }
-      return { full, cluster, massing: massingN, total: items.length, nearRadiusM: tier.nearM };
+      return { full, cluster, massing: massingN, total: items.length, nearRadiusM: lodNearU / S };
     },
     // for reports: the triangles the landmark layer actually draws now
     get drawnStats() {

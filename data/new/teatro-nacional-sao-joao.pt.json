@@ -1,0 +1,25 @@
+{
+  "name": "Teatro Nacional São João",
+  "year": "1920",
+  "short": "A principal sala de teatro de Portugal: o edifício monumental de José Marques da Silva (1918-1920), na Praça da Batalha, no lugar do antigo teatro de São João.",
+  "long": "O Teatro Nacional São João é a principal sala de teatro de Portugal, na Praça da Batalha, no Porto. Construído em 1918-1920 segundo projeto de José Marques da Silva, dá continuidade ao teatro de São João fundado no final do século XVIII.",
+  "history": "A história do teatro de São João no Porto remonta a 1793, quando abriu na Praça da Batalha o primeiro teatro da cidade. O edifício foi várias vezes reconstruído e acabou considerado inadequado para uma grande sala, deixando a cidade a precisar de um novo teatro.\n\nO novo teatro foi construído em 1918-1920 segundo projeto do arquiteto José Marques da Silva, autor de muitos edifícios marcantes do Porto. Concebeu uma fachada solene com uma ordem colossal, alto ático e remate escultórico, e, atrás, uma ampla sala e uma caixa de palco com torre de contrapeso.\n\nNo século XX o teatro viveu altos e baixos: a sala acolheu cinema e espetáculos em digressão enquanto o edifício se degradava. Nos anos 1990, uma grande reabilitação devolveu-lhe a vida como centro moderno e polivalente, e passou a albergar a companhia do Teatro Nacional São João.\n\nHoje é a principal sala de teatro de Portugal e um foco da vida teatral do Porto, com clássicos e criação contemporânea. A fachada na Praça da Batalha, com a ordem colossal e figuras alegóricas, permanece uma das mais reconhecíveis frentes solenes da cidade.",
+  "facts": [
+    "Inaugurado em 1920, com projeto de José Marques da Silva.",
+    "No lugar do teatro de São João, de 1793.",
+    "A principal sala de teatro de Portugal.",
+    "Fachada monumental com ordem colossal.",
+    "Reabilitado nos anos 1990 para palco moderno.",
+    "Endereço: Praça da Batalha, Porto."
+  ],
+  "tip": "Veja a programação da noite: o teatro apresenta clássicos e criação nova. A Praça da Batalha vê-se melhor em conjunto com a igreja de Santo Ildefonso e a estação de São Bento, ao lado.",
+  "gallery": [
+    {
+      "caption": "A fachada monumental na Praça da Batalha."
+    },
+    {
+      "caption": "Detalhe da fachada do teatro."
+    }
+  ],
+  "panorama": null
+}

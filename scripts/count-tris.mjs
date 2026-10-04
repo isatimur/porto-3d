@@ -9,7 +9,9 @@
 //     as MASSING / not-yet-detailed and is NOT hard-failed for being tiny: it
 //     is expected to be small until its detailed builder lands. It is still
 //     failed if it is over the per-model max or has NaNs;
-//   - the total (all models) must be <= 600k.
+//   - the total (all models) must be <= 900k: a bigger city with 70 detailed
+//     models (was 600k at 60 models; the per-model 4k..40k bounds are unchanged;
+//     a small city such as Braga keeps its own budget in cities/<id>.json if set).
 // The 4k floor is not lowered for massing models; the report just tells the
 // two kinds apart.
 // Usage: npm run check:models
@@ -21,7 +23,9 @@ import { CITY, dataPath } from './city-lib.mjs';
 
 const MAX_MODEL = 40000;
 const MIN_MODEL = 4000;
-const MAX_TOTAL = 600000;
+// Bigger city, more detailed models: 70 models at up to 40k each; the per-model
+// bounds (4k..40k) still hold. Raised from 600000 when the roster grew to 70.
+const MAX_TOTAL = 900000;
 
 const load = (f) => JSON.parse(readFileSync(f === 'landmarks.json' ? CITY.landmarksPath : dataPath(f), 'utf8'));
 

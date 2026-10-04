@@ -98,6 +98,18 @@ const COMMONS = {
   'castelo-queijo': { category: 'Castelo do Queijo', search: 'Castelo do Queijo Porto', match: /castelo do queijo|queijo|francisco xavier/i },
   'praia-ingleses': { category: 'Praia dos Ingleses (Porto)', search: 'Praia dos Ingleses Porto', match: /ingleses|foz do douro|beach|praia/i },
   'sealife-porto': { category: 'Sea Life Porto', search: 'Sea Life Porto', match: /sea ?life/i },
+
+  // --- Porto 3D roster expansion 2: 10 more landmarks ---
+  bessa: { category: 'Estádio do Bessa', search: 'Estádio do Bessa Porto', match: /bessa/i },
+  'teatro-sa-da-bandeira': { category: 'Teatro Sá da Bandeira', search: 'Teatro Sá da Bandeira Porto', match: /s[áa] da bandeira|teatro/i },
+  'teatro-nacional-sao-joao': { category: 'Teatro Nacional São João', search: 'Teatro Nacional São João Porto', match: /s[ãa]o jo[ãa]o|teatro nacional/i },
+  'igreja-da-vitoria': { category: 'Igreja da Vitória (Porto)', search: 'Igreja da Vitória Porto', match: /vit[óo]ria/i, avoid: /setúbal|lisboa|batalha/i },
+  'igreja-carmelitas': { category: 'Igreja dos Carmelitas Descalços (Porto)', search: 'Igreja dos Carmelitas Descalços Porto', match: /carmelitas/i, avoid: /aveiro/i },
+  'casa-museu-marta-ortigao-sampaio': { category: 'Sofia Martins de Souza', search: 'Aurélia de Souza Casa-Museu Marta Ortigão Sampaio', match: /souza|sousa|sampaio|aur[ée]lia|marta ortig/i },
+  'mercado-matosinhos': { category: 'Mercado Municipal de Matosinhos', search: 'Mercado Municipal de Matosinhos', match: /matosinhos|mercado/i },
+  'camara-matosinhos': { category: 'Câmara Municipal de Matosinhos', search: 'Câmara Municipal de Matosinhos', match: /matosinhos|c[âa]mara/i, avoid: /jardim|capela|old part|bairro|wikivoyage|pitka|antiga|rua/i },
+  'farol-leca': { category: 'Farol da Boa Nova', search: 'Farol de Leça Boa Nova', match: /boa nova|le[çc]a|farol/i, avoid: /tr[êe]s bicos|sobreiras/i },
+  'paco-episcopal': { category: 'Paço Episcopal do Porto', search: 'Paço Episcopal Porto', match: /pa[çc]o episcopal|episcopal/i },
 };
 
 const args = process.argv.slice(2);

@@ -1,0 +1,11 @@
+{
+  "osm": {
+    "type": "way",
+    "id": 1424430396,
+    "height_m": 46,
+    "height_source": "osm height tag"
+  },
+  "lat": 41.201306,
+  "lon": -8.712164,
+  "model": "lighthouse"
+}

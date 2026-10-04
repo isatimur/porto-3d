@@ -259,7 +259,18 @@ const PORTO = {
   'castelo-queijo': { m: 12, source: 'estimate', note: "Forte de São Francisco Xavier do Queijo (1662): low star fort with a gatehouse, about 12 m; no published height." },
   'praia-ingleses': { m: 2, source: 'estimate', note: "Praia dos Ingleses is a flat sandy beach; nominal 2 m for the dune/beach profile, no built element." },
   'sealife-porto': { m: 12, source: 'estimate', force: true, note: "Sea Life Porto (2009): two-storey aquarium block, about 12 m; no published height. OSM building:levels=2 (6.4 m) counts the low wing, overridden." },
-  // <<< ROSTER-HEIGHTS
+  // >>> ROSTER-HEIGHTS-2 (generated)
+  bessa: { m: 30, source: 'estimate', note: 'Estádio do Bessa Século XXI (2003 rebuild, Grupo 3 + Ferreira Arquitectos): single-tier bowl with a continuous roof, about 30 m above the pitch. No published height; scaled from the 2003 stands against the 175 x 200 m OSM bowl.' },
+  'teatro-sa-da-bandeira': { m: 22, source: 'estimate', note: 'Teatro Sá da Bandeira (1859, later a cinema): tall auditorium block with a roof plant, about 22 m. No published height.' },
+  'teatro-nacional-sao-joao': { m: 26, source: 'estimate', note: 'Teatro Nacional São João (José Marques da Silva, 1918-1920): monumental theatre block with a fly tower over the stage; about 26 m. No published height.' },
+  'igreja-da-vitoria': { m: 20, source: 'estimate', note: 'Igreja de Nossa Senhora da Vitória (1524, rebuilt 18th-19th c.): single nave with a tiled front; about 20 m. No published height.' },
+  'igreja-carmelitas': { m: 25, source: 'estimate', note: 'Igreja das Carmelitas (1619-1622), the Carmo\u2019s twin: nave with a front, about 25 m (same order as the adjacent Carmo, whose twin towers are set at 25 m). No published height.' },
+  'casa-museu-marta-ortigao-sampaio': { m: 12, source: 'estimate', note: 'Casa-Museu Marta Ortigão Sampaio: a two-storey 19th-century house on Nossa Senhora de Fátima, about 12 m. No published height; the museum is mapped only as a node.' },
+  'mercado-matosinhos': { m: 15, source: 'estimate', force: true, note: 'Mercado Municipal de Matosinhos (project 1936, opened 1952): large market hall with two levels (OSM building:levels=2 gives only 6.4 m); the tall roof ridge is about 15 m. No published height.' },
+  'camara-matosinhos': { m: 14, source: 'estimate', force: true, note: 'Câmara Municipal de Matosinhos: low civic block, but the glazed atrium/entrance block rises above the two office levels (OSM building:levels=2); about 14 m. No published height.' },
+  'farol-leca': { m: 46, source: 'osm height tag', on: 'w1424430396', force: true, note: 'Farol de Leça (1926): 46 m, OSM height=46 on the tower way; Wikidata Q10280159 P2048 = 46 m. The OSM close-up way is 8 m square, so 46 m is the tower.' },
+  'paco-episcopal': { m: 26, source: 'estimate', force: true, note: 'Paço Episcopal do Porto (Nicolau Nasoni, rebuilt 1734-1745): seven levels around a courtyard (OSM building:levels=7 gives only 22.4 m); the rooftop and the great staircase block about 26 m. No published height.' },
+  // <<< ROSTER-HEIGHTS-2
 };
 
 export const HEIGHTS_BY_CITY = { braga: BRAGA, guimaraes: GUIMARAES, porto: PORTO };

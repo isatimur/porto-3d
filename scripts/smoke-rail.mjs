@@ -69,7 +69,14 @@ const items = (rail?.items ?? []).map((it) => ({
 }));
 
 // ---- build the real builder through Vite SSR
-const server = await createServer({ server: { middlewareMode: true }, appType: 'custom', logLevel: 'error' });
+// One-shot SSR load: no listening server, no HMR / file watching, no dep
+// pre-bundling scan — deterministic and it leaves no open handles behind.
+const server = await createServer({
+  server: { middlewareMode: true, hmr: false, ws: false, watch: null },
+  appType: 'custom',
+  logLevel: 'error',
+  optimizeDeps: { noDiscovery: true },
+});
 let result;
 let liteResult;
 try {
@@ -129,11 +136,14 @@ if (Math.abs(range['metro-d'].min - metroDeck) > 0.9) {
 const metroMid = project(41.14, -8.6095);
 if (metroDeck - heightAt(metroMid.x, metroMid.z) < 8) fail('metro deck is not well above the terrain on the bridge');
 
-// CP: crosses the São João deck (base + 66 m) but follows the terrain at the ends
+// CP: crosses the São João deck (base + 66 m) but leaves it for the terrain on
+// the approach ramps. The 6 m drop proves terrain-following off the bridge; it
+// happens first on the Campanhã approach, where the deck ends at the model's
+// Porto abutment (the real bridge is ~1147 m, not the full Campanhã corridor).
 const cpDeck = fitById['ponte-sao-joao'].pivot.y + 66 * S;
 const cpReached = range['cp-norte'].min <= cpDeck + 0.9 && range['cp-norte'].max >= cpDeck - 0.9;
 if (!cpReached) fail(`mainline never reaches the São João deck ${cpDeck.toFixed(2)} (y ${range['cp-norte'].min.toFixed(2)}..${range['cp-norte'].max.toFixed(2)})`);
-if (!(range['cp-norte'].min < cpDeck - 1.5)) fail('mainline does not drop to the terrain on the Gaia approach');
+if (!(range['cp-norte'].min < cpDeck - 1.5)) fail('mainline does not drop to the terrain off the São João deck on its approach');
 const cpMid = project(41.1384, -8.59629);
 if (cpDeck - heightAt(cpMid.x, cpMid.z) < 12) fail('mainline deck is not well above the terrain on the São João span');
 

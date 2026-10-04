@@ -1,0 +1,65 @@
+{
+  "id": "igreja-da-vitoria",
+  "name_pt": "Igreja de Nossa Senhora da Vitória",
+  "name_ru": "Церковь Богоматери Победы",
+  "category": "religious",
+  "year": "1539",
+  "short_ru": "Старинная приходская церковь на улице Сан-Бенту-да-Витория: скромная снаружи, с азулежу и богатым интерьером, памятник XVI–XVIII веков.",
+  "long_ru": "Церковь Богоматери Победы (Igreja da Vitória) — одна из старейших приходских церквей Порту, стоящая на улице Сан-Бенту-да-Витория у подножия соборного холма. Она возникла в XVI веке и была перестроена в XVIII–XIX веках, сохранив строгий гранитный облик.",
+  "history_ru": "Церковь Богоматери Победы была основана в 1539 году и изначально связана с кварталом, прилегающим к монастырю Сан-Бенту-да-Витория. Название «Витория» — «Победа» — отсылает к религиозному посвящению, распространённому в Португалии в эпоху войн и морских походов.\n\nСо временем скромное здание XVI века перестраивалось. Наибольшие изменения пришлись на XVIII и XIX века, когда церковь получила нынешний облик: однонефный объём с узкими контрфорсами, каменный портал, окно-розетку и колокольную стенку над фасадом. В интерьере сохранились резной алтарь и азулежу, характерные для португальского барокко.\n\nЦерковь стоит в историческом квартале Витория, одном из самых старых районов Порту, рядом с монастырём Сан-Бенту-да-Витория и недалеко от собора. Этот лабиринт узких улиц между Се и Рибейрой хранит память о средневековом и барочном городе.\n\nСегодня Igreja da Vitória остаётся действующим приходским храмом и памятником архитектуры. Скромная снаружи, она раскрывается внутри убранством в стиле барокко и служит тихой остановкой на пути от собора к набережной Дору.",
+  "facts_ru": [
+    "Основана в 1539 году.",
+    "Расположена на Rua de São Bento da Vitória, в квартале Витория.",
+    "Перестроена в XVIII–XIX веках.",
+    "Однонефный храм с колокольной стенкой над фасадом.",
+    "В интерьере — резной алтарь и азулежу.",
+    "Действующий приход и памятник архитектуры."
+  ],
+  "tip_ru": "Загляните внутрь, если открыто: интерьер скромной снаружи церкви приятно удивляет. Совместите с осмотром собора и монастыря Сан-Бенту-да-Витория — они в двух шагах, на одном из самых характерных холмов Порту.",
+  "sources": [
+    {
+      "title": "Igreja de Nossa Senhora da Vitória (Porto) — Wikipédia",
+      "url": "https://pt.wikipedia.org/wiki/Igreja_da_Vit%C3%B3ria_(Porto)"
+    },
+    {
+      "title": "Igreja de Nossa Senhora da Vitória (Q54475195)",
+      "url": "https://www.wikidata.org/wiki/Q54475195"
+    },
+    {
+      "title": "Património Cultural — SIPA",
+      "url": "http://www.monumentos.gov.pt/Site/APP_PagesUser/SIPA.aspx?id=5484"
+    }
+  ],
+  "gallery": [
+    {
+      "img": "assets/img/igreja-da-vitoria-1.jpg",
+      "kind": "exterior",
+      "caption_ru": "Церковь Богоматери Победы — общий вид",
+      "credit": {
+        "author": "Davitof",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Porto_-_Igreja_de_S%C3%A3o_Bento_da_Vit%C3%B3ria.jpg"
+      },
+      "_commons": "File:Porto - Igreja de São Bento da Vitória.jpg"
+    },
+    {
+      "img": "assets/img/igreja-da-vitoria-2.jpg",
+      "kind": "exterior",
+      "caption_ru": "Церковь Богоматери Победы — фасад",
+      "credit": {
+        "author": "José Luiz",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_de_Santa_Maria_da_Vit%C3%B3ria_-_Porto.JPG"
+      },
+      "_commons": "File:Igreja de Santa Maria da Vitória - Porto.JPG"
+    }
+  ],
+  "videos": [],
+  "panorama": null,
+  "image": "assets/img/igreja-da-vitoria.jpg",
+  "image_credit": {
+    "author": "Jakub Hałun",
+    "license": "CC BY 4.0",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Mosteiro_de_S%C3%A3o_Bento_da_Vit%C3%B3ria_and_Igreja_de_Nossa_Senhora_da_Vit%C3%B3ria_from_Porto_Cathedral,_20250605_1406_9737.jpg"
+  }
+}

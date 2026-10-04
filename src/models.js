@@ -67,6 +67,16 @@ export const LANDMARK_SPECS = {
   carmo: { type: 'church', h: 24, yaw: 0 },
   'palacio-cristal': { type: 'park', h: 12, yaw: 0 },
   'uporto-reitoria': { type: 'university', h: 20, yaw: 0 },
+  bessa: { type: 'stadium', h: 30, yaw: 0 },
+  'teatro-sa-da-bandeira': { type: 'concert-hall', h: 22, yaw: 0 },
+  'teatro-nacional-sao-joao': { type: 'concert-hall', h: 26, yaw: 0 },
+  'igreja-da-vitoria': { type: 'cathedral', h: 20, yaw: 0 },
+  'igreja-carmelitas': { type: 'cathedral', h: 25, yaw: 0 },
+  'casa-museu-marta-ortigao-sampaio': { type: 'museum-villa', h: 12, yaw: 0 },
+  'mercado-matosinhos': { type: 'market', h: 15, yaw: 0 },
+  'camara-matosinhos': { type: 'palace', h: 14, yaw: 0 },
+  'farol-leca': { type: 'lighthouse', h: 46, yaw: 0 },
+  'paco-episcopal': { type: 'palace', h: 26, yaw: 0 },
 };
 
 const DETAILED = {

@@ -50,6 +50,41 @@ const checks = [
   },
 ];
 
+// Behavioural smoke tests for src/life.js. They load the real module through
+// Vite's SSR transform (no running server needed) and are deterministic, so
+// they belong in the gate. They read Porto's generated data directly, so they
+// only run for the city they were written for.
+if (CITY === 'porto') {
+  checks.push(
+    {
+      name: 'smoke life',
+      cmd: ['node', 'scripts/smoke-life.mjs'],
+      needs: ['data/life.json', 'data/nature.json', 'data/terrain.json', 'cities/porto.json'],
+      why: '',
+    },
+    {
+      name: 'smoke trams',
+      cmd: ['node', 'scripts/smoke-trams.mjs'],
+      needs: ['data/life.json', 'data/terrain.json', 'cities/porto.json'],
+      why: '',
+    },
+    {
+      name: 'smoke rail',
+      cmd: ['node', 'scripts/smoke-rail.mjs'],
+      needs: [
+        'data/life.json',
+        'data/dimensions.json',
+        'data/footprints.json',
+        'data/landmarks.json',
+        'data/roads.json',
+        'data/terrain.json',
+        'cities/porto.json',
+      ],
+      why: '',
+    },
+  );
+}
+
 const results = [];
 let failed = 0;
 let skipped = 0;

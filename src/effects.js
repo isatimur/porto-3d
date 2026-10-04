@@ -257,7 +257,9 @@ const FinishShader = {
 export function createEffects(renderer, scene, camera, { reducedMotion = false } = {}) {
   // Quality tier: the DPR cap is 2 in high quality and 1.5/1.25 in light mode
   // (main.js sets it before the renderer exists). Rays are off on low/lite.
-  const raysAllowed = DPR.cap >= 2;
+  // Read live (not captured) so the adaptive governor lowering DPR.cap also
+  // drops the ray pass.
+  const raysAllowed = () => DPR.cap >= 2;
   const size = renderer.getSize(new THREE.Vector2());
   const target = new THREE.WebGLRenderTarget(size.x || 1, size.y || 1, {
     type: THREE.HalfFloatType,
@@ -280,6 +282,9 @@ export function createEffects(renderer, scene, camera, { reducedMotion = false }
   composer.addPass(finish);
 
   let enabled = false;
+  // Post level from the adaptive governor: 0 all, 1 no rays, 2 no bloom,
+  // 3 no SMAA. The pass list stays fixed; only the expensive passes gate.
+  let postLevel = 0;
   const _p = new THREE.Vector3();
   const _v = new THREE.Vector3();
   let sunSource = null; // the visible sun (scene.js skySunDir), when set
@@ -306,11 +311,11 @@ export function createEffects(renderer, scene, camera, { reducedMotion = false }
     const low = 1 - THREE.MathUtils.smoothstep(_v.y, 0.25, 0.7); // strongest near the horizon
     // quality tier: no shafts on low/lite (reduced motion still keeps the
     // pass static — its jitter does not animate)
-    const s = raysAllowed ? fade * THREE.MathUtils.smoothstep(_v.y, -0.02, 0.06) * (1 - night) * (0.35 + 0.65 * low) : 0;
+    const s = raysAllowed() ? fade * THREE.MathUtils.smoothstep(_v.y, -0.02, 0.06) * (1 - night) * (0.35 + 0.65 * low) : 0;
     rays.sun.set(_p.x * 0.5 + 0.5, _p.y * 0.5 + 0.5);
     rays.strength = s * rays.gain;
     rays.haze = haze;
-    rays.enabled = s > 0.01 || haze > 0.001;
+    rays.enabled = (s > 0.01 || haze > 0.001) && postLevel < 1;
   }
 
   // ---- quality: auto (the device pixel ratio, capped at 2 by main.js) or
@@ -354,6 +359,15 @@ export function createEffects(renderer, scene, camera, { reducedMotion = false }
     },
     setEnabled(on) {
       enabled = !!on;
+    },
+    // adaptive post cost: 0 all passes, 1 no sun rays, 2 no bloom, 3 no SMAA
+    setPostLevel(n) {
+      postLevel = THREE.MathUtils.clamp(n | 0, 0, 3);
+      bloom.enabled = postLevel < 2;
+      smaa.enabled = postLevel < 3;
+    },
+    get postLevel() {
+      return postLevel;
     },
     setSize(w, h, dpr) {
       last = { w, h, dpr };

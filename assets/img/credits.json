@@ -978,5 +978,285 @@
         "commons": "File:Igreja de Santo Antonio dos Congregados 35.jpg"
       }
     ]
+  },
+  "bessa": {
+    "main": {
+      "file": "assets/img/bessa.jpg",
+      "kind": "exterior",
+      "author": "Víctor Eclipsado",
+      "license": "CC BY-SA 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Est%C3%A1dio_do_Bessa_XXI.jpg",
+      "commons": "File:Estádio do Bessa XXI.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/bessa-1.jpg",
+        "kind": "exterior",
+        "author": "Vitor Oliveira from Torres Vedras, PORTUGAL",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Est%C3%A1dio_do_Bessa_-_Porto_-_Portugal_(2052057681).jpg",
+        "commons": "File:Estádio do Bessa - Porto - Portugal (2052057681).jpg"
+      },
+      {
+        "file": "assets/img/bessa-2.jpg",
+        "kind": "detail",
+        "author": "Vincenzo.togni",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Pitch_view_from_the_Estadio_do_Bessa_in_2018.jpg",
+        "commons": "File:Pitch view from the Estadio do Bessa in 2018.jpg"
+      }
+    ]
+  },
+  "teatro-sa-da-bandeira": {
+    "main": {
+      "file": "assets/img/teatro-sa-da-bandeira.jpg",
+      "kind": "detail",
+      "author": "Robert Babin",
+      "license": "CC BY-SA 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Teatro_Sa_da_Bandeira_Dec_2022-1.jpg",
+      "commons": "File:Teatro Sa da Bandeira Dec 2022-1.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/teatro-sa-da-bandeira-1.jpg",
+        "kind": "exterior",
+        "author": "69joehawkins",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Teatro_Sa_da_Bandeira_nachts.JPG",
+        "commons": "File:Teatro Sa da Bandeira nachts.JPG"
+      },
+      {
+        "file": "assets/img/teatro-sa-da-bandeira-2.jpg",
+        "kind": "exterior",
+        "author": "Joseolgon",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Teatro_Sa_da_Bandeira-Porto.jpg",
+        "commons": "File:Teatro Sa da Bandeira-Porto.jpg"
+      }
+    ]
+  },
+  "teatro-nacional-sao-joao": {
+    "main": {
+      "file": "assets/img/teatro-nacional-sao-joao.jpg",
+      "kind": "exterior",
+      "author": "Francisco Restivo from Porto, Portugal",
+      "license": "CC BY 2.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:National_Theatre_(27470983379).jpg",
+      "commons": "File:National Theatre (27470983379).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/teatro-nacional-sao-joao-1.jpg",
+        "kind": "exterior",
+        "author": "Concierge.2C",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Porto_-_Teatro_de_S%C3%A3o_Jo%C3%A3o_-_Detalhe_da_fachada.jpg",
+        "commons": "File:Porto - Teatro de São João - Detalhe da fachada.jpg"
+      },
+      {
+        "file": "assets/img/teatro-nacional-sao-joao-2.jpg",
+        "kind": "exterior",
+        "author": "(AntoniusJ)",
+        "license": "Public domain",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Porto_Teatro_de_Sao_Joao_2.JPG",
+        "commons": "File:Porto Teatro de Sao Joao 2.JPG"
+      }
+    ]
+  },
+  "igreja-da-vitoria": {
+    "main": {
+      "file": "assets/img/igreja-da-vitoria.jpg",
+      "kind": "exterior",
+      "author": "Jakub Hałun",
+      "license": "CC BY 4.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Mosteiro_de_S%C3%A3o_Bento_da_Vit%C3%B3ria_and_Igreja_de_Nossa_Senhora_da_Vit%C3%B3ria_from_Porto_Cathedral,_20250605_1406_9737.jpg",
+      "commons": "File:Mosteiro de São Bento da Vitória and Igreja de Nossa Senhora da Vitória from Porto Cathedral, 20250605 1406 9737.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/igreja-da-vitoria-1.jpg",
+        "kind": "exterior",
+        "author": "Davitof",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Porto_-_Igreja_de_S%C3%A3o_Bento_da_Vit%C3%B3ria.jpg",
+        "commons": "File:Porto - Igreja de São Bento da Vitória.jpg"
+      },
+      {
+        "file": "assets/img/igreja-da-vitoria-2.jpg",
+        "kind": "exterior",
+        "author": "José Luiz",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_de_Santa_Maria_da_Vit%C3%B3ria_-_Porto.JPG",
+        "commons": "File:Igreja de Santa Maria da Vitória - Porto.JPG"
+      }
+    ]
+  },
+  "igreja-carmelitas": {
+    "main": {
+      "file": "assets/img/igreja-carmelitas.jpg",
+      "kind": "detail",
+      "author": "Vitor Oliveira from Torres Vedras, PORTUGAL",
+      "license": "CC BY-SA 2.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_do_Carmo_-_Porto_-_Portugal_(18904939303).jpg",
+      "commons": "File:Igreja do Carmo - Porto - Portugal (18904939303).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/igreja-carmelitas-1.jpg",
+        "kind": "exterior",
+        "author": "Vitor Oliveira from Torres Vedras, PORTUGAL",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_dos_Carmelitas_-_Porto_-_Portugal_(1800463429).jpg",
+        "commons": "File:Igreja dos Carmelitas - Porto - Portugal (1800463429).jpg"
+      },
+      {
+        "file": "assets/img/igreja-carmelitas-2.jpg",
+        "kind": "exterior",
+        "author": "Dafema",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Igreja_dos_Carmelitas_03.jpg",
+        "commons": "File:Igreja dos Carmelitas 03.jpg"
+      }
+    ]
+  },
+  "casa-museu-marta-ortigao-sampaio": {
+    "main": {
+      "file": "assets/img/casa-museu-marta-ortigao-sampaio.jpg",
+      "kind": "exterior",
+      "author": "Sofia Martins de Souza",
+      "license": "Public domain",
+      "source_url": "https://commons.wikimedia.org/wiki/File:%22De_castigo%22_-_Sofia_Matins_de_Sousa.jpg",
+      "commons": "File:\"De castigo\" - Sofia Matins de Sousa.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/casa-museu-marta-ortigao-sampaio-1.jpg",
+        "kind": "exterior",
+        "author": "Sofia Martins de Souza",
+        "license": "Public domain",
+        "source_url": "https://commons.wikimedia.org/wiki/File:O_Areinho_-_Sofia_Martins_de_Sousa.jpg",
+        "commons": "File:O Areinho - Sofia Martins de Sousa.jpg"
+      },
+      {
+        "file": "assets/img/casa-museu-marta-ortigao-sampaio-2.jpg",
+        "kind": "exterior",
+        "author": "GRTVB",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Windmill_in_the_Netherlands,_by_Sofia_Martins_de_Sousa.jpg",
+        "commons": "File:Windmill in the Netherlands, by Sofia Martins de Sousa.jpg"
+      }
+    ]
+  },
+  "mercado-matosinhos": {
+    "main": {
+      "file": "assets/img/mercado-matosinhos.jpg",
+      "kind": "exterior",
+      "author": "Francisco Restivo from Porto, Portugal",
+      "license": "CC BY 2.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Mercado_de_Matosinhos_(35726616852).jpg",
+      "commons": "File:Mercado de Matosinhos (35726616852).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/mercado-matosinhos-1.jpg",
+        "kind": "exterior",
+        "author": "jad99 from Graz, Austria",
+        "license": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Mercado_Municipal_de_Matosinhos_(13984045226).jpg",
+        "commons": "File:Mercado Municipal de Matosinhos (13984045226).jpg"
+      },
+      {
+        "file": "assets/img/mercado-matosinhos-2.jpg",
+        "kind": "exterior",
+        "author": "José Moutinho from Leça da Palmeira, Portugal",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Mercado_(8732097000).jpg",
+        "commons": "File:Mercado (8732097000).jpg"
+      }
+    ]
+  },
+  "camara-matosinhos": {
+    "main": {
+      "file": "assets/img/camara-matosinhos.jpg",
+      "kind": "exterior",
+      "author": "Vitor Oliveira from Torres Vedras, PORTUGAL",
+      "license": "CC BY-SA 2.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:C%C3%A2mara_Municipal_de_Matosinhos_-_Portugal_(21565267365).jpg",
+      "commons": "File:Câmara Municipal de Matosinhos - Portugal (21565267365).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/camara-matosinhos-1.jpg",
+        "kind": "exterior",
+        "author": "Sergio Miranda from Maia, Portugal",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Coming_between_the_columns..._(15826914968).jpg",
+        "commons": "File:Coming between the columns... (15826914968).jpg"
+      },
+      {
+        "file": "assets/img/camara-matosinhos-2.jpg",
+        "kind": "exterior",
+        "author": "José Moutinho from Leça da Palmeira, Portugal",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Columns_and_Arches_(6303212066).jpg",
+        "commons": "File:Columns and Arches (6303212066).jpg"
+      }
+    ]
+  },
+  "farol-leca": {
+    "main": {
+      "file": "assets/img/farol-leca.jpg",
+      "kind": "exterior",
+      "author": "Bene Riobó",
+      "license": "CC BY-SA 3.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Faro_de_Le%C3%A7a.jpg",
+      "commons": "File:Faro de Leça.jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/farol-leca-1.jpg",
+        "kind": "exterior",
+        "author": "LonEMedia",
+        "license": "CC BY-SA 3.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Farol_-_Le%C3%A7a_da_Palmeira,_Portugal_(01).jpg",
+        "commons": "File:Farol - Leça da Palmeira, Portugal (01).jpg"
+      },
+      {
+        "file": "assets/img/farol-leca-2.jpg",
+        "kind": "exterior",
+        "author": "Ricardo Duarte",
+        "license": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Farol_da_Boa_Nova,_Leca_da_Palmeira.jpg",
+        "commons": "File:Farol da Boa Nova, Leca da Palmeira.jpg"
+      }
+    ]
+  },
+  "paco-episcopal": {
+    "main": {
+      "file": "assets/img/paco-episcopal.jpg",
+      "kind": "exterior",
+      "author": "Gerry Labrijn from London, UK",
+      "license": "CC BY-SA 2.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:2014-P20_Porto_(15522242639).jpg",
+      "commons": "File:2014-P20 Porto (15522242639).jpg"
+    },
+    "gallery": [
+      {
+        "file": "assets/img/paco-episcopal-1.jpg",
+        "kind": "exterior",
+        "author": "Krzysztof Golik",
+        "license": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Episcopal_Palace_in_Porto_(1).jpg",
+        "commons": "File:Episcopal Palace in Porto (1).jpg"
+      },
+      {
+        "file": "assets/img/paco-episcopal-2.jpg",
+        "kind": "exterior",
+        "author": "Manuel de Sousa",
+        "license": "Public domain",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Paco_Episcopal_(Porto).JPG",
+        "commons": "File:Paco Episcopal (Porto).JPG"
+      }
+    ]
   }
 }

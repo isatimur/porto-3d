@@ -1721,6 +1721,255 @@ export const landmarks = {
       }
     ],
     "panorama": null
+  },
+  "bessa": {
+    "name": "Estádio do Bessa Século XXI",
+    "year": "2003",
+    "short": "Estádio do Boavista FC, aberto em 2003: uma bancada única e compacta sob um teto leve e contínuo, erguido no lugar do antigo estádio do Bessa.",
+    "long": "O Estádio do Bessa Século XXI é a casa do Boavista FC, na zona ocidental do Porto. Reconstruído para o Euro 2004, substituiu o antigo Estádio do Bessa de 1972. A sua bancada única e o teto ininterrupto fazem dele um dos recintos mais intimistas do país.",
+    "history": "O Boavista é o quarto clube mais titulado do Porto, fundado em 1903. O primeiro recinto neste local data do início do século XX e, em 1972, abriu aqui um novo estádio, conhecido pelos adeptos apenas como o Bessa. Nas décadas de 1970 e 1980 ali se construiu a fama do clube como adversário incómodo para os grandes.\n\nQuando Portugal conquistou o direito de organizar o Euro 2004, o antigo recinto foi considerado obsoleto. O novo estádio foi projetado pelo ateliê Grupo 3 com Ferreira Arquitetos e construído entre 2001 e 2003. Abriu em 2003 e recebeu jogos da fase de grupos do Euro 2004.\n\nO projeto assenta na compacidade: uma bancada única rodeia o relvado e um teto metálico leve cobre todo o recinto quase sem falhas. Sem cantos vazios, o espetador fica sempre perto do jogo e o ruído das bancadas não se dissipa. O betão cinzento e o vidro dão ao exterior um carácter sóbrio e funcional.\n\nA história desportiva do Bessa está ligada ao maior feito do Boavista: em 2000/2001 o clube sagrou-se campeão português, quebrando a hegemonia dos \"três grandes\". Mais tarde recebeu noites de Liga dos Campeões e Liga Europa. Hoje é estádio e referência urbana no lado da Boavista, a poucos minutos da Casa da Música e do metro.",
+    "facts": [
+      "Inaugurado em 2003, antes do Euro 2004.",
+      "Substituiu o antigo estádio do Bessa, de 1972.",
+      "Casa do Boavista FC, fundado em 1903.",
+      "Bancada única com teto leve e contínuo.",
+      "O Boavista foi campeão português em 2000/2001.",
+      "Capacidade de cerca de 28 mil lugares."
+    ],
+    "tip": "Sem jogo, o estádio vê-se bem por fora, a caminho da Casa da Música. Em dia de jogo, vá de metro (Casa da Música ou Boavista) e caminhe. Leve um corta-vento: as bancadas poentes são ventosas.",
+    "gallery": [
+      {
+        "caption": "A bancada única do Estádio do Bessa."
+      },
+      {
+        "caption": "Vista exterior do estádio no Porto."
+      }
+    ],
+    "panorama": null
+  },
+  "teatro-sa-da-bandeira": {
+    "name": "Teatro Sá da Bandeira",
+    "year": "1859",
+    "short": "Teatro de 1859 na Rua Sá da Bandeira: uma fachada neoclássica de janelas em arco, mais tarde convertido em cinema e hoje à espera de nova vida.",
+    "long": "O Teatro Sá da Bandeira é uma das salas de teatro mais antigas do Porto, aberto em 1859 na rua com o nome do marechal Sá da Bandeira. A sua fachada neoclássica sóbria recorda o surto teatral da cidade na segunda metade do século XIX.",
+    "history": "Em meados do século XIX o Porto vivia um surto teatral: depois do Teatro de São João e de outras salas, a cidade queria mais um grande recinto. O Teatro Sá da Bandeira abriu em 1859 na rua com o nome do marechal Sá da Bandeira, herói das guerras liberais, e depressa se tornou um centro da vida cultural.\n\nA fachada é de um neoclassicismo contido: piso térreo rusticado, janelas em arco no piso superior ladeadas por pilastras e uma cornija imponente com ático. Por trás da face de pedra escondia-se uma ampla sala de plateia e balcões para drama, opereta e espetáculos musicais.\n\nNo século XX, como muitos teatros europeus, o Sá da Bandeira foi adaptado a cinema: o palco tornou-se ecrã e a sala, cine. Isso prolongou a sua vida, mas apagou parte do esplendor teatral original. No início do século XXI o edifício degradou-se e fechou.\n\nHoje o teatro permanece no centro do Porto como memória da época teatral da cidade, com o seu destino em debate entre restauro e novo uso cultural. Mesmo encerrado, a fachada na Rua Sá da Bandeira é ponto marcante entre a Praça da Liberdade e Santa Catarina.",
+    "facts": [
+      "Aberto em 1859, na Rua Sá da Bandeira.",
+      "Nomeado em honra do marechal Sá da Bandeira.",
+      "Fachada neoclássica: rusticação, janelas em arco e ático.",
+      "Funcionou como cinema no século XX.",
+      "Encerrado no início do século XXI, à espera de restauro."
+    ],
+    "tip": "O teatro está fechado, mas a fachada vê-se bem da Rua Sá da Bandeira, no centro do Porto, entre a Praça da Liberdade e Santa Catarina. Combine com uma visita ao mercado do Bolhão.",
+    "gallery": [
+      {
+        "caption": "A fachada neoclássica na Rua Sá da Bandeira."
+      },
+      {
+        "caption": "O teatro à noite."
+      }
+    ],
+    "panorama": null
+  },
+  "teatro-nacional-sao-joao": {
+    "name": "Teatro Nacional São João",
+    "year": "1920",
+    "short": "A principal sala de teatro de Portugal: o edifício monumental de José Marques da Silva (1918-1920), na Praça da Batalha, no lugar do antigo teatro de São João.",
+    "long": "O Teatro Nacional São João é a principal sala de teatro de Portugal, na Praça da Batalha, no Porto. Construído em 1918-1920 segundo projeto de José Marques da Silva, dá continuidade ao teatro de São João fundado no final do século XVIII.",
+    "history": "A história do teatro de São João no Porto remonta a 1793, quando abriu na Praça da Batalha o primeiro teatro da cidade. O edifício foi várias vezes reconstruído e acabou considerado inadequado para uma grande sala, deixando a cidade a precisar de um novo teatro.\n\nO novo teatro foi construído em 1918-1920 segundo projeto do arquiteto José Marques da Silva, autor de muitos edifícios marcantes do Porto. Concebeu uma fachada solene com uma ordem colossal, alto ático e remate escultórico, e, atrás, uma ampla sala e uma caixa de palco com torre de contrapeso.\n\nNo século XX o teatro viveu altos e baixos: a sala acolheu cinema e espetáculos em digressão enquanto o edifício se degradava. Nos anos 1990, uma grande reabilitação devolveu-lhe a vida como centro moderno e polivalente, e passou a albergar a companhia do Teatro Nacional São João.\n\nHoje é a principal sala de teatro de Portugal e um foco da vida teatral do Porto, com clássicos e criação contemporânea. A fachada na Praça da Batalha, com a ordem colossal e figuras alegóricas, permanece uma das mais reconhecíveis frentes solenes da cidade.",
+    "facts": [
+      "Inaugurado em 1920, com projeto de José Marques da Silva.",
+      "No lugar do teatro de São João, de 1793.",
+      "A principal sala de teatro de Portugal.",
+      "Fachada monumental com ordem colossal.",
+      "Reabilitado nos anos 1990 para palco moderno.",
+      "Endereço: Praça da Batalha, Porto."
+    ],
+    "tip": "Veja a programação da noite: o teatro apresenta clássicos e criação nova. A Praça da Batalha vê-se melhor em conjunto com a igreja de Santo Ildefonso e a estação de São Bento, ao lado.",
+    "gallery": [
+      {
+        "caption": "A fachada monumental na Praça da Batalha."
+      },
+      {
+        "caption": "Detalhe da fachada do teatro."
+      }
+    ],
+    "panorama": null
+  },
+  "igreja-da-vitoria": {
+    "name": "Igreja de Nossa Senhora da Vitória",
+    "year": "1539",
+    "short": "Antiga igreja paroquial na Rua de São Bento da Vitória: modesta por fora, com azulejos e interior rico, um monumento dos séculos XVI a XVIII.",
+    "long": "A Igreja de Nossa Senhora da Vitória é uma das igrejas paroquiais mais antigas do Porto, na Rua de São Bento da Vitória, abaixo do monte da Sé. Data do século XVI e foi reconstruída nos séculos XVIII e XIX, mantendo o seu aspeto granítico sóbrio.",
+    "history": "A igreja foi fundada em 1539 e estava ligada ao bairro junto ao mosteiro de São Bento da Vitória. O nome \"Vitória\" remete para uma devoção religiosa comum em Portugal numa época de guerras e viagens marítimas.\n\nCom o tempo, o modesto edifício do século XVI foi sendo reconstruído. As maiores mudanças ocorreram nos séculos XVIII e XIX, dando à igreja a forma atual: um corpo de nave única com contrafortes estreitos, portal de pedra, rosácea e campanário de parede sobre a fachada. No interior subsistem retábulo esculpido e azulejos típicos do barroco português.\n\nA igreja situa-se no histórico bairro da Vitória, uma das zonas mais antigas do Porto, junto ao mosteiro de São Bento da Vitória e perto da Sé. Este labirinto de ruas estreitas entre a Sé e a Ribeira guarda a memória da cidade medieval e barroca.\n\nHoje a Igreja da Vitória continua a ser igreja paroquial ativa e monumento arquitetónico. Modesta por fora, revela-se no interior com decoração barroca, uma paragem tranquila no caminho da Sé para o Douro.",
+    "facts": [
+      "Fundada em 1539.",
+      "Na Rua de São Bento da Vitória, no bairro da Vitória.",
+      "Reconstruída nos séculos XVIII e XIX.",
+      "Nave única com campanário de parede sobre a fachada.",
+      "Retábulo esculpido e azulejos no interior.",
+      "Paróquia ativa e monumento arquitetónico."
+    ],
+    "tip": "Entre quando estiver aberta: o interior desta igreja modesta surpreende. Combine com a Sé e o mosteiro de São Bento da Vitória, a poucos passos, num dos montes mais característicos do Porto.",
+    "gallery": [
+      {
+        "caption": "A igreja de Nossa Senhora da Vitória."
+      },
+      {
+        "caption": "A igreja com o mosteiro de São Bento da Vitória."
+      }
+    ],
+    "panorama": null
+  },
+  "igreja-carmelitas": {
+    "name": "Igreja das Carmelitas",
+    "year": "1622",
+    "short": "Igreja carmelita do século XVII no Largo do Carmo, vizinha e gémea de fachada da igreja do Carmo: barroco sóbrio com interior dourado.",
+    "long": "A Igreja das Carmelitas é um templo barroco dos Carmelitas Descalços, construído entre 1619 e 1622 no Largo do Carmo. Fica encostada à igreja do Carmo, mais tardia, e as duas formam um dos conjuntos religiosos mais reconhecíveis do Porto.",
+    "history": "Os Carmelitas Descalços instalaram-se no Porto no início do século XVII e, em 1619, começaram a construir a sua igreja junto à muralha, no local do atual Largo do Carmo. As obras terminaram em 1622, com uma dedicação ligada à espiritualidade carmelita.\n\nA igreja segue o barroco inicial: nave única, fachada de pedra contida e interior rico em retábulos esculpidos e douramento. Com o tempo o interior foi renovado mais de uma vez, seguindo o gosto dos séculos XVII e XVIII, quando o Porto prezava os retábulos dourados.\n\nO que torna o lugar invulgar é a vizinhança: entre a igreja carmelita e a igreja do Carmo, mais tardia, ficou apertada uma casa estreita, a \"Casa Escondida\", que separa os dois templos. Por isso as duas igrejas leem-se como um conjunto duplo, embora pertençam a comunidades e épocas diferentes.\n\nHoje a Igreja das Carmelitas continua a ser templo ativo e monumento da história da ordem no Porto. A fachada e o interior atraem peregrinos e viajantes que sobem a Rua das Carmelitas da Praça da Liberdade para a torre dos Clérigos.",
+    "facts": [
+      "Construída em 1619-1622 pelos Carmelitas Descalços.",
+      "No Largo do Carmo, no centro do Porto.",
+      "Ao lado da igreja do Carmo (1756-1768).",
+      "As duas igrejas são separadas pela estreita \"Casa Escondida\".",
+      "Interior barroco rico, com retábulos dourados.",
+      "Templo ativo e monumento da ordem."
+    ],
+    "tip": "Veja as duas igrejas em conjunto, Carmelitas e Carmo: da Rua das Carmelitas leem-se como uma só composição de fachada. A torre dos Clérigos e a Praça da Liberdade ficam a poucos passos.",
+    "gallery": [
+      {
+        "caption": "A igreja das Carmelitas, no Porto."
+      },
+      {
+        "caption": "As igrejas das Carmelitas e do Carmo juntas."
+      }
+    ],
+    "panorama": null
+  },
+  "casa-museu-marta-ortigao-sampaio": {
+    "name": "Casa-Museu Marta Ortigão Sampaio",
+    "year": "1900",
+    "short": "Casa-museu na Foz que guarda uma coleção de pintura, joalharia e artes decorativas deixada à cidade por Marta Ortigão Sampaio.",
+    "long": "A Casa-Museu Marta Ortigão Sampaio é um museu tranquilo na Foz, no ocidente do Porto. Numa casa organizada como coleção habitada, apresenta pintura portuguesa dos séculos XIX e XX, joalharia, mobiliário e objetos do legado de Marta Ortigão Sampaio.",
+    "history": "Marta Ortigão Sampaio pertencia a uma conhecida família portuense e dedicou a vida a colecionar arte e objetos decorativos. A sua coleção cresceu em torno da memória da pintora Aurélia de Souza e da sua irmã Sofia Martins de Souza, tias cuja obra ocupa lugar importante na arte portuguesa da virada do século XX.\n\nApós a morte da benemérita, a sua casa na Foz e a coleção foram legadas à cidade do Porto. No início do século XXI abriu aqui uma casa-museu, unindo um ambiente doméstico a uma coleção de arte. Parte da exposição é dedicada à pintura de Aurélia de Souza, a par de obras de Sofia Martins de Souza e de outros autores portugueses.\n\nO edifício é um exemplo típico de villa abastada da Foz do final do século XIX e início do XX: dois pisos, apontamentos de pedra, lareira, pés-direitos altos e um pequeno jardim. Os interiores preservam de propósito a atmosfera de casa particular, onde a arte convive com mobiliário, tapetes e objetos do quotidiano.\n\nMais tarde a casa-museu incorporou espólios e uma biblioteca, tornando-se centro de investigação. Hoje pertence à rede de museus municipais do Porto e continua a ser um dos museus mais intimistas da cidade, com salas que ainda se leem como quartos de casa.",
+    "facts": [
+      "Casa-museu na Foz, no ocidente do Porto.",
+      "Nomeada em honra da colecionadora Marta Ortigão Sampaio.",
+      "Reúne pintura, joalharia e artes decorativas.",
+      "A coleção liga-se à pintora Aurélia de Souza e à irmã Sofia.",
+      "Integra a rede de museus municipais do Porto.",
+      "A biblioteca do museu está aberta a investigadores."
+    ],
+    "tip": "Confirme o horário antes da visita: o museu é pequeno. Fica perto dos jardins da Foz e da foz do rio, pelo que se combina bem com um passeio até ao mar e à igreja de São João Baptista.",
+    "gallery": [
+      {
+        "caption": "Uma obra da coleção, de Sofia Martins de Souza."
+      },
+      {
+        "caption": "Santo António (1902), de Aurélia de Souza, no museu."
+      }
+    ],
+    "panorama": null
+  },
+  "mercado-matosinhos": {
+    "name": "Mercado Municipal de Matosinhos",
+    "year": "1952",
+    "short": "O grande mercado coberto de Matosinhos: arcadas de pedra, um alto telhado de telha e bancas de peixe numa vila que vive do mar e do porto.",
+    "long": "O Mercado Municipal de Matosinhos é uma das principais salas públicas da vizinha costeira do Porto. Aberto em 1952, combina arcadas de pedra, um alto telhado de telha com lanternim e filas de bancas onde de manhã se vende peixe e produtos locais.",
+    "history": "Matosinhos cresceu como povoação de pescadores e porto a norte da foz do Douro, e o seu mercado foi sempre o coração da vida quotidiana. Nos anos 1930, a vila decidiu substituir o comércio improvisado por um novo mercado coberto, projetado em 1936.\n\nA construção e a abertura caíram nos anos do pós-guerra: a nova praça de mercado recebeu os primeiros clientes em 1952. Ganhou um amplo salão sob um telhado alto, arcadas de pedra nas laterais e um lanternim ao longo da cumeeira, que trazia luz natural às bancas.\n\nA arquitetura do mercado junta utilidade e monumentalidade: pilares de granito, arcos de entrada com frontões, telhado de telha e torrinhas de ventilação. A venda matinal de peixe liga-se ao porto e à frota de Matosinhos, vila ainda chamada capital da sardinha.\n\nHoje o mercado continua a funcionar e a ser ponto de encontro: vende-se peixe, legumes, queijo e doçaria local. Fica ao lado dos paços do concelho de Matosinhos e de outros edifícios públicos, formando o centro cívico da vila com as praças vizinhas.",
+    "facts": [
+      "Aberto em 1952, projetado em 1936.",
+      "No centro de Matosinhos, a norte do Porto.",
+      "Arcadas de pedra e alto telhado de telha.",
+      "Um lanternim na cumeeira ilumina a praça.",
+      "Ligado à pesca e ao porto de Matosinhos.",
+      "Mercado ativo e centro cívico da vila."
+    ],
+    "tip": "Venha de manhã: o mercado está mais vivo antes do meio-dia, com peixe, legumes e café nas cafetarias próximas. Chega-se de metro (Matosinhos Sul) ou do elétrico 500 ao longo do mar, seguindo depois até à praia.",
+    "gallery": [
+      {
+        "caption": "O salão do mercado de Matosinhos."
+      },
+      {
+        "caption": "O Mercado Municipal de Matosinhos."
+      }
+    ],
+    "panorama": null
+  },
+  "camara-matosinhos": {
+    "name": "Câmara Municipal de Matosinhos",
+    "year": "1980",
+    "short": "Os paços do concelho de Matosinhos: um bloco moderno horizontal, com fenestração em faixa e átrio envidraçado, no centro cívico da vila.",
+    "long": "A Câmara Municipal de Matosinhos é o edifício administrativo da vizinha costeira do Porto, situado no seu centro cívico, ao lado do mercado. Um bloco moderno de pisos horizontais longos, fenestração em faixa e um alto átrio envidraçado sobre a entrada.",
+    "history": "Matosinhos foi durante muito tempo periferia piscatória e industrial do Porto, recebendo o estatuto de cidade apenas no final do século XX. Com o crescimento da população e a separação dos concelhos vizinhos, precisou de edifícios administrativos próprios para afirmar uma nova identidade cívica.\n\nOs atuais paços do concelho ergueram-se no centro de Matosinhos, junto ao mercado e às praças principais. A sua arquitetura é típica do desenho cívico português do final do século XX: um volume longo e calmo, a horizontalidade marcada dos pisos, fenestração em faixa e uma grelha de pedra rigorosa.\n\nA composição organiza-se em torno de um átrio de entrada: um volume envidraçado alto marca a porta principal e funciona como núcleo de luz do edifício. Em frente há uma praça com bandeiras, árvores e bancos, usada em cerimónias e encontros cívicos.\n\nHoje a Câmara Municipal de Matosinhos continua a ser o coração administrativo da vila e parte do seu centro público. Com o mercado, os jardins e as ruas vizinhas, forma o conjunto cívico pelo qual Matosinhos é lida como cidade própria e não apenas subúrbio do Porto.",
+    "facts": [
+      "O edifício administrativo da cidade de Matosinhos.",
+      "No centro cívico, ao lado do mercado municipal.",
+      "Bloco moderno horizontal, com fenestração em faixa.",
+      "Átrio envidraçado alto sobre a entrada principal.",
+      "Praça com bandeiras e árvores em frente.",
+      "Matosinhos recebeu o estatuto de cidade no final do século XX."
+    ],
+    "tip": "O edifício é interessante por fora, mas a entrada costuma ser só a serviço. Combine com o mercado em frente e um passeio até ao porto de Matosinhos; o metro mais próximo é Matosinhos Sul.",
+    "gallery": [
+      {
+        "caption": "Os paços do concelho de Matosinhos."
+      },
+      {
+        "caption": "O átrio de entrada visto das colunas."
+      }
+    ],
+    "panorama": null
+  },
+  "farol-leca": {
+    "name": "Farol de Leça",
+    "year": "1926",
+    "short": "Um dos faróis mais altos de Portugal: uma torre de 46 metros de 1926 na costa atlântica de Leça da Palmeira, a norte da foz do Douro.",
+    "long": "O Farol de Leça, também conhecido como farol da Boa Nova, é uma torre de 46 metros na costa rochosa de Leça da Palmeira, em Matosinhos. Entre os mais altos do país, marca desde 1926 as aproximações ao porto de Leixões e à foz do Douro.",
+    "history": "A navegação junto à foz do Douro sempre precisou de referências fiáveis: aqui cruzam-se navios oceânicos e tráfego fluvial, e a costa é rochosa e perigosa. Já existiam pequenas luzes neste troço no século XIX, mas o aumento do tráfego no início do século XX exigiu um farol mais potente.\n\nO atual Farol de Leça foi construído em 1926 no promontório da Boa Nova, em Leça da Palmeira. A sua torre octogonal, com 46 metros de altura, tornou-se um dos faróis mais altos de Portugal. O lanternim no topo, com lente rotativa, lançava um longo clarão, e ao pé erguiam-se a casa do faroleiro e os edifícios de serviço.\n\nO farol foi modernizado mais de uma vez, com mudanças de fonte de luz e equipamento, até ser automatizado no final do século XX. Hoje o Farol de Leça funciona sem faroleiro residente, e a sua torre branca com faixa vermelha continua a ser referência em toda a costa de Matosinhos.\n\nJunto ao farol passam a estrada costeira e um caminho pedonal ao longo do oceano, ligando a Foz a Leça da Palmeira. O farol é um dos símbolos reconhecíveis da margem norte do Douro e atrai passeios junto ao mar.",
+    "facts": [
+      "46 metros de altura, entre os faróis mais altos de Portugal.",
+      "Construído em 1926, em Leça da Palmeira.",
+      "Conhecido também como farol da Boa Nova.",
+      "Torre octogonal com lanternim e lente rotativa.",
+      "Automatizado no final do século XX.",
+      "Marca as aproximações a Leixões e à foz do Douro."
+    ],
+    "tip": "Vá ao pôr do sol: o farol é belo contra o Atlântico. Um caminho costeiro leva até lá desde a Foz; vá de autocarro ou táxi, pois o estacionamento junto ao farol é limitado. Leve um corta-vento: o promontório é sempre ventoso.",
+    "gallery": [
+      {
+        "caption": "O farol em Leça da Palmeira."
+      },
+      {
+        "caption": "O Farol de Leça visto do caminho costeiro."
+      }
+    ],
+    "panorama": null
+  },
+  "paco-episcopal": {
+    "name": "Paço Episcopal do Porto",
+    "year": "1734",
+    "short": "O palácio episcopal junto à Sé do Porto: uma residência barroca reconstruída por Nicolau Nasoni em 1734-1745, hoje museu e centro da diocese.",
+    "long": "O Paço Episcopal do Porto é a antiga residência dos bispos do Porto, numa varanda junto à Sé. Um conjunto barroco em torno de um pátio interior, reconstruído em 1734-1745 segundo projeto de Nicolau Nasoni e hoje aberto como museu.",
+    "history": "Havia uma residência episcopal neste local, junto ao monte da Sé, desde a Idade Média: os bispos do Porto governaram cidade e diocese durante séculos a partir de um quarteirão fortificado ao lado da Sé. Os edifícios antigos sofreram repetidamente com guerras e o tempo.\n\nEm 1734 o bispo do Porto confiou a reconstrução do palácio ao arquiteto italiano Nicolau Nasoni, então já autor de muitos edifícios barrocos da cidade, incluindo a igreja dos Clérigos. As obras decorreram até 1745, produzindo um vasto conjunto com pátio interior, escadaria nobre e um pavilhão de entrada ricamente ornamentado.\n\nO palácio é de granito, de gosto barroco contido: as alas abraçam um pátio aberto, sobre a entrada ergue-se um pavilhão com as armas do bispo e altos telhados de telha fecham o volume. Da varanda do palácio avista-se a cidade antiga e o rio.\n\nEm 1910 o Paço Episcopal foi classificado como Monumento Nacional. No século XX albergou serviços diocesanos e algumas salas foram adaptadas a museu. Hoje o palácio continua a ser o centro da diocese do Porto e abre aos visitantes, mostrando interiores barrocos e coleções de arte sacra.",
+    "facts": [
+      "Reconstruído em 1734-1745, com projeto de Nicolau Nasoni.",
+      "Junto à Sé do Porto.",
+      "Conjunto barroco com pátio interior e escadaria nobre.",
+      "Pavilhão de entrada com as armas episcopais.",
+      "Monumento Nacional desde 1910.",
+      "Hoje centro da diocese e museu."
+    ],
+    "tip": "O palácio abre a visitantes segundo um horário; confirme no local. Fica ao lado da Sé e da varanda sobre o Douro, pelo que se integra bem num passeio pelo centro histórico e pelo bairro da Vitória.",
+    "gallery": [
+      {
+        "caption": "O Paço Episcopal do Porto."
+      },
+      {
+        "caption": "O palácio junto à Sé."
+      }
+    ],
+    "panorama": null
   }
 };
 

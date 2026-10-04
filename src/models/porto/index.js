@@ -40,6 +40,16 @@ import PracaBatalha from './praca-batalha.js';
 import CasteloQueijo from './castelo-queijo.js';
 import PraiaIngleses from './praia-ingleses.js';
 import SealifePorto from './sealife-porto.js';
+import Bessa from './bessa.js';
+import TeatroSaDaBandeira from './teatro-sa-da-bandeira.js';
+import TeatroNacionalSaoJoao from './teatro-nacional-sao-joao.js';
+import IgrejaDaVitoria from './igreja-da-vitoria.js';
+import IgrejaCarmelitas from './igreja-carmelitas.js';
+import CasaMuseuMarta from './casa-museu-marta-ortigao-sampaio.js';
+import MercadoMatosinhos from './mercado-matosinhos.js';
+import CamaraMatosinhos from './camara-matosinhos.js';
+import FarolLeca from './farol-leca.js';
+import PacoEpiscopal from './paco-episcopal.js';
 
 export const builders = {
   ...PonteSaoJoao,
@@ -82,6 +92,16 @@ export const builders = {
   ...CasteloQueijo,
   ...PraiaIngleses,
   ...SealifePorto,
+  ...Bessa,
+  ...TeatroSaDaBandeira,
+  ...TeatroNacionalSaoJoao,
+  ...IgrejaDaVitoria,
+  ...IgrejaCarmelitas,
+  ...CasaMuseuMarta,
+  ...MercadoMatosinhos,
+  ...CamaraMatosinhos,
+  ...FarolLeca,
+  ...PacoEpiscopal,
 };
 
 export const specs = {
@@ -125,4 +145,14 @@ export const specs = {
   'castelo-queijo': { type: 'palace', h: 12, yaw: 0 },
   'praia-ingleses': { type: 'museum-villa', h: 2, yaw: 0 },
   'sealife-porto': { type: 'museum-villa', h: 12, yaw: 0 },
+  bessa: { type: 'stadium', h: 30, yaw: 0 },
+  'teatro-sa-da-bandeira': { type: 'concert-hall', h: 22, yaw: 0 },
+  'teatro-nacional-sao-joao': { type: 'concert-hall', h: 26, yaw: 0 },
+  'igreja-da-vitoria': { type: 'cathedral', h: 20, yaw: 0 },
+  'igreja-carmelitas': { type: 'cathedral', h: 25, yaw: 0 },
+  'casa-museu-marta-ortigao-sampaio': { type: 'museum-villa', h: 12, yaw: 0 },
+  'mercado-matosinhos': { type: 'market', h: 15, yaw: 0 },
+  'camara-matosinhos': { type: 'palace', h: 14, yaw: 0 },
+  'farol-leca': { type: 'lighthouse', h: 46, yaw: 0 },
+  'paco-episcopal': { type: 'palace', h: 26, yaw: 0 },
 };

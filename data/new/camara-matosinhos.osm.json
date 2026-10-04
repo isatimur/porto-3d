@@ -1,0 +1,11 @@
+{
+  "osm": {
+    "type": "way",
+    "id": 107823039,
+    "height_m": 14,
+    "height_source": "estimate"
+  },
+  "lat": 41.183187,
+  "lon": -8.68324,
+  "model": "palace"
+}

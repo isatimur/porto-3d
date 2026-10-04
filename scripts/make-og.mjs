@@ -24,11 +24,19 @@ import { CITY } from './city-lib.mjs';
 const ROOT = resolve(import.meta.dirname, '..');
 // The window global main.js exposes its debug handle on (__porto, __braga, ...).
 const GLOBAL = process.env.CITY_GLOBAL || (CITY.id === 'braga' ? '__braga' : `__${CITY.id}`);
-// The canonical site for share/canonical tags. porto-3d.com is the real host
-// even though cities/porto.json leaves `domain` null (one Vercel project per
-// city); the local dev server is only the render target.
-const SITE = CITY.domain || (CITY.id === 'porto' ? 'https://porto-3d.com' : 'http://localhost:5173');
-if (!CITY.domain && CITY.id !== 'porto') console.warn(`warning: cities/${CITY.id}.json has no domain; share pages use http://localhost:5173`);
+// The canonical public host for share, canonical, sitemap and robots URLs.
+// The live deploy is porto-3d.vercel.app; porto-3d.com is not registered
+// (NXDOMAIN), so the vercel.app host is the default. Set SITE_URL (or
+// VITE_SITE) when a custom domain is attached — this one constant drives the
+// /p pages, sitemap.xml and robots.txt.
+const SITE = (
+  process.env.SITE_URL ||
+  process.env.VITE_SITE ||
+  CITY.domain ||
+  (CITY.id === 'porto' ? 'https://porto-3d.vercel.app' : 'http://localhost:5173')
+).replace(/\/+$/, '');
+if (!CITY.domain && !process.env.SITE_URL && !process.env.VITE_SITE && CITY.id !== 'porto')
+  console.warn(`warning: cities/${CITY.id}.json has no domain; share pages use http://localhost:5173`);
 const CITY_NAME = `${CITY.name.en} 3D`;
 // The dev server to render from: porto-3d runs on 5174 in this workspace
 // (5173 is taken by another project), so the port follows the city.
@@ -62,6 +70,10 @@ const pt = await localeLandmarks('pt');
 
 const esc = (s) =>
   String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+// Structured data is emitted as raw JSON, never HTML-escaped: turning quotes
+// into &quot; would make the <script type="application/ld+json"> body invalid
+// JSON. Only "<" is neutralised so a value can never close the tag early.
+const jsonLd = (obj) => JSON.stringify(obj).replace(/</g, '\\u003c');
 function write(path, data) {
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, data);
@@ -84,6 +96,23 @@ function sharePage(l) {
   const desc = short.en || short.pt || short.ru;
   const url = `${SITE}/p/${l.id}/`;
   const img = `${SITE}/og/${l.id}.jpg`;
+  // A real photo of the attraction when the landmark has one, plus the 3D OG
+  // render; both absolute so image crawlers can fetch them.
+  const photo = l.image ? `${SITE}/${String(l.image).replace(/^\/+/, '')}` : null;
+  const ld = jsonLd({
+    '@context': 'https://schema.org',
+    '@type': 'TouristAttraction',
+    '@id': `${url}#attraction`,
+    name: n.pt,
+    alternateName: [...new Set([n.en, n.ru])].filter(Boolean),
+    description: desc,
+    url,
+    image: [...new Set([photo, img].filter(Boolean))],
+    geo: { '@type': 'GeoCoordinates', latitude: l.lat, longitude: l.lon },
+    address: { '@type': 'PostalAddress', addressLocality: CITY.name.en, addressCountry: 'PT' },
+    touristType: l.category || undefined,
+    isPartOf: { '@type': 'WebSite', '@id': `${SITE}/#website` },
+  });
   return `<!doctype html>
 <html lang="pt-PT">
   <head>
@@ -110,6 +139,8 @@ function sharePage(l) {
     <meta name="twitter:title" content="${esc(title)}" />
     <meta name="twitter:description" content="${esc(desc)}" />
     <meta name="twitter:image" content="${img}" />
+    <meta name="twitter:image:alt" content="${esc(`${n.en}: 3D view`)}" />
+    <script type="application/ld+json">${ld}</script>
     <link rel="icon" href="/icons/icon-192.png" />
     <script>
       // people go straight to the map; crawlers read the tags above
@@ -143,6 +174,21 @@ function sharePage(l) {
 }
 if (all || flag('pages')) {
   for (const l of list) write(resolve(ROOT, `public/p/${l.id}/index.html`), sharePage(l));
+
+  // robots.txt + sitemap.xml, both from the same SITE constant and landmark
+  // list as the share pages, so the domain never drifts between them.
+  const today = new Date().toISOString().slice(0, 10);
+  const entries = [
+    `  <url><loc>${SITE}/</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>`,
+    ...list.map(
+      (l) => `  <url><loc>${SITE}/p/${l.id}/</loc><lastmod>${today}</lastmod><priority>0.8</priority></url>`,
+    ),
+  ];
+  write(
+    resolve(ROOT, 'public/sitemap.xml'),
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</urlset>\n`,
+  );
+  write(resolve(ROOT, 'public/robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
 }
 
 // ------------------------------------------------------------ browser

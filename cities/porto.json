@@ -494,6 +494,66 @@
       "name_pt": "Sea Life Porto",
       "category": "coast",
       "why": "aquarium by the Castelo do Queijo"
+    },
+    {
+      "id": "bessa",
+      "name_pt": "Estádio do Bessa Século XXI",
+      "category": "sport",
+      "why": "Boavista's rebuilt 2003 stadium"
+    },
+    {
+      "id": "teatro-sa-da-bandeira",
+      "name_pt": "Teatro Sá da Bandeira",
+      "category": "civic",
+      "why": "1859 theatre on Rua Sá da Bandeira"
+    },
+    {
+      "id": "teatro-nacional-sao-joao",
+      "name_pt": "Teatro Nacional São João",
+      "category": "civic",
+      "why": "Marques da Silva's 1920 national theatre"
+    },
+    {
+      "id": "igreja-da-vitoria",
+      "name_pt": "Igreja de Nossa Senhora da Vitória",
+      "category": "religious",
+      "why": "16th c. church on Rua de São Bento da Vitória"
+    },
+    {
+      "id": "igreja-carmelitas",
+      "name_pt": "Igreja das Carmelitas",
+      "category": "religious",
+      "why": "Carmelite church, the Carmo's twin"
+    },
+    {
+      "id": "casa-museu-marta-ortigao-sampaio",
+      "name_pt": "Casa-Museu Marta Ortigão Sampaio",
+      "category": "museum",
+      "why": "house-museum and library in Foz"
+    },
+    {
+      "id": "mercado-matosinhos",
+      "name_pt": "Mercado Municipal de Matosinhos",
+      "category": "civic",
+      "why": "Matosinhos market hall"
+    },
+    {
+      "id": "camara-matosinhos",
+      "name_pt": "Câmara Municipal de Matosinhos",
+      "category": "civic",
+      "why": "Matosinhos town hall"
+    },
+    {
+      "id": "farol-leca",
+      "name_pt": "Farol de Leça",
+      "category": "structure",
+      "why": "46 m lighthouse at Leça da Palmeira"
+    },
+    {
+      "id": "paco-episcopal",
+      "name_pt": "Paço Episcopal do Porto",
+      "category": "civic",
+      "why": "Nasoni's Episcopal palace beside the Sé"
     }
   ],
   "notes": "About 4x Braga's area. The Douro with six real bridges; the ocean at Foz. Single-city fork: data_dir is flat data/, like Braga. Pipeline not run yet. See README."

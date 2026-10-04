@@ -709,6 +709,45 @@ const PORTO_CFG = {
     cats: ['building', 'water'],
     model: 'museum-villa',
   },
+  // --- roster expansion 2 (2026-10-04): 10 more real places ---
+  bessa: {
+    // Estádio do Bessa Século XXI (2003): the leisure=stadium ring. No separate stand or
+    // pitch objects in OSM; the bowl outline is the whole stadium.
+    main: 'w1152784750', name: /Bessa/, site: { buffer: 0 }, cats: ['stand', 'building', 'pitch'], model: 'stadium',
+  },
+  'teatro-sa-da-bandeira': {
+    main: 'w214833466', name: /Sá da Bandeira/, site: { buffer: 0 }, cats: ['building'], model: 'concert-hall',
+  },
+  'teatro-nacional-sao-joao': {
+    main: 'w210757796', name: /São João/, site: { buffer: 2 }, cats: ['building', 'tower'], model: 'concert-hall',
+  },
+  'igreja-da-vitoria': {
+    main: 'w211107606', name: /Vitória/, site: { buffer: 1 }, cats: ['building', 'tower'], model: 'cathedral',
+  },
+  'igreja-carmelitas': {
+    // The Carmelite church, mapped as its own way beside the Carmo (w229772731).
+    main: 'w229772732', name: /Carmelitas/, site: { buffer: 0 }, cats: [], model: 'cathedral',
+  },
+  'casa-museu-marta-ortigao-sampaio': {
+    // The museum is mapped only as a node; its address plot (Nossa Senhora de Fátima 299,
+    // area=yes) is the main outline, with the adjoining house (307) as a part.
+    main: 'w571755385', name: /.*/, site: { buffer: 0 }, cats: [], include: ['w571755386'], model: 'museum-villa',
+  },
+  'mercado-matosinhos': {
+    main: 'w107811578', name: /Mercado Municipal de Matosinhos/, site: { buffer: 0 }, cats: ['building'], model: 'market',
+  },
+  'camara-matosinhos': {
+    main: 'w107823039', name: /Câmara Municipal de Matosinhos/, site: { buffer: 0 }, cats: ['building'], model: 'palace',
+  },
+  'farol-leca': {
+    // OSM maps the lighthouse as a closed building way with height=46.
+    main: 'w1424430396', name: /Leça/, site: { buffer: 0 }, cats: [], model: 'lighthouse',
+  },
+  'paco-episcopal': {
+    // The Paço Episcopal is a multipolygon (r2880744) whose outer ring is unnamed; the
+    // outer way is used directly so the footprint always closes.
+    main: 'w210507256', name: /.*/, site: { buffer: 0 }, cats: [], model: 'palace',
+  },
   // <<< ROSTER-EXPANSION
 };
 const OVERRIDES_BY_CITY = { braga: BRAGA_CFG, guimaraes: GUIMARAES_CFG, porto: PORTO_CFG };

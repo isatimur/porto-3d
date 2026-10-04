@@ -155,6 +155,17 @@ const METRO_D = [
 // 142939389/142939391 (Gaia approach), 142939380 (the São João main span),
 // 1207413417 + 543213029 (Porto viaduct), then 1361045533..691377238 to the
 // Campanhã throat. Bridge span mid at 41.1384,-8.59629 (Ponte de São João).
+//
+// The bridge deck (data/dimensions.json) is 66 m over a 1147 m structure, so
+// the span the train holds deck height on is the real bridge corridor only:
+// the Gaia abutment (41.13501,-8.60143) to the Porto abutment
+// (41.14185,-8.59117), i.e. the end of the landmark model's own box. Ending it
+// at Campanhã (~570 m further) would keep the train on the deck across the
+// Porto viaduct and stop it following the terrain on the approach ramp.
+const CP_BRIDGE_SPAN = [
+  [41.13501, -8.60143],
+  [41.14185, -8.59117],
+];
 const CP_NORTE = [
   [41.133111, -8.60939], [41.133225, -8.608536], [41.133498, -8.606894],
   [41.133822, -8.604948], [41.134115, -8.603609], [41.134325, -8.602982],
@@ -201,7 +212,7 @@ const RAIL = {
       speed_mps: 20,
       count: 2,
       cars: 4,
-      bridge: { site: 'ponte-sao-joao', deck_m: 66, span: [[41.13501, -8.60143], [41.14540, -8.58631]] },
+      bridge: { site: 'ponte-sao-joao', deck_m: 66, span: CP_BRIDGE_SPAN },
       path: CP_NORTE,
       source: 'OSM Linha do Norte (Via Ascendente) across the Ponte de São João to Campanhã (ways 142939380, 1207413417, 543213029 + approaches); deck 66 m (dimensions.json ponte-sao-joao)',
     },
@@ -214,7 +225,7 @@ const RAIL = {
       speed_mps: 16,
       count: 1,
       cars: 3,
-      bridge: { site: 'ponte-sao-joao', deck_m: 66, span: [[41.13501, -8.60143], [41.14540, -8.58631]] },
+      bridge: { site: 'ponte-sao-joao', deck_m: 66, span: CP_BRIDGE_SPAN },
       path: CP_NORTE,
       source: 'CP Urbanos do Porto sharing the Linha do Norte alignment across the Ponte de São João; deck 66 m (dimensions.json ponte-sao-joao)',
     },

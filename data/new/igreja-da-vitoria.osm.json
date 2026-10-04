@@ -1,0 +1,11 @@
+{
+  "osm": {
+    "type": "way",
+    "id": 211107606,
+    "height_m": 20,
+    "height_source": "estimate"
+  },
+  "lat": 41.143387,
+  "lon": -8.615719,
+  "model": "cathedral"
+}
