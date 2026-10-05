@@ -91,9 +91,8 @@ function names(l) {
 function sharePage(l) {
   const n = names(l);
   const short = { en: en[l.id]?.short || '', pt: pt[l.id]?.short || '', ru: l.short_ru || '' };
-  const uniq = [...new Set([n.pt, n.en, n.ru])];
-  const title = `${uniq.join(' · ')} — ${CITY_NAME}`;
-  const desc = short.en || short.pt || short.ru;
+  const title = `${n.pt} — ${CITY_NAME}`;
+  const desc = short.pt || short.en || short.ru;
   const url = `${SITE}/p/${l.id}/`;
   const img = `${SITE}/og/${l.id}.jpg`;
   // A real photo of the attraction when the landmark has one, plus the 3D OG
@@ -179,14 +178,14 @@ if (all || flag('pages')) {
   // list as the share pages, so the domain never drifts between them.
   const today = new Date().toISOString().slice(0, 10);
   const entries = [
-    `  <url><loc>${SITE}/</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>`,
+    `  <url><loc>${SITE}/</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority>\n${['pt', 'en', 'ru'].map((lg) => `    <xhtml:link rel="alternate" hreflang="${lg}" href="${SITE}/?lang=${lg}"/>`).join('\n')}\n    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE}/"/>\n  </url>`,
     ...list.map(
       (l) => `  <url><loc>${SITE}/p/${l.id}/</loc><lastmod>${today}</lastmod><priority>0.8</priority></url>`,
     ),
   ];
   write(
     resolve(ROOT, 'public/sitemap.xml'),
-    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</urlset>\n`,
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${entries.join('\n')}\n</urlset>\n`,
   );
   write(resolve(ROOT, 'public/robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
 }

@@ -23,9 +23,12 @@ export function initLanguage() {
   url.searchParams.set('lang', language);
   history.replaceState(null, '', url);
 
-  if (document.title && messages[document.title]) {
-    document.title = t(document.title);
-  }
+  // the static head is Portuguese for crawlers; data-src keeps the Russian source key
+  const titleSrc = document.querySelector('title')?.dataset.src;
+  if (titleSrc) document.title = t(titleSrc);
+  else if (document.title && messages[document.title]) document.title = t(document.title);
+  const descEl = document.querySelector('meta[name="description"][data-src]');
+  if (descEl) descEl.setAttribute('content', t(descEl.dataset.src));
 
   // Translate the static shell once, before the scene and dynamic UI start.
   const walker = document.createTreeWalker(document.documentElement, NodeFilter.SHOW_TEXT);
@@ -35,7 +38,7 @@ export function initLanguage() {
     const source = node.textContent.trim();
     if (messages[source]) node.textContent = node.textContent.replace(source, t(source));
   }
-  for (const el of document.querySelectorAll('[aria-label], [title], meta[name="description"]')) {
+  for (const el of document.querySelectorAll('[aria-label], [title], meta[name="description"]:not([data-src])')) {
     for (const attr of ['aria-label', 'title', 'content']) {
       if (el.hasAttribute(attr)) el.setAttribute(attr, t(el.getAttribute(attr)));
     }
