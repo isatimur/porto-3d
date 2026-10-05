@@ -109,12 +109,12 @@ const kindLabel = (k) => t(KIND_RU[k] || String(k || '').replace(/_/g, ' '));
 
 // the landmark ranking the labels use too (main.js)
 export const IMPORTANCE = {
-  'bom-jesus': 10, 'se-braga': 10, sameiro: 8, 'arco-porta-nova': 7, 'praca-republica': 7, tibaes: 7,
-  'santa-barbara': 6, 'theatro-circo': 6, 'palacio-raio': 6, biscainhos: 6, 'estadio-braga': 6,
-  'avenida-central': 5, 'termas-romanas': 5, 'fonte-idolo': 5, populo: 5, 'santa-cruz': 5, 'sao-frutuoso': 5,
-  'torre-menagem': 5, congregados: 5, coimbras: 4, 'diogo-sousa': 4, 'nogueira-silva': 4, 'sao-marcos': 4,
-  'parque-ponte': 3, 'estadio-1-maio': 3, 'forum-braga': 3, 'ucp-braga': 2, 'uminho-gualtar': 2, 'dmaria-ii': 2,
-  'leonardo-da-vinci': 1,
+  clerigos: 10, 'ponte-luis-i': 10, 'se-porto': 10, bolsa: 9, 'sao-bento': 9, lello: 9, ribeira: 9,
+  'casa-musica': 8, 'sao-francisco-porto': 8, serralves: 7, dragao: 7, 'ponte-arrabida': 7, 'caves-gaia': 7,
+  'palacio-cristal': 6, 'mercado-bolhao': 6, aliados: 6, 'ponte-maria-pia': 6, 
+  'serra-do-pilar': 5, 'jardim-do-morro': 5, felgueiras: 5, 'castelo-queijo': 5, 'museu-soares-dos-reis': 5,
+  'estacao-general-torres': 4, carmo: 4, 'uporto-reitoria': 4, 'ponte-sao-joao': 4, 'ponte-infante': 4,
+  'parque-cidade': 4, 'foz-sao-joao-baptista': 4, coliseu: 4,
 };
 
 export function createSearch({ landmarks, routes, roads, project, heightAt, scene, camera, rig, renderer, reducedMotion, onPlace, onRoute, toast, isBlocked }) {

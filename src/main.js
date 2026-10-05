@@ -1702,7 +1702,7 @@ async function start() {
 }
 
 // The city config first (cities/<id>.json), then its model registry, then
-// the scene. The static shell is Braga's; applyCityShell() renames it.
+// the scene. The static shell is written for Porto; applyCityShell() renames it for other cities.
 loadCity()
   .then(async (city) => {
     debug.city = city;

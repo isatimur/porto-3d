@@ -2036,7 +2036,7 @@ function birdMaterial(uHeight) {
 function buildBirds({ items, heightAt, project, nature, mobile, lite = false }) {
   const byId = (id) => items.find((i) => i.data.id === id);
   const anchors = [];
-  for (const [id, lift, r] of [['bom-jesus', 13, 26], ['sameiro', 16, 26], ['se-braga', 9, 15]]) {
+  for (const [id, lift, r] of [['se-porto', 9, 15], ['clerigos', 8, 14], ['ponte-luis-i', 10, 30]]) {
     const it = byId(id);
     if (it) anchors.push({ id, x: it.x, z: it.z, y: it.top + lift, r });
   }

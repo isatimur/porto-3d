@@ -1,4 +1,4 @@
-// Live aircraft over Braga («Сейчас в Браге» only).
+// Live aircraft over Porto («Сейчас в Порту» only).
 //
 //   - data: GET /api/adsb (api/adsb.js, a Vercel function: adsb.lol, then
 //     adsb.fi, then OpenSky, all server-side, because none of them sends
@@ -13,7 +13,7 @@
 //   - altitude: metres x S up to 3 km, softly compressed above
 //     (3000 + 2500 * (1 - e^(-(h - 3000) / 3500)) m: 11 km cruise -> 5.3 km),
 //     so the cruisers stay in the frame and above the clouds;
-//   - distance: the data covers 40 nm (74 km) around Braga, the map ~6 km.
+//   - distance: the data covers 40 nm (74 km) around Porto, the map ~6 km.
 //     Positions keep their bearing from the centre but the distance is
 //     compressed past 700 units (2.8 km): r' = R0 + (Rmax - R0)(1 - e^(-(r - R0)/(Rmax - R0))),
 //     Rmax = 1800 units (7.2 km), inside the haze around the map. The

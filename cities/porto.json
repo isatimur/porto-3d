@@ -556,5 +556,5 @@
       "why": "Nasoni's Episcopal palace beside the Sé"
     }
   ],
-  "notes": "About 4x Braga's area. The Douro with six real bridges; the ocean at Foz. Single-city fork: data_dir is flat data/, like Braga. Pipeline not run yet. See README."
+  "notes": "The Douro with six real bridges; the ocean at Foz. Single-city fork: data_dir is flat data/. Data pipeline complete (see README)."
 }

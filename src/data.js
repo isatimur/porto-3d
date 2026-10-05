@@ -1,4 +1,3 @@
-import { PLACEHOLDER_LANDMARKS, PLACEHOLDER_ROADS, PLACEHOLDER_ENRICH, PLACEHOLDER_ROUTES } from './placeholder-data.js';
 import { language, loadTranslations, localizeLandmark, localizeRoute } from './i18n.js';
 import { CITY, dataPath } from './city.js';
 import { setDims } from './fit.js';
@@ -54,7 +53,6 @@ function cleanRoads(raw) {
 // ------------------------------------------------------------ rich fields
 // All optional. After this pass the UI can rely on: strings are strings
 // (maybe empty), lists are arrays (maybe empty), panorama is object or null.
-const RICH_KEYS = ['history_ru', 'facts_ru', 'sources', 'tip_ru', 'gallery', 'panorama', 'videos'];
 const str = (v) => (typeof v === 'string' ? v.trim() : '');
 const isUrl = (u) => typeof u === 'string' && /^https?:\/\//.test(u);
 const cleanCredit = (c) => (c && typeof c === 'object' ? { author: str(c.author), license: str(c.license), source_url: isUrl(c.source_url) ? c.source_url : '' } : null);
@@ -85,30 +83,6 @@ function cleanRich(l) {
     .filter((v) => v && YT_ID.test(String(v.youtube_id || '')))
     .map((v) => ({ youtube_id: String(v.youtube_id), title: str(v.title), channel: str(v.channel), lang: str(v.lang) }));
   return l;
-}
-
-// Fill placeholder rich fields only while the real data has none of them.
-// There a key the real data sets, even to [] or null, wins. The explicit
-// ?demo switch also fills empty values (null, '', []), so a demo can show
-// e.g. the 360° viewer before any real panorama exists.
-const isEmpty = (v) => v == null || v === '' || (Array.isArray(v) && !v.length);
-function enrich(landmarks, force) {
-  const hasReal = landmarks.some((l) => RICH_KEYS.some((k) => l[k] !== undefined));
-  if (hasReal && !force) return [];
-  const used = [];
-  for (const l of landmarks) {
-    const extra = PLACEHOLDER_ENRICH[l.id];
-    if (!extra) continue;
-    let any = false;
-    for (const [k, v] of Object.entries(extra)) {
-      if (force ? isEmpty(l[k]) : l[k] === undefined) {
-        l[k] = v;
-        any = true;
-      }
-    }
-    if (any) used.push(l.id);
-  }
-  return used;
 }
 
 // ------------------------------------------------------------ routes
@@ -187,10 +161,8 @@ async function fetchTable(file, key, status) {
 }
 
 export async function loadData(onStep = () => {}) {
-  const status = { landmarks: 'real', roads: 'real', routes: 'real', enriched: [] };
-  const force = new URLSearchParams(location.search).has('demo');
+  const status = { landmarks: 'real', roads: 'real', routes: 'real' };
   const D = CITY.data_dir;
-  const braga = CITY.id === 'braga';
 
   const [lmRes, rdRes, rtRes, trRes, fpRes, bdRes, locRes, ntRes, dims, life, axes] = await Promise.allSettled([
     fetchJSON(CITY.landmarks_file).then(cleanLandmarks),
@@ -226,10 +198,6 @@ export async function loadData(onStep = () => {}) {
   let landmarks;
   if (lmRes.status === 'fulfilled') {
     landmarks = lmRes.value;
-  } else if (braga) {
-    console.warn(`[porto] ${CITY.landmarks_file} unavailable (${lmRes.reason?.message}). Using placeholder landmarks.`);
-    landmarks = cleanLandmarks(PLACEHOLDER_LANDMARKS);
-    status.landmarks = 'placeholder';
   } else {
     // a new city: the map draws the terrain and the city fabric it has;
     // the landmark list comes from the landmark agents later
@@ -242,17 +210,11 @@ export async function loadData(onStep = () => {}) {
   if (rdRes.status === 'fulfilled') {
     roads = rdRes.value;
   } else {
-    console.warn(`[porto] ${D}/roads.json unavailable (${rdRes.reason?.message}). Using placeholder roads.`);
-    // the placeholder streets are Braga's; another city gets its own frame and no streets
-    roads = braga ? PLACEHOLDER_ROADS : { origin: CITY.origin, bbox: CITY.core_bbox, features: [] };
-    status.roads = 'placeholder';
+    console.warn(`[porto] ${D}/roads.json unavailable (${rdRes.reason?.message}). No streets.`);
+    roads = { origin: CITY.origin, bbox: CITY.core_bbox, features: [] };
+    status.roads = 'none';
   }
 
-  status.enriched = enrich(landmarks, force);
-  if (status.enriched.length) {
-    const why = force ? '?demo: empty rich fields filled' : 'no rich fields in landmarks.json';
-    console.warn(`[porto] ${why}. Placeholder values used for: ${status.enriched.join(', ')}`);
-  }
   for (const l of landmarks) cleanRich(l);
 
   let routes = [];
@@ -264,15 +226,10 @@ export async function loadData(onStep = () => {}) {
       routeErr = e;
     }
   }
-  if (routeErr || force) {
-    if (routeErr) console.warn(`[porto] ${D}/routes.json unavailable (${routeErr.message}). ${braga ? 'Using placeholder routes.' : 'No routes.'}`);
-    if ((routeErr || !routes.length) && braga) {
-      routes = cleanRoutes(PLACEHOLDER_ROUTES, landmarks);
-      status.routes = 'placeholder';
-    } else if (routeErr) {
-      routes = [];
-      status.routes = 'none';
-    }
+  if (routeErr) {
+    console.warn(`[porto] ${D}/routes.json unavailable (${routeErr.message}). No routes.`);
+    routes = [];
+    status.routes = 'none';
   }
 
   const tr = locRes.status === 'fulfilled' ? locRes.value : null;
