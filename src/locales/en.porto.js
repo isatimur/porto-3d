@@ -201,7 +201,7 @@ export const landmarks = {
     "facts": [
       "Inaugurated on 31 October 1886; the first stone was laid on 21 November 1881.",
       "Its 172 m central arch was a record among metal bridges of its time.",
-      "The upper deck runs about 60 m above the Douro and carries Metro line D.",
+      "The upper deck runs about 60 m above the Douro (sources give 60 to 70 m, depending on what they measure) and carries Metro line D.",
       "The design was by Théophile Seyrig, a former partner of Gustave Eiffel.",
       "It replaced the Ponte Pênsil and is part of the UNESCO listing since 1996."
     ],

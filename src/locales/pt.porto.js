@@ -201,7 +201,7 @@ export const landmarks = {
     "facts": [
       "Inaugurada a 31 de outubro de 1886; a primeira pedra foi lançada a 21 de novembro de 1881.",
       "O arco central de 172 metros foi recorde entre as pontes metálicas da época.",
-      "O tabuleiro superior passa cerca de 60 m acima do Douro e transporta a linha D do metro.",
+      "O tabuleiro superior passa cerca de 60 m acima do Douro (as fontes indicam entre 60 e 70 m, consoante o que medem) e transporta a linha D do metro.",
       "O projeto é de Théophile Seyrig, antigo sócio de Gustave Eiffel.",
       "Substituiu a Ponte Pênsil e integra o Património Mundial da UNESCO desde 1996."
     ],

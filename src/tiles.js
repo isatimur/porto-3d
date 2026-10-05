@@ -83,6 +83,11 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
   // adaptive governor (main.js): < 1 shrinks the streamed radius, the near-LOD
   // draw-call cap and the per-frame integration budget together.
   let budgetScale = 1;
+  // Flight destination (rig.flyTo): its tiles load first, as if the camera
+  // were already there, and the fetch limit rises until the flight lands.
+  let dest = null; // { x, z, until } in scene clock seconds
+  const destAltU = 150 * S; // the framing height of a landmark view, about
+  const maxInflight = () => (dest && clock < dest.until ? MAX_INFLIGHT * 2 : MAX_INFLIGHT);
   const maxNear = () => Math.max(12, Math.round(MAX_NEAR * budgetScale));
   const sliceMs = () => SLICE_MS * Math.max(0.4, budgetScale);
 
@@ -565,15 +570,18 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     const nearU = NEAR_M * S;
     _cands.length = 0;
     const nearCap = maxNear();
+    const flyingTo = !!dest && clock < dest.until;
     let nearShown = 0;
     for (const T of tiles.values()) if (T.state === 'shown' && T.lod === 'near') nearShown++;
     for (const T of tiles.values()) {
       const dCam = rectDist(T.rect, cam.x, cam.z);
       const dFoc = rectDist(T.rect, focus.x, focus.z);
-      const d = Math.min(dCam, dFoc);
-      const d3 = Math.hypot(dCam, altU);
+      const dDest = flyingTo ? rectDist(T.rect, dest.x, dest.z) : Infinity;
+      const d = Math.min(dCam, dFoc, dDest);
+      let d3 = Math.hypot(dCam, altU);
+      if (flyingTo) d3 = Math.min(d3, Math.hypot(dDest, destAltU)); // as seen from the destination
       T.dCam = d3;
-      const inView = _frustum.intersectsBox(T.box);
+      const inView = flyingTo ? true : _frustum.intersectsBox(T.box);
       T.prio = (inView ? 1 : 0.3) / Math.max(d3, 25);
       const lodWant = d3 < nearU ? 'near' : d3 > nearU * 1.2 ? 'far' : T.lod || 'far';
       // very far: roof-only houses, when the tile is 6 km from the camera
@@ -604,7 +612,7 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     _cands.sort((a, b) => b.p - a.p);
     let sent = 0;
     for (const c of _cands) {
-      if (inflight >= MAX_INFLIGHT) break;
+      if (inflight >= maxInflight()) break;
       // memory cap: a new tile only if it fits, after dropping lower-priority ones
       if (c.T.state !== 'shown' && gpuBytes > MEM_CAP * 0.92 && !evictFor(c.p)) break;
       if (request(c.T, c.lod)) sent++;
@@ -753,6 +761,11 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     group,
     stats,
     update,
+    // the camera is about to fly to (x, z) in world units: load around it now
+    prefetch(x, z, seconds = 8) {
+      dest = { x, z, until: clock + seconds };
+      sinceSchedule = SCHEDULE_S; // schedule on the next frame
+    },
     // adaptive governor: < 1 shrinks the streamed radius, near cap and slice
     setBudgetScale(k) {
       budgetScale = Math.min(1, Math.max(0.25, k || 1));

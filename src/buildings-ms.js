@@ -416,7 +416,7 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
   debug.msStats = stats;
   const group = new THREE.Group();
   group.name = 'buildings-ms';
-  const api = { group, stats, update() {}, idle: async () => stats, tiles: new Map() };
+  const api = { group, stats, update() {}, prefetch() {}, idle: async () => stats, tiles: new Map() };
   debug.ms = api;
   if (off) {
     // main.js sets debug.stats after the first frames: fill it in then
@@ -800,8 +800,14 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
     T.reqId++;
   }
 
+  // flight destination: see tiles.js prefetch
+  let dest = null;
+  const destAltU = 150 * S;
+  const maxFetch = () => (dest && clock < dest.until ? MAX_FETCH * 2 : MAX_FETCH);
+
   function schedule() {
     const cam = camera.position;
+    const flyingTo = !!dest && clock < dest.until;
     const focus = camera.userData.focus || cam;
     const altU = Math.max(0, cam.y - heightAt(cam.x, cam.z));
     const R = radiusFor(altU / S, mobile);
@@ -815,8 +821,10 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
     for (const T of tiles.values()) {
       const dCam = rectDist(T.rect, cam.x, cam.z);
       const dFoc = rectDist(T.rect, focus.x, focus.z);
-      const d = Math.min(dCam, dFoc);
-      const d3 = Math.hypot(dCam, altU);
+      const dDest = flyingTo ? rectDist(T.rect, dest.x, dest.z) : Infinity;
+      const d = Math.min(dCam, dFoc, dDest);
+      let d3 = Math.hypot(dCam, altU);
+      if (flyingTo) d3 = Math.min(d3, Math.hypot(dDest, destAltU));
       T.prio = 1 / Math.max(d3, 25);
       if (T.job) T.job.prio = T.prio;
       if (T.state !== 'idle' && T.state !== 'failed' && (d > 2 * R || (lite && d3 > nearU * 1.2))) {
@@ -877,7 +885,7 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
     jobs.sort((a, b) => b.prio - a.prio);
     cands.sort((a, b) => b.prio - a.prio);
     for (const T of cands) {
-      if (fetching >= MAX_FETCH) break;
+      if (fetching >= maxFetch()) break;
       load(T);
       changed = true;
     }
@@ -962,6 +970,10 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
       };
       tick();
     });
+  };
+  api.prefetch = function prefetch(x, z, seconds = 8) {
+    dest = { x, z, until: clock + seconds };
+    sinceSchedule = SCHEDULE_S;
   };
   api.mainMs = () => +buildSum.toFixed(0);
   // for tests: MS buildings drawn with their centre within rM metres of (x, z)

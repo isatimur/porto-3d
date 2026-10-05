@@ -20,7 +20,7 @@ export const FLY = { perHeight: 0.6, min: 20, max: 600, vertical: 0.8, easeIn: 0
 
 const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
-export function createCameraRig(camera, dom, heightAt, { reducedMotion, onFlightEnd, onTourCancel, bounds = null }) {
+export function createCameraRig(camera, dom, heightAt, { reducedMotion, onFlightEnd, onFlightStart, onTourCancel, bounds = null }) {
   const controls = new OrbitControls(camera, dom);
   controls.enableDamping = true;
   controls.dampingFactor = 0.065; // a little more glide after a drag
@@ -345,6 +345,7 @@ export function createCameraRig(camera, dom, heightAt, { reducedMotion, onFlight
       orbit: reducedMotion ? 0 : orbit,
     };
     controls.enabled = false;
+    onFlightStart?.(toTarget, duration);
   }
   const _arm = new THREE.Vector3();
   const _dest = new THREE.Vector3();

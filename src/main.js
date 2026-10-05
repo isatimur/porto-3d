@@ -614,6 +614,11 @@ async function start() {
     onFlightEnd: () => {
       debug.flights++;
     },
+    // the streamers load around the destination while the camera is still on its way
+    onFlightStart: (target, duration) => {
+      tiles?.prefetch(target.x, target.z, duration + 8);
+      ms?.prefetch(target.x, target.z, duration + 8);
+    },
     // a click or wheel on the map ends whatever drove the camera
     onTourCancel: () => {
       cinema?.stop();
