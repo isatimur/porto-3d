@@ -29,7 +29,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { S } from './geo.js';
-import { CITY, dataPath } from './city.js';
+import { CITY, dataPath, hasData } from './city.js';
 import { buildNetwork } from './road-network.js';
 import { RIBBON_LIFT, SIDEWALK_R, WALKED, sidewalkM, lampSites, lampGlow, LAMP_HEIGHT_M } from './roads.js';
 import { loadPois, createPoiSigns, isOpenAtHour, guessOpen } from './pois.js';
@@ -508,7 +508,12 @@ export function createStreetscape(ctx) {
   } catch (e) {
     console.warn('[porto] porto street life failed', e);
   }
-  Promise.all([fetchStreet(), loadPois()])
+  // the data-driven level needs streetscape.json; a city that ships none (see
+  // "data_absent" in its config) keeps only its own street life, no request
+  const dataLevel = hasData('streetscape.json')
+    ? Promise.all([fetchStreet(), loadPois()])
+    : Promise.reject(new Error('not shipped for this city'));
+  dataLevel
     .then(([doc, pois]) => {
       try {
         built = build(ctx, group, doc, pois, stats);

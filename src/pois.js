@@ -26,7 +26,7 @@
 // 'off' / 'closed'; '24/7'; 'open-ended' 18:00+; sunrise-sunset as 07:00-20:00;
 // PH and SH rules are ignored, month-limited rules too.
 import * as THREE from 'three';
-import { dataPath } from './city.js';
+import { dataPath, hasData } from './city.js';
 import { lisbonClock } from './traffic-model.js';
 
 // ------------------------------------------------------------ opening hours
@@ -218,6 +218,11 @@ async function fetchPois() {
 }
 
 export function loadPois() {
+  if (!hasData('pois.json')) {
+    // the city config says this file is not shipped: no request, no 404
+    STORE.loaded = true;
+    return (readyP ||= Promise.resolve(STORE.list));
+  }
   readyP ||= fetchPois()
     .then((doc) => {
       const list = doc.pois.filter((p) => p && typeof p.id === 'string' && Number.isFinite(p.lat) && Number.isFinite(p.lon) && typeof p.kind === 'string');

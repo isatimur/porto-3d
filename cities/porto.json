@@ -50,6 +50,7 @@
     }
   },
   "timezone": "Europe/Lisbon",
+  "data_absent": ["pois.json", "streetscape.json"],
   "locale_default": "ru",
   "season_default": "auto",
   "description": {

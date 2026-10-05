@@ -64,6 +64,10 @@ export async function loadCity(id = CITY_ID) {
 // for Braga, 'data/guimaraes/roads.json' for Guimarães.
 export const dataPath = (file) => `${CITY.data_dir}/${file}`;
 
+// False when the city config lists the file under "data_absent": the file is
+// optional and this city ships none, so the loader skips the fetch (no 404).
+export const hasData = (file) => !(Array.isArray(CITY.data_absent) && CITY.data_absent.includes(file));
+
 // The city's name in the page language; the Russian edition needs cases.
 export function cityName(lang = language, form = 'nom') {
   if (lang === 'ru' && form !== 'nom') return CITY.name_ru_cases?.[form] || CITY.name.ru;
