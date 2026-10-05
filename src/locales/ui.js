@@ -70,6 +70,7 @@ export const messages = {
   'Храмы': ['Templos', 'Religious sites'], 'Город': ['Cidade', 'City'], 'Сады': ['Jardins', 'Gardens'], 'Музеи': ['Museus', 'Museums'], 'Образование': ['Educação', 'Education'],
   'Спорт': ['Desporto', 'Sport'], 'Археология': ['Arqueologia', 'Archaeology'], 'Памятники': ['Monumentos', 'Monuments'],
   'Дворцы': ['Palácios', 'Palaces'], 'Природа': ['Natureza', 'Nature'], 'Разное': ['Outros', 'Other'],
+  'Сооружения': ['Estruturas', 'Structures'], 'Побережье': ['Costa', 'Coast'], 'Культура': ['Cultura', 'Culture'],
   'Фото': ['Fotografia', 'Photo'], 'Панорама': ['Panorama', 'Panorama'], 'Видео 360°': ['Vídeo 360°', '360° video'], 'Маршрут': ['Percurso', 'Route'],
   'интерьер': ['interior', 'interior'], 'фасад': ['exterior', 'exterior'], 'деталь': ['pormenor', 'detail'],
   'Открыть фото': ['Abrir fotografia', 'Open photo'], 'из': ['de', 'of'], 'Смотреть видео:': ['Ver vídeo:', 'Watch video:'], 'без названия': ['sem título', 'untitled'],

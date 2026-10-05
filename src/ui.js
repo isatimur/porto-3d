@@ -24,6 +24,9 @@ const CATEGORY_RU = {
   monument: t('Памятники'),
   palace: t('Дворцы'),
   nature: t('Природа'),
+  structure: t('Сооружения'),
+  coast: t('Побережье'),
+  culture: t('Культура'),
   other: t('Разное'),
 };
 export const categoryLabel = (c) => t(CATEGORY_RU[String(c).toLowerCase()] ?? c);
