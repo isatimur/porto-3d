@@ -10,6 +10,7 @@ import { buildRoads } from './roads.js';
 import { buildLandmarks } from './landmarks.js';
 import { buildBuildings, BUILDING_UNIFORMS, setBuildingsLite } from './buildings.js';
 import { buildNature } from './nature.js';
+import { loadQuays, buildQuays } from './quays.js';
 import { createEffects } from './effects.js';
 import { createIntro } from './intro.js';
 import { createInstruments } from './ui.js';
@@ -1664,7 +1665,17 @@ async function start() {
         console.error(`[porto] ${name} failed`, e);
       }
     };
+    const quaysP = loadQuays();
     await step('nature', buildNatureLayer);
+    await step('quays', () => {
+      quaysP.then((doc) => {
+        if (!doc) return;
+        const q = buildQuays({ doc, heightAt, S: 1 / METRES_PER_UNIT });
+        scene.add(q.group);
+        debug.quays = q.stats;
+        mark('quays');
+      });
+    });
     await step('ms', () => {
       ms = createMsBuildings({ scene, camera, terrain, heightAt, proj, footprints, plans: msPlans, osm: city.footprints, mobile: LITE, lite: LITE, debug });
       mark('ms');
