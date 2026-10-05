@@ -45,10 +45,19 @@ npm run verify              # build + every check (the gate)
 npm run check:data          # landmarks/routes content contract, licenses, photos
 npm run check:geo           # footprints, buildings, terrain, landmark osm
 npm run check:dimensions    # real-world dimensions + sources
-npm run check:fit           # 1:1 fit vs OSM (>=97 %, hard fail)
+npm run check:fit           # 1:1 fit vs OSM, two hard-fail rules:
+                            #   deviation > 15 % (DEVIATION_FAIL), and
+                            #   never-shrink: model < 97 % of the OSM extent
+                            #   or of dimensions.json height_m.total (SHRINK_MIN)
 npm run check:traffic       # street network + traffic invariants
 npm run check:models        # triangle budgets (4k..40k/model, <=900k total)
+node scripts/smoke-console.mjs  # headless dist load: fails on console/GL errors
+                            #   and bad geometry buffers; SKIPs without Chromium
 ```
+
+`npm run verify` runs 11 checks (the ones above plus smoke life, trams, rail
+and console). Green is the baseline: 70 detailed landmark builders, no massing
+fallback.
 
 ## Data Pipeline
 
@@ -81,8 +90,10 @@ PLAN.md         project plan and remaining rounds
 ## Engine Lineage
 
 Forked from braga-3d at commit `1784ff3`. Braga is the engine source of truth.
-Engine updates are ported manually (cherry-pick); there is **no automatic
-sync yet** — see `feature_list.json` `porto-011`.
+Engine updates are ported with `scripts/sync-engine.sh` (report-only by
+default; `--record`, `--apply`). The base commit sits in `scripts/engine-base.txt`
+(still `1784ff3`; the script has not run since the fork) — see
+`feature_list.json` `porto-011`.
 
 ## Hard Constraints
 

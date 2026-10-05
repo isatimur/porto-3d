@@ -49,9 +49,10 @@ Grids: the core bbox is `41.12–41.19 × −8.68…−8.55`; the 1 km tile grid
 26 × 26 (11 × 8 core) plus the wide ring. `scripts/city-lib.mjs` derives the
 tile grid, terrain lattice and projection from `cities/porto.json`.
 
-Landmarks, routes, dimensions, story, photos and GTFS metadata are authored in
-later rounds (see `PLAN.md`); until then the map draws the terrain and city
-fabric it has.
+Landmarks, routes, dimensions, story, photos and GTFS metadata are authored
+and checked in: `data/landmarks.json` (70 places), `data/dimensions.json`,
+`data/routes.json` (9 routes), `data/story.json` (18 chapters),
+`data/gtfs/schedule.json` and `assets/img/`.
 
 ## Project layout
 
@@ -69,6 +70,26 @@ PLAN.md         the project plan and remaining rounds
 
 ## Status
 
-Skeleton complete: engine forked, Porto config and shell in place, build green,
-data pipeline running. Landmark models currently use a generic OSM massing
-builder until the detailed 1:1 builders land. See `PLAN.md`.
+Live at https://porto-3d.vercel.app (Vercel project `porto-3d`, repo
+`isatimur/porto-3d`). `npm run verify` runs 11 checks, including a headless
+`smoke console` gate that fails on console errors, GL errors and inconsistent
+geometry buffers (it skips when no Chromium is available).
+
+Shipped:
+
+- 70 landmarks, each with its own hand-authored 1:1 builder in
+  `src/models/porto/`. No massing fallback remains.
+- `check:fit` enforces two rules: a 15 % deviation fail and a never-shrink
+  rule (model at least 97 % of the OSM extent and of the `dimensions.json`
+  height).
+- EN, PT and RU text for all landmarks and the UI.
+- 9 routes, an 18-chapter story, a cinema tour.
+- Live transit (trams, rabelo boats, trains), traffic, streamed ring tiles.
+- An adaptive performance governor in `src/main.js`.
+- SEO: a sitemap with 71 URLs and a `/p/<id>/` page per landmark with JSON-LD.
+- PWA (`public/sw.js`, manifest) and serverless API routes in `api/`
+  (guide, adsb, route).
+
+Open: the `porto-3d.com` domain does not answer yet; 10 newer landmarks lack an
+image in `public/og/`; quay walls and building geometry LOD are not built; the
+engine sync with braga-3d has not run since the fork. See `feature_list.json`.

@@ -1,6 +1,6 @@
 {
   "project": "porto-3d",
-  "last_updated": "2026-10-02",
+  "last_updated": "2026-10-05",
   "rules": {
     "single_active_feature": true,
     "passing_requires_evidence": true,
@@ -8,7 +8,7 @@
   },
   "status_legend": {
     "not_started": "Work has not begun.",
-    "in_progress": "The feature is the current active task.",
+    "in_progress": "The feature is the current active task, or only part of it has shipped.",
     "blocked": "Work cannot continue until a documented blocker is resolved.",
     "passing": "Required verification has passed and evidence is recorded."
   },
@@ -18,7 +18,7 @@
       "priority": 1,
       "area": "skeleton",
       "title": "Engine fork, Porto config, shell, green build",
-      "user_visible_behavior": "The app runs for ?city=porto and draws an empty Porto terrain and city fabric.",
+      "user_visible_behavior": "The app runs for ?city=porto and draws Porto terrain and city fabric.",
       "status": "passing",
       "verification": [
         "npm run dev, open http://localhost:5173",
@@ -27,9 +27,10 @@
       ],
       "evidence": [
         "commit 1a77430 (engine from braga-3d, Porto single-city fork)",
-        "commit 57d32c0 (run ms-buildings after tiles; drop dead redirects)"
+        "npm run verify 2026-10-05: PASS build",
+        "cities/porto.json holds the core bbox and 70 landmark ids"
       ],
-      "notes": "Forked from braga-3d at 1784ff3. cities/porto.json holds 20 candidates and the core bbox."
+      "notes": "Forked from braga-3d at 1784ff3. Braga is now named only in inherited engine comments in src/ (liveair.js, roads.js, scene.js, ...)."
     },
     {
       "id": "porto-002",
@@ -37,38 +38,38 @@
       "area": "data",
       "title": "Core geodata: terrain, buildings, roads, nature",
       "user_visible_behavior": "The map shows real Porto terrain, OSM buildings, the street network and green areas.",
-      "status": "blocked",
+      "status": "passing",
       "verification": [
-        "node scripts/check-geo.mjs --city porto (footprints.json now exists, so this runs strict)",
+        "npm run check:geo",
         "npm run check:traffic",
         "Visual: terrain, buildings, roads and nature visible in dev"
       ],
       "evidence": [
-        "data/terrain.json, data/buildings.json, data/roads.json, data/nature.json",
-        "check-geo PASS (3 warnings: palacio-cristal centroid 847 m off; buildings 8.64 MB > 8 MB baseline but within porto's 12 MB ceiling; 30 building centroids inside a landmark outline)",
-        "check-traffic now genuinely runs and FAILS: 8 vehicle-steps below the ground (deterministic over 90 s, 1.6 M vehicle-steps; 100% on one-way / roundabout / keep-right / heading)"
+        "data/terrain.json, data/buildings.json, data/roads.json, data/nature.json, data/life.json",
+        "npm run verify 2026-10-05: PASS geo (3 warnings: palacio-cristal centroid 847 m off; buildings 8.64 MB > 8 MB baseline but within porto's 12 MB ceiling; 147 building centroids inside a landmark outline)",
+        "npm run verify 2026-10-05: PASS traffic (the earlier 8 below-ground vehicle-steps are fixed)"
       ],
-      "notes": "BLOCKER: check-traffic was a vacuous pass before — scripts/check-traffic.mjs read process.argv[2] (='--city') as the seconds, so it simulated 0 steps. Fixed to parse the optional numeric arg. The real run exposes 8 vehicle-steps below terrain; needs an engine/src/road-network.js or roads-data fix (not owned by the harness). check-geo's hardcoded 8 MB buildings cap was corrected to a per-city cap (porto 12 MB, 8 MB baseline kept as a warning) because Porto's extent/OSM coverage is several times Braga's."
+      "notes": "check-geo uses a per-city buildings cap (porto 12 MB); the 8 MB baseline still warns. check-traffic parses its optional seconds argument (it once passed vacuously)."
     },
     {
       "id": "porto-003",
       "priority": 3,
       "area": "content",
-      "title": "Landmark content for 20 places (RU/EN/PT) + merge",
+      "title": "Landmark content for 70 places (RU/EN/PT) + merge",
       "user_visible_behavior": "Each landmark card shows real text in Russian, English and Portuguese with credited photos.",
-      "status": "in_progress",
+      "status": "passing",
       "verification": [
-        "npm run check:data (after data/routes.json exists)",
-        "node scripts/merge-landmarks.mjs --city porto produces data/landmarks.json and src/locales/{en,pt}.porto.js",
+        "npm run check:data",
+        "node scripts/merge-content.mjs produces data/landmarks.json and src/locales/{en,pt}.porto.js",
         "Visual: locale switch shows EN/PT rather than the Russian source"
       ],
       "evidence": [
-        "data/new/<id>.{content,en,pt,landmark,osm}.json for 20 places",
-        "scripts/merge-content.mjs (untracked)",
-        "data/landmarks.json now has all 20 places merged with content",
-        "src/locales/en.porto.js and pt.porto.js filled (17:19)"
+        "data/landmarks.json holds 70 landmarks; data/new/ holds 222 per-place source files (.content/.en/.pt/.landmark/.osm)",
+        "src/locales/en.porto.js, src/locales/pt.porto.js and src/locales/ui.js are filled",
+        "assets/img holds 231 landmark photos",
+        "npm run verify 2026-10-05: PASS data contract"
       ],
-      "notes": "check-data is still SKIPped by verify: data/routes.json (porto-007) and assets/img photos are not produced yet, so the landmark content contract cannot be validated. src/locales/{en,pt}.porto.js are now non-empty."
+      "notes": "The roster grew from 20 to 70 places. Source text is RU native; EN and PT are translations."
     },
     {
       "id": "porto-004",
@@ -76,116 +77,129 @@
       "area": "data",
       "title": "Footprints and real-world dimensions with sources",
       "user_visible_behavior": "Landmark footprints match OSM and dimensions carry cited sources.",
-      "status": "in_progress",
+      "status": "passing",
       "verification": [
         "node scripts/fetch-footprints.mjs --city porto",
         "npm run check:dimensions",
         "npm run check:geo"
       ],
       "evidence": [
-        "data/footprints.json exists for 20/20 Porto landmarks; check-geo PASSes its footprint/landmark.osm contract",
-        "check-dimensions is SKIPped by verify (data/dimensions.json missing)",
-        "check-fit RUNS (footprints + landmarks present) and FAILS: many detailed models deviate from the OSM extent / shrink below 97% with dimensions.json absent"
+        "data/footprints.json and data/dimensions.json cover 70/70 landmarks",
+        "each dimensions.json entry carries footprint_m, height_m, elements, sources[] (source, fact, reasoning) and confidence",
+        "npm run verify 2026-10-05: PASS dimensions, PASS geo"
       ],
-      "notes": "footprints.json landed (20/20). dimensions.json is the remaining input; it unblocks check:dimensions, the fit height guard, and honest check:models sizes. check:fit currently runs without dimensions and reports genuine model-vs-OSM mismatches owned by porto-009."
+      "notes": "Some entries cite source 'estimate' for OSM-derived geometry; the reasoning field explains each one."
     },
     {
       "id": "porto-005",
       "priority": 5,
       "area": "data",
-      "title": "Ring tiles and Microsoft buildings",
-      "user_visible_behavior": "The city continues past the historic core with Microsoft building shapes.",
-      "status": "in_progress",
+      "title": "Ring tiles and Microsoft buildings, streamed",
+      "user_visible_behavior": "The city continues past the historic core with Microsoft building shapes, streamed in as the camera moves.",
+      "status": "passing",
       "verification": [
         "node scripts/city.mjs porto --from tiles",
-        "node scripts/city.mjs porto --only ms-buildings",
-        "Visual: ring tiles and MS buildings render"
+        "Visual: ring tiles and MS buildings render and stream in"
       ],
       "evidence": [
-        "BACKGROUND PIPELINE RUNNING as of 2026-10-02: `node scripts/fetch-tiles.mjs --city porto` (pid 33137) and `node scripts/city.mjs porto --from roads` (pid 32758)",
-        "data/tiles/ and data/buildings-ms.json not present yet; verify.mjs does not depend on them"
+        "data/tiles/ holds 469 tile files plus index.json; data/tiles-ms/ holds 440 files",
+        "data/buildings-ms.json present",
+        "src/tiles.js streams the 1 km tiles around the core; src/tile-worker.js builds them off the main thread"
       ],
-      "notes": "ms-buildings must run after tiles. 26x26 grid, ~4x Braga. Do not start/stop the running pipeline; this session only observed it read-only."
+      "notes": "ms-buildings must run after tiles. The 26x26 grid is about 4x Braga's."
     },
     {
       "id": "porto-006",
       "priority": 6,
       "area": "data",
       "title": "Traffic axes and GTFS feeds (STCP + Metro do Porto)",
-      "user_visible_behavior": "Traffic flows on the right axes and live transit is shown.",
-      "status": "not_started",
+      "user_visible_behavior": "Traffic flows on the right axes and live transit is shown: trams, rabelo boats and trains.",
+      "status": "passing",
       "verification": [
-        "Add porto to AXES_BY_CITY in fetch-traffic-axes.mjs",
         "node scripts/city.mjs porto --only traffic-axes",
         "node scripts/city.mjs porto --only gtfs",
-        "npm run check:traffic"
+        "npm run check:traffic",
+        "node scripts/smoke-life.mjs; node scripts/smoke-trams.mjs; node scripts/smoke-rail.mjs"
       ],
-      "evidence": [],
-      "notes": "Two GTFS feeds (STCP, Metro do Porto) — set both URLs in cities/porto.json."
+      "evidence": [
+        "data/traffic-axes.json and data/gtfs/schedule.json (STCP + Metro do Porto, CCZero, dadosabertos.cm-porto.pt, 78 routes)",
+        "npm run verify 2026-10-05: PASS traffic; smoke life (10 moving boats: 5 rabelo, 3 cruiser, 1 ferry, plus 7 moored rabelo); smoke trams (6 yellow cars on 3 lines); smoke rail (5 trains on 3 services)"
+      ],
+      "notes": "Live transit logic is in src/live.js, src/life.js, src/livebus.js. Traffic model: src/traffic-model.js."
     },
     {
       "id": "porto-007",
       "priority": 7,
       "area": "content",
-      "title": "Three routes: Ribeira & bridges, Baixa & Clérigos, Douro & Foz",
-      "user_visible_behavior": "Three authored walking/driving routes are selectable and drawn on the map.",
-      "status": "not_started",
+      "title": "Nine routes",
+      "user_visible_behavior": "Nine authored routes are selectable and drawn on the map.",
+      "status": "passing",
       "verification": [
-        "Add the three routes to ROUTES_BY_CITY in fetch-routes.mjs; resolve via OSRM",
         "npm run check:data",
         "Visual: each route draws and its card opens"
       ],
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        "data/routes.json holds 9 routes: ribeira-pontes, baixa-historica, douro-oceano, gaia-vinho, igrejas-azulejos, museus-jardins, matosinhos-mar, boavista-teatros, paco-igrejas",
+        "src/routes.js draws them; scripts/fetch-routes.mjs resolves legs via OSRM",
+        "npm run verify 2026-10-05: PASS data contract"
+      ],
+      "notes": "The original plan listed three routes."
     },
     {
       "id": "porto-008",
       "priority": 8,
       "area": "content",
-      "title": "Story mode: 10 chapters",
-      "user_visible_behavior": "Story mode walks through ten chapters of Porto's history.",
-      "status": "not_started",
+      "title": "Story mode: 18 chapters",
+      "user_visible_behavior": "Story mode walks through eighteen chapters of Porto's history in RU/EN/PT.",
+      "status": "passing",
       "verification": [
-        "data/story.json has 10 chapters",
+        "data/story.json has the chapters",
         "Visual: story mode advances through all chapters"
       ],
-      "evidence": [],
-      "notes": "Portus Cale -> Suebi -> episcopal Porto -> maritime expansion -> bridges (1877, 1886) -> port wine -> Aliados/Republic -> saudade -> UNESCO 1996 -> Capital of Culture 2001."
+      "evidence": [
+        "data/story.json holds 18 chapters with title_ru/en/pt and subtitle_ru/en/pt",
+        "src/story.js drives the mode"
+      ],
+      "notes": "The original plan listed ten chapters."
     },
     {
       "id": "porto-009",
       "priority": 9,
       "area": "models",
       "title": "Detailed 1:1 landmark models on real footprints",
-      "user_visible_behavior": "Named landmarks are recognisable 1:1 procedural models, not generic massing blocks.",
-      "status": "in_progress",
+      "user_visible_behavior": "All 70 landmarks are recognisable 1:1 procedural models, not generic massing blocks.",
+      "status": "passing",
       "verification": [
-        "npm run check:fit (>=97 % never-shrink, <=15 % deviation)",
-        "npm run check:models (4k..40k tris/model, <=600k total)",
+        "npm run check:fit (15 % deviation fail AND never-shrink >= 97 %)",
+        "npm run check:models (4k..40k tris/model, <=900k total)",
         "Visual: each landmark matches its real silhouette"
       ],
       "evidence": [
-        "src/models/porto/{clerigos,sao-bento,bolsa,lello,casa-musica,carmo,dragao,mercado-bolhao,ponte-arrabida,ponte-luis-i,ponte-maria-pia,se-porto,serralves,uporto-reitoria}.js (untracked; 14 registered in src/models.js)",
-        "count-tris now RUNS for Porto: 14 detailed / 6 still generic massing; total 82,393 tris (budget 600k)",
-        "check:models FAILS: 5 detailed builders are below the 4k floor — ponte-luis-i 3000, serralves 2102, casa-musica 3564, dragao 2420, ponte-arrabida 2264 (floor NOT lowered; massing models are reported, not failed)",
-        "check:fit FAILS: 23 failures (site/main deviation + never-shrink) against the OSM extent"
+        "70 hand-authored builders in src/models/porto/<id>.js, one per landmark; no massing fallback (count-tris: detailed 70, massing 0)",
+        "count-tris 2026-10-05: 70 within budget, total 747,306 tris (budget 900,000)",
+        "npm run verify 2026-10-05: PASS 1:1 fit, PASS models",
+        "check-fit guards: DEVIATION_FAIL = 0.15 and SHRINK_MIN = 0.97 via shrinkCheck() in src/fit.js; the shrink check covers plan x and z against the OSM extent, and height against dimensions.json height_m.total"
       ],
-      "notes": "porto-009 is blocked on model geometry: 5 registered detailed builders are under the 4k triangle floor and the detailed models do not yet match their OSM footprints. scripts/count-tris.mjs was corrected to distinguish 'detailed' from 'generic massing' (via builder.rule.note) and hard-fail only detailed models outside the 4k..40k budget; src/models/* and data/* were not touched. Douro and Foz water: skill 3d-ultra-realistic-water."
+      "notes": "src/models/porto/block.js, index.js and site-fit.js are helpers, not landmarks. Far LOD for landmarks lives in src/landmarks.js (vertex-clustered copy)."
     },
     {
       "id": "porto-010",
       "priority": 10,
       "area": "integration",
-      "title": "Round 4: character and integration",
-      "user_visible_behavior": "Bridges, Guindais funicular and tram 1 are alive; seasons and the cinema order are Porto's own.",
-      "status": "not_started",
+      "title": "Character and integration",
+      "user_visible_behavior": "Cinema tour, live elements, seasons, OG images and search are Porto's own.",
+      "status": "in_progress",
       "verification": [
-        "CINEMA_ORDER covers 20 chapters",
-        "make-og --city porto renders the bridge icon",
+        "CINEMA_ORDER lists the landmarks",
+        "make-og --city porto renders the share images",
         "Visual: live elements and seasons behave"
       ],
-      "evidence": [],
-      "notes": "Replace Braga ids in src/search.js and src/life.js weights/anchors; swap PLACEHOLDER_* in src/placeholder-data.js."
+      "evidence": [
+        "CINEMA_ORDER in src/tour.js holds 70 entries",
+        "public/og holds 61 images: porto.jpg plus 60 landmark images; 10 landmarks have none yet (bessa, teatro-sa-da-bandeira, teatro-nacional-sao-joao, igreja-da-vitoria, igreja-carmelitas, casa-museu-marta-ortigao-sampaio, mercado-matosinhos, camara-matosinhos, farol-leca, paco-episcopal)",
+        "src/life.js runs the Guindais funicular, boats and fountains; src/porto-streetscape.js holds Porto's streetscape"
+      ],
+      "notes": "Braga ids and placeholder constants remain only where the engine treats them as no-ops for other cities. Not re-verified visually in this session."
     },
     {
       "id": "porto-011",
@@ -193,27 +207,84 @@
       "area": "harness",
       "title": "Engine sync mechanism with braga-3d",
       "user_visible_behavior": "Engine fixes can be ported to this fork in one documented step.",
-      "status": "not_started",
+      "status": "in_progress",
       "verification": [
-        "A scripts/sync-engine.sh exists and records the upstream braga-3d commit SHA",
+        "scripts/sync-engine.sh runs in report mode against braga-3d and prints the diff since the base",
+        "scripts/engine-base.txt matches the last ported braga-3d commit",
         "README/AGENTS state the current engine base commit"
       ],
-      "evidence": [],
-      "notes": "Harness debt: forks drift because sync is manual cherry-pick. PLAN mentions sync-engine.sh but it does not exist."
+      "evidence": [
+        "scripts/sync-engine.sh exists (report-only by default; --record and --apply modes)",
+        "scripts/engine-base.txt holds 1784ff3 (the fork point)"
+      ],
+      "notes": "The script has not been run against braga-3d's current HEAD. The base is still the fork commit, so no engine fix has been ported since. README does not state the base yet."
     },
     {
       "id": "porto-012",
       "priority": 12,
       "area": "deploy",
-      "title": "Round 5: deploy to Vercel and porto-3d.com",
-      "user_visible_behavior": "The production site is live on the custom domain with working API routes.",
-      "status": "not_started",
+      "title": "Deploy to Vercel and the porto-3d.com domain",
+      "user_visible_behavior": "The production site is live with working API routes.",
+      "status": "in_progress",
       "verification": [
         "vercel link --project porto-3d && vercel --prod --yes",
-        "Check /p/<id>/, /og/ and /api/adsb?city=porto on the live domain"
+        "Check /, /p/<id>/, /og/<id>.jpg and /api/adsb?city=porto on the live site",
+        "Check https://porto-3d.com resolves"
+      ],
+      "evidence": [
+        "https://porto-3d.vercel.app answers 200 on /, /p/clerigos/, /og/clerigos.jpg and /api/adsb?city=porto (checked 2026-10-05)",
+        ".vercel/project.json links project porto-3d; git remote origin is isatimur/porto-3d"
+      ],
+      "notes": "NOT DONE: the custom domain porto-3d.com does not answer yet (no DNS / alias). cities/porto.json already lists porto-3d.com and www.porto-3d.com as hostnames."
+    },
+    {
+      "id": "porto-013",
+      "priority": 13,
+      "area": "world",
+      "title": "Quay walls along the Douro",
+      "user_visible_behavior": "The river edge in Ribeira and Gaia has built quay walls, not a bare terrain edge.",
+      "status": "not_started",
+      "verification": [
+        "Visual: Cais da Ribeira and Cais de Gaia show stone walls at water level",
+        "npm run verify stays green"
       ],
       "evidence": [],
-      "notes": ""
+      "notes": "No quay-wall code exists in src/ today."
+    },
+    {
+      "id": "porto-014",
+      "priority": 14,
+      "area": "performance",
+      "title": "Geometry LOD for buildings and tiles",
+      "user_visible_behavior": "Far buildings and tiles draw fewer triangles, so weak devices hold the frame rate.",
+      "status": "not_started",
+      "verification": [
+        "Measure frame time before and after on a low-tier profile",
+        "npm run verify stays green"
+      ],
+      "evidence": [],
+      "notes": "Landmarks already have a far LOD (src/landmarks.js) and the governor in src/main.js lowers tile budgets. Building and tile meshes have no geometry LOD."
+    },
+    {
+      "id": "porto-015",
+      "priority": 15,
+      "area": "web",
+      "title": "SEO pages, PWA and serverless API",
+      "user_visible_behavior": "Each landmark has a shareable page with a preview image; the app installs as a PWA; the guide and live aircraft work.",
+      "status": "in_progress",
+      "verification": [
+        "ls public/p | wc -l; grep -c '<loc>' public/sitemap.xml",
+        "curl the live /p/<id>/ and /og/<id>.jpg",
+        "npm run verify (smoke console gate)"
+      ],
+      "evidence": [
+        "public/sitemap.xml holds 71 URLs; public/p/ holds 70 per-landmark pages with JSON-LD",
+        "public/og holds 60 landmark images; 10 landmark pages point og:image at a file that does not exist yet (list in porto-010); run node scripts/make-og.mjs --og to fix",
+        "public/sw.js and public/manifest.webmanifest exist",
+        "api/guide.js, api/adsb.js, api/route.js, api/_city.js",
+        "scripts/smoke-console.mjs loads dist headless and fails on console errors, GL errors and inconsistent geometry buffers; it SKIPs without playwright-core/Chromium"
+      ],
+      "notes": "verify now has 11 checks. On 2026-10-05 smoke console failed once with a transient net::ERR_FAILED while other work rebuilt dist, then passed on rerun."
     }
   ]
 }

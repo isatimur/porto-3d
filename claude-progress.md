@@ -11,15 +11,36 @@ updates it automatically.
 - Repository root: `~/Dev/porto-3d`
 - Standard startup path: `./init.sh`
 - Standard verification path: `npm run verify`
-- Current highest-priority unfinished feature: `porto-003` (landmark content + merge)
-- Current blocker: `porto-002`/`porto-009` — `npm run verify` is RED on real defects, not harness bugs:
-  - `check:traffic` (now runs for real) reports 8 vehicle-steps below the ground;
-  - `check:models` reports 5 registered detailed builders below the 4k triangle floor;
-  - `check:fit` reports 23 model-vs-OSM failures.
-  All three need work in `src/` or `data/` owned by other agents; the harness itself is healthy.
-- Known in-progress (read-only): background pipeline `fetch-tiles.mjs --city porto` + `city.mjs porto --from roads` (tiles / ms-buildings, feature `porto-005`).
+- Verified 2026-10-05: `npm run verify` is GREEN, 11 checks: build, data contract, geo, dimensions, 1:1 fit, traffic, models, smoke life, smoke trams, smoke rail, smoke console. 0 skipped on a machine with Chromium.
+  - Geo has 3 known warnings (palacio-cristal centroid 847 m off; buildings 8.64 MB over the 8 MB baseline, within the 12 MB porto ceiling; 147 building centroids inside a landmark outline).
+  - `check:fit` holds two rules: 15 % deviation fail and never-shrink (>= 97 % of the OSM extent and of the `dimensions.json` height).
+  - `check:models`: 70 detailed builders, 0 massing, 747,306 tris of 900,000.
+  - One verify run saw a transient `net::ERR_FAILED` in smoke console while dist was rebuilt by other work; a rerun passed.
+- Current highest-priority unfinished features: `porto-012` (domain `porto-3d.com` does not answer), `porto-011` (engine sync never run since the fork), `porto-013` (quay walls), `porto-014` (geometry LOD).
+- Known gap: 10 landmarks have no image in `public/og/` yet (list in `feature_list.json`, `porto-010`).
+- Live: https://porto-3d.vercel.app (Vercel project `porto-3d`); git remote `isatimur/porto-3d`.
 
 ## Session Log
+
+### Session 003
+
+- Date: 2026-10-05
+- Goal: Checkpoint the work of earlier sessions, fix visual and GL defects, add a browser gate, and bring the state files in line with the real project.
+- Completed:
+  - Checkpointed the uncommitted work (commit `7610e9b`).
+  - Added category chip labels for structure, coast and culture in RU/EN/PT (commit `deacd54`).
+  - Fixed an `aWall` buffer overrun in `src/buildings.js`. `aWall` has 4 floats per vertex (see the dedicated loop near line 703). The overrun raised `GL_INVALID_OPERATION` (commit `e49438b`).
+  - Added `scripts/smoke-console.mjs` and the `smoke console` check in `scripts/verify.mjs`. It loads `dist` headless and fails on console errors, GL errors and inconsistent geometry buffers. It SKIPs without playwright-core/Chromium.
+  - Road glow now fades with fog. The `FOG_ADDITIVE` define is set in `src/roads.js` and read in `src/scene.js`. This removes the white ribbons on the horizon (commit `c910873`).
+  - Rewrote `feature_list.json`, `README.md`, `PLAN.md`, `AGENTS.md`, `session-handoff.md` and `evaluator-rubric.md` to match the shipped state.
+- Verification run: `npm run verify` -> 10 passed, 1 failed (transient smoke console `net::ERR_FAILED` while other work rebuilt dist). `node scripts/smoke-console.mjs` alone then passed, so all 11 checks are green.
+- Evidence captured: `feature_list.json` evidence strings (counts re-checked with ls, node one-liners and curl on 2026-10-05).
+- Known risk / unresolved issue:
+  - `porto-3d.com` does not answer.
+  - 10 landmark pages point `og:image` at files that do not exist.
+  - Engine sync with braga-3d never ran after the fork (`scripts/engine-base.txt` = `1784ff3`).
+  - Quay walls and building geometry LOD are not built.
+- Next best step: run `node scripts/make-og.mjs --og` for the 10 missing images, then connect the `porto-3d.com` domain in Vercel.
 
 ### Session 002
 
