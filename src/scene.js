@@ -329,6 +329,10 @@ if (cloudShape.z > 0.001) {
       float fDens = 1.0 / max( fogFar, 1.0 );
     #endif
     float fTau = fDens * fDist * fMean;
+    // seen from the overview height the whole city is one long ray: cap the
+    // air's optical depth so the Douro and the roofs stay readable (the map
+    // edge ramp below is not affected). Heights are world units (4 per m).
+    fTau *= 1.0 - 0.65 * smoothstep( 300.0, 1400.0, cameraPosition.y );
     float fEdge = fogParams.w > 0.0 ? fogParams.w : 2400.0;
     float fOut = fogRect.z > fogRect.x
       ? length( max( max( fogRect.xy - vFogWorld.xz, vFogWorld.xz - fogRect.zw ), 0.0 ) )
