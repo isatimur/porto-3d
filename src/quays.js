@@ -263,6 +263,7 @@ export function buildQuays({ doc, heightAt, S }) {
   const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.93, metalness: 0, side: THREE.DoubleSide });
   mat.name = 'quay-stone';
   for (const [key, cell] of cells) {
+    if (!cell.idx.length) continue; // a cell only a line's end point touched
     const g = cell.geometry();
     const mesh = new THREE.Mesh(g, mat);
     mesh.name = `quays-${key}`;
@@ -271,7 +272,7 @@ export function buildQuays({ doc, heightAt, S }) {
     group.add(mesh);
     stats.tris += cell.idx.length / 3;
   }
-  stats.cells = cells.size;
+  stats.cells = group.children.length;
   stats.lengthM = Math.round(stats.lengthM);
   return { group, stats };
 }
