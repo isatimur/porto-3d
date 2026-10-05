@@ -343,7 +343,13 @@ if (cloudShape.z > 0.001) {
     vec3 fCol = mix( fogColor, fogSunColor, clamp( fSun, 0.0, 1.0 ) );
     // and paler/cooler over the water, so the far hills meet a marine horizon
     fCol = mix( fCol, fogSeaColor, clamp( fogMaritime.y * fSea, 0.0, 0.85 ) );
-    gl_FragColor.rgb = mix( gl_FragColor.rgb, fCol, fogFactor );
+    #ifdef FOG_ADDITIVE
+      // an additive layer cannot blend toward the fog colour (that would add
+      // a bright haze colour: white ribbons on the horizon); it fades out
+      gl_FragColor.a *= 1.0 - fogFactor;
+    #else
+      gl_FragColor.rgb = mix( gl_FragColor.rgb, fCol, fogFactor );
+    #endif
   }
 #endif`;
   for (const lib of Object.values(THREE.ShaderLib)) {

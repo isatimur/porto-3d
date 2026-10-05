@@ -899,6 +899,7 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
       });
       glowMat.toneMapped = false;
       glowMat.fog = true;
+      glowMat.defines.FOG_ADDITIVE = ''; // fade with distance instead of adding haze colour
       materials.push(glowMat);
       const glow = new LineSegments2(geo, glowMat);
       glow.renderOrder = order++;
