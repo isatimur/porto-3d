@@ -408,7 +408,7 @@
       "total": 60,
       "upper_deck": 60,
       "lower_deck": 10,
-      "arch_rise": 45
+      "arch_rise": 44.6
     },
     "elements": {
       "main_span_m": 172,
@@ -437,17 +437,26 @@
           "elements.main_span_m",
           "elements.total_length_m"
         ],
+        "url": "https://www.wikidata.org/wiki/Q1322447",
+        "fact": "span and length",
+        "value": "P2043 length = 385.25 m; P2787 = 172 m. Same figures in arquitecturaferro.blogspot.com: \"Arco: mede 172 m de corda e tem 44,6 m de flecha\", \"Comprimento: total 385,25 m\". Infraestruturas de Portugal gives the upper deck as about 391 m between abutment axes (a different measure). English Wikipedia currently reads 395.25 m (not adopted: no primary source)."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.upper_deck"
+        ],
         "url": "https://en.wikipedia.org/wiki/Dom_Lu%C3%ADs_I_Bridge",
-        "fact": "upper deck, span and length",
-        "value": "upper deck 60 m above the Douro; central span 172 m; total length 385.25 m (Wikidata Q1322447)"
+        "fact": "bridge height",
+        "value": "Infobox \"Height: 70 metres (230 ft)\" (overall structure). Travel and engineering sources put the upper deck at 60-62 m above the river; no primary source found, so 60 m is kept as the rounded deck height (estimate, sources disagree)."
       },
       {
         "paths": [
           "height_m.arch_rise"
         ],
-        "url": "https://www.wikidata.org/wiki/Q1322447",
-        "fact": "structural height",
-        "value": "P2048 = 45 m"
+        "url": "http://arquitecturaferro.blogspot.com/2009/02/ponte-dluis-teofilo-seyrig.html",
+        "fact": "arch rise (flecha)",
+        "value": "\"Arco: mede 172 m de corda e tem 44,6 m de flecha\" (Wikidata P2048 = 45 m; monumentos.gov.pt summary quotes 49 m rise for a 172.5 m arch)"
       },
       {
         "paths": [
@@ -538,12 +547,12 @@
     "height_m": {
       "total": 70,
       "deck": 70,
-      "arch_rise": 70
+      "arch_rise": 52
     },
     "elements": {
       "main_span_m": 270,
       "total_length_m": 493.2,
-      "deck_width_m": 26
+      "deck_width_m": 26.5
     },
     "facade_faces": "S",
     "facade_azimuth_deg": 170,
@@ -582,17 +591,17 @@
         "paths": [
           "height_m.arch_rise"
         ],
-        "source": "estimate",
-        "fact": "arch",
-        "reasoning": "Arch crown reaches the 70 m deck height."
+        "url": "https://en.wikipedia.org/wiki/Arr%C3%A1bida_Bridge",
+        "fact": "arch rise",
+        "value": "Infobox: arch rise 52 m (171 ft); height above water 70 m (230 ft)"
       },
       {
         "paths": [
           "elements.deck_width_m"
         ],
-        "source": "estimate",
+        "url": "https://en.wikipedia.org/wiki/Arr%C3%A1bida_Bridge",
         "fact": "deck width",
-        "reasoning": "Deck about 26 m wide (estimate; not published in the cited sources)."
+        "value": "Infobox: width 26.5 metres (87 ft)"
       }
     ],
     "confidence": "high"
