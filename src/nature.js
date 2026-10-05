@@ -127,6 +127,8 @@ const hash2 = (x, y) => {
 //   Parque da Cidade: umbrella pines with oaks, cypress, lakeside willows
 //     and poplars.
 //   Foz: palms at the mouth, pines behind, agapanthus in the beds.
+//   Matosinhos / Leça coast: maritime pine and cypress on the dunes, with
+//     reed at the Leça mouth; street gardens around the market and the câmara.
 //   Aliados / Cordoaria / São Lázaro / Passeio Alegre: the gardens and
 //     avenues — plane, linden, jacaranda accents, palms at the river mouth.
 const PORTO_REGIONS = [
@@ -134,6 +136,11 @@ const PORTO_REGIONS = [
   { lat: 41.1579, lon: -8.6291, r: 900, b: 1.6, sp: [[0, 0.6], [5, 0.4]] },
   { lat: 41.163, lon: -8.677, r: 2000, b: 2.8, sp: [[0, 0.42], [2, 0.2], [5, 0.13], [9, 0.15], [10, 0.1]] },
   { lat: 41.149, lon: -8.679, r: 1500, b: 4, sp: [[7, 0.5], [0, 0.35], [13, 0.15]] },
+  // Matosinhos and Leça da Palmeira: pine and cypress on the dunes
+  { lat: 41.1815, lon: -8.686, r: 1500, b: 3.2, sp: [[0, 0.46], [5, 0.28], [2, 0.16], [11, 0.1]] },
+  { lat: 41.1955, lon: -8.701, r: 1200, b: 2.6, sp: [[0, 0.4], [5, 0.34], [11, 0.16], [13, 0.1]] },
+  // Matosinhos town: garden and street trees around the market and the câmara
+  { lat: 41.1845, lon: -8.6895, r: 850, b: 3.5, sp: [[6, 0.3], [2, 0.28], [12, 0.17], [7, 0.13], [13, 0.12]] },
   { lat: 41.1487, lon: -8.6125, r: 900, b: 6, sp: [[6, 0.65], [2, 0.2], [12, 0.15]] },
   // the three gardens: Cordoaria, São Lázaro, Passeio Alegre
   { lat: 41.1452, lon: -8.6147, r: 300, b: 6, sp: [[2, 0.42], [6, 0.28], [12, 0.18], [13, 0.12]] },
@@ -518,7 +525,7 @@ export function buildNature(opts) {
   const { data, project, heightAt } = opts;
   const group = new THREE.Group();
   group.name = 'nature';
-  const stats = { areas: 0, trees: 0, near: 0, far: 0, water: 0, rejected: 0, landPx: '', stream: 0, bank: 0, species: [] };
+  const stats = { areas: 0, trees: 0, near: 0, far: 0, water: 0, rejected: 0, landPx: '', stream: 0, bank: 0, coast: 0, species: [] };
   const uniforms = {
     uTime: { value: 0 },
     uSunView: { value: new THREE.Vector3(0, 1, 0) },
@@ -874,6 +881,109 @@ export function buildNature(opts) {
       }
     }
     stats.bank = placed;
+  }
+
+  // ---- coastal planting along the ocean shore. data.coast is the OSM
+  // coastline (ascending latitude, fetching the whole wide bbox); from Foz
+  // north to Leça da Palmeira it is walked edge by edge and the land side is
+  // found by the higher ground. Maritime pine and cypress go on the dunes,
+  // coastal scrub and reed at their foot. Inside the core the same occupancy
+  // test as every other tree applies; beyond it (Matosinhos / Leça, which
+  // have no core street data) only the water polygons are excluded, and the
+  // band is kept narrow and shore-hugging so nothing lands in the built town.
+  if (Array.isArray(data.coast) && data.coast.length >= 2) {
+    const coastMinD = opts.mobile ? 6.5 : 4.5; // world units between clumps
+    const coastBudget = opts.mobile ? 70 : 230;
+    const coastBand = 10; // world units (~40 m) behind the waterline
+    const waterRings = areas.filter((a) => a.k === 'water').flatMap((a) => a.rings);
+    const coast = data.coast.map(([lat, lon]) => ({ lat, ...project(lat, lon) })).filter((p) => p.lat >= 41.146 && p.lat <= 41.205);
+    const rnd3 = lcg(20261215);
+    const ccell = coastMinD / Math.SQRT2;
+    const cgrid = new Map();
+    const ckey = (i, j) => (i * 73856093) ^ (j * 19349663);
+    let placed = 0;
+    for (let s = 0; s < coast.length - 1 && placed < coastBudget; s++) {
+      const p = coast[s];
+      const q = coast[s + 1];
+      const dx = q.x - p.x;
+      const dz = q.z - p.z;
+      const len = Math.hypot(dx, dz);
+      if (len < 1e-3) continue;
+      const steps = Math.max(1, Math.round(len / 6));
+      for (let k = 0; k < steps && placed < coastBudget; k++) {
+        const t = (k + rnd3()) / steps;
+        const bx = p.x + dx * t;
+        const bz = p.z + dz * t;
+        const nx = -dz / len;
+        const nz = dx / len;
+        const d = 1.5 + rnd3() * coastBand;
+        // the ocean is west: take the higher (land) side
+        let x = bx + nx * d;
+        let z = bz + nz * d;
+        if (heightAt(x, z) < heightAt(bx - nx * d, bz - nz * d)) {
+          x = bx - nx * d;
+          z = bz - nz * d;
+        }
+        // stay above the sand and the quays: the shore sample is the waterline
+        const rise = heightAt(x, z) - heightAt(bx, bz);
+        if (rise < 0.6) continue;
+        if (inRings(x, z, waterRings)) continue;
+        const inside = x > rect.x0 && x < rect.x1 && z > rect.zN && z < rect.zS;
+        if (inside && blocked(x, z)) {
+          stats.rejected++;
+          continue;
+        }
+        const gi = Math.floor(x / ccell);
+        const gj = Math.floor(z / ccell);
+        let close = false;
+        for (let di = -2; di <= 2 && !close; di++) {
+          for (let dj = -2; dj <= 2 && !close; dj++) {
+            const o = cgrid.get(ckey(gi + di, gj + dj));
+            if (o && Math.hypot(o.x - x, o.z - z) < coastMinD) close = true;
+          }
+        }
+        if (close) continue;
+        const lat = p.lat + (q.lat - p.lat) * t;
+        const mix =
+          lat < 41.172
+            ? [[7, 0.28], [0, 0.34], [5, 0.14], [13, 0.14], [2, 0.1]] // Foz
+            : lat < 41.189
+              ? [[0, 0.46], [5, 0.28], [3, 0.16], [2, 0.1]] // Matosinhos dunes
+              : [[0, 0.4], [5, 0.3], [11, 0.2], [3, 0.1]]; // Leça
+        let sp = mix[mix.length - 1][0];
+        let acc = 0;
+        const roll = rnd3();
+        for (const [spc0, w] of mix) {
+          acc += w;
+          if (roll < acc) {
+            sp = spc0;
+            break;
+          }
+        }
+        const spc = SPECIES[sp];
+        const hM = spc.h[0] + rnd3() * (spc.h[1] - spc.h[0]);
+        const reach = hM * S * (sp === 3 ? 0.4 : sp === 0 || sp === 5 ? 0.22 : 0.25);
+        if (inside && (blocked(x + reach, z) || blocked(x - reach, z) || blocked(x, z + reach) || blocked(x, z - reach))) {
+          stats.rejected++;
+          continue;
+        }
+        cgrid.set(ckey(gi, gj), { x, z });
+        tint.set(spc.tint).multiplyScalar(0.8 + rnd3() * 0.4);
+        tint.offsetHSL((rnd3() - 0.5) * 0.03, 0, 0);
+        trees.push({
+          x,
+          y: heightAt(x, z) - Math.min(0.35, hM * S * 0.12),
+          z,
+          h: hM * S,
+          s: sp,
+          rot: rnd3() * Math.PI * 2,
+          tint: [tint.r, tint.g, tint.b],
+          phase: rnd3() * 6.283,
+        });
+        placed++;
+      }
+    }
+    stats.coast = placed;
   }
   stats.trees = trees.length;
 

@@ -830,6 +830,8 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
   float bNearK = bNear * aa;
   float glassK = 0.0; // how much of this pixel is window glass (lit at night)
   float shopK = 0.0; // ... shop window
+  float signK = 0.0; // ... lit shop fascia / hanging sign
+  vec3 signCol = vec3(0.0);
 
   // ---- plaster variants: pale lime-wash with a per-building hue drift
   // (ochre, rose, blue) and a fine render mottle, only on plaster fronts
@@ -919,6 +921,15 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
       // a fascia over the opening (near: the sign band)
       float fascia = bBand(bY, openTop + 0.08, openTop + 0.45, fwidth(bY)) * step(0.06, bf) * step(bf, 0.94);
       col = mix(col, fc * 1.5 + vec3(0.02), fascia * bNear * 0.8);
+      // shop signage: a lit fascia band and hanging sign in a shop colour;
+      // crisp enough that it does not wash the wall at a distance
+      signK = fascia * (1.0 - smoothstep(0.12, 0.4, fwidth(bY))) * step(0.5, o);
+      float sh = bHash(vec2(bi, bSd * 191.0));
+      signCol = sh < 0.32 ? vec3(0.20, 0.60, 1.00)
+              : sh < 0.55 ? vec3(1.00, 0.32, 0.16)
+              : sh < 0.75 ? vec3(1.00, 0.72, 0.28)
+              : sh < 0.90 ? vec3(0.95, 0.25, 0.40)
+              : vec3(0.45, 1.00, 0.55);
       shopK = o * step(hb, 0.72);
       glassK = max(glassK, o * oa);
     } else if (bSt != 4.0) {
@@ -1129,18 +1140,33 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
 
   // the lights only after dusk (a uniform branch: by day no hashes run)
   if (uNight > 0.0) {
-    float lit = step(bHash(id + vec2(bSd * 311.0, bSd * 173.0)), litK);
+    // windows come on unevenly through the dusk: each one has its own
+    // threshold, so the facade fills up over the evening instead of
+    // switching on at once (and empties again at dawn). The share lit at
+    // full night is litK; the shared dusk ramp fades them with the sun.
+    float turn = smoothstep(0.0, 0.85, uNight);
+    float ph = bHash(id + vec2(bSd * 311.0, bSd * 173.0));
+    float lit = step(ph, litK * (0.3 + 0.7 * turn));
     #ifdef BRG_WIN_LITE
     vec3 warm = vec3(1.0, 0.67, 0.36);
     #else
+    // colour varies window to window: mostly warm amber and incandescent
+    // white, the odd cool screen or fluorescent for a lived-in mix
     float tone = bHash(id.yx + bSd * 57.0);
-    vec3 warm = mix(vec3(1.0, 0.56, 0.22), vec3(1.0, 0.78, 0.5), tone);
+    vec3 warm = tone < 0.52 ? vec3(1.00, 0.55, 0.20)
+              : tone < 0.82 ? vec3(1.00, 0.76, 0.47)
+              : tone < 0.93 ? vec3(0.72, 0.83, 1.00)
+              : vec3(0.86, 0.95, 0.72);
     #endif
+    // per-window brightness, so a lit row is not one flat rectangle
+    float bVar = 0.7 + 0.6 * bHash(id.xy + bSd * 401.0);
     float exact = win * lit * step(g0, bY);
-    float average = 0.26 * litK * inside;
+    float average = 0.26 * litK * inside * (0.4 + 0.6 * turn);
     // 2.6: a lit window (~1.6 in linear HDR) passes the 1.5 bloom threshold
-    totalEmissiveRadiance += warm * mix(average, exact, aa) * uNight * 2.6;
+    totalEmissiveRadiance += warm * bVar * mix(average, exact, aa) * uNight * 2.6;
     totalEmissiveRadiance += vec3(1.0, 0.72, 0.42) * shopK * uNight * 2.2;
+    // neon-ish shop signage: the fascia band glows in a shop colour
+    totalEmissiveRadiance += signCol * signK * uNight * 1.7;
   }
 } else if (vWall.y >= 0.0) {
   // churches: floodlit stone at night

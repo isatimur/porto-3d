@@ -22,7 +22,7 @@
 //
 // With effects off, main.js renders straight to the canvas instead.
 import * as THREE from 'three';
-import { deviceDpr, DPR } from './scene.js';
+import { deviceDpr, DPR, WEATHER_UNIFORMS } from './scene.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
@@ -309,9 +309,14 @@ export function createEffects(renderer, scene, camera, { reducedMotion = false }
     const off = Math.max(Math.abs(_p.x), Math.abs(_p.y));
     const fade = inFront ? 1 - THREE.MathUtils.smoothstep(off, 1.0, 1.45) : 0;
     const low = 1 - THREE.MathUtils.smoothstep(_v.y, 0.25, 0.7); // strongest near the horizon
+    // weather: a solid deck, rain or the low sea fog closes the sky and the
+    // shafts with it, so shafts only blaze in clear and partly cloudy air
+    const cover = THREE.MathUtils.smoothstep(WEATHER_UNIFORMS.cloudParams.value.z, 0.45, 0.95);
+    const rain = THREE.MathUtils.smoothstep(WEATHER_UNIFORMS.cloudShape.value.w, 0.25, 0.95);
+    const clear = (1 - 0.85 * cover) * (1 - 0.55 * rain);
     // quality tier: no shafts on low/lite (reduced motion still keeps the
     // pass static — its jitter does not animate)
-    const s = raysAllowed() ? fade * THREE.MathUtils.smoothstep(_v.y, -0.02, 0.06) * (1 - night) * (0.35 + 0.65 * low) : 0;
+    const s = raysAllowed() ? fade * THREE.MathUtils.smoothstep(_v.y, -0.02, 0.06) * (1 - night) * (0.35 + 0.65 * low) * clear : 0;
     rays.sun.set(_p.x * 0.5 + 0.5, _p.y * 0.5 + 0.5);
     rays.strength = s * rays.gain;
     rays.haze = haze;

@@ -945,6 +945,15 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
   const pools = lampPools(net, heightAt, { seg: lite ? 8 : 12 });
   if (pools) group.add(pools);
   counts.lampPools = pools ? pools.geometry.attributes.position.count : 0;
+  // the skyline anchors, floodlit after dark (Porto's Clérigos, Sé, Bolsa and
+  // the Luís I bridge): a warm-white halo climbs the facade and spills onto
+  // the pavement, so the towers read against the night. Tier-gated: light
+  // mode keeps only the two base/top glows, no ground pool.
+  const floods = landmarkFloods(project, heightAt, { lite });
+  if (floods) {
+    group.add(floods.object);
+    counts.floodlights = floods.count;
+  }
 
   if (hint) legendToggle((on) => api.setTunnelHint(on));
 
@@ -962,6 +971,7 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
     setResolution(w, h, dpr = 1) {
       for (const m of materials) if (m.isLineMaterial) m.resolution.set(w, h);
       if (lamps) lamps.material.uniforms.uHeight.value = h * dpr;
+      floods?.setResolution(h * dpr);
     },
     // 0 day .. 1 night: lamps on; the unlit street surfaces and the minor
     // lines darken with the land, the main streets keep a soft glow
@@ -978,6 +988,7 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
         pools.material.uniforms.uNight.value = w;
         pools.visible = w > 0.02;
       }
+      floods?.setNight(w);
     },
     // with post-processing, the main streets' core and glow go above the
     // bloom threshold (linear HDR); without it they keep their plain colours
@@ -1216,7 +1227,7 @@ function lampPools(net, heightAt, { seg = 12, radiusM = 5.5 } = {}) {
       varying float vFade;
       void main() {
         float pool = pow(1.0 - clamp(vR, 0.0, 1.0), 2.2);
-        vec3 sodium = vec3(1.0, 0.5, 0.17);
+        vec3 sodium = vec3(1.0, 0.58, 0.24);
         gl_FragColor = vec4(sodium * pool * uNight * vFade * 0.4, 1.0);
       }`,
   });
@@ -1230,8 +1241,10 @@ function lampPools(net, heightAt, { seg = 12, radiusM = 5.5 } = {}) {
   return mesh;
 }
 // The warm glow of lamps at night: one Points draw. sizeU: the glow's size
-// in world units (2.4: about 10 m); name: the object's name.
-export function lampGlow(pos, { sizeU = 2.4, name = 'street-lamps', maxPx = 12 } = {}) {
+// in world units (2.4: about 10 m); name: the object's name; color: the core
+// colour (default: a warm sodium amber; the Porto lanterns want it a touch
+// warmer and tighter than a motorway lamp).
+export function lampGlow(pos, { sizeU = 2.4, name = 'street-lamps', maxPx = 12, color = [1.0, 0.6, 0.26] } = {}) {
   if (!pos.length) return null;
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
@@ -1240,7 +1253,7 @@ export function lampGlow(pos, { sizeU = 2.4, name = 'street-lamps', maxPx = 12 }
     transparent: true,
     depthWrite: false,
     blending: THREE.AdditiveBlending,
-    uniforms: { uNight: { value: 0 }, uHeight: { value: 900 } },
+    uniforms: { uNight: { value: 0 }, uHeight: { value: 900 }, uColor: { value: color } },
     vertexShader: /* glsl */ `
       uniform float uHeight;
       varying float vFade;
@@ -1254,16 +1267,16 @@ export function lampGlow(pos, { sizeU = 2.4, name = 'street-lamps', maxPx = 12 }
       }`,
     fragmentShader: /* glsl */ `
       uniform float uNight;
+      uniform vec3 uColor;
       varying float vFade;
       void main() {
         vec2 p = gl_PointCoord * 2.0 - 1.0;
         float r = dot(p, p);
         if (r > 1.0) discard;
-        // a tight, warm sodium core with a small halo: a lamp, not a haze
-        float core = exp(-r * 16.0);
-        float halo = exp(-r * 4.5) * 0.14;
-        vec3 sodium = vec3(1.0, 0.53, 0.19);
-        gl_FragColor = vec4(sodium * (core * 2.6 + halo) * uNight * vFade, 1.0);
+        // a tight, warm core with a small halo: a lantern, not a haze
+        float core = exp(-r * 22.0);
+        float halo = exp(-r * 6.0) * 0.11;
+        gl_FragColor = vec4(uColor * (core * 2.8 + halo) * uNight * vFade, 1.0);
       }`,
   });
   mat.toneMapped = false;
@@ -1280,4 +1293,171 @@ export function lampGlow(pos, { sizeU = 2.4, name = 'street-lamps', maxPx = 12 }
   pts.visible = false;
   pts.renderOrder = 30;
   return pts;
+}
+
+// Porto's skyline anchors, floodlit after dark: a warm-white halo climbs
+// each form and (except the iron bridge, which has no ground under its deck)
+// a soft pool spills onto the pavement, so Clérigos, the Sé, the Bolsa and
+// the Luís I arch carry the night skyline. The table is the only place-
+// specific data; lat/lon are the real landmark positions, `h` an approximate
+// top (m), `pool` a ground-pool radius (m, 0 for none).
+const LANDMARK_FLOODS = [
+  { lat: 41.14563, lon: -8.61456, h: 76, k: 1.0, pool: 30 }, // Torre dos Clérigos
+  { lat: 41.14278, lon: -8.61102, h: 30, k: 0.9, pool: 34 }, // Sé do Porto
+  { lat: 41.14129, lon: -8.61539, h: 20, k: 0.85, pool: 30 }, // Palácio da Bolsa
+  // the iron bridge: no ground under its deck, so a horizontal cluster of
+  // warm halos at the upper-deck height reads as its lighting from any angle
+  { lat: 41.13957, lon: -8.60921, k: 0.8, pool: 0, bridge: true, size: 7.5 },
+];
+function landmarkFloods(project, heightAt, { lite = false } = {}) {
+  const pos = [];
+  const aSize = [];
+  const aK = [];
+  const poolSites = [];
+  let count = 0;
+  for (const f of LANDMARK_FLOODS) {
+    const p = project(f.lat, f.lon);
+    const base = heightAt(p.x, p.z);
+    // buildings: a warm halo climbs the facade; the bridge: a deck cluster
+    const offs = f.bridge
+      ? lite ? [[0, 58, 0]] : [[0, 57, -26], [0, 60, 0], [0, 57, 26], [-15, 59, 0], [15, 59, 0]]
+      : (lite ? [0.14, 0.94] : [0.1, 0.42, 0.72, 0.96]).map((t) => [0, f.h * t, 0]);
+    for (const [dx, dy, dz] of offs) {
+      pos.push(p.x + dx * S, base + dy * S, p.z + dz * S);
+      aSize.push((f.size ?? 6.2) * f.k);
+      aK.push(f.k);
+      count++;
+    }
+    if (!lite && f.pool) poolSites.push({ x: p.x, z: p.z, r: f.pool * S, k: f.k });
+  }
+  const object = new THREE.Group();
+  object.name = 'landmark-floods';
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.setAttribute('aSize', new THREE.Float32BufferAttribute(aSize, 1));
+  geo.setAttribute('aK', new THREE.Float32BufferAttribute(aK, 1));
+  geo.computeBoundingSphere();
+  const mat = new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    uniforms: { uNight: { value: 0 }, uHeight: { value: 900 }, uColor: { value: [1.0, 0.87, 0.64] } },
+    vertexShader: /* glsl */ `
+      uniform float uHeight;
+      attribute float aSize;
+      attribute float aK;
+      varying float vFade;
+      varying float vK;
+      void main() {
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        gl_Position = projectionMatrix * mv;
+        float d = max(-mv.z, 1.0);
+        gl_PointSize = clamp(aSize * projectionMatrix[1][1] * uHeight * 0.5 / d, 2.0, 90.0);
+        vFade = 1.0 - smoothstep(3000.0, 8000.0, d);
+        vK = aK;
+      }`,
+    fragmentShader: /* glsl */ `
+      uniform float uNight;
+      uniform vec3 uColor;
+      varying float vFade;
+      varying float vK;
+      void main() {
+        vec2 p = gl_PointCoord * 2.0 - 1.0;
+        float r = dot(p, p);
+        if (r > 1.0) discard;
+        // a broad, soft floodlight halo, warmer and weaker than a lamp
+        float core = exp(-r * 9.0);
+        float halo = exp(-r * 3.0) * 0.2;
+        gl_FragColor = vec4(uColor * (core * 2.0 + halo) * uNight * vFade * vK, 1.0);
+      }`,
+  });
+  mat.toneMapped = false;
+  const points = new THREE.Points(geo, mat);
+  points.name = 'landmark-floods';
+  const _db = new THREE.Vector2();
+  points.onBeforeRender = (renderer) => {
+    const t = renderer.getRenderTarget();
+    mat.uniforms.uHeight.value = t ? t.height : renderer.getDrawingBufferSize(_db).y;
+  };
+  points.frustumCulled = false;
+  points.visible = false;
+  points.renderOrder = 31;
+  object.add(points);
+
+  // ground pools: a soft additive disc under each form, on the terrain
+  let poolMesh = null;
+  if (poolSites.length) {
+    const seg = 14;
+    const ppos = [];
+    const aR = [];
+    const idx = [];
+    for (const q of poolSites) {
+      const v0 = ppos.length / 3;
+      ppos.push(q.x, heightAt(q.x, q.z) + RIBBON_LIFT + 0.05, q.z);
+      aR.push(0);
+      for (let k = 0; k < seg; k++) {
+        const a = (k / seg) * Math.PI * 2;
+        const px = q.x + Math.cos(a) * q.r;
+        const pz = q.z + Math.sin(a) * q.r;
+        ppos.push(px, heightAt(px, pz) + RIBBON_LIFT + 0.05, pz);
+        aR.push(1);
+      }
+      for (let k = 0; k < seg; k++) idx.push(v0, v0 + 1 + k, v0 + 1 + ((k + 1) % seg));
+    }
+    const pgeo = new THREE.BufferGeometry();
+    pgeo.setAttribute('position', new THREE.Float32BufferAttribute(ppos, 3));
+    pgeo.setAttribute('aR', new THREE.Float32BufferAttribute(aR, 1));
+    pgeo.setIndex(ppos.length / 3 > 65535 ? new THREE.Uint32BufferAttribute(idx, 1) : new THREE.Uint16BufferAttribute(idx, 1));
+    pgeo.computeBoundingSphere();
+    const pmat = new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+      polygonOffsetUnits: -6,
+      uniforms: { uNight: { value: 0 } },
+      vertexShader: /* glsl */ `
+        attribute float aR;
+        varying float vR;
+        varying float vFade;
+        void main() {
+          vR = aR;
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          gl_Position = projectionMatrix * mv;
+          vFade = 1.0 - smoothstep(2000.0, 5000.0, -mv.z);
+        }`,
+      fragmentShader: /* glsl */ `
+        uniform float uNight;
+        varying float vR;
+        varying float vFade;
+        void main() {
+          float pool = pow(1.0 - clamp(vR, 0.0, 1.0), 2.0);
+          gl_FragColor = vec4(vec3(1.0, 0.9, 0.68) * pool * uNight * vFade * 0.3, 1.0);
+        }`,
+    });
+    pmat.toneMapped = false;
+    poolMesh = new THREE.Mesh(pgeo, pmat);
+    poolMesh.name = 'landmark-flood-pools';
+    poolMesh.frustumCulled = false;
+    poolMesh.renderOrder = 28;
+    poolMesh.visible = false;
+    object.add(poolMesh);
+  }
+
+  return {
+    object,
+    count,
+    setResolution(h) {
+      if (h > 0) mat.uniforms.uHeight.value = h;
+    },
+    setNight(w) {
+      object.visible = w > 0.02;
+      mat.uniforms.uNight.value = w;
+      if (poolMesh) {
+        poolMesh.material.uniforms.uNight.value = w;
+        poolMesh.visible = w > 0.02;
+      }
+    },
+  };
 }

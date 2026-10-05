@@ -27,8 +27,8 @@ const smooth = (t) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
 //   - named summits (Sé, Serra do Pilar, the Gaia upland) add a little
 //     broad gain, so the rounded tops read as hills rather than ramps;
 //   - a positive-only ridged noise raises granite outcrops and boulders on
-//     the Gaia hillside and the Foz coast;
-//   - a dune berm shapes the beach/dune transition behind the Foz shore.
+//     the Gaia hillside and the rocky Foz / Matosinhos / Leça coast;
+//   - a dune berm shapes the beach/dune transition behind each ocean beach.
 // Every added term is non-negative, so ridges rise while hollows, the
 // riverbed and the coast keep their raw height (water.js reads heightAt).
 // The raw heights are kept and re-exported for the streamed tiles, so
@@ -140,30 +140,49 @@ function enhanceGrid(H, cols, rows, frame) {
       // tight high-pass: the knee of a gorge bank, the Gaia slope, a cliff
       const fine = Math.max(0, H[i] - s1[i]) * FINE_GAIN * (1 + SLOPE_BOOST * steep);
 
-      // outcrops: positive ridged noise on the Gaia hillside and Foz coast,
-      // kept off the riverbed and the shore by ROCK_MIN_H
+      // outcrops: positive ridged noise on the rocky shores (Gaia hillside,
+      // Foz cliffs, the Matosinhos / Leça coast), kept off the riverbed and
+      // the waterline by each region's own floor
       let rock = 0;
-      if (frame && H[i] > ROCK_MIN_H) {
-        const rw = Math.max(regionW(mx, mz, frame.gaia), regionW(mx, mz, frame.foz));
-        if (rw > 0) {
+      if (frame) {
+        let rw = 0;
+        let minH = ROCK_MIN_H;
+        for (const s of frame.rocks) {
+          const w = regionW(mx, mz, s);
+          if (w > rw) {
+            rw = w;
+            minH = s.minH ?? ROCK_MIN_H;
+          }
+        }
+        if (rw > 0 && H[i] > minH) {
           const crest = ridgeFbm((c + 0.5) * 0.75, (r + 0.5) * 0.75);
           rock = ROCK_A * Math.pow(Math.max(0, crest - 0.42) / 0.58, 1.5) * rw * (0.3 + 0.7 * steep);
         }
       }
-      // dune berm behind the Foz beach: crest near 5 m, land only
+      // dune berm behind each beach, land only: a low crest on the Foz belt
+      // and a taller one on the Matosinhos / Leça dunes
       let dune = 0;
       if (frame) {
         const land = smooth(Math.min(1, Math.max(0, (H[i] - 0.4) / 2.5)));
         if (land > 0) {
-          const b = (H[i] - 5) / 3.2;
-          dune = DUNE_A * Math.exp(-b * b) * regionW(mx, mz, frame.foz) * land;
+          let dw = 0;
+          for (const d of frame.dunes) dw = Math.max(dw, regionW(mx, mz, d));
+          if (dw > 0) {
+            const bLo = (H[i] - 5) / 3.2;
+            const bHi = (H[i] - 18) / 6.5;
+            dune = DUNE_A * (Math.exp(-bLo * bLo) + 0.5 * Math.exp(-bHi * bHi)) * dw * land;
+          }
         }
       }
+      // the Leixões quays and the Leça mouth stay surveyed: suppress the
+      // positive-only enhancement there so the flat quays and channel remain
+      let flatW = 0;
+      if (frame) for (const f of frame.flats) flatW = Math.max(flatW, regionW(mx, mz, f));
       // ridges and hilltops rise only: hollows, the riverbed and the coast
       // keep their raw height, so the water surface (water.js reads heightAt)
       // stays where the DEM put it.
       const micro = (hash2(c * 1.7, r * 2.3) - 0.5 + 0.5 * (hash2(c * 0.5 + 3, r * 0.5 - 2) - 0.5)) * 2 * MICRO_M;
-      G[i] = H[i] + (relief(hp + fine) + rock + dune + micro) * ef;
+      G[i] = H[i] + (relief(hp + fine) + rock + dune + micro) * ef * (1 - flatW);
     }
   }
   return G;
@@ -204,8 +223,29 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
             { ...at(41.1378, -8.6108), r: 520, g: 0.45 }, // Serra do Pilar
             { ...at(41.1258, -8.606), r: 950, g: 0.28 }, // Gaia upland
           ],
-          gaia: { ...at(41.13, -8.612), r: 1900 }, // Gaia hillside outcrops
-          foz: { ...at(41.156, -8.684), r: 1500 }, // Foz coast: rocks and dunes
+          // rocky shores: positive ridged outcrops, each with its own floor
+          // so the Foz cliffs and the Matosinhos / Leça coast are carved
+          // without touching the riverbed or the waterline
+          rocks: [
+            { ...at(41.13, -8.612), r: 1900, minH: 6 }, // Gaia hillside
+            { ...at(41.157, -8.682), r: 1500, minH: 3.5 }, // Foz cliffs
+            { ...at(41.184, -8.683), r: 2200, minH: 3.5 }, // Matosinhos dunes
+            { ...at(41.196, -8.7), r: 2000, minH: 3.5 }, // Leça da Palmeira
+          ],
+          // dune belts behind each beach: a low crest at Foz, a taller one on
+          // the Matosinhos / Leça dunes (land only, ridges rise)
+          dunes: [
+            { ...at(41.157, -8.682), r: 1500 }, // Foz dune belt
+            { ...at(41.184, -8.683), r: 2200 }, // Matosinhos dune belt
+            { ...at(41.196, -8.7), r: 2000 }, // Leça dune belt
+          ],
+          // kept flat: the Leixões quays and the Leça river mouth. The DEM is
+          // already level there, so no relief is added and the surveyed quays
+          // and channel stay put.
+          flats: [
+            { ...at(41.1855, -8.7035), r: 1200 }, // Porto de Leixões quays
+            { ...at(41.188, -8.706), r: 700 }, // Leça river mouth
+          ],
         };
       })()
     : null;

@@ -2239,5 +2239,138 @@ export const routes = {
         "note": "O troço longo de táxi ou autocarro até ao Parque da Cidade; a bicicleta ao longo do rio é outra opção."
       }
     ]
+  },
+  "matosinhos-mar": {
+    "name": "Matosinhos e o mar",
+    "subtitle": "Parque da Cidade, o mercado de peixe de Matosinhos e o farol de Leça",
+    "duration": "≈ 3,5 horas",
+    "description": "O percurso segue para norte, do Parque da Cidade em direção ao mar, ao longo da costa que vai da Foz a Matosinhos e Leça da Palmeira. Primeiro o grande parque urbano, com lagos e dunas, depois o mercado de peixe de Matosinhos, onde a sardinha e o atum se vendem desde manhã cedo, e a câmara municipal com o seu largo. O último troço segue a costa até à ponta rochosa onde o farol de Leça brilha desde 1926, e para lá do qual se abre o Atlântico. Em Matosinhos prove o peixe fresco na grelha: dezenas de restaurantes junto ao porto cozinham-no direto da pesca da manhã. O elétrico 1 só vai até à Foz; a partir daí o autocarro e a linha A do metro seguem para Matosinhos, por isso confirme os horários para a volta.",
+    "stops": [
+      {
+        "time": "10:00",
+        "note": "O Parque da Cidade — o maior parque do Porto, com lagos, relvados e dunas que alcançam o Atlântico. Comece aqui antes do calor."
+      },
+      {
+        "time": "11:00",
+        "note": "O Mercado Municipal de Matosinhos, de 1952: filas de peixe e marisco fresco e a lota da manhã. Espreite o pavilhão que negocia desde as seis da manhã."
+      },
+      {
+        "time": "12:05",
+        "note": "A Câmara Municipal de Matosinhos e o largo em frente. Daqui se vê como uma vila de pescadores se tornou cidade."
+      },
+      {
+        "time": "12:45",
+        "note": "O farol de Leça, de 1926, na ponta rochosa de Leça da Palmeira. Miradouro sobre o oceano, as ondas e o céu do entardecer. Fim do percurso."
+      }
+    ],
+    "legs": [
+      {
+        "note": "Autocarro ou metro da linha A para norte, do Parque da Cidade ao mercado de Matosinhos. O elétrico 1 só chega à Foz."
+      },
+      {
+        "note": "Do mercado à câmara e ao seu largo, alguns minutos a pé."
+      },
+      {
+        "note": "De autocarro ao longo da costa até Leça da Palmeira e depois a pé até ao farol."
+      }
+    ]
+  },
+  "boavista-teatros": {
+    "name": "Boavista e teatros",
+    "subtitle": "Casa da Música, a Casa-Museu Marta Ortigão Sampaio, o Bessa e os teatros junto à Batalha",
+    "duration": "≈ 5 horas",
+    "description": "O percurso vai de ocidente para oriente: do novo centro cultural da Boavista aos teatros antigos da Praça da Batalha. Comece na Casa da Música, de Rem Koolhaas, e entre na Casa-Museu Marta Ortigão Sampaio, com a sua coleção de pintura e artes decorativas. O Boavista FC joga no Estádio do Bessa Século XXI, reconstruído para o Euro 2004. O último troço é de táxi até à Praça da Batalha, onde se erguem o Coliseu de 1908, o Teatro Sá da Bandeira de 1859 e o Teatro Nacional de São João de 1920. Consulte as programações com antecedência: à noite estes teatros dão peças e concertos.",
+    "stops": [
+      {
+        "time": "10:30",
+        "note": "A Casa da Música, na rotunda da Boavista, projeto de Rem Koolhaas aberto em 2005. Visitas guiadas às salas e uma intensa programação de concertos."
+      },
+      {
+        "time": "11:40",
+        "note": "A Casa-Museu Marta Ortigão Sampaio: pintura, mobiliário e artes decorativas de finais do século XIX e inícios do XX numa antiga villa."
+      },
+      {
+        "time": "12:45",
+        "note": "O Estádio do Bessa Século XXI — a casa do Boavista FC, reconstruído para o Campeonato da Europa de 2004. A história do clube está à vista, do lado de fora."
+      },
+      {
+        "time": "13:35",
+        "note": "O Coliseu do Porto, de 1908, na Praça da Batalha: um teatro-circo sob cúpula de ferro, onde se dava opereta, circo e cinema."
+      },
+      {
+        "time": "14:15",
+        "note": "O Teatro Sá da Bandeira, de 1859 — um dos mais antigos teatros em atividade de Portugal, na mesma praça."
+      },
+      {
+        "time": "14:55",
+        "note": "O Teatro Nacional de São João: o edifício atual abriu em 1920 e tornou-se o principal palco dramático da cidade. Fim do percurso."
+      }
+    ],
+    "legs": [
+      {
+        "note": "Da Casa da Música à Casa-Museu Marta Ortigão Sampaio, alguns minutos a pé."
+      },
+      {
+        "note": "De autocarro ou táxi pela Boavista até ao estádio do Bessa."
+      },
+      {
+        "note": "De táxi do Bessa à Praça da Batalha, pelo centro, cerca de 4 km."
+      },
+      {
+        "note": "O Coliseu e o Teatro Sá da Bandeira ficam lado a lado, na Praça da Batalha."
+      },
+      {
+        "note": "Mais uns minutos até ao Teatro Nacional de São João."
+      }
+    ]
+  },
+  "paco-igrejas": {
+    "name": "O Paço Episcopal e as velhas igrejas",
+    "subtitle": "Paço Episcopal, a catedral, as igrejas da Vitória e das Carmelitas",
+    "duration": "≈ 4 horas",
+    "description": "Um percurso a pé pelo coração religioso do Porto. Comece no Paço Episcopal, a residência barroca dos bispos do século XVIII, em frente à catedral. Visite a catedral românica do século XII, no alto, desça à igreja de Nossa Senhora da Vitória e suba à igreja das Carmelitas, com o seu altar barroco. Ao lado ergue-se a igreja do Carmo, de fachada revestida a azulejos. Termine na torre dos Clérigos, com um panorama da cidade. O percurso é curto e quase todo a pé; comece de manhã, enquanto as igrejas estão tranquilas.",
+    "stops": [
+      {
+        "time": "09:30",
+        "note": "O Paço Episcopal, reedificado no século XVIII sob o bispo D. Rafael de Mendonça. A fachada e a escadaria nobre são atribuídas a Nicolau Nasoni."
+      },
+      {
+        "time": "10:15",
+        "note": "A catedral românica do Porto, do século XII, no alto: o claustro gótico com azulejos e o terraço sobre o paço episcopal."
+      },
+      {
+        "time": "11:10",
+        "note": "A igreja de Nossa Senhora da Vitória, do século XVI, no bairro da Vitória, com interior barroco."
+      },
+      {
+        "time": "11:45",
+        "note": "A igreja das Carmelitas, do século XVII: um altar barroco e a quietude do bairro conventual na Rua das Carmelitas."
+      },
+      {
+        "time": "12:15",
+        "note": "A igreja do Carmo, em frente: a fachada lateral coberta de azulejos azuis e brancos."
+      },
+      {
+        "time": "12:40",
+        "note": "A igreja e a torre dos Clérigos, de Nicolau Nasoni. Suba ao campanário de 1763 — 225 degraus e um panorama da cidade. Fim do percurso."
+      }
+    ],
+    "legs": [
+      {
+        "note": "O paço fica mesmo em frente à catedral, no largo da Sé."
+      },
+      {
+        "note": "Da catedral desça ao bairro da Vitória, até à igreja de Nossa Senhora da Vitória."
+      },
+      {
+        "note": "Para norte, pelas ruas, até à igreja das Carmelitas na Rua das Carmelitas."
+      },
+      {
+        "note": "A igreja do Carmo fica em frente, do outro lado da rua."
+      },
+      {
+        "note": "Mais alguns minutos para sul até à igreja e à torre dos Clérigos."
+      }
+    ]
   }
 };

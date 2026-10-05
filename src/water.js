@@ -232,6 +232,10 @@ export const waterUniforms = {
   uWSwellGain: { value: 1.6 },
   uWSwellQ: { value: 0.9 },
   uWMaxQ: { value: 1.2 },
+  // 0..1 airborne spray torn off the breakers at the shoreline, raised by the
+  // weather (weather.js) in a storm or the nortada; the ocean shader lifts it
+  // as a pale veil over the crests at the Foz.
+  uWSpray: { value: 0 },
   uWShoal: { value: 150 },
   uWWall: { value: new THREE.Vector4(RIBEIRA.x, RIBEIRA.z, RIBEIRA.rx, RIBEIRA.rz) },
   uWCoast: { value: new Float32Array(COAST_MAX) },
@@ -256,7 +260,7 @@ uniform vec3 uWaveW[NW];     // [inland, tidal, ocean] weight
 uniform float uWavePhase[NW];
 uniform sampler2D uWDetail;
 uniform float uWTime;
-uniform float uWTideOff, uWSwellGain, uWSwellQ, uWMaxQ, uWShoal, uWCoastCount;
+uniform float uWTideOff, uWSwellGain, uWSwellQ, uWMaxQ, uWSpray, uWShoal, uWCoastCount;
 uniform vec2 uWSwellOff, uWCoastZ;
 uniform vec4 uWWall;
 uniform float uWCoast[NCOAST];
@@ -268,6 +272,7 @@ vec3 wNor = vec3(0.0, 1.0, 0.0);
 float wJ = 1.0;
 float wH = 0.0;
 float wFoamK = 0.0;
+float wSprayK = 0.0;
 
 // Coastline x at a world z, from the baked profile (data/nature.json coast).
 // Returns a huge x (no shoaling) when the profile is missing or out of range.
@@ -492,15 +497,26 @@ wFoamK = 0.0;
     float dshore = max(0.0, wCoastX(P.y) - P.x);
     float shoal = 1.0 - smoothstep(0.0, uWShoal, dshore);
     float breaker = kOc * smoothstep(uWShoal, uWShoal * 0.15, dshore) * smoothstep(-0.02, 0.18, wH);
-    float openFoam = crestFoam * (kTd * 0.35 + kOc * (0.35 + 0.65 * shoal));
+    // a storm tears more foam off the crests; the nortada and rain lift it
+    float openFoam = crestFoam * (kTd * 0.35 + kOc * (0.35 + 0.65 * shoal)) * (0.7 + 0.3 * uWSpray);
     m = max(m, max(openFoam, breaker * 0.95));
+    // airborne spray: torn off the breaking crests at the Foz shoreline,
+    // strongest in a storm, none in the lite tier
+    wSprayK = kOc * shoal * smoothstep(0.0, 0.16, wH) * uWSpray;
   }
   #endif
   float foam = smoothstep(1.0 - m, 1.2 - m, pattern * 0.88 + m * 0.22);
   float dist = length(cameraPosition - P);
   foam *= 1.0 - smoothstep(250.0, 700.0, dist);
-  wFoamK = foam;
+  wSprayK *= 1.0 - smoothstep(300.0, 800.0, dist);
+  wFoamK = clamp(foam + wSprayK * 0.6, 0.0, 1.0);
   diffuseColor.rgb = mix(diffuseColor.rgb, uWFoam * 0.6, foam * 0.85);
+  diffuseColor.rgb = mix(diffuseColor.rgb, uWFoam, wSprayK * 0.45);
+  // a pale veil that lifts above the breakers, additive so it reads over the
+  // shaded water without smearing the sea into a flat white. Scaled by the
+  // sun so it dims at night with the rest of the time of day.
+  float wDayK = 0.2 + 0.8 * clamp(uWSunDir.y, 0.0, 1.0);
+  totalEmissiveRadiance += uWFoam * wSprayK * 0.14 * wDayK;
 }
 `;
 

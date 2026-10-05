@@ -2,9 +2,9 @@
   "title_ru": "Порту: две тысячи лет",
   "title_en": "Porto: Two Thousand Years",
   "title_pt": "Porto: dois mil anos",
-  "subtitle_ru": "От Порта Кале до всемирного наследия — в четырнадцати главах.",
-  "subtitle_en": "From Portus Cale to World Heritage, in fourteen chapters.",
-  "subtitle_pt": "De Portus Cale ao Património Mundial, em catorze capítulos.",
+  "subtitle_ru": "От Порта Кале до всемирного наследия — в восемнадцати главах.",
+  "subtitle_en": "From Portus Cale to World Heritage, in eighteen chapters.",
+  "subtitle_pt": "De Portus Cale ao Património Mundial, em dezoito capítulos.",
   "chapters": [
     {
       "id": "portus-cale",
@@ -61,6 +61,25 @@
         { "title": "Vímara Peres — Wikipédia", "url": "https://pt.wikipedia.org/wiki/V%C3%ADmara_Peres" },
         { "title": "County of Portugal — Wikipedia", "url": "https://en.wikipedia.org/wiki/County_of_Portugal" },
         { "title": "Sé do Porto — Wikipédia", "url": "https://pt.wikipedia.org/wiki/S%C3%A9_do_Porto" }
+      ]
+    },
+    {
+      "id": "paco-episcopal",
+      "era_ru": "XII–XVIII вв.",
+      "era_en": "12th–18th c.",
+      "era_pt": "séc. XII–XVIII",
+      "title_ru": "Епископский дворец",
+      "title_en": "The Bishop’s Palace",
+      "title_pt": "O Paço Episcopal",
+      "text_ru": "С 868 года епископы Порту были сеньорами города: им принадлежали суд, земли и пошлины, а на холме рядом с собором стоял их дворец. Первоначальные постройки не сохранились; нынешний Пасу Эпископал — Paço Episcopal — возвели заново в XVIII веке при епископе Рафаэле де Мендонсе. Проект фасада и парадной лестницы связывают с Николо Назони, тем же архитектором, что построил Клеригуш. Дворец обращён к соборной площади: барочный портал, длинные окна и терраса над Дору. После либеральных реформ 1834 года власть епископов была ограничена, но их бывшая резиденция до сих пор определяет силуэт епископского квартала.",
+      "text_en": "From 868 the bishops of Porto were lords of the city: to them belonged its courts, lands and tolls, and next to the cathedral on the hill stood their palace. The earliest buildings are gone; the present Paço Episcopal was rebuilt in the 18th century under Bishop Rafael de Mendonça. The design of the façade and the grand staircase is attributed to Nicolau Nasoni, the architect of the Clérigos. The palace faces the cathedral square: a Baroque portal, long windows and a terrace over the Douro. After the liberal reforms of 1834 the bishops’ power was curtailed, yet their former residence still shapes the skyline of the episcopal quarter.",
+      "text_pt": "Desde 868 que os bispos do Porto eram senhores da cidade: detinham a justiça, as terras e as portagens, e junto à catedral, no alto, erguia-se o seu paço. As construções mais antigas perderam-se; o atual Paço Episcopal foi reedificado no século XVIII, sob o bispo D. Rafael de Mendonça. A conceção da fachada e da escadaria nobre é atribuída a Nicolau Nasoni, o arquiteto dos Clérigos. O paço volta-se para o largo da Sé: portal barroco, janelas corridas e terraço sobre o Douro. Depois das reformas liberais de 1834 o poder dos bispos foi limitado, mas a sua antiga residência ainda define a silhueta do bairro episcopal.",
+      "focus": ["paco-episcopal", "se-porto"],
+      "time": "morning",
+      "sources": [
+        { "title": "Paço Episcopal do Porto — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Pa%C3%A7o_Episcopal_do_Porto" },
+        { "title": "Nicolau Nasoni — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Nicolau_Nasoni" },
+        { "title": "Diocese do Porto — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Diocese_do_Porto" }
       ]
     },
     {
@@ -198,6 +217,25 @@
       ]
     },
     {
+      "id": "teatros",
+      "era_ru": "1859–1920",
+      "era_en": "1859–1920",
+      "era_pt": "1859–1920",
+      "title_ru": "Театры Порту",
+      "title_en": "The Theatres of Porto",
+      "title_pt": "Os teatros do Porto",
+      "text_ru": "В XIX веке Порту был театральным городом. В 1859 году на площади Баталья открылся Театр Са да Бандейра — один из старейших действующих театров страны, названный по имени политика и покровителя искусств. Рядом, на той же площади, в 1908 году поднялся Колизей — Teatro-Circo с железным куполом, где играли оперетту, давали цирк и позже кино. Национальный театр Сан-Жуан ведёт историю от театра 1798 года; нынешнее здание открылось в 1920 году и стало главной драматической сценой города. Этот театральный треугольник у Батальи и сегодня собирает публику вечером, когда Порту выходит из домов.",
+      "text_en": "In the 19th century Porto was a theatre city. In 1859 the Teatro de Sá da Bandeira opened on Praça da Batalha — one of the country’s oldest working theatres, named after a politician and patron of the arts. Beside it, on the same square, the Coliseu rose in 1908: a theatre-circus under an iron dome that staged operetta, circus and later cinema. The National Theatre of São João traces its line to a theatre of 1798; the present building opened in 1920 and became the city’s main dramatic stage. This theatre triangle by the Batalha still draws audiences in the evening, when Porto comes out of its houses.",
+      "text_pt": "No século XIX o Porto era uma cidade de teatro. Em 1859 abriu na Praça da Batalha o Teatro de Sá da Bandeira — um dos mais antigos teatros em atividade do país, com o nome de um político e protetor das artes. Ao lado, na mesma praça, ergueu-se em 1908 o Coliseu: um teatro-circo sob cúpula de ferro, onde se representava opereta, se dava circo e mais tarde cinema. O Teatro Nacional de São João remonta a um teatro de 1798; o edifício atual abriu em 1920 e tornou-se o principal palco dramático da cidade. Este triângulo de teatros junto à Batalha ainda enche a noite, quando o Porto sai de casa.",
+      "focus": ["teatro-sa-da-bandeira", "teatro-nacional-sao-joao", "coliseu"],
+      "time": "day",
+      "sources": [
+        { "title": "Teatro Nacional de São João — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Teatro_Nacional_de_S%C3%A3o_Jo%C3%A3o" },
+        { "title": "Teatro Sá da Bandeira — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Teatro_S%C3%A1_da_Bandeira" },
+        { "title": "Coliseu do Porto — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Coliseu_do_Porto" }
+      ]
+    },
+    {
       "id": "campanha",
       "era_ru": "1856–1916",
       "era_en": "1856–1916",
@@ -253,6 +291,44 @@
         { "title": "Revolta de 31 de janeiro de 1891 — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Revolta_de_31_de_janeiro_de_1891" },
         { "title": "Fundação de Serralves — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Funda%C3%A7%C3%A3o_de_Serralves" },
         { "title": "Casa da Música — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Casa_da_M%C3%BAsica" }
+      ]
+    },
+    {
+      "id": "boavista",
+      "era_ru": "XX–XXI вв.",
+      "era_en": "20th–21st c.",
+      "era_pt": "séc. XX–XXI",
+      "title_ru": "Боавишта и Бесса",
+      "title_en": "Boavista and Bessa",
+      "title_pt": "Boavista e Bessa",
+      "text_ru": "В XX веке Порту шагнул на запад, вдоль Авенида да Боавишта. Здесь вырос новый город: конторы, виллы и стадион «Бесса». Футбольный клуб «Боавишта», основанный в 1903 году, играет на стадионе «Бесса XXI века» — его перестроили к чемпионату Европы 2004 года. На круговой развязке Боавишты в 2005 году открылся Дом музыки (Casa da Música) по проекту Рема Колхаса — бетонный кристалл, ставший символом нового Порту. Неподалёку стоит дом-музей Марты Ортиган Сампайю с коллекцией живописи и декоративного искусства конца XIX — начала XX века. Боавишта и Бесса показывают город, который смотрит уже не на реку, а в океан и в будущее.",
+      "text_en": "In the 20th century Porto stepped west, along Avenida da Boavista. A new city grew here: offices, villas and the Bessa stadium. Boavista FC, founded in 1903, plays at the Estádio do Bessa Século XXI, rebuilt for the 2004 European Championship. At the Boavista roundabout the Casa da Música opened in 2005, designed by Rem Koolhaas — a concrete crystal that became a symbol of the new Porto. Nearby stands the Casa-Museu Marta Ortigão Sampaio, with its collection of late 19th- and early 20th-century painting and decorative arts. Boavista and Bessa show a city looking no longer at the river but at the ocean and the future.",
+      "text_pt": "No século XX o Porto avançou para ocidente, ao longo da Avenida da Boavista. Aqui cresceu uma cidade nova: escritórios, casas e o estádio do Bessa. O Boavista FC, fundado em 1903, joga no Estádio do Bessa Século XXI, reconstruído para o Europeu de 2004. Na rotunda da Boavista abriu em 2005 a Casa da Música, de Rem Koolhaas — um cristal de betão que se tornou símbolo do novo Porto. Perto fica a Casa-Museu Marta Ortigão Sampaio, com a sua coleção de pintura e artes decorativas de finais do século XIX e inícios do XX. A Boavista e o Bessa mostram uma cidade que já não olha para o rio, mas para o oceano e para o futuro.",
+      "focus": ["bessa", "casa-musica", "casa-museu-marta-ortigao-sampaio"],
+      "time": "day",
+      "sources": [
+        { "title": "Estádio do Bessa — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Est%C3%A1dio_do_Bessa" },
+        { "title": "Casa da Música — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Casa_da_M%C3%BAsica" },
+        { "title": "Casa-Museu Marta Ortigão Sampaio — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Casa-Museu_Marta_Ortig%C3%A3o_Sampaio" }
+      ]
+    },
+    {
+      "id": "matosinhos",
+      "era_ru": "XIX–XX вв.",
+      "era_en": "19th–20th c.",
+      "era_pt": "séc. XIX–XX",
+      "title_ru": "Матозиньюш и море",
+      "title_en": "Matosinhos and the Sea",
+      "title_pt": "Matosinhos e o mar",
+      "text_ru": "К северу от Фоша берег переходит в Матозиньюш — город рыбаков и консервных заводов. В XIX–XX веках здесь ловили сардину и тунца, солили и закатывали её в банки, и порт Матозиньюша стал одним из главных рыбных портов страны. В 1952 году открылся Городской рынок (Mercado Municipal) — огромный павильон, где до сих пор торгуют рыбой с утра. Рядом стоит мэрия Матозиньюша, а дальше на север, на скалистом мысу Леса-да-Палмейра, с 1926 года светит маяк Леса. Здесь Дору и Порту окончательно остаются позади: начинается открытая Атлантика.",
+      "text_en": "North of Foz the coast becomes Matosinhos — a town of fishermen and canning factories. In the 19th and 20th centuries sardine and tuna were caught here, salted and tinned, and the port of Matosinhos became one of the country’s main fishing harbours. In 1952 the Mercado Municipal opened — a vast hall where fish is still sold from early morning. Beside it stands the Matosinhos town hall, and further north, on the rocky point of Leça da Palmeira, the Leça lighthouse has shone since 1926. Here the Douro and Porto are finally left behind: the open Atlantic begins.",
+      "text_pt": "A norte da Foz a costa torna-se Matosinhos — terra de pescadores e de fábricas de conservas. Nos séculos XIX e XX pescava-se aqui sardinha e atum, salgava-se e enlatava-se, e o porto de Matosinhos tornou-se um dos principais portos de pesca do país. Em 1952 abriu o Mercado Municipal — um enorme pavilhão onde o peixe ainda se vende desde manhã cedo. Ao lado ergue-se a Câmara Municipal de Matosinhos e, mais a norte, na ponta rochosa de Leça da Palmeira, o Farol de Leça brilha desde 1926. Aqui o Douro e o Porto ficam definitivamente para trás: começa o Atlântico aberto.",
+      "focus": ["mercado-matosinhos", "camara-matosinhos", "farol-leca"],
+      "time": "sunset",
+      "sources": [
+        { "title": "Matosinhos — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Matosinhos" },
+        { "title": "Farol de Leça — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Farol_de_Le%C3%A7a" },
+        { "title": "Mercado Municipal de Matosinhos — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Mercado_Municipal_de_Matosinhos" }
       ]
     },
     {

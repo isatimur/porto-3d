@@ -263,8 +263,13 @@ if (cloudShape.z > 0.001) {
   material.specularColor = mix(material.specularColor, vec3(0.2), brgWet * 0.65);
   // puddles mirror the sky/horizon colour (fogColor is the horizon sky)
   totalEmissiveRadiance += fogColor * brgPud * (0.04 + 0.1 * (1.0 - lookParams.x));
-  // night: warm city light smears across the wet stone and reflects windows
-  totalEmissiveRadiance += vec3(1.0, 0.6, 0.32) * (brgWet * lookParams.x * (0.3 + 0.7 * brgPudN)) * 0.05;
+  // night: the warm city light (windows, shop signs, lamps) smears across
+  // the wet stone, strongest in the puddles; a faint cool sky glint on the
+  // crispest puddles keeps the reflection from reading as a flat stain
+  float brgLit = lookParams.x;
+  float brgGlow = brgWet * brgLit * (0.25 + 0.75 * brgPudN);
+  totalEmissiveRadiance += vec3(1.0, 0.62, 0.34) * brgGlow * 0.06;
+  totalEmissiveRadiance += vec3(0.52, 0.64, 0.86) * brgPud * brgLit * 0.03;
 }
 #endif`;
   C.fog_pars_vertex = /* glsl */ `

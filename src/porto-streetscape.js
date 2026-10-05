@@ -30,6 +30,9 @@ const TERRA = 0xb23a2e;
 const BRONZE = 0x3f6b52; // weathered bronze with a green patina
 const BRONZE_D = 0x35543f;
 const SIGN_BLUE = 0x14315c;
+const STEEL = 0x3a3d40;
+const CRANE = 0xd9902e; // weathered container-crane yellow
+const CRANE_D = 0xc47a22;
 
 // ------------------------------------------------------------ geometry
 // A part carries its own flat colour and an emissive weight (aGlow), so one
@@ -269,9 +272,147 @@ const PIECES = {
       boxG(0.5, 0.42, 0.5, 0, 11.35, 0.75, 0xb08a4a),
       icoG(0.3, 0, 11.98, 0.75, 0xb08a4a),
     ]),
+  // ---- the Leixões / Matosinhos port -------------------------------------
+  // a ship-to-shore container gantry crane; +z is the boom, reaching out over
+  // the water from the quay, and the rails run along x
+  gantryCrane: () => {
+    const p = [
+      boxG(0.7, 0.6, 46, -8, 0, 0, STEEL),
+      boxG(0.7, 0.6, 46, 8, 0, 0, STEEL),
+    ];
+    for (const sx of [-8, 8]) {
+      for (const sz of [-6, 6]) p.push(boxG(1.1, 22, 1.1, sx, 0.6, sz, CRANE));
+    }
+    p.push(boxG(17, 1.2, 1.6, 0, 22.6, -6, CRANE));
+    p.push(boxG(17, 1.2, 1.6, 0, 22.6, 6, CRANE));
+    p.push(boxG(1.2, 1.2, 12, -8, 22.6, 0, CRANE));
+    p.push(boxG(1.2, 1.2, 12, 8, 22.6, 0, CRANE));
+    p.push(boxG(4.6, 6, 5, 0, 24.2, -1, CRANE_D)); // machinery house
+    p.push(boxG(2.2, 1.8, 34, 0, 24.5, 14, CRANE)); // boom
+    p.push(boxG(2.6, 1.0, 2.6, 0, 25.6, 30, STEEL)); // boom tip
+    p.push(boxG(3.4, 1.6, 3.0, 0, 22.6, 12, 0x6a6f74)); // trolley
+    p.push(boxG(0.14, 7, 0.14, -0.9, 15.6, 12, 0x2a2c2e)); // hoist cables
+    p.push(boxG(0.14, 7, 0.14, 0.9, 15.6, 12, 0x2a2c2e));
+    p.push(boxG(2.2, 2.0, 2.2, 7.2, 19.8, 2, SIGN_BLUE)); // operator cab
+    return merged(p);
+  },
+  // a stack of shipping containers; the instance colour paints the boxes
+  containerStack: () =>
+    merged([
+      boxG(6.0, 2.6, 2.44, 0, 0, 0, WHITE),
+      boxG(6.0, 2.6, 2.44, 0, 2.6, 0, WHITE),
+      boxG(6.0, 2.6, 2.44, 0, 5.2, 0, WHITE),
+      boxG(6.2, 0.14, 2.6, 0, 7.8, 0, 0x6a6f74),
+    ]),
+  // a low quayside warehouse with roller doors on +z
+  warehouse: () => {
+    const p = [
+      boxG(40, 7.5, 16, 0, 0, 0, 0xcfc9bd),
+      boxG(41.2, 0.7, 17.2, 0, 7.5, 0, 0x8f8a7e),
+      boxG(41.2, 0.5, 6, 0, 8.1, -4.5, 0x9a938a),
+      boxG(41.2, 0.5, 6, 0, 8.1, 4.5, 0x9a938a),
+      boxG(9, 0.4, 0.5, 0, 7.4, -8.05, SIGN_BLUE),
+    ];
+    for (const dx of [-12, 0, 12]) {
+      p.push(boxG(4.2, 5.4, 0.3, dx, 0, 8.05, 0x6f6a61));
+      p.push(boxG(4.6, 0.5, 0.34, dx, 5.4, 8.06, 0x55595d));
+    }
+    return merged(p);
+  },
+  // a small fishing vessel on the harbour; y=0 is the waterline
+  fishingBoat: () =>
+    merged([
+      boxG(3.2, 1.6, 11, 0, -0.9, 0, WHITE), // hull below the rail
+      boxG(3.4, 0.5, 11.2, 0, 0.5, 0, 0xdfe3e6), // gunwale
+      boxG(3.4, 0.35, 11.2, 0, 0.3, 0, SIGN_BLUE), // boot stripe
+      boxG(2.6, 0.3, 1.2, 0, 0.6, 6.1, 0xdfe3e6), // raised bow
+      boxG(2.6, 1.8, 3.2, 0, 0.8, 3.0, WHITE), // wheelhouse
+      boxG(2.7, 0.9, 2.6, 0, 1.6, 3.0, 0x27404f, 0.3), // lit windows
+      boxG(2.9, 0.2, 3.4, 0, 2.6, 3.0, 0x8a2433), // wheelhouse roof
+      cylG(0.09, 0.12, 6, 5, 0, 0.6, -2.6, 0x8f8a7e), // mast
+      boxG(1.8, 0.08, 0.08, 0.7, 6.3, -2.6, STEEL), // derrick
+      boxG(0.6, 0.6, 0.6, 0, 4.4, -2.6, 0xffe2a8, 0.6), // work lamp
+      cylG(0.5, 0.5, 1.0, 8, 0, -0.2, -3.4, 0x55595d), // net drum
+    ]),
+  // ---- the city's own new pieces -----------------------------------------
+  // a Guindais-style funicular station pavilion; +z looks down the track
+  funicularStation: () =>
+    merged([
+      boxG(9, 0.5, 7, 0, 0, 0, GRANITE),
+      boxG(8, 4.2, 6, 0, 0.5, 0, 0xe9dcb4),
+      boxG(6.2, 2.9, 0.5, 0, 0.9, 3.0, 0x27404f),
+      boxG(3.0, 2.9, 0.5, -3.8, 0.9, 0.1, 0x27404f),
+      boxG(3.0, 2.9, 0.5, 3.8, 0.9, 0.1, 0x27404f),
+      boxG(9.4, 0.5, 7.4, 0, 4.7, 0, 0x8a2433),
+      boxG(7.6, 0.6, 5.6, 0, 5.2, 0, 0x8a2433),
+      boxG(5.0, 1.6, 3.4, 0, 5.8, 0, 0x7a1f2c),
+      cylG(0.1, 0.1, 0.4, 6, 0, 7.4, 0, IRON),
+      sphereG(0.16, 0, 7.9, 0, 0xc9a24a),
+    ]),
+  // São Bento's blue-and-white azulejo wall on the station's flank
+  saoBentoAzulejo: () => {
+    const p = [
+      boxG(9.2, 6.2, 0.5, 0, 0, 0, GRANITE),
+      boxG(8.2, 5.0, 0.2, 0, 0.6, 0.3, AZUL),
+      boxG(9.2, 0.4, 0.7, 0, 6.0, 0.1, 0x8f8a7e),
+    ];
+    for (let k = 0; k < 4; k++) p.push(boxG(8.2, 0.09, 0.06, 0, 1.75 + k * 1.25, 0.42, WHITE));
+    for (let k = 0; k < 7; k++) p.push(boxG(0.09, 5.0, 0.06, -3.6 + k * 1.2, 0.6, 0.42, WHITE));
+    return merged(p);
+  },
+  // a market stall: counter, crates and a striped awning (instance-tinted)
+  marketStall: () =>
+    merged([
+      boxG(2.8, 0.9, 1.8, 0, 0, 0, 0x8a5a36),
+      boxG(2.9, 0.08, 1.9, 0, 0.9, 0, 0xd8d2c4),
+      boxG(0.5, 0.4, 0.5, -0.9, 0.98, 0.4, 0x9c6b3f),
+      boxG(0.5, 0.34, 0.5, 0.1, 0.98, 0.4, 0x7a8a44),
+      boxG(0.5, 0.3, 0.5, 0.9, 0.98, 0.4, 0xb23a2e),
+      cylG(0.05, 0.05, 2.3, 4, -1.3, 0, 0.8, IRON),
+      cylG(0.05, 0.05, 2.3, 4, 1.3, 0, 0.8, IRON),
+      cylG(0.05, 0.05, 2.3, 4, -1.3, 0, -0.8, IRON),
+      cylG(0.05, 0.05, 2.3, 4, 1.3, 0, -0.8, IRON),
+      boxR(3.4, 0.08, 2.3, 0, 2.35, 0.1, -0.32, WHITE),
+      boxG(3.4, 0.32, 0.06, 0, 1.95, 1.15, WHITE),
+    ]),
+  // a newspaper kiosk on a Baixa corner
+  newskiosk: () =>
+    merged([
+      boxG(3.2, 0.2, 2.4, 0, 0, 0, STONE),
+      boxG(3.0, 2.4, 2.2, 0, 0.2, 0, 0x24452f),
+      boxG(2.6, 1.7, 0.14, 0, 0.7, 1.14, 0xf0eee6),
+      boxG(2.6, 0.55, 0.06, 0, 0.8, 1.24, SIGN_BLUE),
+      boxG(0.5, 0.4, 0.05, -0.6, 1.75, 1.25, 0xb23a2e),
+      boxG(0.5, 0.4, 0.05, 0.6, 1.75, 1.25, 0xe8c33a),
+      boxG(3.5, 0.35, 2.7, 0, 2.6, 0, 0x8a2433),
+      boxG(1.6, 0.5, 0.12, 0, 2.95, 1.1, 0xe8c33a),
+    ]),
+  // a garden pergola: a walk of stone piers under a beam grid
+  pergola: () => {
+    const p = [];
+    for (let i = 0; i < 6; i++) {
+      const z = -7.5 + i * 3;
+      p.push(cylG(0.14, 0.18, 3.2, 6, -2.2, 0, z, STONE));
+      p.push(cylG(0.14, 0.18, 3.2, 6, 2.2, 0, z, STONE));
+    }
+    p.push(boxG(0.3, 0.3, 17, -2.2, 3.2, 0, IRON));
+    p.push(boxG(0.3, 0.3, 17, 2.2, 3.2, 0, IRON));
+    for (let i = 0; i < 9; i++) p.push(boxG(5.6, 0.1, 0.16, 0, 3.35, -8 + i * 2, IRON));
+    return merged(p);
+  },
 };
 const AWNING_COLORS = [0x141414, 0x24452f, 0x8a2433, 0x1b3a6b, 0x3a3a3a].map((h) => new THREE.Color(h));
 const UMBRELLA_COLORS = [0xf3efe6, 0xb23a2e, 0x24452f, 0x23324f, 0xe7d9b0, 0x8a2433].map((h) => new THREE.Color(h));
+const CONTAINER_COLORS = [0x9c3b2e, 0x2f5d8a, 0x3f7a4a, 0xb8862f, 0x6a6f74, 0x8a2f3a, 0x2b6f76, 0xc25a34].map((h) => new THREE.Color(h));
+const BOAT_COLORS = [0xd8dde2, 0x2f5d8a, 0x9c3b2e, 0x35506a, 0xe7d9b0].map((h) => new THREE.Color(h));
+// per-type instance tint; a type absent here keeps its baked vertex colours
+const COLOR_OF = {
+  awning: AWNING_COLORS,
+  umbrella: UMBRELLA_COLORS,
+  containerStack: CONTAINER_COLORS,
+  marketStall: AWNING_COLORS,
+  fishingBoat: BOAT_COLORS,
+};
 
 function pieceMaterial(uniforms, key) {
   const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.68, metalness: 0.12 });
@@ -400,6 +541,15 @@ const LANE_KEEP_LITE = new Set([
   'kiosk',
   'table',
   'umbrella',
+  'gantryCrane',
+  'containerStack',
+  'warehouse',
+  'fishingBoat',
+  'funicularStation',
+  'saoBentoAzulejo',
+  'marketStall',
+  'newskiosk',
+  'pergola',
 ]);
 const CAP = {
   plaque: [80, 40],
@@ -420,6 +570,15 @@ const CAP = {
   kiosk: [8, 4],
   table: [140, 48],
   umbrella: [110, 36],
+  gantryCrane: [6, 3],
+  containerStack: [30, 12],
+  warehouse: [5, 2],
+  fishingBoat: [8, 4],
+  funicularStation: [2, 2],
+  saoBentoAzulejo: [1, 1],
+  marketStall: [10, 5],
+  newskiosk: [3, 2],
+  pergola: [3, 2],
 };
 
 // ------------------------------------------------------------ build
@@ -823,6 +982,165 @@ export function buildPortoStreetLife(ctx) {
     }
   }
 
+  // ---- Leixões / Matosinhos port, and the city's own new pieces ----------
+  // A point is "land" when the terrain stands clearly above the sea reference
+  // the coast and the harbour basin share (WORLD sea level ~ -22.5, the
+  // projection origin sits ~90 m up at the centre); "water" when it is below
+  // it. Every feature snaps to a nearby valid spot, so the DEM's bumps never
+  // strand a crane in the harbour or a boat on the quay.
+  const TAU = Math.PI * 2;
+  const PORT_LAND_Y = -21.8;
+  const PORT_WATER_Y = -22.5;
+  function snap(x0, z0, rad, ok) {
+    if (ok(x0, z0)) return { x: x0, z: z0 };
+    for (let r = 1.5; r <= rad; r += 1.5) {
+      const n = Math.max(8, Math.round((TAU * r) / 3));
+      for (let k = 0; k < n; k++) {
+        const a = (k / n) * TAU;
+        const x = x0 + Math.cos(a) * r;
+        const z = z0 + Math.sin(a) * r;
+        if (ok(x, z)) return { x, z };
+      }
+    }
+    return null;
+  }
+  const landOk = (x, z) => openAt(x, z, 0.25 * S) && heightAt(x, z) > PORT_LAND_Y;
+  const waterOk = (x, z) => Number.isFinite(heightAt(x, z)) && heightAt(x, z) < PORT_WATER_Y && !bIdx.inside(x, z);
+  const atLL = (la, lo) => project(la, lo);
+
+  // the port layout: cranes along the quay, the yard behind, warehouses
+  // further in, the fishing fleet moored on the harbour water
+  const PORT_CRANES = [
+    [41.1848, -8.7032],
+    [41.1854, -8.7030],
+    [41.1860, -8.7031],
+    [41.1868, -8.7032],
+    [41.1876, -8.7033],
+    [41.1884, -8.7035],
+  ];
+  const PORT_CONTAINERS = [];
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 6; c++) PORT_CONTAINERS.push([41.1849 + c * 0.0009, -8.7014 + r * 0.0011]);
+  const PORT_WAREHOUSES = [
+    [41.1848, -8.6982],
+    [41.1860, -8.6980],
+    [41.1872, -8.6982],
+    [41.1884, -8.6985],
+  ];
+  const PORT_BOATS = [
+    [41.1846, -8.7086],
+    [41.1854, -8.709],
+    [41.1864, -8.7085],
+    [41.1872, -8.7085],
+    [41.1882, -8.7089],
+    [41.1892, -8.7093],
+  ];
+  const port = { cranes: 0, containers: 0, warehouses: 0, boats: 0 };
+  const wc = PORT_BOATS.map(([la, lo]) => atLL(la, lo)).reduce((s, p) => ({ x: s.x + p.x, z: s.z + p.z }), { x: 0, z: 0 });
+  wc.x /= PORT_BOATS.length;
+  wc.z /= PORT_BOATS.length;
+  const towardWater = (x, z) => Math.atan2(wc.x - x, wc.z - z);
+  for (const [la, lo] of PORT_CRANES) {
+    if (!KEEP.has('gantryCrane') || full('gantryCrane')) break;
+    const p0 = atLL(la, lo);
+    const p = snap(p0.x, p0.z, 9, landOk);
+    if (!p) continue;
+    put('gantryCrane', p.x, heightAt(p.x, p.z), p.z, towardWater(p.x, p.z), 1);
+    port.cranes++;
+  }
+  for (const [la, lo] of PORT_CONTAINERS) {
+    if (!KEEP.has('containerStack') || full('containerStack')) break;
+    const p0 = atLL(la, lo);
+    const p = snap(p0.x, p0.z, 6, landOk);
+    if (!p || !spaced('containerStack', p.x, p.z, 4)) continue;
+    put('containerStack', p.x, heightAt(p.x, p.z), p.z, rnd() * TAU, 1);
+    port.containers++;
+  }
+  for (const [la, lo] of PORT_WAREHOUSES) {
+    if (!KEEP.has('warehouse') || full('warehouse')) break;
+    const p0 = atLL(la, lo);
+    const p = snap(p0.x, p0.z, 10, landOk);
+    if (!p) continue;
+    put('warehouse', p.x, heightAt(p.x, p.z), p.z, towardWater(p.x, p.z) + Math.PI / 2, 1);
+    port.warehouses++;
+  }
+  for (const [la, lo] of PORT_BOATS) {
+    if (!KEEP.has('fishingBoat') || full('fishingBoat')) break;
+    const p0 = atLL(la, lo);
+    const p = snap(p0.x, p0.z, 12, waterOk);
+    if (!p) continue;
+    put('fishingBoat', p.x, heightAt(p.x, p.z) + 0.22, p.z, Math.PI / 2 + (rnd() - 0.5) * 0.7, 1);
+    port.boats++;
+  }
+
+  // the city pieces at their real places, snapped to open ground
+  const cityN = { funicular: 0, saoBento: 0, market: 0, kiosks: 0, pergola: 0 };
+  // the Guindais funicular's two station pavilions
+  {
+    const top = atLL(41.143222, -8.608236);
+    const bot = atLL(41.140926, -8.609529);
+    const yaw = Math.atan2(bot.x - top.x, bot.z - top.z);
+    for (const [pnt, t] of [[top, yaw], [bot, yaw + Math.PI]]) {
+      if (!KEEP.has('funicularStation') || full('funicularStation')) break;
+      const p = snap(pnt.x, pnt.z, 10, landOk);
+      if (!p) continue;
+      put('funicularStation', p.x, heightAt(p.x, p.z), p.z, t, 1);
+      cityN.funicular++;
+    }
+  }
+  // São Bento's azulejo wall, offset to the station's flank
+  {
+    const a = atLL(41.14561, -8.61059);
+    if (KEEP.has('saoBentoAzulejo') && !full('saoBentoAzulejo')) {
+      const p = snap(a.x + 9 * S, a.z + 4 * S, 16, landOk);
+      if (p) {
+        put('saoBentoAzulejo', p.x, heightAt(p.x, p.z), p.z, Math.atan2(p.x - a.x, p.z - a.z), 1);
+        cityN.saoBento++;
+      }
+    }
+  }
+  // market stalls ringing the Bolhão
+  {
+    const a = atLL(41.14859, -8.60679);
+    for (let k = 0; k < 10; k++) {
+      if (!KEEP.has('marketStall') || full('marketStall')) break;
+      const ang = (k / 10) * TAU + 0.3;
+      const rad = (14 + rnd() * 8) * S;
+      const p = snap(a.x + Math.cos(ang) * rad, a.z + Math.sin(ang) * rad, 6, landOk);
+      if (!p || !spaced('marketStall', p.x, p.z, 5)) continue;
+      put('marketStall', p.x, heightAt(p.x, p.z), p.z, Math.atan2(a.x - p.x, a.z - p.z), 1);
+      cityN.market++;
+    }
+  }
+  // newspaper kiosks on the main Baixa corners
+  {
+    const NEWS = [
+      [41.146352, -8.611872],
+      [41.14983, -8.60555],
+      [41.14517, -8.60655],
+    ];
+    for (const [la, lo] of NEWS) {
+      if (!KEEP.has('newskiosk') || full('newskiosk')) break;
+      const p0 = atLL(la, lo);
+      const p = snap(p0.x, p0.z, 12, landOk);
+      if (!p || !spaced('newskiosk', p.x, p.z, 12)) continue;
+      put('newskiosk', p.x, heightAt(p.x, p.z), p.z, rnd() * TAU, 1);
+      cityN.kiosks++;
+    }
+  }
+  // the Palácio de Cristal gardens pergola
+  {
+    const a = atLL(41.15442, -8.62503);
+    for (let k = 0; k < 3; k++) {
+      if (!KEEP.has('pergola') || full('pergola')) break;
+      const ang = 0.6 + k * 1.9;
+      const rad = (26 + rnd() * 10) * S;
+      const p = snap(a.x + Math.cos(ang) * rad, a.z + Math.sin(ang) * rad, 10, landOk);
+      if (!p) continue;
+      put('pergola', p.x, heightAt(p.x, p.z), p.z, ang + Math.PI / 2, 1);
+      cityN.pergola++;
+    }
+  }
+
   // ---- instanced layers
   const group = new THREE.Group();
   group.name = 'porto-street-life';
@@ -843,9 +1161,10 @@ export function buildPortoStreetLife(ctx) {
     mesh.castShadow = !lite && type !== 'bollard' && type !== 'plaque' && type !== 'walllamp';
     mesh.receiveShadow = !lite;
     mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    const colored = type === 'awning' || type === 'umbrella';
+    const colors = COLOR_OF[type] || null;
+    const colored = !!colors;
     if (colored) {
-      mesh.setColorAt(0, type === 'umbrella' ? UMBRELLA_COLORS[0] : AWNING_COLORS[0]);
+      mesh.setColorAt(0, colors[0]);
       mesh.instanceColor.setUsage(THREE.DynamicDrawUsage);
     }
     const grid = new Map();
@@ -856,7 +1175,7 @@ export function buildPortoStreetLife(ctx) {
       c.push(i);
     }
     group.add(mesh);
-    layers.push({ type, arr: Float32Array.from(arr), mesh, cap, grid, colored, shown: 0 });
+    layers.push({ type, arr: Float32Array.from(arr), mesh, cap, grid, colored, colors, shown: 0 });
     tris += (geo.attributes.position.count / 3) * cap;
   }
   function fillLayer(L, fx0, fz0, R) {
@@ -892,7 +1211,7 @@ export function buildPortoStreetLife(ctx) {
           E[e + 13] = arr[o + 1];
           E[e + 14] = z;
           E[e + 15] = 1;
-          if (L.colored) (L.type === 'umbrella' ? UMBRELLA_COLORS : AWNING_COLORS)[i % (L.type === 'umbrella' ? UMBRELLA_COLORS : AWNING_COLORS).length].toArray(mesh.instanceColor.array, k * 3);
+          if (L.colors) L.colors[i % L.colors.length].toArray(mesh.instanceColor.array, k * 3);
           k++;
         }
       }
@@ -980,6 +1299,8 @@ export function buildPortoStreetLife(ctx) {
     boxes,
     kiosks,
     tables,
+    port,
+    cityObjects: cityN,
     furnitureTris: Math.round(tris),
     people: people?.stats ?? null,
     reducedMotion,

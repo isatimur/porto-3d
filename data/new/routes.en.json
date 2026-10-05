@@ -264,5 +264,138 @@
         "note": "The long leg by taxi or bus to Parque da Cidade; a bicycle along the river is another option."
       }
     ]
+  },
+  "matosinhos-mar": {
+    "name": "Matosinhos and the Sea",
+    "subtitle": "Parque da Cidade, the Matosinhos fish market and the Leça lighthouse",
+    "duration": "≈ 3.5 hours",
+    "description": "The route heads north from Parque da Cidade towards the sea, along the coast that runs from Foz to Matosinhos and Leça da Palmeira. First the big city park with its lakes and dunes, then the Matosinhos fish market, where sardine and tuna are sold from early morning, and the town hall with its square. The last stretch follows the shore to the rocky point where the Leça lighthouse has shone since 1926, and beyond it the Atlantic opens. In Matosinhos be sure to try fresh grilled fish: dozens of restaurants by the port cook it straight from the morning catch. Tram 1 only reaches Foz; from there bus and metro line A continue to Matosinhos, so check the timetable for the way back.",
+    "stops": [
+      {
+        "time": "10:00",
+        "note": "Parque da Cidade — Porto’s largest park, with lakes, lawns and dunes reaching towards the Atlantic. Start here before the heat."
+      },
+      {
+        "time": "11:00",
+        "note": "The Matosinhos Municipal Market of 1952: rows of fresh fish and seafood and the morning auction. Look into the hall that has traded since six in the morning."
+      },
+      {
+        "time": "12:05",
+        "note": "The Matosinhos town hall and the square before it. From here you can see how a fishing village became a city."
+      },
+      {
+        "time": "12:45",
+        "note": "The Leça lighthouse of 1926 on the rocky point of Leça da Palmeira. A viewpoint over the ocean, the waves and the evening sky. End of the route."
+      }
+    ],
+    "legs": [
+      {
+        "note": "Bus or metro line A north from Parque da Cidade to the Matosinhos market. Tram 1 only reaches Foz."
+      },
+      {
+        "note": "A few minutes on foot from the market to the town hall and its square."
+      },
+      {
+        "note": "By bus along the coast to Leça da Palmeira, then on foot to the lighthouse."
+      }
+    ]
+  },
+  "boavista-teatros": {
+    "name": "Boavista and the Theatres",
+    "subtitle": "Casa da Música, the Marta Ortigão Sampaio house-museum, Bessa and the theatres by the Batalha",
+    "duration": "≈ 5 hours",
+    "description": "The route runs west to east: from the new cultural centre on Boavista to the old theatres by Praça da Batalha. Begin at Rem Koolhaas’s Casa da Música, then step into the Casa-Museu Marta Ortigão Sampaio with its collection of painting and decorative arts. Boavista FC plays at the Estádio do Bessa Século XXI, rebuilt for Euro 2004. The last stretch is by taxi to Praça da Batalha, where the Coliseu of 1908, the Teatro Sá da Bandeira of 1859 and the National Theatre of São João of 1920 all stand. Check the listings in advance: in the evening these theatres stage plays and concerts.",
+    "stops": [
+      {
+        "time": "10:30",
+        "note": "Casa da Música on the Boavista roundabout, designed by Rem Koolhaas and opened in 2005. Tours of the halls and a busy concert programme."
+      },
+      {
+        "time": "11:40",
+        "note": "The Casa-Museu Marta Ortigão Sampaio: painting, furniture and decorative arts of the late 19th and early 20th centuries in a former villa."
+      },
+      {
+        "time": "12:45",
+        "note": "The Estádio do Bessa Século XXI — the home ground of Boavista FC, rebuilt for the 2004 European Championship. The club’s history is on show outside."
+      },
+      {
+        "time": "13:35",
+        "note": "The Coliseu do Porto of 1908 by Praça da Batalha: a theatre-circus under an iron dome that staged operetta, circus and cinema."
+      },
+      {
+        "time": "14:15",
+        "note": "The Teatro Sá da Bandeira of 1859 — one of Portugal’s oldest working theatres, on the same square."
+      },
+      {
+        "time": "14:55",
+        "note": "The National Theatre of São João: the present building opened in 1920 and became the city’s main dramatic stage. End of the route."
+      }
+    ],
+    "legs": [
+      {
+        "note": "A few minutes on foot from Casa da Música to the Marta Ortigão Sampaio house-museum."
+      },
+      {
+        "note": "By bus or taxi through Boavista to the Bessa stadium."
+      },
+      {
+        "note": "Taxi from Bessa to Praça da Batalha, through the centre, about 4 km."
+      },
+      {
+        "note": "The Coliseu and the Teatro Sá da Bandeira stand side by side on Praça da Batalha."
+      },
+      {
+        "note": "A couple of minutes to the National Theatre of São João."
+      }
+    ]
+  },
+  "paco-igrejas": {
+    "name": "The Bishop’s Palace and the Old Churches",
+    "subtitle": "Paço Episcopal, the cathedral, the churches of Vitória and the Carmelites",
+    "duration": "≈ 4 hours",
+    "description": "A walking route through the church heart of Porto. Begin at the Bishop’s Palace (Paço Episcopal), the Baroque residence of the 18th-century bishops facing the cathedral. Visit the 12th-century Romanesque cathedral on the hill, then descend to the church of Our Lady of Victory (Igreja da Vitória) and climb to the Carmelite church with its Baroque altar. Beside it stands Carmo church, its façade clad in azulejos. Finish at the Clérigos tower for a panorama of the city. The route is short and almost entirely on foot; start in the morning, while the churches are quiet.",
+    "stops": [
+      {
+        "time": "09:30",
+        "note": "The Bishop’s Palace (Paço Episcopal), rebuilt in the 18th century under Bishop Rafael de Mendonça. The façade and grand staircase are attributed to Nicolau Nasoni."
+      },
+      {
+        "time": "10:15",
+        "note": "Porto’s 12th-century Romanesque cathedral on the hill: the Gothic cloister with azulejos and a terrace over the bishop’s palace."
+      },
+      {
+        "time": "11:10",
+        "note": "The 16th-century church of Our Lady of Victory (Igreja da Vitória) in the Vitória quarter, with a Baroque interior."
+      },
+      {
+        "time": "11:45",
+        "note": "The 17th-century Carmelite church: a Baroque altar and the quiet of the monastic quarter on Rua das Carmelitas."
+      },
+      {
+        "time": "12:15",
+        "note": "Carmo church opposite: its side façade is covered in blue-and-white azulejos."
+      },
+      {
+        "time": "12:40",
+        "note": "Niccolò Nasoni’s Clérigos church and tower. Climb the 1763 belfry — 225 steps and a panorama of the city. End of the route."
+      }
+    ],
+    "legs": [
+      {
+        "note": "The palace stands directly opposite the cathedral, on the cathedral square."
+      },
+      {
+        "note": "From the cathedral down to the Vitória quarter and the church of Our Lady of Victory."
+      },
+      {
+        "note": "North through the streets to the Carmelite church on Rua das Carmelitas."
+      },
+      {
+        "note": "Carmo church stands opposite, across the street."
+      },
+      {
+        "note": "A few minutes south to the Clérigos church and tower."
+      }
+    ]
   }
 }

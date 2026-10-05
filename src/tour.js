@@ -127,22 +127,26 @@ export function flightCurve(from, to, sky, { clear = FLIGHT_CLEARANCE } = {}) {
 }
 
 // ------------------------------------------------------------ shots
-// One continuous journey through all 60 landmarks, cut into four chapters by
+// One continuous journey through all 70 landmarks, cut into four chapters by
 // the light. Morning opens on the old town and its churches, from the
-// cathedral hill down through the Baixa to the Ribeira; day crosses the civic,
-// museum and park belt out to Boavista, Serralves, Ramalde and the Casa da
-// Música; sunset takes the bridges and Vila Nova de Gaia; and the closing
-// chapter reaches the stadium and the Foz coast, where night falls on the last
-// shot. Every id in data/landmarks.json appears exactly once.
+// cathedral hill and the Bishop's Palace down through the Baixa and its
+// theatres to the Ribeira; day crosses the civic, museum and park belt out to
+// Boavista, Bessa, Serralves, Ramalde and the Casa da Música, then reaches the
+// Matosinhos waterfront; sunset takes the bridges and Vila Nova de Gaia; and
+// the closing chapter follows the Foz coast north to Leça, where night falls.
+// Every id in data/landmarks.json appears exactly once.
 export const CINEMA_ORDER = [
   // morning — the old town: hill, Baixa churches and the Ribeira
   { id: 'se-porto', shot: 'crane', dur: 14, time: 'morning' },
+  { id: 'paco-episcopal', shot: 'crane', dur: 11, time: 'morning' },
   { id: 'sao-bento', shot: 'crane', dur: 11, time: 'morning' },
   { id: 'clerigos', shot: 'rise', dur: 13, time: 'morning' },
   { id: 'lello', shot: 'dolly', dur: 9, time: 'morning' },
   { id: 'carmo', shot: 'dolly', dur: 9, time: 'morning' },
+  { id: 'igreja-carmelitas', shot: 'dolly', dur: 9, time: 'morning' },
   { id: 'congregados', shot: 'dolly', dur: 9, time: 'morning' },
   { id: 'sao-bento-vitoria', shot: 'dolly', dur: 9, time: 'morning' },
+  { id: 'igreja-da-vitoria', shot: 'dolly', dur: 9, time: 'morning' },
   { id: 'miragaya-sao-pedro', shot: 'crane', dur: 10, time: 'morning' },
   { id: 'santa-clara', shot: 'dolly', dur: 9, time: 'morning' },
   { id: 'sao-nicolau', shot: 'dolly', dur: 9, time: 'morning' },
@@ -158,7 +162,8 @@ export const CINEMA_ORDER = [
   { id: 'trindade', shot: 'crane', dur: 11, time: 'morning' },
   { id: 'lapa', shot: 'rise', dur: 11, time: 'morning' },
   { id: 'cedofeita', shot: 'dolly', dur: 10, time: 'morning' },
-  // day — civic, museum and park belt, west to Boavista, Serralves, Ramalde
+  // day — civic, museum and park belt, west to Boavista, Bessa, Serralves,
+  // Ramalde and the Casa da Música, then out to the Matosinhos waterfront
   { id: 'museu-soares-dos-reis', shot: 'dolly', dur: 10, time: 'day' },
   { id: 'alfandega-nova', shot: 'dolly', dur: 10, time: 'day' },
   { id: 'museu-romantico', shot: 'orbit', dur: 10, time: 'day' },
@@ -169,16 +174,22 @@ export const CINEMA_ORDER = [
   { id: 'aliados', shot: 'dolly', dur: 11, time: 'day' },
   { id: 'teatro-rivoli', shot: 'dolly', dur: 9, time: 'day' },
   { id: 'coliseu', shot: 'crane', dur: 11, time: 'day' },
+  { id: 'teatro-sa-da-bandeira', shot: 'dolly', dur: 9, time: 'day' },
   { id: 'cinema-batalha', shot: 'dolly', dur: 9, time: 'day' },
   { id: 'praca-batalha', shot: 'dolly', dur: 10, time: 'day' },
+  { id: 'teatro-nacional-sao-joao', shot: 'crane', dur: 11, time: 'day' },
   { id: 'mercado-bolhao', shot: 'crane', dur: 10, time: 'day' },
   { id: 'campanha', shot: 'crane', dur: 10, time: 'day' },
   { id: 'sao-lazaro', shot: 'orbit', dur: 10, time: 'day' },
   { id: 'casa-musica', shot: 'orbit', dur: 12, time: 'day' },
+  { id: 'casa-museu-marta-ortigao-sampaio', shot: 'orbit', dur: 10, time: 'day' },
+  { id: 'bessa', shot: 'rise', dur: 12, time: 'day' },
   { id: 'ramalde', shot: 'crane', dur: 10, time: 'day' },
   { id: 'serralves', shot: 'orbit', dur: 11, time: 'day' },
   { id: 'passeio-alegre', shot: 'orbit', dur: 10, time: 'day' },
   { id: 'parque-cidade', shot: 'orbit', dur: 12, time: 'day' },
+  { id: 'mercado-matosinhos', shot: 'crane', dur: 10, time: 'day' },
+  { id: 'camara-matosinhos', shot: 'dolly', dur: 9, time: 'day' },
   // sunset — the bridges and Vila Nova de Gaia
   { id: 'ponte-arrabida', shot: 'rise', dur: 11, time: 'sunset' },
   { id: 'ponte-luis-i', shot: 'crane', dur: 14, time: 'sunset' },
@@ -192,13 +203,15 @@ export const CINEMA_ORDER = [
   { id: 'ponte-maria-pia', shot: 'rise', dur: 11, time: 'sunset' },
   { id: 'ponte-sao-joao', shot: 'rise', dur: 10, time: 'sunset' },
   { id: 'ponte-freixo', shot: 'rise', dur: 11, time: 'sunset' },
-  // night — the stadium and the Foz coast; the last shot carries the transition
+  // night — the stadium and the Foz coast, north to Leça; the last shot
+  // carries the transition from the Douro mouth to the open Atlantic
   { id: 'dragao', shot: 'rise', dur: 12, time: 'night' },
   { id: 'sealife-porto', shot: 'orbit', dur: 10, time: 'night' },
   { id: 'castelo-queijo', shot: 'rise', dur: 11, time: 'night' },
   { id: 'praia-ingleses', shot: 'dolly', dur: 10, time: 'night' },
   { id: 'foz-sao-joao-baptista', shot: 'dolly', dur: 10, time: 'night' },
   { id: 'felgueiras', shot: 'rise', dur: 15, time: 'night', then: 'night', at: 6 },
+  { id: 'farol-leca', shot: 'rise', dur: 13, time: 'night' },
 ];
 
 // Framing numbers for one landmark at its real size. A draped site (Bom
