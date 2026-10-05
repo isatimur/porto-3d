@@ -85,6 +85,16 @@ if (CITY === 'porto') {
   );
 }
 
+// Browser smoke, after the build: console errors, GL errors, buffer sizes.
+// Exit code 77 means "no browser here": reported as SKIP, never PASS.
+checks.push({
+  name: 'smoke console',
+  cmd: ['node', 'scripts/smoke-console.mjs'],
+  needs: ['dist/index.html'],
+  why: '',
+  skipExit: 77,
+});
+
 const results = [];
 let failed = 0;
 let skipped = 0;
@@ -107,6 +117,10 @@ for (const check of checks) {
     failed += 1;
     results.push({ name: check.name, status: 'FAIL' });
     console.log(`FAIL  ${check.name}  (could not run: ${result.error.message})`);
+  } else if (check.skipExit && result.status === check.skipExit) {
+    skipped += 1;
+    results.push({ name: check.name, status: 'SKIP' });
+    console.log(`SKIP  ${check.name}  (no browser available)`);
   } else if (result.status === 0) {
     results.push({ name: check.name, status: 'PASS' });
     console.log(`PASS  ${check.name}`);

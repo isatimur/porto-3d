@@ -16,4 +16,10 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - name: Browser for the console smoke
+        run: |
+          npm i --no-save playwright-core
+          npx playwright-core install --with-deps chromium-headless-shell
       - run: npm run verify
+        env:
+          PLAYWRIGHT_CORE: ${{ github.workspace }}/node_modules/playwright-core/index.mjs

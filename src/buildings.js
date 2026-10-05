@@ -699,8 +699,9 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
         T.pos.push(T.detail.pos[i]);
         T.nor.push(T.detail.nor[i]);
         T.col.push(T.detail.col[i]);
-        T.wall.push(T.detail.wall[i]);
       }
+      // aWall has 4 floats per vertex (pos, nor, col have 3), so it needs its own loop
+      for (let i = 0; i < T.detail.wall.length; i++) T.wall.push(T.detail.wall[i]);
     }
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(T.pos, 3));
