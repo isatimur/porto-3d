@@ -251,7 +251,8 @@
       "evidence": [
         "scripts/fetch-quays.mjs writes data/quays.json (20 lines, 7.4 km) from OSM river-polygon edges on the Ribeira, Gaia and Foz reaches and next to retaining walls; OSM has no man_made=quay in the core",
         "src/quays.js: granite wall (5 courses, tide-line course), coping, deck, skirt, hexagonal bollards every 30 m (248), merged per 1 km cell (15 meshes, 34 k triangles); heights from heightAt",
-        "Screenshots read: Ribeira and Gaia with and without the layer; Commons references read (Ribeira quay, Cais de Gaia)"
+        "Screenshots read: Ribeira and Gaia with and without the layer; Commons references read (Ribeira quay, Cais de Gaia)",
+        "Session 005: the wall moves river-ward (up to 22 m, smoothed) to where heightAt meets the water, so the DEM pad leaves no green terrain wedge in front of it (commit 45d8443)"
       ],
       "notes": "NOT done: the terrain behind the wall is not flattened. The ground mesh is 27 m per cell and the water drapes on heightAt, so a flat pad would lift the water. The wall stands on the water line with a 3-12 m deck that reaches inland until the ground meets it. Foz not checked closely. The arcaded Ribeira front is out of scope."
     },

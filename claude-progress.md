@@ -22,6 +22,21 @@ updates it automatically.
 
 ## Session Log
 
+### Session 005
+
+- Date: 2026-10-06
+- Goal: user report "very many glitches" and "the default weather is strange". Find them by looking, fix the root causes.
+- Weather diagnosis: the app starts in `clear` weather and `sunset`; live weather is off unless `porto-live=1` is saved. The beige wash came from the seasonal climate bias in `src/seasons.js` (`setClimate`). On 6 Oct the season resolves to autumn, and the bias added mist 0.2, fog 0.1, haze 0.12, grey 0.07 on top of "clear". That also advanced the sea-fog sheet over the Atlantic. Summer and spring starts were clean. Fixed by cutting the bias (autumn now mist 0.05, fog 0.02, haze 0.04), see commit `01193ef`. Also: `season_default`, `default_weather`, `default_time` now live in `cities/porto.json` and are read; the start-up call no longer writes `porto-time` to localStorage (before, every visitor looked like they had chosen sunset). A saved or linked choice still wins. Live weather only starts from the «Now» button or a saved `#live=1`.
+- Fixed: Foz sea foam (solid blobs, now lacy surf, `1ffcdd7`); culverted Rio da Vila water strip up Rua Mouzinho da Silveira (`culverted_streams` in porto.json) and day-time neon road glow (`e3c76a8`); Gaia quay terrain wedge in front of the wall (`45d8443`); white fins across the Luís I approach piers (`f939976`).
+- Remaining defects (evidence in /tmp/p3, not committed):
+  - Load sequence (`e-t4.png`, `e-t8.png`): for the first ~8 s the view is bare green ground with a hard-edged rectangle of city and blown-out road glow; no sea or river until the nature layers land (ready at 13-17 s). Needs the water and land cover built before the first frame or a boot fade. Size: > 1 h.
+  - Flat grey pad slabs at overview and cinema distance (Matosinhos, Dragão, Casa da Música areas; `c-cinema-4.png`): landmark pads with no model at that LOD.
+  - Pale-blue flat water polygon on the Gaia bank and dark-blue slivers at the foot of the Luís I piers (`q-gaiamid.png`, `B2-luispier.png`): water polygons that sit at their own height over the pad.
+  - São Bento on a bare lawn (`pl-03-SoBento.png`), dark scribble on the Casa da Música facade (`pl-09-CasadaMsica.png`), the place card covering the subject (`pl-05`, `pl-06`).
+  - Sunset still has a golden road glow at overview (intended golden-hour look).
+- Console: 60 s recorder on the preview build, zero errors, no GL errors; the only warnings are 6 `console.warn` lines "model box deviates 10-14 % from the OSM extent" (sao-bento, caves-gaia, ponte-freixo, campanha, coliseu, alfandega-nova), left in as fit notes.
+- Process note: all source edits through Edit/Write.
+
 ### Session 004
 
 - Date: 2026-10-06
