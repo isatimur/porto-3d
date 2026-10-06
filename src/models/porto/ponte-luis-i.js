@@ -144,7 +144,9 @@ function builder(k, site) {
       k.box(9, h, DECK_W, 'graniteDark', x, 0, 0);
       k.box(10, 1, DECK_W + 1.5, 'graniteLight', x, h, 0);
       k.box(9.6, 0.7, DECK_W + 1, 'graniteLight', x, 2.2, 0);
-      k.box(9.4, 0.5, DECK_W + 0.6, 'graniteLight', x, h * 0.55, 0);
+      // a stringcourse in the pier's own stone: in pale granite it read as a
+      // white fin across the pier at one height
+      k.box(9.4, 0.5, DECK_W + 0.6, 'graniteDark', x, h * 0.55, 0);
     }
   }
 
