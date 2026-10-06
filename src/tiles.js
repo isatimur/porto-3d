@@ -125,8 +125,13 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
   const nBuildFar = [0, 0, 0];
 
   // ------------------------------------------------------------ start
-  async function start() {
-    started = true;
+  // The index and the wide land-cover mask come first and early (main.js
+  // creates the tiles in the boot view): the ring around the core gets a
+  // coarse built-up tint from the per-tile building counts of the index, so
+  // it is never bare green while the real tiles stream in. Idempotent.
+  let indexP = null;
+  const loadIndex = () => (indexP ??= loadIndexOnce());
+  async function loadIndexOnce() {
     let doc;
     try {
       const res = await fetch(assetUrl(dataPath('tiles/index.json')));
@@ -195,8 +200,44 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     land.tex.anisotropy = 4;
     land.tex.colorSpace = THREE.NoColorSpace;
     land.tex.needsUpdate = true;
+    // The ring's coarse cover, before any tile has arrived: the built-up
+    // channel (A) from the building count of each tile, interpolated between
+    // the tile centres (so the tint has no 1 km squares), outside the core's
+    // own mask only. The real cover of a tile overwrites its patch later.
+    prepaintRing(doc);
     ground?.userData.setLandcoverWide?.(land.tex, land.rect);
+    return doc;
+  }
 
+  // dense = 600 buildings in a 1 km tile: the A channel at about 0.8
+  function prepaintRing(doc) {
+    const g = doc.grid;
+    const dens = new Float32Array(g.nx * g.ny);
+    for (const t of doc.tiles) dens[(g.ny - 1 - t.y) * g.nx + t.x] = Math.min(1, (t.n?.b || 0) / 600);
+    const at = (cx, cy) => dens[Math.min(g.ny - 1, Math.max(0, cy)) * g.nx + Math.min(g.nx - 1, Math.max(0, cx))];
+    const r = nature?.landRect;
+    for (let row = 0; row < land.h; row++) {
+      const fy = (row + 0.5) / LAND_PX - 0.5;
+      const y0 = Math.floor(fy);
+      const ty = fy - y0;
+      const z = land.rect.z0 + ((row + 0.5) / land.h) * land.rect.d;
+      for (let col = 0; col < land.w; col++) {
+        const x = land.rect.x0 + ((col + 0.5) / land.w) * land.rect.w;
+        // inside the core's mask the core's cover stands
+        if (r && x > r.x0 && x < r.x0 + r.w && z > r.z0 && z < r.z0 + r.d) continue;
+        const fx = (col + 0.5) / LAND_PX - 0.5;
+        const x0 = Math.floor(fx);
+        const tx = fx - x0;
+        const d = at(x0, y0) * (1 - tx) * (1 - ty) + at(x0 + 1, y0) * tx * (1 - ty) + at(x0, y0 + 1) * (1 - tx) * ty + at(x0 + 1, y0 + 1) * tx * ty;
+        land.data[(row * land.w + col) * 4 + 3] = Math.min(255, Math.round(d * 230));
+      }
+    }
+  }
+
+  async function start() {
+    started = true;
+    const doc = await loadIndex();
+    if (!doc || failed) return;
     // workers
     const n = mobile ? 1 : Math.min(2, Math.max(1, (navigator.hardwareConcurrency || 2) - 2));
     const init = {
@@ -655,7 +696,11 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     if (off || failed) return;
     // after the core's first frames: its shaders compile first
     if (!started) {
-      if ((debug.ready || debug.interactive) && frames > 20) start();
+      // The workers start once the core's buildings exist (they set the
+      // facade config the workers copy): in the boot view on desktops, after
+      // the first full frame on phones. The index and the ring's coarse
+      // cover are loaded long before (loadIndex).
+      if ((mobile ? debug.ready || debug.interactive : debug.buildings) && frames > 20) start();
       return;
     }
     if (!index || !workers.some((w) => w.ok)) return;
@@ -763,6 +808,14 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     update,
     // main.js starts the tiles with the nature base (land cover only); the
     // trees layer joins once it is built: the streamed woods get their trees
+    // the core's built-up channel was painted after the wide mask took its
+    // copy: copy it again
+    refreshCore() {
+      if (!land.data) return;
+      copyCoreLand();
+      landDirty = true;
+      sinceLand = 1;
+    },
     setNature(n) {
       nature = n;
       TREE_CAP = n?.streamCap ?? 0;
@@ -805,5 +858,6 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     fadeS: FADE_S,
   };
   debug.tiles = api;
+  if (!off) loadIndex();
   return api;
 }

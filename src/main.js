@@ -173,6 +173,7 @@ async function start() {
   const geoState = { ground: -1, lines: -1 };
   let roadsRef = null; // the road layer, once built
   let cityRef = null; // the OSM core buildings, once built
+  let tiles = null; // the streamed city around the core, once the roads exist
   let geoTick = 0;
   function applyGeoLod(camDist) {
     const k = (debug.governor?.level ?? 0) >= 2 ? 0.6 : 1;
@@ -224,6 +225,14 @@ async function start() {
     if (natureBase.water) scene.add(natureBase.water.mesh);
   }
   mark('base');
+
+  // The city around the core streams in from the boot view on (tiles.js).
+  // Right away it loads the tile index and tints the ring's built-up land
+  // from the building counts; its workers start once the core's buildings
+  // exist, and the main thread takes 2 ms a frame. The streets' lines come
+  // from the road layer later (roadHolder), the trees from the nature layer.
+  const roadHolder = {};
+  tiles = createTiles({ renderer, scene, camera, terrain, heightAt, proj, roadLayer: roadHolder, nature: natureBase, ground, mobile: LITE, debug });
 
   // the landmark positions before the fits: the centre of the OSM outline's
   // box (the fit's pivot), else the point itself
@@ -323,6 +332,7 @@ async function start() {
   debug.roadSegments = roadLayer.counts;
 
   roadsRef = roadLayer;
+  Object.assign(roadHolder, { lines: roadLayer.lines, glows: roadLayer.glows });
   applyGeoLod(camera.position.distanceTo(home.target));
   mark('roads');
 
@@ -364,13 +374,13 @@ async function start() {
     city.footprints,
     fits.flatMap((f, i) => (f.fallback || !URBAN_CATS.has(landmarks[i]?.category) ? [] : [{ ...f.plan, hu: f.plan.hu + forecourt, hv: f.plan.hv + forecourt }])),
   );
+  tiles?.refreshCore();
   mark('built');
 
   // Woods, parks and water from OSM, the streamed tiles around the core, and
   // life and the seasons on top: built after the first full frame, when the
   // browser is idle (deferLayers below). Until then they are null.
   let nature = null;
-  let tiles = null;
   let life = null;
   let seasons = null;
   function buildNatureLayer() {
@@ -402,10 +412,6 @@ async function start() {
     // the streamed woods get their trees (the tiles already run, see below)
     tiles?.setNature(nature);
   }
-  // the city around the core, streamed in as soon as the core is on screen
-  // (tiles.js starts after the first full frames): with the land cover of the
-  // nature base, so the ring is there long before the trees are
-  tiles = createTiles({ renderer, scene, camera, terrain, heightAt, proj, roadLayer, nature: natureBase, ground, mobile: LITE, debug });
   // Microsoft footprints in the OSM gaps, core and ring (buildings-ms.js;
   // ?ms=0 off). Built with the deferred layers below: it is the heaviest of
   // the core passes, so the first interactive frame does not wait on it.
@@ -526,6 +532,7 @@ async function start() {
       atmosphere.update(dt, camera);
       natureBase?.water?.update(dt, null); // the sea moves from the first frame
       stepFades();
+      tiles?.update(dt);
       for (let i = 0; i < pts.length; i++) {
         _p.set(pts[i].x, base[i], pts[i].z);
         const H = Math.max(0.05, camera.position.distanceTo(_p) * 0.018);
