@@ -36,6 +36,7 @@ import { t } from './i18n.js';
 import * as UI from './ui.js';
 import { WEATHER_UNIFORMS } from './scene.js';
 import { S } from './geo.js';
+import { CITY } from './city.js';
 import { createLeaves } from './leaves.js';
 
 export const SEASONS = ['spring', 'summer', 'fall', 'winter'];
@@ -97,7 +98,9 @@ function writeHash(key, isDefault) {
 }
 
 export function createSeasons({ renderer, scene, camera, atmosphere, nature, fx, weather, terrain, ui, reducedMotion = false, mobile = false, lite = false, debug = {} }) {
-  const today = seasonForDate();
+  // the start season: the city's season_default ("auto" = today's real one)
+  const fixed = norm(CITY.season_default || '');
+  const today = Object.hasOwn(PRESETS, fixed) ? fixed : seasonForDate();
   const weights = [0, 1, 0, 0];
   let target = PRESETS.summer;
   let season = 'summer';
@@ -259,10 +262,14 @@ export function createSeasons({ renderer, scene, camera, atmosphere, nature, fx,
 
     // Porto-correct climate on top of the weather state (weather.js):
     // winter wet and misty, autumn damp, spring fresh, summer dry and bright
-    climate.mist = 0.06 * sp + 0.01 * su + 0.2 * fa + 0.34 * wi;
-    climate.fog = 0.04 * sp + 0.1 * fa + 0.2 * wi;
-    climate.haze = 0.05 * sp + 0.12 * fa + 0.16 * wi;
-    climate.grey = 0.03 * sp + 0.07 * fa + 0.13 * wi;
+    // A bias, not a weather: under "clear" it must not read as haze. At the
+    // 4 km overview of Porto the first values (autumn mist 0.2, fog 0.1,
+    // haze 0.12) buried the city in a beige wash and advanced the sea-fog
+    // sheet over the Atlantic, so the default start looked overcast.
+    climate.mist = 0.02 * sp + 0.0 * su + 0.05 * fa + 0.16 * wi;
+    climate.fog = 0.01 * sp + 0.02 * fa + 0.08 * wi;
+    climate.haze = 0.02 * sp + 0.04 * fa + 0.09 * wi;
+    climate.grey = 0.01 * sp + 0.03 * fa + 0.07 * wi;
     climate.swell = 0.32 * wi + 0.12 * fa; // Atlantic westerlies roughen the sea
     weather?.setClimate?.(climate);
 

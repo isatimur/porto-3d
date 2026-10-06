@@ -17,6 +17,7 @@
 import { t, locale } from './i18n.js';
 import { mountTool } from './ui.js';
 import { CITY, cityT } from './city.js';
+import { WEATHERS } from './weather.js';
 
 // The weather point and the zone come from cities/<id>.json (weather,
 // timezone); read lazily, the config loads before start().
@@ -488,7 +489,10 @@ export function createLive({ atmosphere, weather, reducedMotion = false, onPersi
   // ---- restore: hash (#live=1, #time=live, #weather=rain) before storage
   const hWeather = hash.get('weather');
   const sWeather = read('porto-weather');
-  const startWeather = hWeather || sWeather;
+  // a link or a saved choice wins; otherwise the city's default_weather
+  // (cities/<id>.json, "clear" when absent). Live weather never starts by
+  // itself: only «Сейчас в …» turns it on (or a saved #live=1).
+  const startWeather = hWeather || sWeather || (WEATHERS.includes(CITY.default_weather) ? CITY.default_weather : '');
   if (startWeather && startWeather !== 'clear') weather.set(startWeather, { instant: true });
   ui?.setWeather(weather.name, false);
   const wantLive = hash.get('live') === '1' || hash.get('time') === 'live' || (hash.get('live') !== '0' && !hash.get('time') && read('porto-live') === '1');

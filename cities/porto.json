@@ -53,6 +53,8 @@
   "data_absent": ["pois.json", "streetscape.json"],
   "locale_default": "ru",
   "season_default": "auto",
+  "default_weather": "clear",
+  "default_time": "sunset",
   "description": {
     "ru": "Интерактивная 3D-карта Порту: Дору, шесть мостов, Рибейра, соборы, дворцы и сады.",
     "en": "An interactive 3D map of Porto: the Douro, its six bridges, the Ribeira, cathedrals, palaces and gardens.",

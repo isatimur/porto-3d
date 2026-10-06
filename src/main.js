@@ -107,6 +107,9 @@ const mark = (name) => {
 };
 
 async function start() {
+  // the city's own start time of day (cities/<id>.json default_time); a
+  // saved or linked choice still wins (see setTime below)
+  const START_TIME = TIMES.includes(CITY.default_time) ? CITY.default_time : DEFAULT_TIME;
   // the opening flight (makeIntro) starts with the boot view; the rig
   // takes the camera when it ends (introDoneHook, set once the rig exists)
   let intro = null;
@@ -755,7 +758,7 @@ async function start() {
     const parts = [];
     if (route) parts.push(`route=${route.route.id}`);
     else if (active >= 0) parts.push(`place=${landmarks[active].id}`);
-    if (atmosphere.time !== DEFAULT_TIME) parts.push(`time=${atmosphere.time}`);
+    if (atmosphere.time !== START_TIME) parts.push(`time=${atmosphere.time}`);
     // until life and the seasons exist (deferLayers), keep what the link said
     const was = life && seasons ? null : new URLSearchParams(location.hash.replace(/^#/, ''));
     if (life) {
@@ -797,14 +800,18 @@ async function start() {
   // morning, day, sunset (default: golden hour), night. Saved in
   // localStorage and, when not the default, in the hash as time=.
   const timeButtons = [...document.querySelectorAll('#time-switch [data-time]')];
-  function setTime(name, { animate = !reducedMotion, writeHash = true } = {}) {
-    if (!TIMES.includes(name)) name = DEFAULT_TIME;
+  function setTime(name, { animate = !reducedMotion, writeHash = true, persist = true } = {}) {
+    if (!TIMES.includes(name)) name = START_TIME;
     for (const b of timeButtons) b.setAttribute('aria-pressed', String(b.dataset.time === name));
     atmosphere.setTime(name, { animate });
-    try {
-      localStorage.setItem('porto-time', name);
-    } catch {
-      // storage may be blocked; the hash still carries the choice
+    // only a choice is saved: the start-up call must not turn the city's
+    // default into a "choice" that hides a later change of default_time
+    if (persist) {
+      try {
+        localStorage.setItem('porto-time', name);
+      } catch {
+        // storage may be blocked; the hash still carries the choice
+      }
     }
     debug.time = name;
     if (writeHash) setHash(currentHash());
@@ -818,7 +825,7 @@ async function start() {
       saved = null;
     }
     const fromHash = new URLSearchParams(location.hash.replace(/^#/, '')).get('time');
-    setTime(fromHash || saved || DEFAULT_TIME, { animate: false, writeHash: false });
+    setTime(fromHash || saved || START_TIME, { animate: false, writeHash: false, persist: false });
   }
   debug.setTime = setTime;
 
