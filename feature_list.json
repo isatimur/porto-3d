@@ -196,7 +196,7 @@
       ],
       "evidence": [
         "CINEMA_ORDER in src/tour.js holds 70 entries",
-        "public/og holds 61 images: porto.jpg plus 60 landmark images; 10 landmarks have none yet (bessa, teatro-sa-da-bandeira, teatro-nacional-sao-joao, igreja-da-vitoria, igreja-carmelitas, casa-museu-marta-ortigao-sampaio, mercado-matosinhos, camara-matosinhos, farol-leca, paco-episcopal)",
+        "public/og holds 71 images: porto.jpg plus one per landmark (the 10 missing ones were rendered 2026-10-06 with CITY_URL=http://localhost:5191 node scripts/make-og.mjs --og --only=...; all over 60 KB and read). Weak framing, to redo: mercado-matosinhos (hall on empty green ground, tiles not streamed in the render) and farol-leca (lighthouse lost in haze)",
         "src/life.js runs the Guindais funicular, boats and fountains; src/porto-streetscape.js holds Porto's streetscape"
       ],
       "notes": "Braga ids and placeholder constants remain only where the engine treats them as no-ops for other cities. Not re-verified visually in this session."
@@ -243,13 +243,17 @@
       "area": "world",
       "title": "Quay walls along the Douro",
       "user_visible_behavior": "The river edge in Ribeira and Gaia has built quay walls, not a bare terrain edge.",
-      "status": "not_started",
+      "status": "in_progress",
       "verification": [
         "Visual: Cais da Ribeira and Cais de Gaia show stone walls at water level",
         "npm run verify stays green"
       ],
-      "evidence": [],
-      "notes": "No quay-wall code exists in src/ today."
+      "evidence": [
+        "scripts/fetch-quays.mjs writes data/quays.json (20 lines, 7.4 km) from OSM river-polygon edges on the Ribeira, Gaia and Foz reaches and next to retaining walls; OSM has no man_made=quay in the core",
+        "src/quays.js: granite wall (5 courses, tide-line course), coping, deck, skirt, hexagonal bollards every 30 m (248), merged per 1 km cell (15 meshes, 34 k triangles); heights from heightAt",
+        "Screenshots read: Ribeira and Gaia with and without the layer; Commons references read (Ribeira quay, Cais de Gaia)"
+      ],
+      "notes": "NOT done: the terrain behind the wall is not flattened. The ground mesh is 27 m per cell and the water drapes on heightAt, so a flat pad would lift the water. The wall stands on the water line with a 3-12 m deck that reaches inland until the ground meets it. Foz not checked closely. The arcaded Ribeira front is out of scope."
     },
     {
       "id": "porto-014",
@@ -257,13 +261,17 @@
       "area": "performance",
       "title": "Geometry LOD for buildings and tiles",
       "user_visible_behavior": "Far buildings and tiles draw fewer triangles, so weak devices hold the frame rate.",
-      "status": "not_started",
+      "status": "in_progress",
       "verification": [
         "Measure frame time before and after on a low-tier profile",
         "npm run verify stays green"
       ],
-      "evidence": [],
-      "notes": "Landmarks already have a far LOD (src/landmarks.js) and the governor in src/main.js lowers tile budgets. Building and tile meshes have no geometry LOD."
+      "evidence": [
+        "Triangles (renderer.info), desktop 1440x900: first frames 4.69 M -> 1.97 M peak; settled overview 3.04 M -> 1.76 M; mid 3.98 M -> 3.41 M; close 3.94 M -> 3.37 M. Mobile 390x844: first frame 2.26 M -> 1.25 M, settled 1.11 M",
+        "src/scene.js ground index LOD (every 2nd/4th grid line far away); src/roads.js setGeoLod (street lines body quads only, minor lines and, on phones, minor ribbons dropped); src/main.js applyGeoLod and the 700-unit shadow cap from the first frame; core building tiers now update from frame 1",
+        "Screenshot pairs read: overview and Luis I before and after"
+      ],
+      "notes": "Landmark far LOD, the building tiers and tile near/far LOD already existed. Not done: people/tree counts by tier, and the governor level only shifts the far thresholds (close-range triangles do not change with the governor). Mobile first frame is 4 % above the 1.2 M target."
     },
     {
       "id": "porto-015",
