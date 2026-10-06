@@ -55,6 +55,7 @@
   "season_default": "auto",
   "culverted_streams": ["Rio da Vila"],
   "default_weather": "clear",
+  "default_live": true,
   "default_time": "sunset",
   "description": {
     "ru": "Интерактивная 3D-карта Порту: Дору, шесть мостов, Рибейра, соборы, дворцы и сады.",

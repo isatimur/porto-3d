@@ -108,8 +108,18 @@ export function weatherFromCode(code, cloud = 0, precip = 0) {
   // readings with no WMO code of their own (chosen by hand in the menu).
   if (c === 45 || c === 48) return { state: 'fog', label: 'туман' };
   if (c >= 95) return { state: 'rain', label: 'гроза' };
-  if (c >= 80 && c <= 82) return { state: 'downpour', label: 'ливень' };
-  if (c >= 61 && c <= 67) return { state: 'rain', label: 'дождь' };
+  // Rain by intensity, not only by code: WMO 80/61 are SLIGHT showers/rain,
+  // 81/63 moderate, 82/65/67 heavy/violent. Open-Meteo's `precipitation` is
+  // mm over the last interval (here mm per 15 min block, read as mm/h for
+  // the thresholds), so a 0.1 mm shower stays a light rain on the map.
+  if ((c >= 80 && c <= 82) || (c >= 61 && c <= 67)) {
+    const heavy = c === 82 || c === 65 || c === 66 || c === 67 || precip > 2.5;
+    if (heavy) return { state: 'downpour', label: 'ливень' };
+    const light = c === 80 || c === 61 || precip < 0.6;
+    return light && c !== 81 && c !== 63
+      ? { state: 'drizzle', label: 'дождь' }
+      : { state: 'rain', label: 'дождь' };
+  }
   if (c >= 51 && c <= 57) return { state: 'drizzle', label: 'морось' };
   if ((c >= 71 && c <= 77) || c === 85 || c === 86) return { state: 'overcast', label: 'снег' };
   if (precip > 0.2) return { state: 'rain', label: 'дождь' };
@@ -495,7 +505,7 @@ export function createLive({ atmosphere, weather, reducedMotion = false, onPersi
   const startWeather = hWeather || sWeather || (WEATHERS.includes(CITY.default_weather) ? CITY.default_weather : '');
   if (startWeather && startWeather !== 'clear') weather.set(startWeather, { instant: true });
   ui?.setWeather(weather.name, false);
-  const wantLive = hash.get('live') === '1' || hash.get('time') === 'live' || (hash.get('live') !== '0' && !hash.get('time') && read('porto-live') === '1');
+  const wantLive = hash.get('live') === '1' || hash.get('time') === 'live' || (hash.get('live') !== '0' && !hash.get('time') && !hash.get('weather') && (read('porto-live') === '1' || (CITY.default_live === true && read('porto-live') === null && !sWeather)));
   if (wantLive) {
     // instant on load: no blend from the default sunset
     live = true;
