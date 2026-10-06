@@ -966,10 +966,17 @@ async function start() {
       const cardTop = H - (ui.callout.size.h || 170) - 24;
       return { x: W / 2, y: 70 + (cardTop - 70) * 0.5, fill: Math.max(0.3, (cardTop - 90) / H) };
     }
+    // Desktop: the free map area is split in two: the subject on the left
+    // (a disc of sw px across), the card on the right of it, 24 px between.
+    // The subject centre sits at the left share; placeCallout() puts the
+    // card at the subject's edge, so the card never lies on the subject.
     const side = document.querySelector('.side')?.getBoundingClientRect();
     const left = (side?.right ?? 0) + 16;
-    const cardW = (ui.callout.size.w || 360) + 64;
-    return { x: left + (W - 24 - cardW - left) * 0.55, y: H * 0.54, fill: 0.62 };
+    const freeW = W - 24 - left;
+    const cardW = ui.callout.size.w || 360;
+    const sw = Math.min(0.62 * H, Math.max(0.3 * H, freeW - cardW - 24));
+    const slack = Math.max(0, freeW - cardW - 24 - sw);
+    return { x: left + sw / 2 + slack * 0.3, y: H * 0.54, fill: sw / H };
   }
 
   function frameActive() {
@@ -1476,7 +1483,9 @@ async function start() {
       const r = el.getBoundingClientRect();
       if (r.width && r.height && r.bottom > 0 && r.top < size.h) out.push({ l: r.left, r: r.right, t: r.top, b: r.bottom });
     };
-    for (const el of document.querySelectorAll('.topbar > .brand, .topbar > .search, .topbar > .modes, .topbar > .tools-toggle, .topbar > .life-badge')) add(el);
+    // (the two hint lines at the bottom right too: a label under them read as
+    // a name overlapping the hint box)
+    for (const el of document.querySelectorAll('.topbar > .brand, .topbar > .search, .topbar > .modes, .topbar > .tools-toggle, .topbar > .life-badge, .hint')) add(el);
     const side = document.querySelector('.side');
     if (side && getComputedStyle(side).opacity !== '0') add(side);
     if (ui.isOpen()) add(document.getElementById('detail'));
@@ -1517,7 +1526,11 @@ async function start() {
     const y = (-_pin.y * 0.5 + 0.5) * size.h;
     const on = _pin.z < 1 && x > -20 && x < size.w + 20 && y > -20 && y < size.h + 20;
     const side = sideRect();
-    ui.callout.place({ x, y, on }, { left: (side ? side.right : 0) + 16, top: 84, right: size.w - 16, bottom: size.h - 16 });
+    // the subject's half width on screen (its bounding sphere): the card
+    // stands beside it, not on it
+    const dCam = camera.position.distanceTo(it.center);
+    const r = (it.sphere.radius / Math.max(1, dCam * Math.tan((camera.fov * Math.PI) / 360))) * (size.h / 2);
+    ui.callout.place({ x, y, on, r }, { left: (side ? side.right : 0) + 16, top: 84, right: size.w - 16, bottom: size.h - 16 });
   }
   let sideBox = null;
   let sideBoxAt = 0;

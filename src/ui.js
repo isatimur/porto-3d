@@ -866,7 +866,9 @@ export function createCallout({ onMore, onClose, onPano }) {
       ax = clamp(pin.x, r.left + 24, r.right - 24);
       ay = r.top;
     } else {
-      const gap = 64;
+      // beside the subject, not on it: its half width on screen (pin.r) and
+      // 24 px; at least 64 px from the pin, at most 360
+      const gap = Math.min(360, Math.max(64, (pin.r || 0) + 24));
       const fitsR = pin.x + gap + w <= b.right;
       const fitsL = pin.x - gap - w >= b.left;
       if (side > 0 && !fitsR && fitsL) side = -1;
