@@ -83,9 +83,12 @@ function builder(k, site) {
   k.push({ x: bb.cx, z: bb.cz, ry: bb.a });
   k.begin('main');
 
-  // riverside quay and Douro
+  // riverside quay, and the river bed under the scene's own Douro: it keeps
+  // the model box as wide as the OSM extent (the never-shrink rule) and sits
+  // below the water line, never seen. The water slab that stood here showed
+  // as a pale-blue flat polygon on the Gaia bank.
   k.prism(rect(0, W / 2 + 7, L + 30, 12), -0.3, 0.7, 'graniteWarm');
-  k.prism(rect(0, W / 2 + 40, L + 80, 60), -0.7, 0.45, 'water', { emit: 0.05 });
+  k.prism(rect(0, W / 2 + 40, L + 80, 60), -2.2, 0.45, 'graniteDark');
 
   // three parallel lodges set back from the river
   warehouse(k, 0, W / 2 - 11, L * 0.92, 15, 13, 'SANDEMAN');

@@ -45,8 +45,11 @@ function builder(k, site) {
   k.prism(rect(-4, BOX.cz, 24, L), -0.4, 1.0, 'graniteWarm');
   // cobbled riverside strip
   k.prism(rect(2, BOX.cz, 4, L), 0.6, 0.15, 'sand');
-  // the Douro
-  k.prism(rect(29, BOX.cz, 42, L + 4), -0.6, 0.45, 'water', { emit: 0.05 });
+  // The river bed under the scene's own Douro. It keeps the model box as wide
+  // as the OSM extent (the never-shrink rule). It sits below the water line,
+  // so it is never seen: the water slab that stood here showed as a pale-blue
+  // flat polygon on the Gaia bank.
+  k.prism(rect(29, BOX.cz, 42, L + 4), -2.2, 0.45, 'graniteDark');
 
   // terrace row: varied 2-3 storey lodges and restaurants with awnings
   let z = -L / 2 + 4;
