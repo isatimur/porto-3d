@@ -355,7 +355,15 @@ async function start() {
   debug.buildings = city.stats;
   mark('buildings');
   await nextFrame();
-  natureBase?.paintBuilt(city.footprints); // the urban tint of the ground
+  // the urban tint of the ground; the sites of landmarks in the city get it
+  // too, with a 14 m forecourt (the buildings under them are skipped, and a
+  // station or a church would stand on a lawn)
+  const URBAN_CATS = new Set(['civic', 'religious', 'museum', 'culture', 'education']);
+  const forecourt = 14 / METRES_PER_UNIT;
+  natureBase?.paintBuilt(
+    city.footprints,
+    fits.flatMap((f, i) => (f.fallback || !URBAN_CATS.has(landmarks[i]?.category) ? [] : [{ ...f.plan, hu: f.plan.hu + forecourt, hv: f.plan.hv + forecourt }])),
+  );
   mark('built');
 
   // Woods, parks and water from OSM, the streamed tiles around the core, and

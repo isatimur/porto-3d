@@ -600,7 +600,11 @@ export function buildNatureBase(opts) {
   // the built-up channel (A): painted from the building outlines once they
   // exist (the boot view starts without it)
   let builtDone = false;
-  const paintBuilt = (buildings) => {
+  // urban: oriented rectangles { cx, cz, ux, uz, hu, hv } (world units) of
+  // landmark sites in the city: the OSM buildings under a landmark are
+  // skipped, so without these the station square or the church forecourt
+  // would read as a lawn
+  const paintBuilt = (buildings, urban = []) => {
     if (builtDone || !buildings?.length) return;
     builtDone = true;
     const Lu = layer();
@@ -611,6 +615,13 @@ export function buildNatureBase(opts) {
       path(Lu.ctx, [poly]);
       Lu.ctx.fill();
       Lu.ctx.stroke();
+    }
+    for (const r of urban) {
+      const vx = -r.uz; // across the long axis
+      const vz = r.ux;
+      const corner = (a, c) => ({ x: r.cx + r.ux * a * r.hu + vx * c * r.hv, z: r.cz + r.uz * a * r.hu + vz * c * r.hv });
+      path(Lu.ctx, [[corner(-1, -1), corner(1, -1), corner(1, 1), corner(-1, 1)]]);
+      Lu.ctx.fill();
     }
     const u = blur(rd(Lu), lw, lh, 3);
     for (let i = 0; i < px; i++) mask[i * 4 + 3] = Math.min(255, u[i] * 1.6);
