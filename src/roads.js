@@ -291,6 +291,8 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
   let lastNight = -1;
   let lastClose = 1;
   let lastFar = 0;
+  let geoLevel = 0;
+  let minorRibbon = null;
   let bloomOn = false;
   let hintOn = true;
   function applyBloom() {
@@ -396,6 +398,7 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
     materials.push(rm);
     const mesh = new THREE.Mesh(geometryOf(T), rm);
     mesh.name = `street-${kind}`;
+    if (kind === 'minor') minorRibbon = mesh;
     mesh.receiveShadow = true;
     group.add(mesh);
     ribbonTris += T.idx.length / 3;
@@ -996,6 +999,22 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
     setBloom(on) {
       bloomOn = !!on;
       applyBloom();
+    },
+    // Geometry LOD (main.js geoLod). A constant-width line segment is six
+    // triangles: the body quad (2) and the round joins. Level 1 draws the
+    // body only (a third of the triangles, 1 px lines show no gap); level 2
+    // also drops the thinnest, faintest lines (minor streets, 0.75 px at 30 %).
+    setGeoLod(level) {
+      if (level === geoLevel) return;
+      geoLevel = level;
+      // the main streets and their glow keep their joins: that golden network
+      // is the far view's look
+      for (const [kind, l] of Object.entries(lines)) if (kind !== 'primary') l.geometry.setDrawRange(0, level >= 1 ? 6 : Infinity);
+      if (hint) hint.geometry.setDrawRange(0, level >= 1 ? 6 : Infinity);
+      if (lines.minor) lines.minor.visible = level < 2;
+      // phones at level 2: the minor street surfaces go too (179 k triangles;
+      // the secondary and main streets and the buildings carry the view)
+      if (lite && minorRibbon) minorRibbon.visible = level < 2;
     },
     // camera distance to the orbit target: in a close-up the constant-width
     // lines step back and the lit street surfaces carry the streets; the

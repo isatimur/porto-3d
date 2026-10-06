@@ -158,6 +158,46 @@ async function start() {
   loader.set(0.45, t('Строим рельеф'));
   const tb = terrain.bounds;
   const ground = createGround(terrain);
+
+  // Geometry LOD by the distance from the camera to the focus (world units;
+  // 250 units = 1 km). Within CAST_NEAR_U (2.8 km) the scene is untouched.
+  //   ground: every 2nd grid line beyond g1, every 4th beyond g2
+  //   street lines: body quads only beyond l1; minor lines dropped beyond l2
+  // Phones step in earlier; a governor level of 2 or more pulls all of them in.
+  // Applied from the first frame (the boot view), then every frame.
+  const CAST_NEAR_U = 700;
+  const GEO_LOD = LITE ? { g1: 600, g2: 800, l1: 350, l2: 600 } : { g1: 1200, g2: 1e9, l1: 800, l2: 2500 };
+  const geoState = { ground: -1, lines: -1 };
+  let roadsRef = null; // the road layer, once built
+  let cityRef = null; // the OSM core buildings, once built
+  let geoTick = 0;
+  function applyGeoLod(camDist) {
+    const k = (debug.governor?.level ?? 0) >= 2 ? 0.6 : 1;
+    const pick = (cur, d, a, b) => {
+      // 8 % hysteresis around each threshold
+      const up = (t, on) => d > t * k * (on ? 0.92 : 1);
+      return up(b, cur >= 2) ? 2 : up(a, cur >= 1) ? 1 : 0;
+    };
+    const g = pick(geoState.ground, camDist, GEO_LOD.g1, GEO_LOD.g2);
+    if (g !== geoState.ground) {
+      geoState.ground = g;
+      ground.userData.setLod(g);
+    }
+    if (roadsRef) {
+      let l = pick(geoState.lines, camDist, GEO_LOD.l1, GEO_LOD.l2);
+      // close up the constant-width lines are faded to ~10-30 % (roads.js
+      // setViewDistance) under the street surfaces: their joins are not seen
+      if (l === 0 && camDist < 150) l = 1;
+      if (l !== geoState.lines) {
+        geoState.lines = l;
+        roadsRef.setGeoLod(l);
+      }
+    }
+    // the core buildings' own tiers (near / mid / roofs only) follow the camera
+    // from the first frame, not only once the streamed tiles exist
+    if (cityRef && geoTick++ % 10 === 0) cityRef.group.userData.updateLod?.(camera.position, camera.userData.focus || home.target);
+    debug.geoLod = geoState;
+  }
   scene.add(ground);
   // light mode: only the landmarks cast shadows; the hill-shadow proxy goes
   const groundShadow = ground.getObjectByName('ground-shadow');
@@ -238,6 +278,9 @@ async function start() {
   const roadLayer = buildRoads(roads, project, heightAt, { waterRibbon: !loaded.nature, lite: LITE });
   scene.add(roadLayer.group);
   debug.roadSegments = roadLayer.counts;
+
+  roadsRef = roadLayer;
+  applyGeoLod(camera.position.distanceTo(home.target));
   mark('roads');
 
   loader.set(0.74, t('Возводим здания'));
@@ -247,6 +290,17 @@ async function start() {
     plans: fits.filter((f) => !f.fallback).map((f) => f.plan),
   });
   scene.add(city.group);
+  cityRef = city;
+  // far start view: no building or landmark shadows in the boot frames either
+  // (they are sub-pixel from here; the loop re-enables them when it closes in)
+  if (home.position.distanceTo(home.target) >= CAST_NEAR_U) {
+    for (const m of city.group.children) m.castShadow = false;
+    marks.group.traverse((m) => {
+      if (!m.isMesh) return;
+      m.userData.castOrig ??= m.castShadow;
+      m.castShadow = false;
+    });
+  }
   debug.buildings = city.stats;
   mark('buildings');
 
@@ -394,6 +448,8 @@ async function start() {
       renderer.info.reset();
       intro?.update(dt);
       const camDist = camera.position.distanceTo(home.target);
+      applyGeoLod(camDist);
+      roadsRef?.setViewDistance(camDist); // the close-range markings stay hidden from far
       const near = THREE.MathUtils.clamp(camDist * 0.004, 0.5, 6);
       if (Math.abs(near - camera.near) > camera.near * 0.1) {
         camera.near = near;
@@ -1410,6 +1466,7 @@ async function start() {
   let last = performance.now();
   let clock = 0; // not `t`: that name is the translation function
   let cityCasts = true;
+  let landCasts = true;
   function frame() {
     raf = requestAnimationFrame(frame);
     const now = performance.now();
@@ -1434,11 +1491,22 @@ async function start() {
     camera.userData.focus = rig.controls.target;
     // building shadows only when they can be seen: from far away they are
     // sub-pixel and cost one draw call per tile in the shadow pass
-    const castCity = camDist < 4000;
+    // (700 units = 2.8 km, the radius tiles.js and buildings-ms.js use too;
+    // this also covers the first frames, before the streamed tiles exist)
+    const castCity = camDist < CAST_NEAR_U;
     if (castCity !== cityCasts) {
       cityCasts = castCity;
       for (const m of city.group.children) m.castShadow = castCity;
     }
+    if (castCity !== landCasts) {
+      landCasts = castCity;
+      marks.group.traverse((m) => {
+        if (!m.isMesh) return;
+        m.userData.castOrig ??= m.castShadow; // the flag as built (tiles.js reads the same key)
+        m.castShadow = castCity && m.userData.castOrig;
+      });
+    }
+    applyGeoLod(camDist);
     debug.frames = (debug.frames || 0) + 1;
     atmosphere.update(rawDt, camera);
     const night = atmosphere.night;
@@ -1465,7 +1533,7 @@ async function start() {
       // ... and only those within 1200 units (4.8 km) of the camera
       for (const m of marks.group.children) {
         if (!m.isMesh) continue;
-        m.userData.liteCast ??= m.castShadow;
+        m.userData.liteCast ??= m.userData.castOrig ?? m.castShadow; // as built, not as the far-view LOD left it
         m.castShadow = m.userData.liteCast && camDist < 4000 && m.position.distanceToSquared(camera.position) < 1200 * 1200;
       }
     }

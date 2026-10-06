@@ -1457,8 +1457,51 @@ export function createGround(terrain) {
     }
     return lo;
   };
+  // Geometry LOD (main.js geoLod): far from the focus the same vertices are
+  // drawn with every 2nd (or 4th) grid line: a quarter (a sixteenth) of the
+  // triangles on the same normals and colours, so the surface keeps its look.
+  const strideIndex = (step) => {
+    const lines = (n) => {
+      const a = [];
+      for (let i = 0; i < n - 1; i += step) a.push(i);
+      a.push(n - 1);
+      return a;
+    };
+    const ci = lines(nx);
+    const cj = lines(nz);
+    const out = new Uint32Array((ci.length - 1) * (cj.length - 1) * 6);
+    let q = 0;
+    for (let j = 0; j < cj.length - 1; j++) {
+      for (let i = 0; i < ci.length - 1; i++) {
+        const a = cj[j] * nx + ci[i];
+        const bb = cj[j] * nx + ci[i + 1];
+        const c = cj[j + 1] * nx + ci[i];
+        const d = cj[j + 1] * nx + ci[i + 1];
+        out[q++] = a;
+        out[q++] = c;
+        out[q++] = bb;
+        out[q++] = bb;
+        out[q++] = c;
+        out[q++] = d;
+      }
+    }
+    return new THREE.BufferAttribute(out, 1);
+  };
+  const lodIndex = [geo.index, null, null];
+  let lodLevel = 0;
+  mesh.userData.setLod = (level) => {
+    level = Math.max(0, Math.min(2, level | 0));
+    if (level === lodLevel) return lodLevel;
+    lodIndex[level] ??= strideIndex(level === 1 ? 2 : 4);
+    geo.setIndex(lodIndex[level]);
+    lodLevel = level;
+    return lodLevel;
+  };
   mesh.userData.applyPads = (pads = terrain.pads) => {
     if (!pads.length) return 0;
+    // the normals need the full grid: back to the fine index while it runs
+    const keepLod = lodLevel;
+    mesh.userData.setLod(0);
     const reach = R * 2.5 + 1; // AO samples this far away
     const touched = new Uint8Array(nx * nz);
     let n = 0;
@@ -1489,6 +1532,7 @@ export function createGround(terrain) {
     for (let k = 0; k < pp.count; k++) pp.setY(k, heightAt(pp.getX(k), pp.getZ(k)) - 0.6);
     pp.needsUpdate = true;
     proxy.geometry.computeBoundingSphere();
+    mesh.userData.setLod(keepLod);
     return n;
   };
   mesh.userData.setLandcover = (tex, rect) => {
