@@ -22,6 +22,23 @@ updates it automatically.
 
 ## Session Log
 
+### Session 006
+
+- Date: 2026-10-06
+- Goal: the rest of the session 005 defect table (items 8-13), then the skipped checks (a)-(f).
+- Fixed (commits `555de54`, `240671c`, `b06a64a`, `10dc400`, `26da4e4`, `02fe74f`, `2c8ff82`, `ada0458`):
+  - 8 Boot: `buildNatureBase` (src/nature.js) builds the land-cover mask and the water before the first frame; the nature layer reuses them and adds trees later. The core's built-up channel is painted after the buildings exist. Roads and the core's buildings fade in (dither `BRG_REVEAL` in src/buildings.js, `setReveal` in src/roads.js). The tile index loads with the first frame and tints the ring from the per-tile building counts (`prepaintRing`, src/tiles.js); the tile workers start in the boot view as soon as the core's buildings exist (phones: after the first full frame). The deferred layers wait 1.5 s for the intro on desktops (was 6 s). Numbers (preview, 1440x900, 3 runs): first frame 1.2-1.5 s (was 1.8 s on bare green ground), interactive 5.2-5.4 s, ready 7.5-7.8 s (was 10.1 s here; 13-17 s under load in session 005). Phone 390x844: first frame 1.2 s, ready 9.1-9.6 s.
+  - 9 Pad slabs: far landmark massing no longer draws a box for low, wide sites (parks, gardens, beaches) and caps big buildings to a 12 000 m2 block (src/landmarks.js).
+  - 10 Water slabs: Gaia, Ribeira models carry a river-bed filler below the water line instead of a water prism; no pale-blue polygon, no slivers at the Luis I piers.
+  - 11 Sao Bento: landmark sites of the civic, religious, museum, culture and education classes get the urban ground tint and a 14 m forecourt (`paintBuilt`, src/nature.js, called from src/main.js).
+  - 12 Casa da Musica: the scribble was a comb of 0.16 m seams on the short corner facets plus a comb of drum mullions; both removed.
+  - 13 UI: the callout framing splits the free map area (subject left, card right); the card keeps a gap of the subject's screen radius; labels give way to the hint box.
+  - (f) Deviations: sao-bento 7.5 %, caves-gaia 6.4 %, ponte-freixo 8.7 %, campanha 8.1 %, coliseu 7.9 %, alfandega-nova 7.4 % (all under 10 %, no console warning). `dimensions.json` is unchanged.
+  - (b) One walker stood 1.1 m under the Se courtyard (a road lane in a cutting): crowd paths now clamp to `heightAt` (src/porto-streetscape.js).
+- Checks run, nothing else found: (a) 5 landmarks, camera moved 1 cm, 3-frame diff: only moving boats and edge noise, no z-fight patch; (b) instanced people, cars, vans, boats, rails, cabins, furniture vs `heightAt` at 6 places; boats at y -1000 are hidden instances; the cable-car cabins and the metro rail hang above ground by design; (c) 10 s fly from the overview to Clerigos at 10 Hz (screencast): the frame-to-frame change rises smoothly, no sudden change; the triangle count steps from 2.8 M to 4.4 M in 0.3 s at 600-850 units, hidden by the flight; (d) 450 m views of Ribeira, Foz and Boavista read clean; (e) Douro fly-over at Foz, Passeio Alegre, Arrabida, Maria Pia and Freixo reads clean.
+- Process: Edit/Write for source. One breach: a `sed -i` on `feature_list.json` for a typo.
+- Remaining: the core rectangle keeps a hard edge for 2-3 s until the first ring tiles arrive; the sunset road glow is strong in the first seconds; the ocean polygon ends in a straight line far out; phones need 9-10 s to ready.
+
 ### Session 005
 
 - Date: 2026-10-06

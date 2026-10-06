@@ -294,6 +294,28 @@
         "scripts/smoke-console.mjs loads dist headless and fails on console errors, GL errors and inconsistent geometry buffers; it SKIPs without playwright-core/Chromium"
       ],
       "notes": "verify now has 11 checks. On 2026-10-05 smoke console failed once with a transient net::ERR_FAILED while other work rebuilt dist, then passed on rerun."
+    },
+    {
+      "id": "porto-016",
+      "priority": 16,
+      "area": "polish",
+      "title": "Coherent boot and the session 006 glitch round",
+      "user_visible_behavior": "The first frames show sea, the Douro and tinted land, then streets and buildings fade in; landmark pads, water slabs, the Casa da Musica facade, the Sao Bento square and the place card behave.",
+      "status": "passing",
+      "verification": [
+        "node /tmp/p3/boot.mjs <preview> 1440x900 <tag> (screenshots every ~1 s plus window.__porto.timing)",
+        "npm run verify",
+        "npm run check:fit (no 'model box deviates' warning in the console)"
+      ],
+      "evidence": [
+        "Boot, desktop 1440x900, 3 runs on the preview build: first frame 1.2-1.5 s (water, land cover and the ring's built-up tint already drawn), interactive 5.2-5.4 s, ready 7.5-7.8 s; before: first frame 1.8 s on bare green ground, ready 10.1 s. Mobile 390x844: first frame 1.2 s, ready 9.1-9.6 s",
+        "src/nature.js buildNatureBase (land cover + water before the first frame), src/tiles.js loadIndex/prepaintRing, src/main.js fadeIn for roads and buildings, src/scene.js suburb tone",
+        "src/landmarks.js massing: no slab for low wide sites (parks), big buildings capped to a 12 000 m2 block",
+        "Gaia/Ribeira models carry a river-bed filler below the water line instead of a water prism; casa-musica comb and seams removed; landmark sites in the city get the urban ground tint; place card gap from the subject radius; labels avoid the hint box",
+        "check-fit: sao-bento 7.5 %, caves-gaia 6.4 %, ponte-freixo 8.7 %, campanha 8.1 %, coliseu 7.9 %, alfandega-nova 7.4 % (all were 10-14 %)",
+        "Checks: flicker diff at 5 landmarks (moved camera 1 cm, 3-frame diff): no z-fight patch, only moving boats and edge noise; instanced people/cars/boats vs heightAt at 6 areas: one walker 1.1 m below ground fixed in porto-streetscape.js, boats parked at y -1000 are hidden instances; 10 s fly to Clerigos at 10 Hz: no sudden frame change; 450 m views of Ribeira, Foz, Boavista and a Douro fly-over read"
+      ],
+      "notes": "Remaining: the core rectangle still has a hard edge for about 2-3 s until the first ring tiles arrive (the ring is tinted, not built); the road glow at sunset is strong in the first seconds (it fades in over 1.2 s). Ocean polygon ends in a straight line far out to sea. Phones still take 9-10 s to ready (nature/ms/life steps wait for the intro)."
     }
   ]
 }
