@@ -499,7 +499,13 @@ wFoamK = 0.0;
     float breaker = kOc * smoothstep(uWShoal, uWShoal * 0.15, dshore) * smoothstep(-0.02, 0.18, wH);
     // a storm tears more foam off the crests; the nortada and rain lift it
     float openFoam = crestFoam * (kTd * 0.35 + kOc * (0.35 + 0.65 * shoal)) * (0.7 + 0.3 * uWSpray);
-    m = max(m, max(openFoam, breaker * 0.95));
+    // at m near 1 the threshold below passes for any pattern value, so a
+    // whole swell crest turned into a solid white blob (camouflage over the
+    // Foz sea). Capped, the lattice still has to agree: foam is lacy.
+    // Breakers: densest on the surf line, thinning out to scattered lace
+    // 150 m out; open-water whitecaps stay sparse.
+    float surf = 1.0 - smoothstep(0.0, uWShoal * 0.3, dshore);
+    m = max(m, max(min(openFoam, 0.3), breaker * (0.2 + 0.32 * surf)));
     // airborne spray: torn off the breaking crests at the Foz shoreline,
     // strongest in a storm, none in the lite tier
     wSprayK = kOc * shoal * smoothstep(0.0, 0.16, wH) * uWSpray;
