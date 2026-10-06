@@ -297,8 +297,11 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
   let hintOn = true;
   function applyBloom() {
     const core = lines.primary?.material;
-    const kc = bloomOn ? 1.45 - 0.35 * lastFar : 1;
-    const kg = bloomOn ? 3 - 1.8 * lastFar : 1;
+    // the glow is a night/golden-hour look: by day (night 0) the bloomed
+    // network read as neon ribbons over the whole city, so it is held back
+    const dark = Math.max(0, lastNight);
+    const kc = bloomOn ? (1.45 - 0.35 * lastFar) * (0.8 + 0.2 * dark) : 1;
+    const kg = bloomOn ? (3 - 1.8 * lastFar) * (0.4 + 0.6 * dark) : 1;
     if (core) {
       core.userData.base ??= core.color.clone();
       core.color.copy(core.userData.base).multiplyScalar(kc);
@@ -983,6 +986,7 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
       if (Math.abs(w - lastNight) < 0.005) return;
       lastNight = w;
       applyOpacity();
+      applyBloom();
       for (const g of glows) g.opacity = 0.09 + 0.05 * w;
       if (lamps) {
         lamps.material.uniforms.uNight.value = w;

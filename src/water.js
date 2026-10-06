@@ -28,6 +28,7 @@
 // same waves, sun and time. Units are world units: 1 unit = 4 m (S = 0.25).
 import * as THREE from 'three';
 import { S } from './geo.js';
+import { CITY } from './city.js';
 
 const TAU = Math.PI * 2;
 
@@ -653,8 +654,13 @@ export function createWater({ data, areas, project, heightAt }) {
   // open body of hundreds of km²); the rest is the tidal Douro.
   const SHORE_OPEN = 99.0;
   const OCEAN_AREA = 1.0e6; // world units² (about 16 km²)
+  // streams that run in a culvert (the OSM export lost the tunnel tag): in
+  // Porto the Rio da Vila under Rua Mouzinho da Silveira showed as a water
+  // strip up the middle of a paved street (cities/<id>.json culverted_streams)
+  const culverted = new Set(CITY.culverted_streams || []);
   for (const l of data.lines || []) {
     if (!Array.isArray(l.p) || l.p.length < 2) continue;
+    if (l.n && culverted.has(l.n)) continue;
     const half = ((l.w || 3) * S) / 2;
     const pts = [];
     let prev = null;
