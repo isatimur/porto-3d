@@ -26,6 +26,9 @@ const COPING_IN = 0.5;
 const DECK_MIN_M = 3;
 const DECK_MAX_M = 12;
 const SKIRT_MIN_M = 0.4;
+const SEA_SEARCH_M = 40; // river-side search for the water level
+const OUT_MAX_M = 22; // the wall never moves further out than this
+const WATER_EPS_M = 0.4; // ground this close to the water counts as the waterline
 
 export async function loadQuays() {
   if (!hasData('quays.json')) return null;
@@ -147,8 +150,25 @@ export function buildQuays({ doc, heightAt, S }) {
     const sgn = vote > 0 ? 1 : -1;
     const L = N.map(([nx, ny]) => [nx * sgn, ny * sgn]); // toward the land
 
-    // water level and quay height per sample
-    const yW = pts.map((p, i) => Math.min(hAt(p[0], p[1]), hAt(p[0] - L[i][0] * 3, p[1] - L[i][1] * 3)));
+    // water level per sample: the lowest ground on the river side (the 27 m
+    // DEM cells make a pad that reaches past the OSM line and falls to the
+    // river over a whole cell, so the first metres of it stand above the water)
+    const yW = [];
+    // how far the wall moves river-ward to stand where the ground really
+    // meets the water; without it a green wedge of terrain sat in front of it
+    const outRaw = [];
+    for (let i = 0; i < n; i++) {
+      const [px, py] = pts[i];
+      const [lx, ly] = L[i];
+      let lo = hAt(px, py);
+      for (let d = 2; d <= SEA_SEARCH_M; d += 2) lo = Math.min(lo, hAt(px - lx * d, py - ly * d));
+      yW.push(lo);
+      let o = 0;
+      while (o < OUT_MAX_M && hAt(px - lx * o, py - ly * o) > lo + WATER_EPS_M * S) o += 1;
+      outRaw.push(o);
+    }
+    const outM = smooth(smooth(outRaw, 4), 4);
+    // quay height per sample
     const rise = pts.map((p, i) => (hAt(p[0] + L[i][0] * 6, p[1] + L[i][1] * 6) - yW[i]) / S);
     const topM = smooth(
       rise.map((r) => Math.min(WALL_MAX_M, Math.max(WALL_MIN_M, r))),
@@ -175,7 +195,7 @@ export function buildQuays({ doc, heightAt, S }) {
       const skirtBottom = Math.min(top - SKIRT_MIN_M * S, inland - 0.3 * S);
       const j = Math.floor(i / 2);
       const shade = 0.88 + hash(j + 17 * Math.floor(px * 0.01)) * 0.24;
-      rows.push({ cell, px, py, lx, ly, w, top, width, skirtBottom, shade });
+      rows.push({ cell, px, py, lx, ly, w, top, width: width + outM[i], skirtBottom, shade, out: outM[i] });
     }
 
     for (let i = 0; i < n - 1; i++) {
@@ -184,7 +204,8 @@ export function buildQuays({ doc, heightAt, S }) {
       if (A.cell !== B.cell) continue; // the seam is one step; a gap of 5 m at most
       const cell = A.cell;
       const colWall = (r, band) => (band === 0 ? WEED : band % 2 ? WALL_B : WALL_A).clone().multiplyScalar(r.shade * (1 - 0.05 * band));
-      const rowVerts = (r, y, c, o) => cell.v((r.px + r.lx * o) * S, y, -(r.py + r.ly * o) * S, c);
+      // o: metres inland from the wall face (the face stands r.out metres river-ward of the OSM line)
+      const rowVerts = (r, y, c, o) => cell.v((r.px + r.lx * (o - r.out)) * S, y, -(r.py + r.ly * (o - r.out)) * S, c);
       // wall: courses from below the water to the quay top, hard-edged bands
       // (the tide line is a dark green course at the foot, as on the Ribeira)
       const bands = 5;
@@ -239,8 +260,8 @@ export function buildQuays({ doc, heightAt, S }) {
       acc -= BOLLARD_M;
       const r = rows[i];
       const cell = r.cell;
-      const cx = (r.px + r.lx * (COPING_IN + 0.5)) * S;
-      const cz = -(r.py + r.ly * (COPING_IN + 0.5)) * S;
+      const cx = (r.px + r.lx * (COPING_IN + 0.5 - r.out)) * S;
+      const cz = -(r.py + r.ly * (COPING_IN + 0.5 - r.out)) * S;
       const rad = 0.28 * S;
       const h = 0.75 * S;
       const base = r.top;
