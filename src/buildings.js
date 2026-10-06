@@ -488,6 +488,9 @@ export const FADE_FRAG_PARS = /* glsl */ `
 uniform float uClock;
 varying float vBorn;
 #endif
+#ifdef BRG_REVEAL
+uniform float uReveal;
+#endif
 `;
 export const FADE_FRAG = /* glsl */ `
 #include <clipping_planes_fragment>
@@ -497,6 +500,13 @@ export const FADE_FRAG = /* glsl */ `
   // interleaved gradient noise: an even dither without a visible pattern
   float brgB = fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715))));
   if (brgK < 1.0 && brgB >= brgK) discard;
+}
+#endif
+#ifdef BRG_REVEAL
+{
+  // the whole core fades in at the start (main.js fadeIn): the same dither
+  float brgR = fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715))));
+  if (uReveal < 1.0 && brgR >= uReveal) discard;
 }
 #endif
 `;
@@ -513,15 +523,20 @@ export function setBuildingsLite(on) {
   setFacadeConfig({ lite: WIN_LITE });
 }
 
-export function createBuildingMaterial({ fade = false } = {}) {
+// reveal: the core's start-up fade (BRG_REVEAL, material.userData.reveal.value
+// 0..1, set to 1 when done); a separate program as well.
+export function createBuildingMaterial({ fade = false, reveal = false } = {}) {
   if (!BUILDING_UNIFORMS.uGrime.value) BUILDING_UNIFORMS.uGrime.value = createFacadeDetailTexture();
   const material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.9, metalness: 0 });
   material.name = fade ? 'buildings-tiles' : 'buildings';
   material.defines = {};
   if (fade) material.defines.BRG_FADE = '';
+  if (reveal) material.defines.BRG_REVEAL = '';
+  material.userData.reveal = { value: reveal ? 0 : 1 };
   if (WIN_LITE) material.defines.BRG_WIN_LITE = '';
   material.onBeforeCompile = (sh) => {
     Object.assign(sh.uniforms, BUILDING_UNIFORMS);
+    sh.uniforms.uReveal = material.userData.reveal;
     sh.vertexShader = sh.vertexShader
       .replace('#include <common>', `#include <common>\n${FACADE_VERT_PARS}\n${FADE_VERT_PARS}`)
       .replace('#include <begin_vertex>', `#include <begin_vertex>\n${FACADE_VERT}\n${FADE_VERT}`);
@@ -687,7 +702,7 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
     stats.built++;
   }
 
-  const material = createBuildingMaterial();
+  const material = createBuildingMaterial({ reveal: true });
   for (const T of tiles.values()) {
     // the near detail is a separate block, appended to the buffers and placed
     // first in the index so its range is contiguous: [detail | pitched roofs |

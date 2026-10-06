@@ -521,17 +521,23 @@ function billboardAtlas() {
 // trees with the same heights, mixes and densities).
 export const TREE_TABLES = { heights: SPECIES.map((s) => s.h), mix: MIX, density: DENSITY };
 
-export function buildNature(opts) {
+// a canvas path through rings of { x, z } points (world units)
+const path = (ctx, rings) => {
+  ctx.beginPath();
+  for (const ring of rings) {
+    ring.forEach((p, i) => (i ? ctx.lineTo(p.x, p.z) : ctx.moveTo(p.x, p.z)));
+    ctx.closePath();
+  }
+};
+
+// The cheap first half of the nature layer: the land-cover mask the ground
+// shader reads (woods, grass, fields; the built-up channel is painted later
+// by paintBuilt, once the buildings exist) and the water (sea, Douro, ponds).
+// main.js builds it before the first frame, so the boot view already has a
+// coloured ground and water; buildNature(opts with base) adds the trees.
+export function buildNatureBase(opts) {
   const { data, project, heightAt } = opts;
-  const group = new THREE.Group();
-  group.name = 'nature';
-  const stats = { areas: 0, trees: 0, near: 0, far: 0, water: 0, rejected: 0, landPx: '', stream: 0, bank: 0, coast: 0, species: [] };
-  const uniforms = {
-    uTime: { value: 0 },
-    uSunView: { value: new THREE.Vector3(0, 1, 0) },
-    uSunColor: { value: new THREE.Color(1, 1, 1) },
-  };
-  if (!data || !Array.isArray(data.areas)) return { group, stats, landcover: null, update() {}, uniforms, setStreamTrees() {} };
+  if (!data || !Array.isArray(data.areas)) return null;
   // The masks cover the core only, the area of nature.json: the terrain
   // rectangle may reach far past it (the streamed tiles bring their own).
   let rect = opts.rect;
@@ -540,8 +546,6 @@ export function buildNature(opts) {
     const ne = project(data.bbox.n, data.bbox.e);
     rect = { x0: Math.max(rect.x0, sw.x), x1: Math.min(rect.x1, ne.x), zN: Math.max(rect.zN, ne.z), zS: Math.min(rect.zS, sw.z) };
   }
-  // room for the streamed trees of the tiles around the core
-  const STREAM = opts.streamCap ?? (opts.mobile ? 2500 : 8000);
 
   // ---- project
   const areas = [];
@@ -552,7 +556,6 @@ export function buildNature(opts) {
     const area = Math.max(0, ringArea(rings[0]) - rings.slice(1).reduce((s, r) => s + ringArea(r), 0));
     areas.push({ k: a.k, rings, area, open: a.o === 1 });
   }
-  stats.areas = areas.length;
 
   const W = rect.x1 - rect.x0;
   const D = rect.zS - rect.zN;
@@ -560,7 +563,6 @@ export function buildNature(opts) {
   // ---- land-cover mask (R forest, G green, B fields, A built-up)
   const lw = Math.ceil(W * LAND_PX);
   const lh = Math.ceil(D * LAND_PX);
-  stats.landPx = `${lw}x${lh}`;
   const layer = () => {
     const cv = document.createElement('canvas');
     cv.width = lw;
@@ -568,13 +570,6 @@ export function buildNature(opts) {
     const ctx = cv.getContext('2d', { willReadFrequently: true });
     ctx.setTransform(LAND_PX, 0, 0, LAND_PX, -rect.x0 * LAND_PX, -rect.zN * LAND_PX);
     return { cv, ctx };
-  };
-  const path = (ctx, rings) => {
-    ctx.beginPath();
-    for (const ring of rings) {
-      ring.forEach((p, i) => (i ? ctx.lineTo(p.x, p.z) : ctx.moveTo(p.x, p.z)));
-      ctx.closePath();
-    }
   };
   const fillKinds = (ctx, kinds) => {
     for (const a of areas) {
@@ -591,30 +586,36 @@ export function buildNature(opts) {
   fillKinds(Lg.ctx, { grass: 200, park: 225, garden: 235 });
   const Lb = layer();
   fillKinds(Lb.ctx, { orchard: 85, vineyard: 170, farmland: 255 });
-  const Lu = layer();
-  if (opts.buildings?.length) {
-    Lu.ctx.fillStyle = '#fff';
-    Lu.ctx.strokeStyle = '#fff';
-    Lu.ctx.lineWidth = 3 / LAND_PX;
-    for (const poly of opts.buildings) {
-      path(Lu.ctx, [poly]);
-      Lu.ctx.fill();
-      Lu.ctx.stroke();
-    }
-  }
   const px = lw * lh;
   const mask = new Uint8Array(px * 4);
   const rd = (L) => L.ctx.getImageData(0, 0, lw, lh).data;
   const f = rd(Lf);
   const g = rd(Lg);
   const b = rd(Lb);
-  const u = blur(rd(Lu), lw, lh, 3);
   for (let i = 0; i < px; i++) {
     mask[i * 4] = f[i * 4];
     mask[i * 4 + 1] = g[i * 4];
     mask[i * 4 + 2] = b[i * 4];
-    mask[i * 4 + 3] = Math.min(255, u[i] * 1.6);
   }
+  // the built-up channel (A): painted from the building outlines once they
+  // exist (the boot view starts without it)
+  let builtDone = false;
+  const paintBuilt = (buildings) => {
+    if (builtDone || !buildings?.length) return;
+    builtDone = true;
+    const Lu = layer();
+    Lu.ctx.fillStyle = '#fff';
+    Lu.ctx.strokeStyle = '#fff';
+    Lu.ctx.lineWidth = 3 / LAND_PX;
+    for (const poly of buildings) {
+      path(Lu.ctx, [poly]);
+      Lu.ctx.fill();
+      Lu.ctx.stroke();
+    }
+    const u = blur(rd(Lu), lw, lh, 3);
+    for (let i = 0; i < px; i++) mask[i * 4 + 3] = Math.min(255, u[i] * 1.6);
+    landcover.needsUpdate = true;
+  };
   // canvas rows run north to south, as do world z; no flip needed
   const landcover = new THREE.DataTexture(mask, lw, lh, THREE.RGBAFormat);
   landcover.flipY = false;
@@ -626,6 +627,54 @@ export function buildNature(opts) {
   landcover.needsUpdate = true;
   // uv = (world - rect origin) / size: rows from zN downward
   const landRect = { x0: rect.x0, z0: rect.zN, w: lw / LAND_PX, d: lh / LAND_PX };
+
+  // ---- water: river ribbons and pond / reservoir polygons (src/water.js)
+  let water = createWater({ data, areas, project, heightAt });
+  return {
+    rect,
+    areas,
+    landcover,
+    landRect,
+    landPx: `${lw}x${lh}`,
+    get water() {
+      return water;
+    },
+    paintBuilt,
+    // the landmark pads change the ground under the banks after the first
+    // build: make the water again on the final heights and swap it in
+    rebuildWater(parent) {
+      const old = water;
+      water = createWater({ data, areas, project, heightAt });
+      if (old?.mesh) {
+        parent?.remove(old.mesh);
+        old.mesh.geometry.dispose();
+        old.mesh.material.dispose?.();
+      }
+      if (water && parent) parent.add(water.mesh);
+    },
+  };
+}
+
+export function buildNature(opts) {
+  const { data, project, heightAt } = opts;
+  const group = new THREE.Group();
+  group.name = 'nature';
+  const stats = { areas: 0, trees: 0, near: 0, far: 0, water: 0, rejected: 0, landPx: '', stream: 0, bank: 0, coast: 0, species: [] };
+  const uniforms = {
+    uTime: { value: 0 },
+    uSunView: { value: new THREE.Vector3(0, 1, 0) },
+    uSunColor: { value: new THREE.Color(1, 1, 1) },
+  };
+  const base = opts.base || buildNatureBase(opts);
+  if (!base) return { group, stats, landcover: null, update() {}, uniforms, setStreamTrees() {} };
+  const { rect, areas, landcover, landRect, water } = base;
+  base.paintBuilt(opts.buildings);
+  stats.areas = areas.length;
+  stats.landPx = base.landPx;
+  // room for the streamed trees of the tiles around the core
+  const STREAM = opts.streamCap ?? (opts.mobile ? 2500 : 8000);
+  const W = rect.x1 - rect.x0;
+  const D = rect.zS - rect.zN;
 
   // ---- occupancy: where no tree may stand (1 px per world unit)
   const OCC = opts.mobile ? 0.5 : 1;
@@ -1081,8 +1130,7 @@ export function buildNature(opts) {
     stats.far = far;
   }
 
-  // ---- water: river ribbons and pond / reservoir polygons (src/water.js)
-  const water = createWater({ data, areas, project, heightAt });
+  // ---- water: built with the base (the boot view drew it already)
   if (water) {
     group.add(water.mesh);
     stats.water = water.triangles;

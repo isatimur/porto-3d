@@ -9,7 +9,7 @@ import { setWaterLite } from './water.js';
 import { buildRoads } from './roads.js';
 import { buildLandmarks } from './landmarks.js';
 import { buildBuildings, BUILDING_UNIFORMS, setBuildingsLite } from './buildings.js';
-import { buildNature } from './nature.js';
+import { buildNature, buildNatureBase } from './nature.js';
 import { loadQuays, buildQuays } from './quays.js';
 import { createEffects } from './effects.js';
 import { createIntro } from './intro.js';
@@ -209,6 +209,22 @@ async function start() {
   // beyond the DEM rectangle the land fades into the haze
   Object.assign(FOG_UNIFORMS.fogRect.value, { x: terrain.bounds.x0, y: terrain.bounds.zN, z: terrain.bounds.x1, w: terrain.bounds.zS });
 
+  // The cheap half of the nature layer, before the first frame: the land
+  // cover tints the ground (woods, grass, fields), and the sea, the Douro and
+  // the ponds are there from the start. Trees, the built-up channel and the
+  // rest follow in the deferred layers.
+  let natureBase = null;
+  try {
+    natureBase = buildNatureBase({ data: loaded.nature, project, heightAt, rect: { x0: tb.x0, zN: tb.zN, x1: tb.x1, zS: tb.zS } });
+  } catch (e) {
+    console.error('[porto] nature base failed', e);
+  }
+  if (natureBase) {
+    ground.userData.setLandcover(natureBase.landcover, natureBase.landRect);
+    if (natureBase.water) scene.add(natureBase.water.mesh);
+  }
+  mark('base');
+
   // the landmark positions before the fits: the centre of the OSM outline's
   // box (the fit's pivot), else the point itself
   const bootPts = landmarks.map((l) => {
@@ -234,6 +250,28 @@ async function start() {
     intro?.skip();
   };
 
+  // Layers that arrive late (roads, the core's buildings) fade in over a
+  // second or so instead of popping into the bare ground. Each fade starts
+  // on the first frame that draws after the layer exists; reduced motion
+  // shows them at once.
+  const fades = [];
+  function fadeIn(apply, ms) {
+    if (reducedMotion) return apply(1);
+    apply(0);
+    fades.push({ apply, ms, t0: 0 });
+  }
+  function stepFades() {
+    if (!fades.length) return;
+    const now = performance.now();
+    for (let i = fades.length - 1; i >= 0; i--) {
+      const f = fades[i];
+      if (!f.t0) f.t0 = now;
+      const k = Math.min(1, (now - f.t0) / f.ms);
+      f.apply(k * k * (3 - 2 * k));
+      if (k >= 1) fades.splice(i, 1);
+    }
+  }
+
   // Fit every landmark to its footprint: the fits level the ground under
   // them (terrain pads), and everything after reads that ground. Yield
   // every ~60 ms, so the boot view keeps drawing.
@@ -249,6 +287,7 @@ async function start() {
   mark('fits');
   for (const f of fits) if (!f.fallback) terrain.addPad(padFor(f));
   ground.userData.applyPads();
+  natureBase?.rebuildWater(scene); // the pads moved the ground under the banks
   mark('pads');
 
   // The landmark massing and labels land first, straight after the fits: the
@@ -280,6 +319,7 @@ async function start() {
   await nextFrame();
   const roadLayer = buildRoads(roads, project, heightAt, { waterRibbon: !loaded.nature, lite: LITE });
   scene.add(roadLayer.group);
+  fadeIn((k) => roadLayer.setReveal(k), 1200);
   debug.roadSegments = roadLayer.counts;
 
   roadsRef = roadLayer;
@@ -294,6 +334,14 @@ async function start() {
   });
   scene.add(city.group);
   cityRef = city;
+  fadeIn((k) => {
+    city.material.userData.reveal.value = k;
+    if (k >= 1 && city.material.defines.BRG_REVEAL !== undefined) {
+      // done: the plain shader again (no discard path in the core's fill)
+      delete city.material.defines.BRG_REVEAL;
+      city.material.needsUpdate = true;
+    }
+  }, 1500);
   // far start view: no building or landmark shadows in the boot frames either
   // (they are sub-pixel from here; the loop re-enables them when it closes in)
   if (home.position.distanceTo(home.target) >= CAST_NEAR_U) {
@@ -306,6 +354,9 @@ async function start() {
   }
   debug.buildings = city.stats;
   mark('buildings');
+  await nextFrame();
+  natureBase?.paintBuilt(city.footprints); // the urban tint of the ground
+  mark('built');
 
   // Woods, parks and water from OSM, the streamed tiles around the core, and
   // life and the seasons on top: built after the first full frame, when the
@@ -318,6 +369,7 @@ async function start() {
     // Trees keep off streets, buildings, water and every landmark
     // (outline, fitted plan and model box).
     nature = buildNature({
+      base: natureBase,
       data: loaded.nature,
       project,
       heightAt,
@@ -339,9 +391,13 @@ async function start() {
     debug.nature = nature.stats;
     if (probeLow) nature.setNearRadius(LITE ? 160 : 220);
     mark('nature');
-    // the city around the core, streamed in once the core is on screen (tiles.js)
-    tiles = createTiles({ renderer, scene, camera, terrain, heightAt, proj, roadLayer, nature, ground, mobile: LITE, debug });
+    // the streamed woods get their trees (the tiles already run, see below)
+    tiles?.setNature(nature);
   }
+  // the city around the core, streamed in as soon as the core is on screen
+  // (tiles.js starts after the first full frames): with the land cover of the
+  // nature base, so the ring is there long before the trees are
+  tiles = createTiles({ renderer, scene, camera, terrain, heightAt, proj, roadLayer, nature: natureBase, ground, mobile: LITE, debug });
   // Microsoft footprints in the OSM gaps, core and ring (buildings-ms.js;
   // ?ms=0 off). Built with the deferred layers below: it is the heaviest of
   // the core passes, so the first interactive frame does not wait on it.
@@ -460,6 +516,8 @@ async function start() {
       }
       camera.userData.focus = home.target;
       atmosphere.update(dt, camera);
+      natureBase?.water?.update(dt, null); // the sea moves from the first frame
+      stepFades();
       for (let i = 0; i < pts.length; i++) {
         _p.set(pts[i].x, base[i], pts[i].z);
         const H = Math.max(0.05, camera.position.distanceTo(_p) * 0.018);
@@ -1516,6 +1574,7 @@ async function start() {
     applyGeoLod(camDist);
     debug.frames = (debug.frames || 0) + 1;
     atmosphere.update(rawDt, camera);
+    stepFades();
     const night = atmosphere.night;
     BUILDING_UNIFORMS.uNight.value = night;
     roadLayer.setNight(night);
@@ -1731,7 +1790,9 @@ async function start() {
   async function deferLayers() {
     const idle = () => new Promise((r) => (window.requestIdleCallback ? requestIdleCallback(() => r(), { timeout: 300 }) : setTimeout(r, 60)));
     const t0 = performance.now();
-    while (intro?.active && performance.now() - t0 < 6000) await nextFrame();
+    // desktops wait 1.5 s at most (a 0.6 s build inside the flight), phones 6 s
+    const waitMs = LITE ? 6000 : 1500;
+    while (intro?.active && performance.now() - t0 < waitMs) await nextFrame();
     const step = async (name, fn) => {
       await idle();
       try {
@@ -1740,6 +1801,7 @@ async function start() {
         console.error(`[porto] ${name} failed`, e);
       }
     };
+    mark('introWait');
     const quaysP = loadQuays();
     await step('nature', buildNatureLayer);
     await step('quays', () => {

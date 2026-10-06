@@ -1215,6 +1215,20 @@ const GROUND_COLOR = /* glsl */ `
   float rock = smoothstep(0.045, 0.12, slope + (n2 - 0.5) * 0.06 + (n1 - 0.5) * 0.04);
   rock = max(rock, smoothstep(0.62, 0.8, n2) * smoothstep(420.0, 540.0, hm));
   col = mix(col, granite * (0.8 + 0.4 * nB.a), rock * 0.85);
+  // The ring around the core: its land cover streams in after the core is
+  // up, so until then it gets a cheap, muted suburb tone (olive with a
+  // little masonry) instead of the bare valley green. Streamed cover (grass,
+  // woods, fields, built-up) is drawn over it as it arrives.
+  {
+    float coreIn = 0.0;
+    if (uHasLand > 0.5) {
+      vec2 cuv = (W.xz - uLandRect.xy) * uLandRect.zw;
+      vec2 cD = min(cuv, 1.0 - cuv) / uLandRect.zw;
+      coreIn = smoothstep(0.0, 50.0, min(cD.x, cD.y));
+    }
+    vec3 suburb = mix(valley, vec3(0.140, 0.140, 0.105), 0.4) * (0.9 + 0.2 * n2);
+    col = mix(col, suburb, (1.0 - coreIn) * (1.0 - demOutside(W.xz)) * (1.0 - rock) * 0.6);
+  }
   if (uHasLand + uHasLandW > 0.5) {
     vec2 luv = (W.xz - uLandRect.xy) * uLandRect.zw;
     // no clamped edge pixels smeared outward; the cover thins out over the

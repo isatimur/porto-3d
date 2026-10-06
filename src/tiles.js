@@ -79,7 +79,7 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
   // draw calls (each near tile is 3 meshes); desktops keep the full budget
   const MAX_INFLIGHT = mobile ? 3 : 6;
   const MAX_NEAR = mobile ? 28 : 110;
-  const TREE_CAP = nature?.streamCap ?? 0;
+  let TREE_CAP = nature?.streamCap ?? 0; // the full nature layer arrives later (setNature)
   // adaptive governor (main.js): < 1 shrinks the streamed radius, the near-LOD
   // draw-call cap and the per-frame integration budget together.
   let budgetScale = 1;
@@ -655,7 +655,7 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     if (off || failed) return;
     // after the core's first frames: its shaders compile first
     if (!started) {
-      if (debug.ready && frames > 20) start();
+      if ((debug.ready || debug.interactive) && frames > 20) start();
       return;
     }
     if (!index || !workers.some((w) => w.ok)) return;
@@ -761,6 +761,15 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     group,
     stats,
     update,
+    // main.js starts the tiles with the nature base (land cover only); the
+    // trees layer joins once it is built: the streamed woods get their trees
+    setNature(n) {
+      nature = n;
+      TREE_CAP = n?.streamCap ?? 0;
+      treeKey = '';
+      treesDirty = true;
+      sinceTrees = 1;
+    },
     // the camera is about to fly to (x, z) in world units: load around it now
     prefetch(x, z, seconds = 8) {
       dest = { x, z, until: clock + seconds };

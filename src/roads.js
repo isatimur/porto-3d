@@ -290,6 +290,7 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
   const glows = [];
   let lastNight = -1;
   let lastClose = 1;
+  let lastReveal = 1; // the start-up fade (setReveal)
   let lastFar = 0;
   let geoLevel = 0;
   let minorRibbon = null;
@@ -316,9 +317,10 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
     const near = 0.3 + 0.7 * lastClose;
     for (const [kind, line] of Object.entries(lines)) {
       const st = STYLE[kind];
-      line.material.opacity = st.opacity * near * (kind === 'primary' ? 1 - 0.25 * w : 1 - 0.55 * w);
+      line.material.opacity = st.opacity * near * lastReveal * (kind === 'primary' ? 1 - 0.25 * w : 1 - 0.55 * w);
     }
-    if (hint) hint.material.opacity = 0.32 * (0.4 + 0.6 * lastClose) * (1 - 0.3 * w);
+    if (hint) hint.material.opacity = 0.32 * (0.4 + 0.6 * lastClose) * (1 - 0.3 * w) * lastReveal;
+    for (const g of glows) g.opacity = (0.09 + 0.05 * w) * lastReveal;
   }
 
   const net = buildNetwork(roads, project, heightAt);
@@ -987,7 +989,6 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
       lastNight = w;
       applyOpacity();
       applyBloom();
-      for (const g of glows) g.opacity = 0.09 + 0.05 * w;
       if (lamps) {
         lamps.material.uniforms.uNight.value = w;
         lamps.visible = w > 0.02;
@@ -997,6 +998,12 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
         pools.visible = w > 0.02;
       }
       floods?.setNight(w);
+    },
+    // the start-up fade, 0..1: lines and glows come in with the opacity
+    setReveal(k) {
+      if (Math.abs(k - lastReveal) < 0.004 && k < 1) return;
+      lastReveal = k;
+      applyOpacity();
     },
     // with post-processing, the main streets' core and glow go above the
     // bloom threshold (linear HDR); without it they keep their plain colours
