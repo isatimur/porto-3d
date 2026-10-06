@@ -597,9 +597,24 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
       if (it.outline) it.outline.visible = full;
       it.label.visible = it.catOn;
       if (!massing) continue;
+      // Parks, gardens and beaches are low and wide (Parque da Cidade
+      // 1.4 x 0.9 km, 6 m): as a box they read as a flat grey slab on the
+      // land, so far away they draw nothing (the land cover and the pin say
+      // enough). A big building keeps a box, but only as large in plan as a
+      // block of about 12 000 m2: a stadium is a mass, not a lot.
+      let wide = false;
       if (it.catOn && !full) {
         it.box.getCenter(_mc);
         it.box.getSize(_msz);
+        const areaM2 = (_msz.x / S) * (_msz.z / S);
+        wide = _msz.y / S < 14 && areaM2 > 6000;
+        if (areaM2 > 12000) {
+          const k = Math.max(0.35, Math.sqrt(12000 / areaM2));
+          _msz.x *= k;
+          _msz.z *= k;
+        }
+      }
+      if (it.catOn && !full && !wide) {
         _msz.x = Math.max(_msz.x, 1);
         _msz.y = Math.max(_msz.y, 1);
         _msz.z = Math.max(_msz.z, 1);
