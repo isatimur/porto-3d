@@ -85,7 +85,11 @@ function casaMusica(k, site) {
   k.balustrade(48, 1.1, 'graniteGrey', 0, 24.6, -18, { cheap: true, d: 0.2, sp: 0.5 });
 
   // formwork panel joints on the concrete skin (vertical seams)
+  // (only on long faces: the short chamfer facets at the corners used to get
+  // a seam each, and a cluster of them stood a few decimetres apart as a
+  // dark comb on the front)
   for (const e of E) {
+    if (e.len < 11) continue;
     const n = Math.max(2, Math.round(e.len / 5.5));
     onEdge(k, e, 0, 0);
     for (let i = 1; i < n; i++) k.box(0.16, 14.6, 0.16, 'graniteGrey', -e.len / 2 + (e.len * i) / n, 0.4, 0.12);
@@ -121,11 +125,9 @@ function casaMusica(k, site) {
     for (const yy of [4.2, 7.4, 11.0]) k.box(e.len, 0.14, 0.2, 'graniteGrey', 0, yy, 0.12);
     k.pop();
   }
-  // entrance: drum mullions, a revolving-door bay and a canopy soffit
-  for (let i = 0; i <= 10; i++) {
-    const a = Math.PI * 0.55 + (i / 10) * Math.PI * 0.9;
-    k.box(0.16, 6.6, 0.2, 'graniteLight', ex + Math.cos(a) * 9.0, 0.3, ez + Math.sin(a) * 9.0, { ry: -a });
-  }
+  // entrance: a revolving-door bay and a canopy soffit. (The comb of eleven
+  // 0.16 m mullions along the glazed drum is gone: it stood half inside the
+  // white body, and from the side it read as a dark scribble on the facade.)
   k.cyl(2.2, 2.2, 6.4, 10, 'glass', ex - 3, 0.3, ez + 4.5, { emit: 0.1 });
   for (let i = 0; i < 6; i++) k.box(0.12, 0.5, 0.12, 'iron', ex - 3 + Math.cos((i / 6) * Math.PI * 2) * 2.1, 6.6, ez + 4.5 + Math.sin((i / 6) * Math.PI * 2) * 2.1);
   // roof plants: grille louvres and a service stair up the folded slab
