@@ -640,7 +640,9 @@ export function buildPortoStreetLife(ctx) {
       if (run) {
         run.xs.push(X[i]);
         run.zs.push(Z[i]);
-        run.ys.push(Y[i]);
+        // never below the ground the viewer sees (a road lane in a cutting
+        // put one walker 4 m under the Sé courtyard)
+        run.ys.push(Math.max(Y[i], heightAt(X[i], Z[i])));
       }
     }
     flush();

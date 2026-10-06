@@ -102,8 +102,11 @@ function builder(k, site) {
   for (let i = 0; i < 16; i++) {
     const px = -half + ((i + 0.5) * span) / 16;
     for (const s of [-1, 1]) {
-      k.box(0.14, 2.8, 0.14, 'steel', px, DECK_Y + 1.5, s * (2 * dz - 1.0));
-      k.box(0.9, 0.16, 0.26, 'window', px + s * 0.4, DECK_Y + 4.3, s * (2 * dz - 1.0), { emit: 0.5 });
+      // low lamp posts on the median rail (1.5 m): the old 2.8 m posts took the
+      // model to 39.5 m against the 35 m deck-level height of
+      // data/dimensions.json (12.7 %)
+      k.box(0.14, 1.5, 0.14, 'steel', px, DECK_Y + 1.5, s * (2 * dz - 1.0));
+      k.box(0.9, 0.16, 0.26, 'window', px + s * 0.4, DECK_Y + 2.9, s * (2 * dz - 1.0), { emit: 0.5 });
     }
   }
 

@@ -91,9 +91,11 @@ function builder(k, site) {
   k.prism(rect(0, W / 2 + 40, L + 80, 60), -2.2, 0.45, 'graniteDark');
 
   // three parallel lodges set back from the river
-  warehouse(k, 0, W / 2 - 11, L * 0.92, 15, 13, 'SANDEMAN');
-  warehouse(k, -L * 0.06, W / 2 - 32, L * 0.62, 14, 12.5, "GRAHAM'S");
-  warehouse(k, L * 0.22, W / 2 - 32, L * 0.28, 13, 11.5, "TAYLOR'S");
+  // (a metre lower than first drawn: the ridge of the tallest lodge stood at
+  // 15.9 m against the 14 m of data/dimensions.json, 13.6 % over)
+  warehouse(k, 0, W / 2 - 11, L * 0.92, 15, 12, 'SANDEMAN');
+  warehouse(k, -L * 0.06, W / 2 - 32, L * 0.62, 14, 11.5, "GRAHAM'S");
+  warehouse(k, L * 0.22, W / 2 - 32, L * 0.28, 13, 10.5, "TAYLOR'S");
 
   // open yard: rows of casks between the lodges and beside them
   const yards = [

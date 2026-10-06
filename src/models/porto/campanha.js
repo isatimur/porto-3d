@@ -54,7 +54,9 @@ function builder(k, site) {
 
   // ---- central and end pavilions projecting from the long facades
   for (const cz of [b.cz, b.cz - b.d * 0.40, b.cz + b.d * 0.40]) {
-    const pavH = cz === b.cz ? H : H - 2.4;
+    // the gable ridge (2.0 m over the box) peaks at H, the 18 m of
+    // data/dimensions.json: the box itself used to rise to H (ridge 10.6 % over)
+    const pavH = cz === b.cz ? H - 1.6 : H - 4;
     k.box(b.w + 2.6, pavH, 15, 'graniteWarm', b.cx, 0, cz);
     k.box(b.w + 3.4, 1.0, 16, 'granite', b.cx, pavH - 1.0, cz);
     k.box(b.w + 3.4, 1.2, 16, 'granite', b.cx, 0, cz);

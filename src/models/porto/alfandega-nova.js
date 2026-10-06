@@ -27,7 +27,9 @@ function builder(k, site) {
   k.begin('main');
 
   // quay platform on the river side, plinth and main body with two courts
-  k.prism(rect(b.cx, b.z1 + 2, b.w + 4, 7), -0.35, 0.4, 'sand');
+  // (a narrower quay strip: the 7 m one took the main box 10.2 % past the
+  // OSM extent)
+  k.prism(rect(b.cx, b.z1 + 1.4, b.w + 4, 4.4), -0.35, 0.4, 'sand');
   k.prism(offset(plan, 1.4), 0, 1.4, 'graniteDark');
   k.prism(plan, 1.4, bodyH - 1.4, 'granite', { holes: [courtA, courtB] });
   k.prism(courtA, 0, 0.2, 'sand');
@@ -95,12 +97,12 @@ function builder(k, site) {
 
   // --- detail: dockside bollards, two quay cranes and a freestone cornice
   for (let i = 0; i < 8; i++) {
-    k.cyl(0.4, 0.5, 1.0, 8, 'iron', b.cx - b.w / 2 + 3 + i * ((b.w - 6) / 7), 0.4, b.z1 + 5);
+    k.cyl(0.4, 0.5, 1.0, 8, 'iron', b.cx - b.w / 2 + 3 + i * ((b.w - 6) / 7), 0.4, b.z1 + 3.0);
   }
   for (const cxx of [b.cx - b.w * 0.3, b.cx + b.w * 0.3]) {
-    k.box(0.5, 6.5, 0.5, 'iron', cxx, 0, b.z1 + 3.5);
-    k.box(4.5, 0.5, 0.5, 'iron', cxx + 2.0, 6.0, b.z1 + 3.5);
-    k.cyl(0.12, 0.12, 1.6, 5, 'iron', cxx + 4.2, 4.4, b.z1 + 3.5);
+    k.box(0.5, 6.5, 0.5, 'iron', cxx, 0, b.z1 + 2.2);
+    k.box(4.5, 0.5, 0.5, 'iron', cxx + 2.0, 6.0, b.z1 + 2.2);
+    k.cyl(0.12, 0.12, 1.6, 5, 'iron', cxx + 4.2, 4.4, b.z1 + 2.2);
   }
   for (let i = 0; i < 10; i++) {
     const x = b.cx - b.w * 0.42 + (b.w * 0.84 * i) / 9;

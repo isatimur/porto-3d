@@ -20,9 +20,13 @@ function disc(k, r, th, color, x, y, z, o = {}) {
 function builder(k, site) {
   const done = fitTo(k, site, { w: 73.8, d: 26.8, h: 24.4, cx: 0, cz: 1.5 }, { w: 73.8, d: 26.8, cx: 0, cz: 1.5 });
   const W = 72;
-  const D = 22;
+  const D = 22; // the front elements hang on D / 2 (z = 11)
   const H = 13;
-  const body = rectPts(0, 0, W, D);
+  // The body is 1 m deeper at the back (the OSM station is 26.8 m deep and
+  // the model's main block was 11 % short of it): same front, rear at z -12.
+  const DB = D + 1;
+  const ZC = -0.5;
+  const body = rectPts(0, ZC, W, DB);
 
   // ---------------------------------------------------------------- main block
   k.begin('main');
@@ -35,8 +39,8 @@ function builder(k, site) {
     win: { trim: 'graniteLight', pane: 'glass', bw: 0.3, depth: 0.35, head: 'flat', sill: true },
   });
   // mansard attic
-  k.frustum(W + 0.2, D + 0.2, W - 8, D - 7, 5.5, 'slate', 0, H, 0);
-  k.box(W - 8, 0.5, D - 7, 'lead', 0, H + 5.5, 0);
+  k.frustum(W + 0.2, DB + 0.2, W - 8, DB - 7, 5.5, 'slate', 0, H, ZC);
+  k.box(W - 8, 0.5, DB - 7, 'lead', 0, H + 5.5, ZC);
   // dormers on the front slope
   for (let i = -3; i <= 3; i++) {
     const x = i * 8.4;
@@ -91,10 +95,10 @@ function builder(k, site) {
   // slate cap and a finial
   for (const sx of [-1, 1]) {
     const ex = sx * 32.5;
-    k.prism(rectPts(ex, 0, 7.5, D + 2.5), 0, H + 1.6, 'granite');
-    polyCornice(k, rectPts(ex, 0, 7.5, D + 2.5), H + 1.6, corniceProfile('classic', 0.6), 'graniteLight');
-    k.push({ x: ex, z: 0 });
-    k.hipRoof(7.5, D + 2.5, 4.2, 'slate', 0, H + 1.6, 0, { over: 0.35 });
+    k.prism(rectPts(ex, ZC, 7.5, DB + 2.5), 0, H + 1.6, 'granite');
+    polyCornice(k, rectPts(ex, ZC, 7.5, DB + 2.5), H + 1.6, corniceProfile('classic', 0.6), 'graniteLight');
+    k.push({ x: ex, z: ZC });
+    k.hipRoof(7.5, DB + 2.5, 4.2, 'slate', 0, H + 1.6, 0, { over: 0.35 });
     k.pop();
     k.lathe(PROFILES.finial, 6, 'graniteLight', ex, H + 5.6, 0, { sr: 0.3, sh: 1.2, flat: true });
     // two windows per face on the pavilions

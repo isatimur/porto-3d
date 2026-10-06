@@ -18,7 +18,11 @@ function builder(k, site) {
 
   const H = dimsH;
   const hallH = H * 0.75;
-  const zf = b.z1;
+  // The entrance front (curved facade, marquee) is set 2 m inside the hall's
+  // front line and the marquee is 1 m shallower, and the corner tower stands
+  // inside the plan: the whole model used to run 11 % past the 60 x 103.6 m
+  // OSM extent (tower 4 m east of it, marquee 9 m beyond the front).
+  const zf = b.z1 - 2;
 
   k.begin('main');
 
@@ -65,12 +69,12 @@ function builder(k, site) {
   }
   // deep entrance portal and marquee
   k.box(halfW * 1.3, hallH * 0.72, 2.0, 'graniteLight', b.cx, 0.4, zf + bulge - 0.4);
-  k.box(3.2, 0.5, 5.4, 'white', b.cx, 6.6, zf + bulge + 2.4);
-  k.box(18, 0.7, 1.2, 'white', b.cx, 7.1, zf + bulge + 4.6);
-  for (const sx of [-1, 1]) k.cyl(0.18, 0.18, 3.6, 8, 'steel', b.cx + sx * 7.5, 3.0, zf + bulge + 5.0);
+  k.box(3.2, 0.5, 4.4, 'white', b.cx, 6.6, zf + bulge + 1.9);
+  k.box(18, 0.7, 1.2, 'white', b.cx, 7.1, zf + bulge + 3.8);
+  for (const sx of [-1, 1]) k.cyl(0.18, 0.18, 3.6, 8, 'steel', b.cx + sx * 7.5, 3.0, zf + bulge + 4.2);
   for (let i = 0; i < 9; i++) {
     const c = i % 3 === 0 ? 'window' : 'dark';
-    k.box(1.2, 1.5, 0.25, c, b.cx - 6.4 + i * 1.6, 7.4, zf + bulge + 4.2, { emit: i % 3 === 0 ? 0.6 : 0 });
+    k.box(1.2, 1.5, 0.25, c, b.cx - 6.4 + i * 1.6, 7.4, zf + bulge + 3.4, { emit: i % 3 === 0 ? 0.6 : 0 });
   }
   // entry glazing behind the fins
   k.push({ x: b.cx, z: zf + bulge - 1.4 });
@@ -80,7 +84,7 @@ function builder(k, site) {
 
   // ---- asymmetric corner tower beside the entrance
   k.begin('tower');
-  const tx = b.cx + halfW + 3.2;
+  const tx = b.cx + b.w / 2 - 4.7;
   k.box(9.0, H * 0.94, 9.0, 'white', tx, 0, zf - 7);
   k.corniceRing(9.0, 9.0, corniceProfile('classic', 0.7), 'graniteLight', tx, hallH, zf - 7);
   k.box(10.0, 1.0, 10.0, 'graniteLight', tx, hallH, zf - 7);
@@ -109,7 +113,7 @@ function builder(k, site) {
   // --- detail pass: marquee bulbs, a canopy sign band and roof vents
   for (let i = 0; i < 13; i++) {
     const bx = b.cx - 9.6 + i * 1.6;
-    k.sphere(0.13, 'white', bx, 7.55, zf + bulge + 4.7, { seg: 5, rings: 3, emit: 0.5 });
+    k.sphere(0.13, 'white', bx, 7.55, zf + bulge + 3.9, { seg: 5, rings: 3, emit: 0.5 });
   }
   k.box(halfW * 1.2, 0.35, 0.4, 'window', b.cx, 6.5, zf + bulge + 3.0, { emit: 0.4 });
   for (let i = 0; i < 5; i++) {
