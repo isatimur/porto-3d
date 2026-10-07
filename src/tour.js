@@ -378,19 +378,39 @@ function makeSpanShot(o, it, sky, heightAt) {
   const curve = new THREE.CatmullRomCurve3(pts, false, 'centripetal');
   const own = it.box.clone().expandByScalar(2 * S);
   const inOwn = (v) => v.x > own.min.x && v.x < own.max.x && v.z > own.min.z && v.z < own.max.z;
-  // lift the whole path where a roof or the ground outside the structure is too close
-  let lift = 0;
+  // The structure's own skyline cells carry the bridge's top, which would lift
+  // a path that goes under it. Within 60 m of its box only the ground and the
+  // water count (the camera keeps 4 m over them); elsewhere the roofs in the
+  // cell do too. The lift is per sample along the path (blurred), not one
+  // number for the whole shot.
+  const near = it.box.clone().expandByScalar(60 * S);
+  const nearOwn = (v) => v.x > near.min.x && v.x < near.max.x && v.z > near.min.z && v.z < near.max.z;
+  const NS = 96;
+  const need = new Float32Array(NS + 1);
   const p = new THREE.Vector3();
-  for (let i = 0; i <= 64; i++) {
-    curve.getPointAt(i / 64, p);
-    const need = Math.max(heightAt(p.x, p.z) + 4 * S, inOwn(p) ? 0 : sky.at(p.x, p.z, 6) + SHOT_CLEARANCE);
-    lift = Math.max(lift, need - p.y);
+  for (let i = 0; i <= NS; i++) {
+    curve.getPointAt(i / NS, p);
+    const roofs = nearOwn(p) ? 0 : sky.at(p.x, p.z, 0) + SHOT_CLEARANCE;
+    need[i] = Math.max(0, Math.max(heightAt(p.x, p.z) + 4 * S, roofs) - p.y);
   }
-  lift = Math.max(0, lift);
+  const lifts = new Float32Array(NS + 1);
+  for (let i = 0; i <= NS; i++) {
+    let m = 0;
+    for (let k = -4; k <= 4; k++) m = Math.max(m, need[Math.min(NS, Math.max(0, i + k))] * (1 - Math.abs(k) / 6));
+    lifts[i] = m;
+  }
+  const liftAt = (e) => {
+    const f = e * NS;
+    const i = Math.min(NS - 1, Math.floor(f));
+    return lifts[i] + (lifts[i + 1] - lifts[i]) * (f - i);
+  };
+  let lift = 0;
+  for (let i = 0; i <= NS; i++) lift = Math.max(lift, lifts[i]);
   const q = new THREE.Vector3();
   const shot = (u, out) => {
     const e = easeInOut(u);
     curve.getPointAt(e, out.pos);
+    const lift = liftAt(e);
     out.pos.y += lift;
     curve.getPointAt(Math.min(1, e + 0.045), q);
     out.look.copy(q);
@@ -400,7 +420,7 @@ function makeSpanShot(o, it, sky, heightAt) {
     if (target && e > 0.74) out.look.lerp(target, smooth(0.74, 0.97, e));
     return out;
   };
-  Object.assign(shot, { up: 0, lift: +(lift / S).toFixed(1), hidden: 0, span: true, clearOf: inOwn });
+  Object.assign(shot, { up: 0, lift: +(lift / S).toFixed(1), hidden: 0, span: true, clearOf: nearOwn });
   return shot;
 }
 

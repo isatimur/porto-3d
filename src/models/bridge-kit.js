@@ -30,12 +30,32 @@ export function bridgeFrame(site, defLen) {
   }
   // builder x = u. ry = -90 deg sends +u to local +z; the local point is (-v, u).
   const ang = alongZ ? -Math.PI / 2 : 0;
-  const ground = (u, v) => {
-    if (!fp || !fp.ground) return 0;
-    const g = alongZ ? fp.ground(-v, u) : fp.ground(u, v);
+  const at = (fn) => (u, v) => {
+    if (!fp || !fn) return 0;
+    const g = alongZ ? fn(-v, u) : fn(u, v);
     return Number.isFinite(g) ? g : 0;
   };
-  return { len, ang, ground };
+  // ground: the visible terrain (with this bridge's cutting); raw: the DEM
+  return { len, ang, ground: at(fp && fp.ground), raw: at(fp && fp.rawGround) };
+}
+
+// Retaining walls along a cutting: where the DEM is more than minCut above
+// the cut ground at the deck edge, a wall of the difference (at most maxH),
+// with a coping. F: bridgeFrame(); v: the wall's distance from the axis.
+export function cuttingWalls(k, F, o) {
+  const { u0, u1, v, step = 4, minCut = 2, maxH = 10, topMax = Infinity, color = 'graniteDark', cap = 'graniteLight' } = o;
+  for (let u = u0 + step / 2; u < u1; u += step) {
+    for (const s of [-1, 1]) {
+      const gnd = F.ground(u, s * v);
+      const cut = F.raw(u, s * (v + 2)) - gnd;
+      if (cut <= minCut) continue;
+      const h = Math.min(cut, maxH, topMax - gnd - 0.3); // topMax: the wall never rises above the deck (y, m)
+      if (h < 1) continue;
+      k.box(step + 0.1, h + 0.5, 0.9, color, u, gnd - 0.5, s * v);
+      k.box(step + 0.1, 0.3, 1.4, cap, u, gnd + h - 0.1, s * v);
+    }
+  }
+  return k;
 }
 
 // An open four-sided prism from p0 to p1: cross-section w (across the plane

@@ -11,7 +11,7 @@
 // Frame: u along the deck (+u = local +z, bearing 54 deg), v across, y up;
 // the arch is centred on the OSM corridor. Heights: metres over the water.
 // Sources and estimates: data/dimensions.json (ponte-maria-pia).
-import { bridgeFrame, rod, truss, railing, latticeTower, parabola, IRON } from '../bridge-kit.js';
+import { bridgeFrame, cuttingWalls, rod, truss, railing, latticeTower, parabola, IRON } from '../bridge-kit.js';
 
 const UC = 12.5; // arch centre along the corridor: the OSM water polygon runs -60 .. +85 m
 const H = 80; // half the arch span
@@ -97,6 +97,8 @@ function builder(k, site) {
   for (let u = -END; u <= END + 0.01; u += 3.52) rod(k, [u, GIRDER_BOT + 0.3, -2.9], [u, GIRDER_BOT + 0.3, 2.9], 0.35, 0.4, IRON_C, { mat: 9 });
   for (const s of [-1, 1]) railing(k, { u0: -END, u1: END, v: s * 3.15, y: DECK_Y - 0.55, h: 1.2, step: 3.52, color: IRON_C, rails: 2, w: 0.07 });
   // end plates
+  // the cuttings the line runs in: granite retaining walls at the pad edge
+  cuttingWalls(k, { ground: g, raw: (u, v) => F.raw(UC + u, v) }, { u0: -END, u1: END, v: 7.1, maxH: 12, topMax: DECK_Y - 1 });
   // abutments: the girders end on masonry, the line goes on into the hill
   for (const e of [-END, END]) {
     const sgn = Math.sign(e);
@@ -147,9 +149,9 @@ builder.rule = {
       return Math.min(y, DECK_Y - 2.2);
     },
   },
-  extent: { box: { x0: -7.5, x1: 7.5, z0: -185.1, z1: 185.1 } },
+  extent: { box: { x0: -8, x1: 8, z0: -185.1, z1: 185.1 } },
   deviationNote: 'OSM outline is the 4.2 m rail centreline; the model spans the 15 m lattice arch and pivot bases',
-  frame: { x0: -7.5, x1: 7.5, z0: -185.1, z1: 185.1, y0: 0 },
+  frame: { x0: -8, x1: 8, z0: -185.1, z1: 185.1, y0: 0 },
 };
 
 export default { 'ponte-maria-pia': builder };

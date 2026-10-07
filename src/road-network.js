@@ -34,7 +34,7 @@
 // (sidewalks, kerbs, islands, transit) of plain arrays, so the draw layer
 // uploads a few BufferGeometries instead of a mesh per way.
 
-import { authoredDeck } from './bridge-decks.js';
+import { authoredDeck, deckBase } from './bridge-decks.js';
 
 // ------------------------------------------------------------ classes
 // laneM: lane width; lanes: default lanes both ways (oneWay: default on a
@@ -685,8 +685,13 @@ function build(roads, project, heightAt) {
     // an authored bridge: its own deck height over the river, flat
     if (w.authored) {
       const d = w.authored;
-      const c = project(d.ll[0], d.ll[1]);
-      const base = heightAt(c.x, c.z); // the river at the bridge's centre
+      // the model's base (0.8 m under the water): the fitted base of the
+      // landmark when main.js gave it, else the lowest ground under the deck's ways
+      let base = deckBase(d);
+      if (base == null) {
+        base = Infinity;
+        for (const o of ways) if (o.authored === d) for (let i = o.start; i < o.start + o.n; i++) base = Math.min(base, G[i]);
+      }
       // never lower than the engine's own height (a deck enters a hill: it
       // follows the ground there)
       for (let i = a; i <= b; i++) Y[i] = Math.max(Y[i], base + d.deckM * S);

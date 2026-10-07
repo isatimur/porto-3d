@@ -6,6 +6,7 @@ import { loadData, loadStory } from './data.js';
 import { createProjection, METRES_PER_UNIT } from './geo.js';
 import { installAtmosphereFog, createRenderer, createAtmosphere, createGround, FOG_UNIFORMS, TIMES, DEFAULT_TIME, DPR, deviceDpr } from './scene.js';
 import { setWaterLite, setBridgeLamps, setBridgeNight } from './water.js';
+import { setDeckBases } from './bridge-decks.js';
 import { buildRoads } from './roads.js';
 import { buildLandmarks, LAMP_UNIFORM } from './landmarks.js';
 import { buildBuildings, BUILDING_UNIFORMS, setBuildingsLite } from './buildings.js';
@@ -301,6 +302,8 @@ async function start() {
   ground.userData.applyPads();
   natureBase?.rebuildWater(scene); // the pads moved the ground under the banks
   mark('pads');
+  // the bridges' decks in the street network ride the models' own base
+  setDeckBases(Object.fromEntries(fits.filter((f) => /^ponte-/.test(f.id)).map((f) => [f.id, f.base])));
 
   // The landmark massing and labels land first, straight after the fits: the
   // boot view already has the sky, the terrain and one pin per landmark, and

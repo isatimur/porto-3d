@@ -405,7 +405,7 @@
       "note": "OSM way 835566871 is the bridge incl. approaches (412.8 m); the published structural length is 385.25 m."
     },
     "height_m": {
-      "total": 60,
+      "total": 66,
       "upper_deck": 60,
       "lower_deck": 11.2,
       "arch_rise": 44.6
@@ -449,7 +449,7 @@
         ],
         "url": "https://en.wikipedia.org/wiki/Dom_Lu%C3%ADs_I_Bridge",
         "fact": "bridge height",
-        "value": "Infobox \"Height: 70 metres (230 ft)\" (overall structure). Travel and engineering sources put the upper deck at 60-62 m above the river; no primary source found, so 60 m is kept as the rounded deck height (estimate, sources disagree)."
+        "value": "Infobox \"Height: 70 metres (230 ft)\" (overall structure). Travel and engineering sources put the upper deck at 60-62 m above the river; no primary source found, so 60 m is kept as the rounded deck height (estimate, sources disagree). height_m.total is 66 m: the deck 60 m + the 1.5 m through-girder + the Metro overhead-line masts (4.9 m), the top of the structure as modelled; the infobox 70 m is not adopted."
       },
       {
         "paths": [
@@ -1406,7 +1406,7 @@
       "note": "OSM way 835569084 outline: 747.4 x 36.7 m, bearing 178.1 deg."
     },
     "height_m": {
-      "total": 35
+      "total": 39
     },
     "elements": {
       "spans": 8,
@@ -1434,7 +1434,7 @@
         ],
         "source": "estimate",
         "fact": "tallest element",
-        "reasoning": "Ponte do Freixo (1995): eight spans, main span 150 m; no published height. Its deck is described as much lower than the other Porto bridges, estimated about 35 m above the Douro."
+        "reasoning": "Ponte do Freixo (1995): eight spans, main span 150 m; no published height. Its deck is described as much lower than the other Porto bridges, estimated about 30 m above the Douro; the lamp posts (9 m) bring the top to about 39 m."
       },
       {
         "paths": [

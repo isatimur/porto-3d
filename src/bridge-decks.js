@@ -11,6 +11,7 @@ const near = (t, re) => re.test(t.name || '') || re.test(t.bn || '');
 export const BRIDGE_DECKS = [
   {
     id: 'luis-upper',
+    landmark: 'ponte-luis-i',
     ll: [41.13957, -8.60921],
     r: 340,
     deckM: 60,
@@ -18,6 +19,7 @@ export const BRIDGE_DECKS = [
   },
   {
     id: 'luis-lower',
+    landmark: 'ponte-luis-i',
     ll: [41.13957, -8.60921],
     r: 340,
     deckM: 11.2,
@@ -25,6 +27,7 @@ export const BRIDGE_DECKS = [
   },
   {
     id: 'arrabida',
+    landmark: 'ponte-arrabida',
     ll: [41.14706, -8.64052],
     r: 420,
     deckM: 67,
@@ -32,6 +35,7 @@ export const BRIDGE_DECKS = [
   },
   {
     id: 'infante',
+    landmark: 'ponte-infante',
     ll: [41.14106, -8.60168],
     r: 330,
     deckM: 73.8,
@@ -39,6 +43,7 @@ export const BRIDGE_DECKS = [
   },
   {
     id: 'sao-joao',
+    landmark: 'ponte-sao-joao',
     ll: [41.1384, -8.59629],
     r: 700,
     deckM: 58.4, // the ballast top of the model (data/dimensions.json: the structure is 66 m with the masts)
@@ -46,12 +51,27 @@ export const BRIDGE_DECKS = [
   },
   {
     id: 'freixo',
+    landmark: 'ponte-freixo',
+    // the OSM ways run 747 m; the model's deck stops at u = -371 / +334 m
     ll: [41.14192, -8.5809],
     r: 520,
     deckM: 30,
     test: (t) => near(t, /Ponte do Freixo/) && !!t.br,
   },
 ];
+
+// The base the models stand on (their y = 0, 0.8 m under the water): main.js
+// gives each landmark's fitted base (world units, src/fit.js) here before the
+// street network is built. Without it (node scripts) the network falls back
+// to the lowest ground under the deck's own ways.
+const bases = new Map();
+export function setDeckBases(byLandmark) {
+  bases.clear();
+  for (const [id, y] of Object.entries(byLandmark)) bases.set(id, y);
+}
+export function deckBase(d) {
+  return bases.get(d.landmark);
+}
 
 // The authored deck a way belongs to (or null): its first point must lie
 // within the deck's radius of the bridge centre. dist(lat, lon) is the

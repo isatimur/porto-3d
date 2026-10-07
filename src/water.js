@@ -799,8 +799,24 @@ export function createWater({ data, areas, project, heightAt }) {
       for (const d of dist) if (d > far) far = d;
       tiny = far < 1;
     }
+    // The tidal river is a polygon of its bank points, and its long triangles
+    // interpolate between them: a vertex on a quay wall 8 m over the bed tilts
+    // the whole surface (the stepped "waterfall" along every Douro bridge). A
+    // vertex takes the river bed's level instead: the lower quartile of the
+    // ground within 90 m (the bed is the lowest ground that is common).
+    const RIVER_R = [25, 50, 90];
+    const riverSamples = [];
+    const riverLevel = (x, z) => {
+      riverSamples.length = 0;
+      riverSamples.push(heightAt(x, z));
+      for (const r of RIVER_R) {
+        for (let a = 0; a < 8; a++) riverSamples.push(heightAt(x + Math.cos(a * 0.7854) * r * S, z + Math.sin(a * 0.7854) * r * S));
+      }
+      riverSamples.sort((p, q) => p - q);
+      return Math.min(heightAt(x, z), riverSamples[Math.floor(riverSamples.length / 4)]);
+    };
     verts.forEach((v, i) => {
-      pos.push(v.x, (flat ? lo : heightAt(v.x, v.z)) + LIFT * 0.7, v.z);
+      pos.push(v.x, (flat ? lo : kindVal === 1 ? riverLevel(v.x, v.z) : heightAt(v.x, v.z)) + LIFT * 0.7, v.z);
       flow.push(axis.x, axis.z);
       shore.push(open ? SHORE_OPEN : tiny ? 3 : dist[i]);
       kind.push(kindVal);

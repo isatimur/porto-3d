@@ -11,7 +11,7 @@
 // Frame: u along the deck (+u = Gaia, local +z), v across, y up; the arch is
 // centred on the OSM corridor. Heights are metres over the water.
 // Sources and estimates: data/dimensions.json (ponte-arrabida).
-import { bridgeFrame, rod, crookLamp, LAMP } from '../bridge-kit.js';
+import { bridgeFrame, cuttingWalls, rod, crookLamp, LAMP } from '../bridge-kit.js';
 
 const H = 135; // half the arch span
 const RISE = 52;
@@ -150,6 +150,9 @@ function builder(k, site) {
     // the foot of the arch: a block it springs from
     k.box(14, 7.2, 12, CONC_D, s * (H - 3), gy - 1.2, 0, C);
   }
+
+  // the cuttings: concrete retaining walls at the pad edge
+  cuttingWalls(k, F, { u0: -END, u1: END, v: 13.9, maxH: 14, topMax: DECK_Y - 1, color: CONC_D, cap: CONC });
 
   // ----------------------------------------------- the deck ends: abutments
   for (const s of [-1, 1]) {

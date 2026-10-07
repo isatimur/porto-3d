@@ -11,7 +11,7 @@
 // Frame: u along the deck (+u = Gaia, local +z), v across, y up; the arch is
 // centred on the OSM corridor. Heights: metres over the water.
 // Sources and estimates: data/dimensions.json (ponte-infante).
-import { bridgeFrame, rod, crookLamp, LAMP } from '../bridge-kit.js';
+import { bridgeFrame, cuttingWalls, rod, crookLamp, LAMP } from '../bridge-kit.js';
 
 const UC = -14; // arch centre along the corridor (middle of the OSM water polygon)
 const H = 140; // half the arch span
@@ -122,6 +122,9 @@ function builder(k, site) {
     }
   }
 
+  // the cuttings: concrete retaining walls at the pad edge
+  cuttingWalls(k, F, { u0: -END, u1: END, v: 10.2, maxH: 14, topMax: DECK_Y - 1, color: CONC_D, cap: CONC });
+
   // ----------------------------------------------- the deck ends: abutments
   for (const s of [-1, 1]) {
     const e = s * END;
@@ -151,9 +154,9 @@ builder.rule = {
       return Math.min(y, SOFFIT - 1.2);
     },
   },
-  extent: { box: { x0: -10, x1: 10, z0: -202.8, z1: 202.8 } },
+  extent: { box: { x0: -10.6, x1: 10.6, z0: -202.8, z1: 202.8 } },
   deviationNote: 'the outline is the 20 m deck corridor incl. approach ramps; the model adds the arch slab and parapet lamps',
-  frame: { x0: -10, x1: 10, z0: -202.8, z1: 202.8, y0: 0 },
+  frame: { x0: -10.6, x1: 10.6, z0: -202.8, z1: 202.8, y0: 0 },
 };
 
 export default { 'ponte-infante': builder };

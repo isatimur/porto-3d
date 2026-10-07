@@ -16,7 +16,7 @@
 // lower-deck ways run -61 .. +118 m, the upper deck -205 .. +197 m.
 // Heights are metres above the water (the model's y = 0 sits 0.8 m under it).
 // Sources and estimates: data/dimensions.json (ponte-luis-i).
-import { bridgeFrame, rod, truss, railing, crookLamp, catenaryMast, wire, parabola, LAMP, IRON } from '../bridge-kit.js';
+import { bridgeFrame, cuttingWalls, rod, truss, railing, crookLamp, catenaryMast, wire, parabola, LAMP, IRON } from '../bridge-kit.js';
 
 const UC = 28.3; // arch centre along the corridor (m, from the OSM lower-deck ways)
 const HALF = 86; // half the arch chord (172 m)
@@ -26,8 +26,8 @@ const UPPER_Y = 60; // upper deck surface
 const LOWER_Y = 11.2; // lower deck surface (estimate, scaled from photographs)
 const U_PORTO = -204; // upper deck ends (OSM way ends -205 / +197, incl. approach slabs)
 const U_GAIA = 198;
-const GIRDER_BOT = 56.2;
-const GIRDER_TOP = 59.2;
+const GIRDER_BOT = 56.4; // the upper deck is a through girder: the trusses rise 1.5 m over the walkway
+const GIRDER_TOP = 61.5;
 const N = 48; // arch panels (3.58 m)
 const IRON_C = IRON.luis;
 const TOWER_PITCH = 35.4;
@@ -162,7 +162,7 @@ function builder(k, site) {
   const uMid = (U_GAIA + U_PORTO) / 2;
   const nPan = Math.round(uLen / 3.44);
   for (const s of [-1, 1]) {
-    truss(k, { u0: U_PORTO, u1: U_GAIA, n: nPan, lo: () => GIRDER_BOT, up: () => GIRDER_TOP, z: s * upW, color: IRON_C, cw: 0.7, ch: 0.5, ww: 0.4, wh: 0.3, mat: 9, emit: deckE });
+    truss(k, { u0: U_PORTO, u1: U_GAIA, n: nPan, lo: () => GIRDER_BOT, up: () => GIRDER_TOP, z: s * upW, color: IRON_C, cw: 0.7, ch: 0.5, ww: 0.4, wh: 0.3, mat: 9, emit: deckE, x: true });
   }
   // deck slab, walkways, cross beams
   k.box(uLen, 0.5, 2 * upW + 1.8, 0x6d7076, uMid, UPPER_Y - 0.9, 0, { mat: 8, flat: true });
@@ -175,9 +175,9 @@ function builder(k, site) {
   for (const v of [-2.44, -1.0, 1.0, 2.44]) rod(k, [U_PORTO, UPPER_Y - 0.2, v], [U_GAIA, UPPER_Y - 0.2, v], 0.1, 0.14, 0x9ba1a6);
   // railings on the outside of the walkways, with the string of bulbs
   for (const s of [-1, 1]) {
-    railing(k, { u0: U_PORTO, u1: U_GAIA, v: s * (upW + 0.55), y: UPPER_Y - 0.4, h: 1.3, step: 3.44, color: IRON_C, rails: 3, w: 0.07 });
-    rod(k, [U_PORTO, UPPER_Y + 0.95, s * (upW + 0.55)], [U_GAIA, UPPER_Y + 0.95, s * (upW + 0.55)], 0.13, 0.13, 0xffe9b8, { emit: LAMP(0.9), mat: 0 });
-    for (let u = U_PORTO + 2; u <= U_GAIA; u += 6.88) k.box(0.28, 0.28, 0.28, 0xfff2cf, u, UPPER_Y + 0.86, s * (upW + 0.55), { emit: LAMP(1), mat: 0 });
+    // (the girder trusses are the parapet) a string of bulbs along the top chord
+    rod(k, [U_PORTO, GIRDER_TOP + 0.3, s * (upW + 0.4)], [U_GAIA, GIRDER_TOP + 0.3, s * (upW + 0.4)], 0.13, 0.13, 0xffe9b8, { emit: LAMP(0.9), mat: 0 });
+    for (let u = U_PORTO + 2; u <= U_GAIA; u += 6.88) k.box(0.28, 0.28, 0.28, 0xfff2cf, u, GIRDER_TOP + 0.18, s * (upW + 0.4), { emit: LAMP(1), mat: 0 });
   }
   // lamp posts (crook-top), staggered, and the Metro catenary
   let flip = 1;
@@ -186,9 +186,9 @@ function builder(k, site) {
     flip = -flip;
   }
   for (let u = U_PORTO + 18; u < U_GAIA - 6; u += 34.4) {
-    for (const s of [-1, 1]) catenaryMast(k, u, s * (upW + 0.2), UPPER_Y - 0.4, { h: 6.2, dir: s, reach: 3.1 });
+    for (const s of [-1, 1]) catenaryMast(k, u, s * upW, GIRDER_TOP, { h: 4.9, dir: s, reach: 2.6 });
   }
-  for (const v of [-1.5, 1.5]) wire(k, [U_PORTO, UPPER_Y + 5.0, v], [U_GAIA, UPPER_Y + 5.0, v], 0x303438, 0.06);
+  for (const v of [-1.7, 1.7]) wire(k, [U_PORTO, UPPER_Y + 5.0, v], [U_GAIA, UPPER_Y + 5.0, v], 0x303438, 0.06);
   for (let u = U_PORTO + 40; u < U_GAIA; u += 44) k.marker('bridge-lamp', u, UPPER_Y + 1, 0, { w: 1 });
 
   // ---- iron lattice towers (beyond the arch the girder rides on them)
@@ -230,6 +230,9 @@ function builder(k, site) {
       for (const l of [-1, 1]) rod(k, [ut + l * w, y, -upW], [ut + l * w, y, upW], 0.45, 0.4, IRON_C);
     }
   }
+
+  // ---- the cuttings the deck runs in: granite retaining walls at the pad edge
+  cuttingWalls(k, F, { u0: U_PORTO, u1: U_GAIA, v: 8.6, maxH: 12, topMax: UPPER_Y - 1 });
 
   // ---- the deck ends: abutment blocks where the deck enters the hill
   for (const e of [U_PORTO, U_GAIA]) {

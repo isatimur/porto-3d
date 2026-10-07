@@ -9,8 +9,8 @@
 //     the middle of the central span, 4 m on the viaducts
 //   - electrified double track, catenary masts, noise-free parapets
 // Frame: u along the line (+u = local +z, bearing 48.5 deg), v across, y up.
-// The model covers the river spans and the viaducts up to where the hills
-// rise to the deck; beyond, the line runs on the ground (street network).
+// The model covers the whole 1143 m of the OSM bridge way; where the hills
+// are higher than the deck the girder runs inside them.
 // Heights: metres over the water (deck: estimate, see dimensions.json).
 // Sources and estimates: data/dimensions.json (ponte-sao-joao).
 import { bridgeFrame, rod, loft, catenaryMast, wire } from '../bridge-kit.js';
@@ -26,8 +26,8 @@ const W_BOT = 8.0;
 const CONC = 0xe6e6e0;
 const CONC_D = 0xcfcfc8;
 const C = { mat: 8 };
-const U_MIN = -345; // where the hills reach the deck (DEM), west end of the model
-const U_MAX = 280;
+const U_MIN = -572; // the OSM bridge way runs -571.5 .. +575.6 m (1143 m, the published 1140 m)
+const U_MAX = 575;
 
 const smooth = (t) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
 
@@ -134,9 +134,9 @@ builder.metric = true;
 builder.rule = {
   note: 'Ponte de São João: concrete box-girder rail bridge, 250 m central span, girder 14 m over the river piers',
   pad: 'none',
-  extent: { box: { x0: -8.5, x1: 8.5, z0: U_MIN - 7, z1: U_MAX + 7 } },
-  deviationNote: 'the model is the river spans and the viaducts up to where the hills reach the deck; the OSM bridge way also runs through the cuttings at both ends',
-  frame: { x0: -8.5, x1: 8.5, z0: U_MIN - 7, z1: U_MAX + 7, y0: 0 },
+  extent: { box: { x0: -8.5, x1: 8.5, z0: -571.9, z1: 571.9 } },
+  deviationNote: 'OSM outline is the 15 m corridor of both tracks with the approach cuttings; the model is the 1143 m deck with its 14.4 m box girder',
+  frame: { x0: -8.5, x1: 8.5, z0: -571.9, z1: 571.9, y0: 0 },
 };
 
 export default { 'ponte-sao-joao': builder };
