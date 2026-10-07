@@ -64,6 +64,36 @@ export function rod(k, p0, p1, w, h, color, o = {}) {
   });
 }
 
+// A lofted prism through section rings (box girders with a curved soffit,
+// tapering piers). rings: array of rings; each ring an array of [x, y, z] of
+// the same length M, ordered so that, looking along +x, the section's top
+// edge runs from -z to +z (top-left, top-right, bottom-right, bottom-left
+// for a box). Flat-shaded quads between consecutive rings; closed ends.
+export function loft(k, rings, color, o = {}) {
+  const M = rings[0].length;
+  const pos = [];
+  const tri = (a, b, c) => pos.push(...a, ...b, ...c);
+  for (let r = 0; r + 1 < rings.length; r++) {
+    const A = rings[r];
+    const B = rings[r + 1];
+    for (let i = 0; i < M; i++) {
+      const j = (i + 1) % M;
+      tri(A[i], A[j], B[j]);
+      tri(A[i], B[j], B[i]);
+    }
+  }
+  if (o.caps !== false) {
+    const cap = (R, flip) => {
+      for (let i = 1; i + 1 < M; i++) (flip ? tri(R[0], R[i + 1], R[i]) : tri(R[0], R[i], R[i + 1]));
+    };
+    cap(rings[0], true);
+    cap(rings[rings.length - 1], false);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  return k.add(g, color, { flat: true, ...o, caps: undefined });
+}
+
 // A lattice truss in the plane v = z between a lower and an upper chord.
 // lo(u), up(u): chord heights. n panels from u0 to u1. Members: both chords,
 // a vertical at each node, and a diagonal per panel (x: crossed; warren:
@@ -97,6 +127,43 @@ export function truss(k, o) {
       pl = [u, yl];
       pu = [u, yu];
     }
+  }
+  return k;
+}
+
+// A tapered iron lattice tower under a girder: two frames (planes v = +-vHalf,
+// vHalf may widen toward the base), each two legs with X lacing and a
+// horizontal at every panel, and cross struts between the frames at the
+// fractions in o.cross. o: ut (centre u), base, top (y), bw / tw (half width
+// in u at the base / top), vBase / vTop (half distance between the frames),
+// panel (m), color, emit, legW, cross.
+export function latticeTower(k, o) {
+  const { ut, base, top, bw, tw, color } = o;
+  const vBase = o.vBase ?? o.vTop ?? 5;
+  const vTop = o.vTop ?? vBase;
+  const H = top - base;
+  if (H < 1) return k;
+  const nP = Math.max(2, Math.round(H / (o.panel ?? 3.6)));
+  const legW = o.legW ?? 0.9;
+  const mo = { emit: o.emit, mat: o.mat ?? MAT.metal };
+  const at = (t) => ({ y: base + H * t, w: bw + (tw - bw) * t, v: vBase + (vTop - vBase) * t });
+  for (const s of [-1, 1]) {
+    for (const l of [-1, 1]) {
+      const a = at(0);
+      const b = at(1);
+      rod(k, [ut + l * a.w, a.y, s * a.v], [ut + l * b.w, b.y, s * b.v], legW, legW * 0.9, color, mo);
+    }
+    for (let j = 0; j < nP; j++) {
+      const a = at(j / nP);
+      const b = at((j + 1) / nP);
+      rod(k, [ut - a.w, a.y, s * a.v], [ut + b.w, b.y, s * b.v], 0.36, 0.26, color, { mat: mo.mat });
+      rod(k, [ut + a.w, a.y, s * a.v], [ut - b.w, b.y, s * b.v], 0.36, 0.26, color, { mat: mo.mat });
+      rod(k, [ut - b.w, b.y, s * b.v], [ut + b.w, b.y, s * b.v], 0.4, 0.3, color, { mat: mo.mat });
+    }
+  }
+  for (const f of o.cross ?? [0.02, 0.5, 1]) {
+    const a = at(f);
+    for (const l of [-1, 1]) rod(k, [ut + l * a.w, a.y, -a.v], [ut + l * a.w, a.y, a.v], 0.45, 0.4, color, { mat: mo.mat });
   }
   return k;
 }

@@ -1,148 +1,121 @@
-// Ponte Infante Dom Henrique (2003) — the high-level concrete road bridge
-// linking Fontainhas (Porto) to the Serra do Pilar (Gaia). Real data: total
-// length ~371 m (OSM corridor 403.0 m with approaches), deck 20 m wide,
-// maximum height 75 m, reinforced-concrete arch with a 280 m span and a rise
-// of 25 m (span/rise 11.2, a world record for the type). A 4.5 m box girder
-// rests on a flexible 1.5 m arch.
-import { bbox } from '../geom.js';
+// Ponte Infante D. Henrique (Fernández Ordóñez, Adão da Fonseca, Millanes
+// Mato; 2000-03): a very flat reinforced-concrete arch under a box-girder
+// deck. Span 280 m, rise 25 m (span / rise 11.2, a record for this type),
+// deck 20 m wide, 370 m long, arch slab 1.5 m thick, girder 4.5 m deep.
+// Drawn 1:1 in metres.
+//
+//   - the arch is a thin wide slab springing from ledges in the two cliffs
+//   - the deck rests on it through wall piers (a trapezoid pier each side,
+//     then slender fins toward the feet)
+//   - side spans beyond the feet ride on fin walls to the abutments
+// Frame: u along the deck (+u = Gaia, local +z), v across, y up; the arch is
+// centred on the OSM corridor. Heights: metres over the water.
+// Sources and estimates: data/dimensions.json (ponte-infante).
+import { bridgeFrame, rod, crookLamp } from '../bridge-kit.js';
 
-const TOTAL = 403.0;    // OSM corridor length (real ~371 m; ~405 m site extent)
-const ARCH = 280;
+const UC = -14; // arch centre along the corridor (middle of the OSM water polygon)
+const H = 140; // half the arch span
+const DECK_Y = 73.8; // road surface (estimate; OSM height 75 incl. parapet)
+const GIRDER_D = 4.5;
+const SLAB = 0.6;
+const SOFFIT = DECK_Y - SLAB - GIRDER_D;
+const SPRING_Y = 38.5; // arch axis at the feet (the DEM cliff ledges at +-140 m)
+const RISE = 25;
+const END = 203; // OSM way ends (the deck is 370 m, the rest is approach)
 const DECK_W = 20;
-const A_MAX = 22;       // widest drawn element (abutment)
-const DECK_Y = 75;      // deck top, dims height 75
-const SPRING_Y = 50;    // arch springing high on the rocky banks
-const CROWN_Y = 74;     // arch crown just under the deck
-const RIB_Z = 5.6;
+const ARCH_W = 17;
+const CONC = 0xe0ddd0;
+const CONC_D = 0xc9c5b8;
+const N = 56;
+const C = { mat: 8 };
 
-function readFrame(site, defSpan) {
-  const fp = site && site.footprint;
-  const outline = fp && Array.isArray(fp.outline) && fp.outline.length >= 3 ? fp.outline : null;
-  if (outline) {
-    const b = bbox(outline);
-    const long = Math.max(b.w, b.d);
-    if (long > 40) return { span: long, ang: b.w >= b.d ? 0 : Math.PI / 2 };
-  }
-  return { span: defSpan, ang: 0 };
-}
-
-function parabola(x, half, y0, y1) {
-  const t = x / half;
-  return y0 + (y1 - y0) * (1 - t * t);
-}
+const smooth = (t) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
+const axisY = (u) => SPRING_Y + RISE * (1 - (u / H) ** 2);
+const thick = (u) => 1.6 + 1.7 * Math.abs(u / H) ** 3;
 
 function builder(k, site) {
-  const { span, ang } = readFrame(site, TOTAL);
-  const half = span / 2;
-  const af = Math.min(ARCH / 2, span * 0.36);
-  const archAt = (x) => parabola(x, af, SPRING_Y, CROWN_Y);
-  const N = 56;
+  const F = bridgeFrame(site, 405);
+  const g = F.ground;
+  const ay = (u) => axisY(u - UC); // arch axis at a corridor position
 
   k.begin('main');
-  k.push({ ry: ang });
+  k.push({ ry: F.ang });
+  k.push({ x: UC }); // the arch spans the water (OSM water polygon -98 .. +70 m)
 
-  // --- the two concrete arch ribs, with an upper and lower chord
-  for (const z of [-RIB_Z, RIB_Z]) {
-    let prev = [-af, archAt(-af), z];
-    for (let i = 1; i <= N; i++) {
-      const x = -af + (2 * af * i) / N;
-      const p = [x, archAt(x), z];
-      k.segment(prev, p, 3.4, 1.5, 'graniteGrey', { ext: 0.2 });
-      k.segment([prev[0], prev[1] - 2.2, z], [p[0], p[1] - 2.2, z], 0.5, 0.5, 'graniteDark');
-      prev = p;
-    }
+  // ------------------------------------------------------------------ arch
+  let p = null;
+  for (let i = 0; i <= N; i++) {
+    const u = -H + (2 * H * i) / N;
+    const q = [u, axisY(u), 0];
+    if (p) rod(k, p, q, ARCH_W, thick((u + p[0]) / 2), CONC, { ...C, ext: 0.5 });
+    p = q;
   }
-  // --- cross beams between the ribs
-  for (let i = 1; i < N; i += 2) {
-    const x = -af + (2 * af * i) / N;
-    const y = archAt(x);
-    k.segment([x, y, -RIB_Z], [x, y, RIB_Z], 1.3, 1.1, 'graniteGrey');
-    k.segment([x, y - 2.2, -RIB_Z], [x, y - 2.2, RIB_Z], 0.4, 0.4, 'graniteDark');
-  }
-  // --- spandrel columns from the arch up to the deck
-  for (const z of [-RIB_Z, RIB_Z]) {
-    for (let i = 1; i < N; i++) {
-      const x = -af + (2 * af * i) / N;
-      const y = archAt(x);
-      if (y < DECK_Y - 6) {
-        k.segment([x, y, z], [x, DECK_Y - 5, z], 1.8, 1.5, 'graniteGrey');
-      }
-    }
-  }
-
-  // --- the deck: a 4.5 m box girder, full length including approaches
-  k.box(span, 4.5, DECK_W - 4, 'graniteGrey', 0, DECK_Y - 5.0, 0);
-  k.box(span, 1.2, DECK_W, 'white', 0, DECK_Y - 1.2, 0);
-  // sidewalks and kerbs
+  // a soffit rib and the edge beams (the arch reads as a slab with thick edges)
   for (const s of [-1, 1]) {
-    const z = s * (DECK_W / 2 - 1.5);
-    k.box(span, 0.4, 3.0, 'graniteLight', 0, DECK_Y - 0.4, z);
-    k.box(span, 0.35, 0.5, 'graniteLight', 0, DECK_Y - 0.1, s * (DECK_W / 2 - 0.25));
-    k.box(span, 0.15, 0.15, 'steel', 0, DECK_Y + 1.25, s * (DECK_W / 2 - 0.35));
-    k.box(span, 0.1, 0.1, 'steel', 0, DECK_Y + 0.7, s * (DECK_W / 2 - 0.35));
-    const posts = Math.max(10, Math.round(span / 8));
-    for (let i = 0; i < posts; i++) {
-      const px = -half + ((i + 0.5) * span) / posts;
-      k.box(0.14, 1.3, 0.14, 'steel', px, DECK_Y, s * (DECK_W / 2 - 0.35));
+    p = null;
+    for (let i = 0; i <= N; i++) {
+      const u = -H + (2 * H * i) / N;
+      const q = [u, axisY(u) + thick(u) / 2 - 0.1, s * (ARCH_W / 2 - 0.6)];
+      if (p) rod(k, p, q, 1.2, 0.6, CONC_D, { ...C, ext: 0.4 });
+      p = q;
     }
   }
-  // central divider
-  k.box(span, 0.3, 0.9, 'graniteLight', 0, DECK_Y - 0.1, 0);
-  // four lanes of dashed markings
-  for (const lz of [-7.0, -3.5, 3.5, 7.0]) {
-    const dashes = Math.max(8, Math.round(span / 9));
-    for (let i = 0; i < dashes; i++) {
-      const px = -half + ((i + 0.5) * span) / dashes;
-      k.box(3.0, 0.05, 0.18, 'white', px, DECK_Y + 0.02, lz);
-    }
+  // the feet: the arch springs from a block built into the cliff
+  for (const s of [-1, 1]) {
+    const x = s * (H - 4);
+    const gy = Math.min(g(UC + x, 0), SPRING_Y - 3);
+    k.box(12, SPRING_Y + 1.6 - gy + 2, ARCH_W + 1, CONC_D, x, gy - 2, 0, C);
   }
-  // low-level lighting masts
-  const masts = Math.max(6, Math.round(span / 34));
-  for (let i = 0; i < masts; i++) {
-    const px = -half + ((i + 0.5) * span) / masts;
-    for (const s of [-1, 1]) {
-      k.box(0.2, 0.9, 0.2, 'steel', px, DECK_Y, s * 3.2);
-      k.box(1.2, 0.16, 0.3, 'window', px + s, DECK_Y + 0.9, s * 3.2, { emit: 0.6 });
-    }
+  k.pop(); // back to the corridor frame
+
+  // ------------------------------------------------------------------ deck
+  // box girder: top slab with cantilevers, a trapezoid box below, braces
+  k.box(2 * END, SLAB, DECK_W, CONC, 0, DECK_Y - SLAB, 0, C);
+  k.box(2 * END, 0.1, DECK_W - 1.4, 0x3f4144, 0, DECK_Y - 0.1, 0, { mat: 8 });
+  k.box(2 * END, GIRDER_D, 9.2, CONC, 0, SOFFIT, 0, C);
+  for (let u = -END + 2.5; u <= END; u += 5) {
+    for (const s of [-1, 1]) rod(k, [u, SOFFIT + GIRDER_D * 0.8, s * 4.4], [u, DECK_Y - SLAB - 0.05, s * 9.4], 0.6, 0.55, CONC_D, C);
+  }
+  // central reserve, parapets with the railing, lamps
+  k.box(2 * END, 0.6, 0.6, CONC, 0, DECK_Y - 0.1, 0, C);
+  for (const s of [-1, 1]) {
+    k.box(2 * END, 0.8, 0.35, CONC, 0, DECK_Y - 0.1, s * (DECK_W / 2 - 0.2), C);
+    rod(k, [-END, DECK_Y + 1.55, s * (DECK_W / 2 - 0.2)], [END, DECK_Y + 1.55, s * (DECK_W / 2 - 0.2)], 0.07, 0.07, 0xa7adb2, { mat: 9 });
+    rod(k, [-END, DECK_Y + 1.1, s * (DECK_W / 2 - 0.2)], [END, DECK_Y + 1.1, s * (DECK_W / 2 - 0.2)], 0.05, 0.05, 0xa7adb2, { mat: 9 });
+    for (let u = -END; u <= END + 0.01; u += 2.5) rod(k, [u, DECK_Y + 0.6, s * (DECK_W / 2 - 0.2)], [u, DECK_Y + 1.6, s * (DECK_W / 2 - 0.2)], 0.05, 0.05, 0xa7adb2, { mat: 9 });
+    for (let u = -END + 10 + (s > 0 ? 15 : 0); u < END - 6; u += 30) crookLamp(k, u, s * (DECK_W / 2 - 0.4), DECK_Y - 0.1, { h: 7.2, dir: s, reach: 2.2, color: 0x9ea5aa });
   }
 
-  // --- massive abutments carrying the arch springing on the steep banks
+  // ------------------------------------------------ the deck on the arch
+  // trapezoid pier each side, then fins toward the feet
   for (const s of [-1, 1]) {
-    const px = s * af;
-    k.box(10, SPRING_Y, DECK_W + 2, 'graniteDark', px, 0, 0);
-    k.box(11.6, 2, DECK_W + 2, 'graniteLight', px, SPRING_Y - 2, 0);
-    k.box(11, 1.4, DECK_W + 2, 'graniteLight', px, 0, 0);
+    const u = UC + s * 70;
+    const top = ay(u) + thick(s * 70) / 2 - 0.3;
+    k.frustum(9.2, 17.5, 5.4, 14.0, SOFFIT + 0.2 - top, CONC_D, u, top, 0, C);
+    for (const uu of [92, 113, 133]) {
+      const x = UC + s * uu;
+      const yb = ay(x) + thick(s * uu) / 2 - 0.3;
+      if (SOFFIT - yb < 1.5) continue;
+      k.box(2.2, SOFFIT + 0.2 - yb, 13.5, CONC_D, x, yb, 0, C);
+    }
   }
-  // --- approach piers beyond the abutments
-  const outer = half - 6;
+  // side spans: fin walls on the ground to the abutments
   for (const s of [-1, 1]) {
-    const count = Math.max(1, Math.round((outer - af) / 26));
-    for (let i = 0; i < count; i++) {
-      const px = s * (af + ((i + 0.5) * (outer - af)) / count);
-      for (const sz of [-1, 1]) {
-        k.cyl(2.0, 2.4, DECK_Y - 6, 8, 'graniteGrey', px, 0, sz * (DECK_W / 2 - 4));
-      }
-      k.box(6, 1.6, DECK_W - 5, 'graniteGrey', px, DECK_Y - 7.4, 0);
+    for (const uu of [157, 176, 192, 210]) {
+      const x = UC + s * uu;
+      if (Math.abs(x) > END - 6) continue;
+      const gy = g(x, 0);
+      if (SOFFIT - gy < 2) continue;
+      k.box(2.6, SOFFIT + 0.2 - gy + 2.5, 12.5, CONC_D, x, gy - 2.5, 0, C);
     }
   }
 
-  // --- detail pass: vertical hangers from the arch, soffit drains and lights
-  for (const z of [-RIB_Z, RIB_Z]) {
-    for (let i = 1; i < N; i += 2) {
-      const x = -af + (2 * af * i) / N;
-      const y = archAt(x);
-      if (y < DECK_Y - 6) k.segment([x, y + 1.0, z], [x, DECK_Y - 5.2, z], 0.5, 0.5, 'graniteDark');
-    }
-  }
+  // ----------------------------------------------- the deck ends: abutments
   for (const s of [-1, 1]) {
-    k.segment([s * (half - 4), DECK_Y - 5.0, s * (DECK_W / 2 - 1)], [s * af, SPRING_Y, s * (DECK_W / 2 - 1)], 0.35, 0.35, 'graniteDark', { round: true, seg: 4 });
-  }
-  for (let i = 0; i < 8; i++) {
-    const px = -half + ((i + 0.5) * span) / 8;
-    for (const s of [-1, 1]) {
-      k.box(0.14, 3.0, 0.14, 'steel', px, DECK_Y, s * (DECK_W / 2 - 1.2));
-      k.box(0.9, 0.16, 0.26, 'window', px + s * 0.4, DECK_Y + 3.0, s * (DECK_W / 2 - 1.2), { emit: 0.5 });
-    }
+    const e = s * END;
+    const gy = g(e, 0);
+    const bot = Math.min(gy, SOFFIT - 1) - 3;
+    k.box(5, SOFFIT + 0.6 - bot, DECK_W, CONC_D, e, bot, 0, C);
   }
 
   k.pop();
@@ -151,9 +124,24 @@ function builder(k, site) {
 
 builder.metric = true;
 builder.rule = {
-  note: 'Ponte Infante D. Henrique: 280 m concrete arch, rise 25 m, deck 20 m wide at 75 m, ~403 m OSM corridor with approaches',
-  extent: { box: { x0: -A_MAX / 2, x1: A_MAX / 2, z0: -TOTAL / 2, z1: TOTAL / 2 } },
-  frame: { x0: -DECK_W, x1: DECK_W, z0: -TOTAL / 2, z1: TOTAL / 2, y0: 0 },
+  note: 'Ponte Infante D. Henrique: flat concrete arch 280 m, rise 25 m, deck 20 m wide at 74 m over the water',
+  // The DEM stays except under the arch feet (a ledge in the cliff) and where
+  // the hill is above the deck.
+  pad: {
+    box: { x0: -11, x1: 11, z0: -206, z1: 206 },
+    margin: 0,
+    fall: 9,
+    level: (x, z, h) => {
+      let y = h;
+      const d = Math.abs(Math.abs(z - UC) - H);
+      const f = 1 - smooth((d - 10) / 10);
+      if (f > 0) y += (SPRING_Y - 2.4 - h) * f;
+      return Math.min(y, SOFFIT - 1.2);
+    },
+  },
+  extent: { box: { x0: -10, x1: 10, z0: -202.8, z1: 202.8 } },
+  deviationNote: 'the outline is the 20 m deck corridor incl. approach ramps; the model adds the arch slab and parapet lamps',
+  frame: { x0: -10, x1: 10, z0: -202.8, z1: 202.8, y0: 0 },
 };
 
 export default { 'ponte-infante': builder };

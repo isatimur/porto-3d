@@ -1,160 +1,155 @@
-// Ponte Maria Pia (1877, Gustave Eiffel) — single-track railway arch over the
-// Douro. Real dimensions: total length ~353 m, central arch span ~160 m, deck
-// ~60 m above the water; two slender near-semicircular lattice ribs, X-lattice
-// spandrels up to the deck and six lattice piers per approach.
-import { bbox } from '../geom.js';
+// Ponte Maria Pia (Gustave Eiffel & Théophile Seyrig, 1875-77): wrought-iron
+// crescent arch carrying a single railway track, disused since 1991.
+// Drawn 1:1 in metres.
+//
+//   - crescent arch, 160 m span, two lattice ribs that lean in toward the
+//     crown; 10 m deep at the crown, 7 m at the haunches, tapering to the
+//     four pivots; intrados chord 167 m, rise 37.5 m (pt.wikipedia)
+//   - deck: lattice girders, 3.4 m deep, 60 m over the water, 352.9 m long,
+//     on tapered iron lattice towers (two stand on the arch)
+//   - granite pivot bases at the feet of the arch
+// Frame: u along the deck (+u = local +z, bearing 54 deg), v across, y up;
+// the arch is centred on the OSM corridor. Heights: metres over the water.
+// Sources and estimates: data/dimensions.json (ponte-maria-pia).
+import { bridgeFrame, rod, truss, railing, latticeTower, parabola, IRON } from '../bridge-kit.js';
 
-const TOTAL = 353;
-const ARCH = 160;
+const UC = 12.5; // arch centre along the corridor: the OSM water polygon runs -60 .. +85 m
+const H = 80; // half the arch span
+const PIVOT_Y = 11.4; // pivot height over the water (estimate: crown top 59.5, rise 48.6)
+const CROWN_TOP = 59.5; // top chord at the crown
+const CROWN_D = 9.9; // arch depth at the crown
 const DECK_Y = 60;
-const DECK_W = 8;
-const RIB_Z = 2.8;
+const GIRDER_BOT = 56.0;
+const GIRDER_TOP = 59.4;
+const END = 176.4; // 352.875 / 2
+const IRON_C = IRON.mariaPia;
+const N = 32;
 
-function readFrame(site, defSpan) {
-  const fp = site && site.footprint;
-  const outline = fp && Array.isArray(fp.outline) && fp.outline.length >= 3 ? fp.outline : null;
-  if (outline) {
-    const b = bbox(outline);
-    const long = Math.max(b.w, b.d);
-    if (long > 40) return { span: long, ang: b.w >= b.d ? 0 : Math.PI / 2 };
-  }
-  return { span: defSpan, ang: 0 };
-}
-
-// Circular arc through (-half,spring), (0,spring+rise), (half,spring).
-function arcAt(x, half, springY, rise) {
-  const R = (rise * rise + half * half) / (2 * rise);
-  const cy = springY + rise - R;
-  return cy + Math.sqrt(Math.max(0, R * R - x * x));
-}
+const smooth = (t) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
+const depthAt = (u) => CROWN_D * Math.sqrt(Math.max(0, 1 - (u / H) ** 2)); // crescent: 7 m at 0.7 H, pointed at the pivots
+const axisY = (u) => parabola(u, H, PIVOT_Y, CROWN_TOP - CROWN_D / 2 - PIVOT_Y);
+const ribV = (u) => 2.6 + 3.4 * (u / H) ** 2; // the ribs lean in toward the crown
 
 function builder(k, site) {
-  const { span, ang } = readFrame(site, TOTAL);
-  const half = span / 2;
-  const af = Math.min(ARCH / 2, span * 0.23);
-  const springY = 2;
-  const rise = 50;
-  const archAt = (x) => arcAt(x, af, springY, rise);
-  const N = 28;
+  const F = bridgeFrame(site, 366);
+  const g = (u, v) => F.ground(UC + u, v);
 
   k.begin('main');
-  k.push({ ry: ang });
+  k.push({ ry: F.ang });
+  k.push({ x: UC }); // the arch (and the deck, symmetric about it) stands over the water, not in the middle of the OSM corridor
 
-  // --- the two arch ribs
-  for (const z of [-RIB_Z, RIB_Z]) {
-    let prev = [-af, archAt(-af), z];
-    for (let i = 1; i <= N; i++) {
-      const x = -af + (2 * af * i) / N;
-      const p = [x, archAt(x), z];
-      k.segment(prev, p, 1.5, 1.2, 'iron', { ext: 0.2 });
-      prev = p;
-    }
-  }
-
-  // --- vertical spandrel posts and X-lattice between the ribs
-  for (const z of [-RIB_Z, RIB_Z]) {
-    for (let i = 1; i < N; i += 2) {
-      const x = -af + (2 * af * i) / N;
-      const y = archAt(x);
-      if (y < DECK_Y - 2) k.segment([x, y, z], [x, DECK_Y, z], 0.45, 0.45, 'iron');
-    }
-  }
-  for (let i = 0; i + 2 <= N; i += 2) {
-    const x0 = -af + (2 * af * i) / N;
-    const x1 = -af + (2 * af * (i + 2)) / N;
-    k.segment([x0, archAt(x0), -RIB_Z], [x1, DECK_Y, RIB_Z], 0.3, 0.3, 'iron');
-    k.segment([x0, archAt(x0), RIB_Z], [x1, DECK_Y, -RIB_Z], 0.3, 0.3, 'iron');
-  }
-
-  // --- cross bracing between the arch ribs
-  for (let i = 0; i <= N; i += 2) {
-    const x = -af + (2 * af * i) / N;
-    const y = archAt(x);
-    k.segment([x, y, -RIB_Z], [x, y, RIB_Z], 0.4, 0.4, 'iron');
-  }
-  for (let i = 0; i + 2 <= N; i += 2) {
-    const x0 = -af + (2 * af * i) / N;
-    const x1 = -af + (2 * af * (i + 2)) / N;
-    const y0 = archAt(x0);
-    const y1 = archAt(x1);
-    k.segment([x0, y0, -RIB_Z], [x1, y1, RIB_Z], 0.28, 0.28, 'iron');
-    k.segment([x0, y0, RIB_Z], [x1, y1, -RIB_Z], 0.28, 0.28, 'iron');
-  }
-
-  // --- rail deck: track slab, guard railings and two running rails
-  k.box(span, 0.8, DECK_W, 'steel', 0, DECK_Y - 0.8, 0);
-  k.box(span, 0.5, DECK_W + 0.5, 'steel', 0, DECK_Y - 1.3, 0);
+  // ------------------------------------------------------------ arch ribs
   for (const s of [-1, 1]) {
-    const z = s * (DECK_W / 2 - 0.1);
-    k.box(span, 0.12, 0.35, 'iron', 0, DECK_Y - 0.02, z);
-    k.box(span, 0.1, 0.1, 'iron', 0, DECK_Y + 1.15, z);
-    for (let i = 0; i < 16; i++) {
-      const px = -half + ((i + 0.5) * span) / 16;
-      k.box(0.1, 1.15, 0.1, 'iron', px, DECK_Y - 0.02, z);
-    }
-  }
-  for (const z of [-1.5, 1.5]) k.box(span, 0.16, 0.16, 'steel', 0, DECK_Y + 0.06, z);
-
-  // --- lattice approach piers and end abutments
-  const inner = af + 6;
-  const outer = half - 5;
-  for (const s of [-1, 1]) {
-    for (let p = 0; p < 6; p++) {
-      const x = s * (inner + ((p + 0.5) * (outer - inner)) / 6);
-      k.box(5.5, 1, DECK_W + 0.6, 'iron', x, DECK_Y - 1.6, 0);
-      for (const sz of [-1, 1]) {
-        const z = sz * (DECK_W / 2 - 0.4);
-        k.box(0.5, DECK_Y - 1.5, 0.5, 'iron', x - 2, 0, z);
-        k.box(0.5, DECK_Y - 1.5, 0.5, 'iron', x + 2, 0, z);
-      }
-      for (let l = 0; l < 4; l++) {
-        const y0 = (DECK_Y - 3) * (l / 4);
-        const y1 = (DECK_Y - 3) * ((l + 1) / 4);
-        for (const sz of [-1, 1]) {
-          k.segment([x - 2, y0, sz * (DECK_W / 2 - 0.4)], [x + 2, y1, sz * (DECK_W / 2 - 0.4)], 0.25, 0.25, 'iron');
-          k.segment([x + 2, y0, sz * (DECK_W / 2 - 0.4)], [x - 2, y1, sz * (DECK_W / 2 - 0.4)], 0.25, 0.25, 'iron');
+    let pT = null;
+    let pB = null;
+    for (let i = 0; i <= N; i++) {
+      const u = -H + (2 * H * i) / N;
+      const v = s * ribV(u);
+      const yt = axisY(u) + depthAt(u) / 2;
+      const yb = axisY(u) - depthAt(u) / 2;
+      if (pT) {
+        rod(k, pT, [u, yt, v], 0.9, 0.75, IRON_C, { ext: 0.12 });
+        rod(k, pB, [u, yb, v], 0.9, 0.75, IRON_C, { ext: 0.12 });
+        if (yt - yb > 0.9) {
+          rod(k, pB, [u, yt, v], 0.5, 0.4, IRON_C);
+          rod(k, pT, [u, yb, v], 0.5, 0.4, IRON_C);
         }
       }
+      if (yt - yb > 0.9) rod(k, [u, yb, v], [u, yt, v], 0.6, 0.45, IRON_C);
+      pT = [u, yt, v];
+      pB = [u, yb, v];
     }
-    const ex = s * (half - 2.5);
-    k.box(7, DECK_Y - 1.5, DECK_W + 1.5, 'graniteDark', ex, 0, 0);
-    k.box(9, 1.4, DECK_W + 2.5, 'graniteLight', ex, DECK_Y - 1.5, 0);
   }
-
-  // ---------------------------------------------------------- detail pass
-  // permanent way: sleepers, rail chairs and a pair of running rails
-  for (let i = 0; i < 60; i++) {
-    const x = -half + ((i + 0.5) * span) / 60;
-    k.box(0.9, 0.22, DECK_W - 0.6, 'wood', x, DECK_Y - 0.02, 0);
+  // plan bracing between the ribs (struts and X) on both chords
+  let prev = null;
+  for (let i = 0; i <= N; i += 2) {
+    const u = -H + (2 * H * i) / N;
+    const v = ribV(u);
+    const yt = axisY(u) + depthAt(u) / 2;
+    const yb = axisY(u) - depthAt(u) / 2;
+    rod(k, [u, yt, -v], [u, yt, v], 0.5, 0.4, IRON_C);
+    rod(k, [u, yb, -v], [u, yb, v], 0.5, 0.4, IRON_C);
+    if (prev) {
+      rod(k, [prev.u, prev.yt, -prev.v], [u, yt, v], 0.34, 0.3, IRON_C);
+      rod(k, [prev.u, prev.yt, prev.v], [u, yt, -v], 0.34, 0.3, IRON_C);
+      rod(k, [prev.u, prev.yb, -prev.v], [u, yb, v], 0.34, 0.3, IRON_C);
+      rod(k, [prev.u, prev.yb, prev.v], [u, yb, -v], 0.34, 0.3, IRON_C);
+    }
+    prev = { u, yt, yb, v };
   }
-  for (const z of [-1.5, 1.5]) {
-    for (let i = 0; i < 30; i++) k.box(0.24, 0.3, 0.5, 'iron', -half + ((i + 0.5) * span) / 30, DECK_Y + 0.2, z);
-  }
-  // gusset plates at the lattice nodes and masonry pier footings
-  for (let i = 0; i + 2 <= N; i += 2) {
-    const x0 = -af + (2 * af * i) / N;
-    const y0 = archAt(x0);
-    k.box(1.6, 1.6, 1.6, 'iron', x0, y0 - 0.8, -RIB_Z);
-    k.box(1.6, 1.6, 1.6, 'iron', x0, y0 - 0.8, RIB_Z);
-  }
+  // pivots: granite bases and the pins
   for (const s of [-1, 1]) {
-    for (let p = 0; p < 6; p++) {
-      const x = s * (inner + ((p + 0.5) * (outer - inner)) / 6);
-      for (const sz of [-1, 1]) k.box(6, 1.6, 4, 'graniteDark', x, 0, sz * (DECK_W / 2 - 0.4));
-    }
+    const u = s * H;
+    const gy = Math.min(g(u, 0), 9);
+    k.box(12, PIVOT_Y - 1.6 - gy + 4, 15, 'graniteDark', u + s * 1.5, gy - 4, 0);
+    k.box(12.8, 0.7, 15.8, 'graniteLight', u + s * 1.5, PIVOT_Y - 1.6, 0);
+    for (const t of [-1, 1]) k.cyl(0.9, 0.9, 1.6, 8, IRON_C, u, PIVOT_Y - 1.2, t * ribV(H), { mat: 9 });
   }
-  // a narrow inspection walkway outboard of the track
-  k.box(span, 0.16, 1.1, 'steel', 0, DECK_Y - 0.1, DECK_W / 2 + 0.4);
-  for (let i = 0; i < 24; i++) k.box(0.12, 1.0, 0.12, 'iron', -half + ((i + 0.5) * span) / 24, DECK_Y - 0.1, DECK_W / 2 + 0.9);
 
+  // ------------------------------------------------------------------ deck
+  const nPan = Math.round((2 * END) / 3.52);
+  for (const s of [-1, 1]) {
+    truss(k, { u0: -END, u1: END, n: nPan, lo: () => GIRDER_BOT, up: () => GIRDER_TOP, z: s * 2.4, color: IRON_C, cw: 0.55, ch: 0.5, ww: 0.4, wh: 0.3, x: true, mat: 9 });
+  }
+  k.box(2 * END, 0.35, 6.4, 0x4a4540, 0, GIRDER_TOP - 0.55, 0, { mat: 8 }); // the tray under the ballast
+  k.box(2 * END, 0.25, 3.4, 0x6e655b, 0, GIRDER_TOP - 0.2, 0, { mat: 8 }); // ballast
+  for (const v of [-0.72, 0.72]) rod(k, [-END, DECK_Y - 0.1, v], [END, DECK_Y - 0.1, v], 0.1, 0.16, 0x7b5a45);
+  for (let u = -END; u <= END + 0.01; u += 3.52) rod(k, [u, GIRDER_BOT + 0.3, -2.9], [u, GIRDER_BOT + 0.3, 2.9], 0.35, 0.4, IRON_C, { mat: 9 });
+  for (const s of [-1, 1]) railing(k, { u0: -END, u1: END, v: s * 3.15, y: DECK_Y - 0.55, h: 1.2, step: 3.52, color: IRON_C, rails: 2, w: 0.07 });
+  // end plates
+  // abutments: the girders end on masonry, the line goes on into the hill
+  for (const e of [-END, END]) {
+    const sgn = Math.sign(e);
+    const gy = Math.min(g(e + sgn * 3, 0), DECK_Y - 3) - 3;
+    k.box(7.2, DECK_Y - 1.2 - gy, 7.6, 'graniteDark', e + sgn * 3.6, gy, 0);
+    k.box(7.8, 0.4, 8.2, 'graniteLight', e + sgn * 3.6, DECK_Y - 1.2, 0);
+    k.box(7.2, 0.25, 3.4, 0x6e655b, e + sgn * 3.6, DECK_Y - 0.8, 0, { mat: 8 });
+  }
+
+  // ---------------------------------------------------- towers (tapered iron)
+  const towers = [];
+  for (const su of [-1, 1]) for (const d of [80, 54, 112, 144]) towers.push({ u: su * d, onArch: d === 54, atPivot: d === 80 });
+  for (const t of towers) {
+    const u = t.u;
+    let base;
+    if (t.onArch) base = axisY(u) + depthAt(u) / 2 - 0.5;
+    else if (t.atPivot) base = PIVOT_Y + 0.8;
+    else base = Math.min(g(u, 0), GIRDER_BOT - 3) - 0.3;
+    if (GIRDER_BOT - base < 4) {
+      k.box(8, Math.max(1, DECK_Y - 1 - (base - 3)), 7.4, 'graniteDark', u, base - 3, 0);
+      continue;
+    }
+    if (!t.onArch) {
+      k.box(11.6, 1.8, 10.4, 'graniteDark', u, base - 2.0, 0);
+      k.box(10.6, 0.5, 9.4, 'graniteLight', u, base - 0.3, 0);
+    }
+    latticeTower(k, { ut: u, base: base + 0.2, top: GIRDER_BOT, bw: t.onArch ? 2.4 : 4.2, tw: 1.8, vBase: t.onArch ? 2.9 : 3.8, vTop: 2.4, color: IRON_C, panel: 3.6, legW: 0.85, mat: 9 });
+  }
+
+  k.pop();
   k.pop();
   k.end('main');
 }
 
 builder.metric = true;
 builder.rule = {
-  note: 'Ponte Maria Pia: 353 m total, 160 m arch, single-track deck ~60 m',
-  frame: { x0: -TOTAL / 2, x1: TOTAL / 2, z0: -DECK_W, z1: DECK_W, y0: 0 },
+  note: 'Ponte Maria Pia: crescent iron arch 160 m, deck 60 m over the water, 352.9 m',
+  // The DEM stays except under the pivots and where the hill is above the deck.
+  pad: {
+    box: { x0: -8, x1: 8, z0: -186, z1: 186 },
+    margin: 0,
+    fall: 7,
+    level: (x, z, h) => {
+      let y = h;
+      const d = Math.abs(Math.abs(z - UC) - H);
+      const f = 1 - smooth((d - 8) / 10);
+      if (f > 0) y += (Math.min(h, 4) - h) * f;
+      return Math.min(y, DECK_Y - 2.2);
+    },
+  },
+  extent: { box: { x0: -7.5, x1: 7.5, z0: -185.1, z1: 185.1 } },
+  deviationNote: 'OSM outline is the 4.2 m rail centreline; the model spans the 15 m lattice arch and pivot bases',
+  frame: { x0: -7.5, x1: 7.5, z0: -185.1, z1: 185.1, y0: 0 },
 };
 
 export default { 'ponte-maria-pia': builder };

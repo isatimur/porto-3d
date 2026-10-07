@@ -1,149 +1,142 @@
-// Ponte de São João (1991) — the Linha do Norte railway crossing of the Douro.
-// Not an arch: a continuous multi-span frame on vertical piers, prestressed
-// concrete. Real data: total ~1147 m (OSM corridor 1143.7 m), main span
-// 250 m, two side spans of 125 m, two piers standing in the river bed, deck
-// about 66 m above the water. Trapezoidal two-cell box girder, 4 m deep on the
-// approach viaducts, 14 m over the river piers, 7 m at mid-span; two tracks
-// directly on the top slab, porous-concrete derailment strip.
-import { bbox } from '../geom.js';
+// Ponte de São João (Edgar Cardoso, 1987-91): the double-track railway bridge
+// of the Linha do Norte, a post-tensioned concrete box girder built in
+// cantilever. Drawn 1:1 in metres.
+//
+//   - a continuous multi-span frame with vertical piers: a 250 m central span
+//     and two 125 m side spans on two river piers (130 micropiles each),
+//     then viaducts of about 45 m spans (pt.wikipedia, Ordem dos Engenheiros)
+//   - trapezoidal two-cell box girder: 14 m deep over the river piers, 7 m at
+//     the middle of the central span, 4 m on the viaducts
+//   - electrified double track, catenary masts, noise-free parapets
+// Frame: u along the line (+u = local +z, bearing 48.5 deg), v across, y up.
+// The model covers the river spans and the viaducts up to where the hills
+// rise to the deck; beyond, the line runs on the ground (street network).
+// Heights: metres over the water (deck: estimate, see dimensions.json).
+// Sources and estimates: data/dimensions.json (ponte-sao-joao).
+import { bridgeFrame, rod, loft, catenaryMast, wire } from '../bridge-kit.js';
 
-const TOTAL = 1143.7;   // OSM corridor length (real total ~1147 m)
-const MAIN = 250;
-const SIDE = 125;
-const DECK_W = 13;      // deck width, across the bridge
-const A_MAX = 14;       // widest drawn element across the bridge
-const TOP = 66;         // deck top above the base (river bed), dims height 66
-const PIER_W = 10;      // river pier, along the bridge
-const PIER_D = 12;      // river pier, across the bridge
-const APPROACH_W = 5.5;
-const APPROACH_D = 9;
+const UC = 104; // middle of the river, from the OSM water polygon (-43 .. +251 m)
+const SPAN_C = 250;
+const SPAN_S = 125;
+const DECK_Y = 58; // rail bed level; with the masts the structure is 66 m (Wikidata P2048)
+const SLAB = 0.9;
+const V0 = -5.3; // the two tracks sit 5.3 m off the middle of the OSM outline (local x +5.3)
+const W_TOP = 14.4;
+const W_BOT = 8.0;
+const CONC = 0xe6e6e0;
+const CONC_D = 0xcfcfc8;
+const C = { mat: 8 };
+const U_MIN = -345; // where the hills reach the deck (DEM), west end of the model
+const U_MAX = 280;
 
-function readFrame(site, defSpan) {
-  const fp = site && site.footprint;
-  const outline = fp && Array.isArray(fp.outline) && fp.outline.length >= 3 ? fp.outline : null;
-  if (outline) {
-    const b = bbox(outline);
-    const long = Math.max(b.w, b.d);
-    if (long > 40) return { span: long, ang: b.w >= b.d ? 0 : Math.PI / 2 };
-  }
-  return { span: defSpan, ang: 0 };
+const smooth = (t) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
+
+// river piers, side piers, viaduct piers (absolute u)
+function pierList() {
+  const P = [{ u: UC - SPAN_C / 2, kind: 'river' }, { u: UC + SPAN_C / 2, kind: 'river' }];
+  P.push({ u: UC - SPAN_C / 2 - SPAN_S, kind: 'side' }, { u: UC + SPAN_C / 2 + SPAN_S, kind: 'side' });
+  for (let u = UC - SPAN_C / 2 - SPAN_S - 45; u > U_MIN - 10; u -= 45) P.push({ u, kind: 'via' });
+  for (let u = UC + SPAN_C / 2 + SPAN_S + 45; u < U_MAX + 10; u += 45) P.push({ u, kind: 'via' });
+  return P.sort((a, b) => a.u - b.u);
 }
 
-// Frame depth: 7 m at mid main span, 14 m over the river piers, tapering to
-// 4 m on the approach viaducts.
-function girderDepth(x, river, half) {
-  const ax = Math.abs(x);
-  if (ax <= river) return 7 + 7 * (ax / river) * (ax / river);
-  const t = Math.min(1, (ax - river) / Math.max(1, half - river));
-  return 14 - 10 * t;
+// girder depth: 4 m on the viaducts, 14 m over the river piers (a parabolic haunch
+// 62 m each side), 7 m in the middle of the central span
+function depthAt(u) {
+  let d = 4;
+  for (const p of [UC - SPAN_C / 2, UC + SPAN_C / 2]) {
+    const t = Math.abs(u - p) / (SPAN_C / 2 - 12);
+    if (t < 1) d = Math.max(d, 4 + 10 * (1 - t) ** 2.2);
+    const ts = Math.abs(u - p) / SPAN_S;
+    if (ts < 1) d = Math.max(d, 4 + 10 * (1 - ts) ** 1.6);
+  }
+  const mid = 1 - Math.abs(u - UC) / 30;
+  if (mid > 0) d = Math.max(d, 7 * smooth(mid) + 4 * (1 - smooth(mid)));
+  return d;
 }
 
 function builder(k, site) {
-  const { span, ang } = readFrame(site, TOTAL);
-  const half = span / 2;
-  const river = MAIN / 2;
-  const deckBot = (x) => TOP - 1.4 - girderDepth(x, river, half);
+  const F = bridgeFrame(site, 1144);
+  const g = F.ground;
 
   k.begin('main');
-  k.push({ ry: ang });
+  k.push({ ry: F.ang });
+  k.push({ z: V0 });
 
-  // --- continuous box girder under the deck: drawn in vertical slices
-  const N = 72;
-  for (let i = 0; i < N; i++) {
-    const x0 = -half + (span * i) / N;
-    const x1 = -half + (span * (i + 1)) / N;
-    const xm = (x0 + x1) / 2;
-    const seg = x1 - x0 + 0.15;
-    const d = girderDepth(xm, river, half);
-    k.box(seg, d, DECK_W - 4.2, 'graniteGrey', xm, TOP - 1.4 - d, 0);
-    // a stiffening rib under every slice
-    k.box(seg, 0.5, DECK_W - 6.0, 'graniteDark', xm, TOP - 1.9 - d, 0);
+  // --------------------------------------------------------- box girder
+  const rings = [];
+  const step = 4;
+  for (let u = U_MIN; u <= U_MAX + 0.01; u += step) {
+    const d = depthAt(u);
+    const yt = DECK_Y - SLAB;
+    const yb = yt - d;
+    rings.push([[u, yt, -W_TOP / 2 + 1], [u, yt, W_TOP / 2 - 1], [u, yb, W_BOT / 2], [u, yb, -W_BOT / 2]]);
   }
-  // --- top slab (the two tracks sit directly on it)
-  k.box(span, 1.4, DECK_W, 'graniteGrey', 0, TOP - 1.4, 0);
-  // porous-concrete strip between and beside the rails
-  k.box(span, 0.5, DECK_W - 3.6, 'sand', 0, TOP - 0.5, 0);
-
-  // --- parapets and railings on both edges
+  // the ring order is (TL, TR, BR, BL) with +z to the right: top-right is +v
+  loft(k, rings, CONC, C);
+  // the slab with its cantilevers
+  k.box(U_MAX - U_MIN, SLAB, W_TOP + 1, CONC, (U_MIN + U_MAX) / 2, DECK_Y - SLAB, 0, C);
+  // track bed: ballast and two rails each, sleepers as a darker strip
+  k.box(U_MAX - U_MIN, 0.45, 9.4, 0x6f6a63, (U_MIN + U_MAX) / 2, DECK_Y, 0, { mat: 8 });
+  for (const v of [-2.45, 2.45]) {
+    for (const o of [-0.7175, 0.7175]) rod(k, [U_MIN, DECK_Y + 0.55, v + o], [U_MAX, DECK_Y + 0.55, v + o], 0.1, 0.16, 0x9ba1a6);
+  }
+  // parapets (noise barriers are low walls) and the cable trough
   for (const s of [-1, 1]) {
-    const z = s * (DECK_W / 2 - 0.15);
-    k.box(span, 0.7, 0.4, 'graniteGrey', 0, TOP - 0.1, z);
-    k.box(span, 0.12, 0.12, 'steel', 0, TOP + 1.3, z);
-    k.box(span, 0.1, 0.1, 'steel', 0, TOP + 0.7, z);
-    const posts = 76;
-    for (let i = 0; i < posts; i++) {
-      const px = -half + ((i + 0.5) * span) / posts;
-      k.box(0.12, 1.4, 0.12, 'steel', px, TOP, z);
-    }
+    k.box(U_MAX - U_MIN, 1.1, 0.35, CONC, (U_MIN + U_MAX) / 2, DECK_Y + 0.1, s * (W_TOP / 2 - 0.1), C);
+    for (let u = U_MIN; u <= U_MAX; u += 3.2) rod(k, [u, DECK_Y + 1.2, s * (W_TOP / 2 - 0.1)], [u, DECK_Y + 2.1, s * (W_TOP / 2 - 0.1)], 0.07, 0.07, 0xa7adb2, { mat: 9 });
+    rod(k, [U_MIN, DECK_Y + 2.1, s * (W_TOP / 2 - 0.1)], [U_MAX, DECK_Y + 2.1, s * (W_TOP / 2 - 0.1)], 0.07, 0.07, 0xa7adb2, { mat: 9 });
+  }
+  // catenary: a mast every 48 m on each edge with a cantilever, two contact wires
+  for (let u = U_MIN + 18; u < U_MAX - 6; u += 48) {
+    for (const s of [-1, 1]) catenaryMast(k, u, s * (W_TOP / 2 - 0.5), DECK_Y + 0.1, { h: 7.4, dir: s, reach: s > 0 ? 4.9 : 4.9, color: 0xe3e3dd });
+  }
+  for (const v of [-2.45, 2.45]) {
+    wire(k, [U_MIN, DECK_Y + 5.5, v], [U_MAX, DECK_Y + 5.5, v], 0x30343a, 0.06);
+    wire(k, [U_MIN, DECK_Y + 6.4, v], [U_MAX, DECK_Y + 6.4, v], 0x30343a, 0.05);
   }
 
-  // --- two tracks: rails and sleepers
-  for (const cz of [-2.0, 2.0]) {
-    for (const rz of [-0.72, 0.72]) {
-      k.box(span, 0.16, 0.14, 'iron', 0, TOP + 0.08, cz + rz);
+  // ------------------------------------------------------------- piers
+  for (const p of pierList()) {
+    if (p.u < U_MIN + 2 || p.u > U_MAX - 2) continue;
+    const gy = g(p.u, 0);
+    const soffit = DECK_Y - SLAB - depthAt(p.u);
+    const base = p.kind === 'via' ? gy - 2.5 : p.kind === 'river' ? -4 : Math.min(gy, 3) - 4;
+    if (soffit - base < 2) continue;
+    if (p.kind === 'river') {
+      // a single tapered oval-ish column under the haunch: cap, shaft, foot
+      k.frustum(5.2, 8.6, 3.5, 7.4, soffit - base - 4.5, CONC_D, p.u, base, 0, C);
+      k.frustum(3.5, 7.4, 5.6, 8.2, 4.5, CONC, p.u, soffit - 4.5, 0, C);
+    } else if (p.kind === 'side') {
+      k.frustum(4.4, 8.0, 3.2, 7.0, soffit - base - 3.0, CONC_D, p.u, base, 0, C);
+      k.frustum(3.2, 7.0, 4.6, 8.0, 3.0, CONC, p.u, soffit - 3.0, 0, C);
+    } else {
+      k.frustum(3.0, 7.2, 2.4, 6.4, soffit - base - 1.6, CONC_D, p.u, base, 0, C);
+      k.frustum(2.4, 6.4, 3.6, 7.6, 1.6, CONC, p.u, soffit - 1.6, 0, C);
     }
-    const sleepers = Math.round(span / 2.6);
-    for (let i = 0; i < sleepers; i++) {
-      const px = -half + ((i + 0.5) * span) / sleepers;
-      k.box(0.5, 0.14, 2.4, 'wood', px, TOP, cz);
-    }
+    if (p.kind === 'river') k.box(11, 2.4, 17, CONC_D, p.u, base, 0, C); // the footing cap at the waterline
   }
 
-  // --- two river piers, each on a caisson and a 130 micro-pile footprint
-  for (const s of [-1, 1]) {
-    const px = s * river;
-    const top = deckBot(px);
-    k.box(PIER_W + 2, 2.2, PIER_D + 2, 'graniteDark', px, 0, 0);
-    k.box(PIER_W, top - 2.2, PIER_D, 'graniteDark', px, 2.2, 0);
-    k.frustum(PIER_W + 2, PIER_D + 2, PIER_W + 0.5, PIER_D - 1.5, 3.0, 'graniteGrey', px, top - 3.0, 0);
+  // ------------------------------------------- abutments where the hills meet the deck
+  for (const e of [U_MIN, U_MAX]) {
+    const sgn = e < 0 ? -1 : 1;
+    const gy = g(e + sgn * 3, 0);
+    const bot = Math.min(gy, DECK_Y - 3) - 3;
+    k.box(7, DECK_Y - SLAB - bot, W_TOP, CONC_D, e + sgn * 3.5, bot, 0, C);
   }
 
-  // --- approach viaducts: paired columns under the deck
-  const inner = river + SIDE;
-  const outer = half - 8;
-  for (const s of [-1, 1]) {
-    const count = Math.max(1, Math.round((outer - inner) / 40));
-    for (let i = 0; i < count; i++) {
-      const px = s * (inner + ((i + 0.5) * (outer - inner)) / count);
-      const top = deckBot(px) - 0.2;
-      for (const sz of [-1, 1]) {
-        k.box(APPROACH_W, top, APPROACH_D, 'graniteGrey', px, 0, sz * (DECK_W / 2 - APPROACH_D / 2 - 0.6));
-      }
-      k.box(APPROACH_W + 1.6, 1.4, DECK_W - 1.2, 'graniteGrey', px, top, 0);
-      k.box(APPROACH_W + 2.4, 1.0, DECK_W + 1, 'graniteLight', px, 0, 0);
-    }
-    // abutment at the end of the viaduct (kept inside the corridor)
-    const ex = s * (half - 5.5);
-    k.box(9, TOP - 6, DECK_W + 1, 'graniteDark', ex, 0, 0);
-    k.box(10, 1.4, DECK_W + 1, 'graniteLight', ex, TOP - 6, 0);
-  }
-
-  // --- detail pass: deck lighting masts, an under-deck inspection walkway
-  const masts = 22;
-  for (let i = 0; i < masts; i++) {
-    const px = -half + ((i + 0.5) * span) / masts;
-    for (const s of [-1, 1]) {
-      k.box(0.16, 3.2, 0.16, 'steel', px, TOP, s * (DECK_W / 2 - 0.5));
-      k.box(0.9, 0.18, 0.3, 'window', px + s * 0.4, TOP + 3.2, s * (DECK_W / 2 - 0.5), { emit: 0.5 });
-    }
-  }
-  for (const s of [-1, 1]) {
-    k.box(span, 0.6, 0.25, 'graniteDark', 0, deckBot(-river) - 0.6, s * (DECK_W / 2 - 2.2));
-  }
-  for (const s of [-1, 1]) {
-    const px = s * river;
-    k.box(PIER_W + 3, 0.6, PIER_D + 3, 'graniteLight', px, deckBot(px) - 3.0, 0);
-  }
-
+  k.pop();
   k.pop();
   k.end('main');
 }
 
 builder.metric = true;
 builder.rule = {
-  note: 'Ponte de São João: ~1147 m (OSM 1143.7 m) continuous concrete frame, 250 m main span + 2x125 m, deck 66 m, two river piers',
-  extent: { box: { x0: -A_MAX / 2, x1: A_MAX / 2, z0: -TOTAL / 2, z1: TOTAL / 2 } },
-  frame: { x0: -DECK_W, x1: DECK_W, z0: -TOTAL / 2, z1: TOTAL / 2, y0: 0 },
+  note: 'Ponte de São João: concrete box-girder rail bridge, 250 m central span, girder 14 m over the river piers',
+  pad: 'none',
+  extent: { box: { x0: -8.5, x1: 8.5, z0: U_MIN - 7, z1: U_MAX + 7 } },
+  deviationNote: 'the model is the river spans and the viaducts up to where the hills reach the deck; the OSM bridge way also runs through the cuttings at both ends',
+  frame: { x0: -8.5, x1: 8.5, z0: U_MIN - 7, z1: U_MAX + 7, y0: 0 },
 };
 
 export default { 'ponte-sao-joao': builder };

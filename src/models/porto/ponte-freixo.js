@@ -1,113 +1,106 @@
-// Ponte do Freixo (1995) — the low-level motorway crossing of the Douro
-// (A20 / IP1 / E01), the most upstream of Porto's bridges. Real data:
-// total ~747 m (OSM corridor 742.3 m), eight spans, main span 150 m, eight
-// traffic lanes, and in fact two parallel portal-frame bridges set side by
-// side just 10 cm apart. The deck sits far lower than every other Porto–Gaia
-// bridge (~35 m here).
-import { bbox } from '../geom.js';
+// Ponte do Freixo (António Reis, 1995): two side-by-side prestressed-concrete
+// box-girder bridges (10 cm apart, four lanes each) on eight spans, the
+// biggest 150 m. The lowest of the Douro road bridges. Drawn 1:1 in metres.
+//
+//   - each deck: a box girder 18 m wide, deep over the piers and shallow at
+//     midspan, the soffit a smooth curve (loft sections every 5 m)
+//   - piers: one oval-section column per deck, slightly waisted
+//   - pier stations from the OSM water polygon (-123.5, +25, +139.5 m are the
+//     river piers) and an even rhythm on the land spans
+// Frame: u along the deck (+u = Gaia, local +z), v across, y up; the decks run
+// -371 .. +334 m along the OSM corridor. Heights: metres over the water.
+// Sources and estimates: data/dimensions.json (ponte-freixo).
+import { bridgeFrame, rod, loft, crookLamp } from '../bridge-kit.js';
 
-const TOTAL = 742.3;    // OSM corridor length (real ~747 m)
-const DECK_Y = 35;      // deck top, dims height 35
-const HALF_DECK = 18.2; // one of the two parallel decks
-const GAP = 0.1;        // the 10 cm between the two bridges
-const MAIN = 150;
-const A_MAX = 2 * (HALF_DECK / 2 + GAP / 2) + HALF_DECK; // 36.5 m overall
+const DECK_Y = 30; // road surface (estimate: "much lower than the other bridges")
+const SLAB = 0.8;
+const U0 = -371;
+const U1 = 334;
+const PIERS = [-262, -173, -123.5, 25, 139.5, 203, 270]; // 8 spans: 109 89 49.5 148.5 114.5 63.5 67 64
+const BOUNDS = [U0, ...PIERS, U1];
+const IN_WATER = new Set([-123.5, 25, 139.5]);
+const DECK_C = 9.05; // deck centre lines (v)
+const W_TOP = 18.0;
+const W_BOT = 9.2;
+const D_PIER = 8.6;
+const D_MID = 3.2;
+const CONC = 0xdcdcd5;
+const CONC_D = 0xc4c4bc;
+const C = { mat: 8 };
 
-function readFrame(site, defSpan) {
-  const fp = site && site.footprint;
-  const outline = fp && Array.isArray(fp.outline) && fp.outline.length >= 3 ? fp.outline : null;
-  if (outline) {
-    const b = bbox(outline);
-    const long = Math.max(b.w, b.d);
-    if (long > 40) return { span: long, ang: b.w >= b.d ? 0 : Math.PI / 2 };
+// girder depth: a smooth curve from the piers to the middle of each span
+function depthAt(u) {
+  for (let i = 0; i + 1 < BOUNDS.length; i++) {
+    const a = BOUNDS[i];
+    const b = BOUNDS[i + 1];
+    if (u >= a && u <= b) {
+      const t = (u - a) / (b - a);
+      const s = Math.sin(Math.PI * t);
+      return D_MID + (D_PIER - D_MID) * (1 - s) ** 1.7;
+    }
   }
-  return { span: defSpan, ang: 0 };
+  return D_MID;
 }
 
 function builder(k, site) {
-  const { span, ang } = readFrame(site, TOTAL);
-  const half = span / 2;
-  const dz = HALF_DECK / 2 + GAP / 2;   // centre of each deck: +-9.15 m
-  const river = MAIN / 2;
-
-  // Pier positions: a 150 m main span between the two river piers, then three
-  // approach spans to the west and four to the east (eight in all).
-  const west = [-274.1, -174.6, -river];
-  const east = [river, 149.7, 224.4, 299.1];
-  const piers = [...west, ...east];
+  const F = bridgeFrame(site, 742);
+  const g = F.ground;
 
   k.begin('main');
-  k.push({ ry: ang });
+  k.push({ ry: F.ang });
 
-  // --- the two parallel portal-frame decks, 10 cm apart
   for (const s of [-1, 1]) {
-    const z = s * dz;
-    k.box(span, 1.6, HALF_DECK, 'graniteGrey', 0, DECK_Y - 1.6, z);
-    k.box(span, 0.5, HALF_DECK - 4, 'sand', 0, DECK_Y - 0.5, z);
-    // edge and inner parapets
+    const v0 = s * DECK_C;
+    // ---- box girder: a loft through sections every 5 m
+    const rings = [];
+    for (let u = U0; u <= U1 + 0.01; u += 5) {
+      const yt = DECK_Y - SLAB;
+      const yb = yt - depthAt(u);
+      rings.push([[u, yt, v0 - W_TOP / 2 + 1.2], [u, yt, v0 + W_TOP / 2 - 1.2], [u, yb, v0 + W_BOT / 2], [u, yb, v0 - W_BOT / 2]]);
+    }
+    loft(k, rings, CONC, C);
+    // ---- slab with its cantilevers, wearing course, parapets, lamps
+    k.box(U1 - U0, SLAB, W_TOP, CONC, (U0 + U1) / 2, DECK_Y - SLAB, v0, C);
+    k.box(U1 - U0, 0.1, W_TOP - 2.4, 0x3c3e42, (U0 + U1) / 2, DECK_Y - 0.1, v0, { mat: 8 });
     for (const e of [-1, 1]) {
-      const pe = z + e * (HALF_DECK / 2 - 0.25);
-      k.box(span, 0.9, 0.5, 'graniteLight', 0, DECK_Y, pe);
-      k.box(span, 0.12, 0.12, 'steel', 0, DECK_Y + 1.25, pe);
-      k.box(span, 0.1, 0.1, 'steel', 0, DECK_Y + 0.7, pe);
-      const posts = 72;
-      for (let i = 0; i < posts; i++) {
-        const px = -half + ((i + 0.5) * span) / posts;
-        k.box(0.14, 1.0, 0.14, 'steel', px, DECK_Y + 0.9, pe);
-      }
+      k.box(U1 - U0, 0.95, 0.4, CONC, (U0 + U1) / 2, DECK_Y - 0.1, v0 + e * (W_TOP / 2 - 0.2), C);
+      rod(k, [U0, DECK_Y + 1.35, v0 + e * (W_TOP / 2 - 0.2)], [U1, DECK_Y + 1.35, v0 + e * (W_TOP / 2 - 0.2)], 0.07, 0.07, 0xa7adb2, { mat: 9 });
+      for (let u = U0; u <= U1 + 0.01; u += 3) rod(k, [u, DECK_Y + 0.8, v0 + e * (W_TOP / 2 - 0.2)], [u, DECK_Y + 1.4, v0 + e * (W_TOP / 2 - 0.2)], 0.05, 0.05, 0xa7adb2, { mat: 9 });
     }
-    // four lanes of dashed markings on each deck
-    for (const lz of [-6.2, -2.1, 2.1, 6.2]) {
-      const dashes = 74;
-      for (let i = 0; i < dashes; i++) {
-        const px = -half + ((i + 0.5) * span) / dashes;
-        k.box(3.2, 0.05, 0.18, 'white', px, DECK_Y + 0.02, z + lz);
-      }
-    }
+    // lamps on the outer edge, 36 m
+    for (let u = U0 + 12; u < U1 - 8; u += 36) crookLamp(k, u, v0 + s * (W_TOP / 2 - 0.45), DECK_Y - 0.1, { h: 9.0, dir: s, reach: 2.4, color: 0x9ea5aa });
   }
-  // --- the seam between the two bridges
-  k.box(span, 0.4, GAP + 0.4, 'graniteDark', 0, DECK_Y - 0.4, 0);
+  // the median where the two decks meet: a jersey barrier and its lamps
+  k.box(U1 - U0, 0.9, 0.5, CONC, (U0 + U1) / 2, DECK_Y - 0.1, 0, C);
 
-  // --- portal-frame piers: for each deck two legs and a cap beam
-  for (const px of piers) {
-    const inRiver = Math.abs(Math.abs(px) - river) < 1;
-    const h = DECK_Y - 1.6 - 1.2;
+  // ---- piers: one waisted column per deck
+  for (const u of PIERS) {
     for (const s of [-1, 1]) {
-      const z = s * dz;
-      for (const e of [-1, 1]) {
-        const legs = inRiver ? 4.2 : 3.0;
-        const depth = inRiver ? 4.5 : 3.2;
-        k.box(legs, h, depth, 'graniteGrey', px, 0, z + e * (HALF_DECK / 2 - 3.4));
+      const v0 = s * DECK_C;
+      const gy = g(u, v0);
+      const soffit = DECK_Y - SLAB - D_PIER;
+      const base = IN_WATER.has(u) ? -4 : gy - 2.5;
+      if (soffit - base < 2) continue;
+      // a waisted column built from tapered slices (half sizes along u and v)
+      const half = (t) => [1.55 + 0.35 * (1 - t) - 0.45 * Math.sin(Math.PI * t) + 0.9 * t ** 6, 3.4 + 0.4 * (1 - t) - 0.6 * Math.sin(Math.PI * t) + 0.9 * t ** 6];
+      const n = 6;
+      for (let i = 0; i < n; i++) {
+        const ya = base + ((soffit - base + 0.4) * i) / n;
+        const yb = base + ((soffit - base + 0.4) * (i + 1)) / n;
+        const [wA, dA] = half(i / n);
+        const [wB, dB] = half((i + 1) / n);
+        k.frustum(wA * 2, dA * 2, wB * 2, dB * 2, yb - ya, CONC_D, u, ya, v0, C);
       }
-      k.box(5.5, 1.4, HALF_DECK - 2.5, 'graniteGrey', px, h, z);
-      k.box(7.0, 1.0, HALF_DECK - 1, 'graniteLight', px, 0, z);
-      k.box(1.0, 0.6, HALF_DECK - 4, 'graniteDark', px, h - 3.0, z);
+      if (IN_WATER.has(u)) k.box(8.4, 2.2, 12.6, CONC_D, u, base, v0, C); // footing at the waterline
     }
   }
 
-  // --- abutments, kept inside the corridor
-  for (const s of [-1, 1]) {
-    const ex = s * (half - 5);
-    k.box(8, DECK_Y - 2.5, 2 * dz + HALF_DECK, 'graniteDark', ex, 0, 0);
-    k.box(9.5, 1.2, 2 * dz + HALF_DECK, 'graniteLight', ex, DECK_Y - 2.5, 0);
-  }
-
-  // --- detail pass: pier cap bearings, scuppers and deck lighting
-  for (const px of piers) {
-    for (const s of [-1, 1]) {
-      k.box(6.5, 0.5, 2.0, 'graniteDark', px, DECK_Y - 2.1, s * dz);
-    }
-  }
-  for (const s of [-1, 1]) k.box(span, 0.15, 0.15, 'steel', 0, DECK_Y + 1.3, s * (2 * dz - 0.6));
-  for (let i = 0; i < 16; i++) {
-    const px = -half + ((i + 0.5) * span) / 16;
-    for (const s of [-1, 1]) {
-      // low lamp posts on the median rail (1.5 m): the old 2.8 m posts took the
-      // model to 39.5 m against the 35 m deck-level height of
-      // data/dimensions.json (12.7 %)
-      k.box(0.14, 1.5, 0.14, 'steel', px, DECK_Y + 1.5, s * (2 * dz - 1.0));
-      k.box(0.9, 0.16, 0.26, 'window', px + s * 0.4, DECK_Y + 2.9, s * (2 * dz - 1.0), { emit: 0.5 });
-    }
+  // ---- abutments
+  for (const e of [U0, U1]) {
+    const sgn = e < 0 ? -1 : 1;
+    const gy = g(e, 0);
+    const bot = Math.min(gy, DECK_Y - 3) - 3;
+    k.box(6, DECK_Y - SLAB - bot, 2 * DECK_C + W_TOP, CONC_D, e + sgn * 3, bot, 0, C);
   }
 
   k.pop();
@@ -116,9 +109,11 @@ function builder(k, site) {
 
 builder.metric = true;
 builder.rule = {
-  note: 'Ponte do Freixo: ~747 m (OSM 742.3 m), eight spans, 150 m main span, eight lanes in two portal-frame decks 10 cm apart, low ~35 m deck',
-  extent: { box: { x0: -A_MAX / 2, x1: A_MAX / 2, z0: -TOTAL / 2, z1: TOTAL / 2 } },
-  frame: { x0: -HALF_DECK - 2, x1: HALF_DECK + 2, z0: -TOTAL / 2, z1: TOTAL / 2, y0: 0 },
+  note: 'Ponte do Freixo: two box-girder decks, 8 spans, main span 150 m, deck 30 m over the water',
+  pad: 'none',
+  extent: { box: { x0: -18.5, x1: 18.5, z0: -371.6, z1: 340 } },
+  deviationNote: 'the OSM bridge ways end at the Gaia side 30 m before the outline; the model is the 705 m deck + abutments',
+  frame: { x0: -18.5, x1: 18.5, z0: -371.6, z1: 340, y0: 0 },
 };
 
 export default { 'ponte-freixo': builder };
