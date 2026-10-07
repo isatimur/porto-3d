@@ -46,7 +46,7 @@ export const BRIDGE_DECKS = [
     landmark: 'ponte-sao-joao',
     ll: [41.1384, -8.59629],
     r: 700,
-    deckM: 58.4, // the ballast top of the model (data/dimensions.json: the structure is 66 m with the masts)
+    deckM: 66, // the rail head (the same 66 m as data/life.json deck_m for the CP trains)
     test: (t, kind) => kind === 'rail' && near(t, /Ponte de São João/),
   },
   {

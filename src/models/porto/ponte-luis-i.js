@@ -120,7 +120,7 @@ function builder(k, site) {
   // ---- lower deck: slab, plate girders, railings, cross beams, hangers
   const lowW = 5.4;
   const lowU = HALF + 9;
-  k.box(2 * lowU, 0.55, 2 * lowW, 0x6d7076, 0, LOWER_Y - 0.95, 0, { mat: 8 });
+  k.box(2 * lowU, 0.55, 2 * lowW, 0x6d7076, 0, LOWER_Y - 0.55, 0, { mat: 8 }); // road surface at LOWER_Y
   for (const s of [-1, 1]) {
     k.box(2 * lowU, 1.3, 0.28, IRON_C, 0, LOWER_Y - 1.7, s * lowW, { mat: 9 });
     railing(k, { u0: -lowU, u1: lowU, v: s * (lowW - 0.1), y: LOWER_Y - 0.4, h: 1.1, step: 3.58, color: IRON_C, rails: 2 });
@@ -165,14 +165,14 @@ function builder(k, site) {
     truss(k, { u0: U_PORTO, u1: U_GAIA, n: nPan, lo: () => GIRDER_BOT, up: () => GIRDER_TOP, z: s * upW, color: IRON_C, cw: 0.7, ch: 0.5, ww: 0.4, wh: 0.3, mat: 9, emit: deckE, x: true });
   }
   // deck slab, walkways, cross beams
-  k.box(uLen, 0.5, 2 * upW + 1.8, 0x6d7076, uMid, UPPER_Y - 0.9, 0, { mat: 8, flat: true });
-  k.box(uLen, 0.12, 2 * upW + 1.8, 0x585b61, uMid, UPPER_Y - 0.42, 0, { mat: 8, flat: true });
+  k.box(uLen, 0.5, 2 * upW + 1.8, 0x6d7076, uMid, UPPER_Y - 0.65, 0, { mat: 8, flat: true });
+  k.box(uLen, 0.12, 2 * upW + 1.8, 0x585b61, uMid, UPPER_Y - 0.17, 0, { mat: 8, flat: true });
   for (let u = U_PORTO; u <= U_GAIA + 0.01; u += 3.44) {
     rod(k, [u, GIRDER_BOT + 0.35, -upW - 0.9], [u, GIRDER_BOT + 0.35, upW + 0.9], 0.4, 0.5, IRON_C, { mat: 9 });
   }
   // Metro tracks: ballast slab, rails
-  k.box(uLen, 0.14, 5.7, 0x77706a, uMid, UPPER_Y - 0.4, 0, { mat: 8 });
-  for (const v of [-2.44, -1.0, 1.0, 2.44]) rod(k, [U_PORTO, UPPER_Y - 0.2, v], [U_GAIA, UPPER_Y - 0.2, v], 0.1, 0.14, 0x9ba1a6);
+  k.box(uLen, 0.14, 5.7, 0x77706a, uMid, UPPER_Y - 0.15, 0, { mat: 8 });
+  for (const v of [-2.44, -1.0, 1.0, 2.44]) rod(k, [U_PORTO, UPPER_Y - 0.05, v], [U_GAIA, UPPER_Y - 0.05, v], 0.1, 0.14, 0x9ba1a6);
   // railings on the outside of the walkways, with the string of bulbs
   for (const s of [-1, 1]) {
     // (the girder trusses are the parapet) a string of bulbs along the top chord

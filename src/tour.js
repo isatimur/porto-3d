@@ -199,7 +199,7 @@ export const CINEMA_ORDER = [
   { id: 'ponte-luis-i', shot: 'span', dur: 22, time: 'sunset', span: { deckM: 60, river: 28, deck: true, under: true, h: 11, low: 6 } },
   { id: 'ponte-infante', shot: 'span', dur: 13, time: 'sunset', span: { deckM: 73.8, river: -14, under: true, low: 10 } },
   { id: 'ponte-maria-pia', shot: 'orbit', dur: 12, time: 'sunset' },
-  { id: 'ponte-sao-joao', shot: 'span', dur: 14, time: 'sunset', span: { deckM: 58.4, deck: true, h: 12 } },
+  { id: 'ponte-sao-joao', shot: 'span', dur: 14, time: 'sunset', span: { deckM: 66, deck: true, h: 12 } },
   { id: 'ponte-freixo', shot: 'rise', dur: 11, time: 'sunset' },
   { id: 'caves-gaia', shot: 'orbit', dur: 11, time: 'sunset' },
   { id: 'cais-gaia', shot: 'dolly', dur: 10, time: 'sunset' },

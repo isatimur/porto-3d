@@ -1292,7 +1292,8 @@
       "note": "OSM way 690242771 outline: 1147.1 x 26.5 m, bearing 48.5 deg."
     },
     "height_m": {
-      "total": 66
+      "total": 73,
+      "deck": 66
     },
     "elements": {
       "main_span_m": 250,
@@ -1319,11 +1320,19 @@
       },
       {
         "paths": [
-          "height_m.total"
+          "height_m.deck"
         ],
         "url": "https://www.wikidata.org/wiki/Q7228153",
         "fact": "bridge height above the Douro",
-        "value": "66 m (P2048); 250 m main arch; 1029 m total"
+        "value": "66 m (P2048); 250 m main arch; 1029 m total. Read as the rail level, the same 66 m as data/life.json."
+      },
+      {
+        "paths": [
+          "height_m.total"
+        ],
+        "source": "estimate",
+        "fact": "top of the structure",
+        "reasoning": "Rail head 66 m plus the 7 m overhead-line masts of the model (electrified Linha do Norte)."
       },
       {
         "paths": [
@@ -1336,7 +1345,7 @@
         ],
         "url": "https://pt.wikipedia.org/wiki/Ponte_de_S._Jo%C3%A3o",
         "fact": "structure",
-        "value": "\"três vãos, compostos por um central com 250 m, e dois laterais de 125 m\", \"suportados por dois pilares no leito do rio\", \"viga-caixão de secção trapezoidal, bicelular\" 4 m deep on the viaducts, 14 m over the river piers, 7 m at the middle of the central span; total length 1140 m (en.wikipedia 1,140 m). Edgar Cardoso, opened 24 June 1991. The deck level of the model (58 m to the rail bed, masts to 66 m) is an estimate from the 66 m total."
+        "value": "\"três vãos, compostos por um central com 250 m, e dois laterais de 125 m\", \"suportados por dois pilares no leito do rio\", \"viga-caixão de secção trapezoidal, bicelular\" 4 m deep on the viaducts, 14 m over the river piers, 7 m at the middle of the central span; total length 1140 m (en.wikipedia 1,140 m). Edgar Cardoso, opened 24 June 1991. The model's rail head is at 66 m (the Wikidata height; the CP trains of data/life.json run at that deck height); the overhead-line masts (7 m) bring the top to 73 m (estimate)."
       }
     ],
     "confidence": "high"

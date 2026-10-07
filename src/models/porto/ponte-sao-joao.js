@@ -18,7 +18,7 @@ import { bridgeFrame, rod, loft, catenaryMast, wire } from '../bridge-kit.js';
 const UC = 104; // middle of the river, from the OSM water polygon (-43 .. +251 m)
 const SPAN_C = 250;
 const SPAN_S = 125;
-const DECK_Y = 58; // rail bed level; with the masts the structure is 66 m (Wikidata P2048)
+const DECK_Y = 65.4; // rail bed level: the rail head is at 66 m (Wikidata P2048 "66 m"; data/life.json carries the CP trains at deck_m 66), the masts reach 73 m
 const SLAB = 0.9;
 const V0 = -5.3; // the two tracks sit 5.3 m off the middle of the OSM outline (local x +5.3)
 const W_TOP = 14.4;
