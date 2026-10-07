@@ -413,6 +413,27 @@ const PORTO_ROUTES = [
       { mode: 'foot', note: 'Несколько минут на юг к церкви и башне Клеригуш.' },
     ],
   },
+  {
+    id: 'pontes-do-douro',
+    name_ru: 'Мосты Дору',
+    subtitle_ru: 'Верхняя палуба моста Луиша I, Жардин-ду-Морру, Серра-ду-Пилар и мост Инфанте',
+    color: '#4a7fb5',
+    start: '10:00',
+    description_ru: 'Прогулка по двум мостам и двум берегам. От набережной Рибейра поднимитесь к мосту Луиша I Теофиля Сейрига (1886): по верхней палубе в 60 метрах над водой идут пешеходы и поезда метро линии D, а нижний ярус несёт дорогу. С гайской стороны выйдите к станции Жардин-ду-Морру и к монастырю Серра-ду-Пилар — отсюда видны сразу четыре моста: арка Луиша I, железная арка Марии Пии Эйфеля 1877 года, плоская бетонная арка Инфанте 2003 года и железнодорожный мост Сан-Жуан 1991 года. Закончите маршрут на мосту Инфанте: пешеходные дорожки по краям палубы ведут обратно в Порту. Вечером, при подсветке арки Луиша I, прогулка особенно хороша.',
+    stops: [
+      { id: 'ribeira', stay: 20, note: 'Набережная Рибейра: отсюда мост Луиша I виден снизу, с нижней палубой у воды и верхней высоко над ней.' },
+      { id: 'ponte-luis-i', stay: 25, note: 'Верхняя палуба: два пути метро линии D с контактной сетью и пешеходные дорожки по краям. Арка пролётом 172 м, высота арки 44,6 м.' },
+      { id: 'jardim-do-morro', stay: 25, note: 'Сад и станция метро у гайского конца верхней палубы; канатная дорога Teleférico de Gaia спускается отсюда к набережной.' },
+      { id: 'serra-do-pilar', stay: 30, note: 'Круглый клуатр монастыря и смотровая площадка: вверх по реке виден мост Марии Пии, дальше мост Сан-Жуан.' },
+      { id: 'ponte-infante', stay: 20, note: 'Мост Инфанте Дон Энрике: арка пролётом 280 м и тонкая плита-полотно шириной 20 м; пешеходные дорожки с обеих сторон.' },
+    ],
+    legs: [
+      { mode: 'foot', note: 'В гору от Рибейры к мосту: по лестнице dos Guindais или через улицу Мирагая.' },
+      { mode: 'foot', note: 'По верхней палубе моста Луиша I на гайскую сторону.' },
+      { mode: 'foot', note: 'Через сад Морру вверх к монастырю.' },
+      { mode: 'foot', note: 'Вниз по склону Гайи к мосту Инфанте и по его пешеходной дорожке через Дору.' },
+    ],
+  },
 ];
 
 // One entry per city. A city without an entry gets no routes.json from this script.
@@ -468,8 +489,22 @@ async function buildRoute(def) {
   };
 }
 
-const routes = [];
-for (const def of ROUTES) routes.push(await buildRoute(def));
+// --only <route id>: route just that itinerary and merge it into the existing
+// routes.json (replace by id, else append), leaving the other routes as built.
+const onlyAt = process.argv.indexOf('--only');
+const only = onlyAt > 0 ? process.argv[onlyAt + 1] : null;
+let routes = [];
+if (only) {
+  const def = ROUTES.find(d => d.id === only);
+  if (!def) throw new Error(`no route ${only} in ${CITY.id}`);
+  const file = JSON.parse(readFileSync(OUT, 'utf8'));
+  const built = await buildRoute(def);
+  const at = file.routes.findIndex(r => r.id === only);
+  if (at >= 0) file.routes[at] = built; else file.routes.push(built);
+  routes = file.routes;
+} else {
+  for (const def of ROUTES) routes.push(await buildRoute(def));
+}
 writeFileSync(OUT, JSON.stringify({
   attribution: 'Routes © OpenStreetMap contributors (ODbL). Routing: OSRM (project-osrm.org, FOSSGIS routing.openstreetmap.de).',
   routes,
