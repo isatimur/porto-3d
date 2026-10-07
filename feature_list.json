@@ -316,6 +316,24 @@
         "Checks: flicker diff at 5 landmarks (moved camera 1 cm, 3-frame diff): no z-fight patch, only moving boats and edge noise; instanced people/cars/boats vs heightAt at 6 areas: one walker 1.1 m below ground fixed in porto-streetscape.js, boats parked at y -1000 are hidden instances; 10 s fly to Clerigos at 10 Hz: no sudden frame change; 450 m views of Ribeira, Foz, Boavista and a Douro fly-over read"
       ],
       "notes": "Remaining: the core rectangle still has a hard edge for about 2-3 s until the first ring tiles arrive (the ring is tinted, not built); the road glow at sunset is strong in the first seconds (it fades in over 1.2 s). Ocean polygon ends in a straight line far out to sea. Phones still take 9-10 s to ready (nature/ms/life steps wait for the intro)."
+    },
+    {
+      "id": "porto-017",
+      "priority": 17,
+      "area": "bridges",
+      "title": "The six Douro bridges rebuilt 1:1, alive and lit",
+      "user_visible_behavior": "Luis I, Arrabida, Maria Pia, Sao Joao, Infante and Freixo are authored metric models with real arch curves, lattice members, deck furniture and cuttings; street/rail/metro traffic rides their decks; they glow at night and glitter on the river; a Pontes do Douro cinema chapter and a walking route exist.",
+      "status": "passing",
+      "verification": [
+        "npm run verify (11/11)",
+        "npm run check:fit",
+        "node /tmp/p3/measure.mjs <preview>"
+      ],
+      "evidence": [
+        "verify 11/11 on 2026-10-07; overview 2.11 M tris, 3.20 M near Luis I; first frame 2.6 s; governor 1-3 respond",
+        "live https://porto-3d.vercel.app Luis I and Arrabida place shots read, console clean"
+      ],
+      "notes": "Not done: pedestrians on Luis I decks unverified; hero triangle floor 15k not met for four bridges; no new GTFS-timed CP schedule; before/after pairs only partly captured."
     }
   ]
 }
