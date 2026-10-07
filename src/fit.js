@@ -104,11 +104,18 @@ export const FIT_RULES = {
     extent: { box: { x0: -9, x1: 9, z0: -205.1, z1: 205.1 } },
     deviationNote: 'OSM outline is the deck corridor; the model spans the 18 m pylon structure',
   },
+  // The Douro bridges span a valley: the DEM stays as it is (pad 'none'),
+  // the abutments meet the real banks.
+  'ponte-sao-joao': { pad: 'none' },
+  'ponte-infante': { pad: 'none' },
+  'ponte-freixo': { pad: 'none' },
   'ponte-arrabida': {
+    pad: 'none',
     extent: { box: { x0: -12, x1: 12, z0: -251.3, z1: 251.3 } },
     deviationNote: 'OSM outline includes the approach embankments; the model is the 24 m deck structure',
   },
   'ponte-maria-pia': {
+    pad: 'none',
     extent: { box: { x0: -5.3, x1: 5.3, z0: -185.1, z1: 185.1 } },
     deviationNote: 'OSM outline is the 4.2 m rail centreline; the model spans the 10.5 m lattice deck',
   },
@@ -308,7 +315,7 @@ export function fitLandmark(l, ctx) {
         const d = Math.hypot(Math.max(0, ou), Math.max(0, ov));
         if (d >= partPad.fallM) return h;
         const w = 1 - smooth(d / partPad.fallM);
-        return h + (partPad.level(x, z) - h) * w;
+        return h + (partPad.level(x, z, h) - h) * w; // level(x, z, rawGround): a bridge cut follows the DEM
       }
     : rawGround;
   const footprint = {
@@ -486,7 +493,7 @@ export function fitLandmark(l, ctx) {
     // world (x, z) in units -> level in world units
     padLevel = (x, z) => {
       const [lx, lz] = frame.toLocal([x / S, z / S]);
-      return (baseM + partPad.level(lx, lz)) * S;
+      return (baseM + partPad.level(lx, lz, rawGround(lx, lz))) * S;
     };
   }
 
@@ -554,6 +561,9 @@ export function fitLandmark(l, ctx) {
 // Pad under a fitted landmark: level ground at the base, over the model
 // box or only over the level parts of a site. Falloff 5..16 world units.
 export function padFor(fit) {
+  // rule.pad = 'none': a bridge that spans a valley. The DEM stays as it is
+  // (a flat pad under a 400 m deck would cut a trench into both hillsides).
+  if (fit.rule.pad === 'none') return null;
   const p = fit.padPlan;
   const fall = p.fall ?? THREE.MathUtils.clamp(Math.max(p.hu, p.hv) * 0.25, 5, 16);
   const pad = { cx: p.cx, cz: p.cz, ux: p.ux, uz: p.uz, hu: p.hu, hv: p.hv, fall, y: fit.base };

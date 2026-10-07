@@ -34,7 +34,10 @@ const warn = console.warn;
 console.warn = () => {}; // the guard's warnings are summarised in the table
 const fits = landmarks.map((l) => fitLandmark(l, { project: proj.project, rawAt: T.rawAt, footprints }));
 console.warn = warn;
-for (const f of fits) if (!f.fallback) T.addPad(padFor(f));
+for (const f of fits) {
+  const pad = f.fallback ? null : padFor(f);
+  if (pad) T.addPad(pad);
+}
 
 const pct = (v) => (v == null ? '-' : `${(v * 100).toFixed(1)}%`);
 const f1 = (v) => v.toFixed(1);

@@ -7,7 +7,7 @@ import { createProjection, METRES_PER_UNIT } from './geo.js';
 import { installAtmosphereFog, createRenderer, createAtmosphere, createGround, FOG_UNIFORMS, TIMES, DEFAULT_TIME, DPR, deviceDpr } from './scene.js';
 import { setWaterLite } from './water.js';
 import { buildRoads } from './roads.js';
-import { buildLandmarks } from './landmarks.js';
+import { buildLandmarks, LAMP_UNIFORM } from './landmarks.js';
 import { buildBuildings, BUILDING_UNIFORMS, setBuildingsLite } from './buildings.js';
 import { buildNature, buildNatureBase } from './nature.js';
 import { loadQuays, buildQuays } from './quays.js';
@@ -294,7 +294,10 @@ async function start() {
     }
   }
   mark('fits');
-  for (const f of fits) if (!f.fallback) terrain.addPad(padFor(f));
+  for (const f of fits) {
+    const pad = f.fallback ? null : padFor(f);
+    if (pad) terrain.addPad(pad);
+  }
   ground.userData.applyPads();
   natureBase?.rebuildWater(scene); // the pads moved the ground under the banks
   mark('pads');
@@ -1605,6 +1608,7 @@ async function start() {
     stepFades();
     const night = atmosphere.night;
     BUILDING_UNIFORMS.uNight.value = night;
+    LAMP_UNIFORM.uLampNight.value = night;
     roadLayer.setNight(night);
     roadLayer.setWaterLine(camDist > 320);
     roadLayer.setViewDistance(camDist);

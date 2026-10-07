@@ -107,6 +107,11 @@ const FOCUS = {
   uLm: { value: [] }, // per landmark: bounding sphere (x, y, z, r)
 };
 
+// Night lamps on the models (the Douro bridges' bulbs and floods): a vertex
+// with aEmit >= 2 glows by night only, at weight aEmit - 2. main.js sets the
+// night value (0..1) every frame.
+export const LAMP_UNIFORM = { uLampNight: { value: 0 } };
+
 function stoneMaterial(count) {
   const { detail: tDetail, tone: tTone, normal: tNormal } = createStoneTextures();
   const tAzulejo = createAzulejoTexture();
@@ -123,7 +128,7 @@ function stoneMaterial(count) {
     sh.uniforms.tTone = { value: tTone };
     sh.uniforms.tNormal = { value: tNormal };
     sh.uniforms.tAzulejo = { value: tAzulejo };
-    Object.assign(sh.uniforms, FOCUS);
+    Object.assign(sh.uniforms, FOCUS, LAMP_UNIFORM);
     sh.vertexShader = sh.vertexShader
       .replace(
         '#include <common>',
@@ -141,6 +146,7 @@ varying float vLid;
 varying vec2 vDUv;
 varying vec3 vWPos;
 varying float vNy;
+uniform float uLampNight;
 uniform sampler2D tDetail;
 uniform sampler2D tTone;
 uniform sampler2D tNormal;
@@ -275,9 +281,9 @@ if (brgM == 1 || brgM == 2) {
   normal = brgPerturb(-vViewPosition, normal, brgD, faceDirection);
 }`,
       )
-      .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance += min(vColor.rgb * vEmit * 0.5, vec3(0.8));');
+      .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\nif (vEmit >= 1.9) totalEmissiveRadiance += vec3(1.0, 0.8, 0.46) * (vEmit - 2.0) * uLampNight * 1.5; else totalEmissiveRadiance += min(vColor.rgb * vEmit * 0.5, vec3(0.8));');
   };
-  mat.customProgramCacheKey = () => 'porto-stone-v6';
+  mat.customProgramCacheKey = () => 'porto-stone-v7';
   return mat;
 }
 

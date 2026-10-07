@@ -34,6 +34,8 @@
 // (sidewalks, kerbs, islands, transit) of plain arrays, so the draw layer
 // uploads a few BufferGeometries instead of a mesh per way.
 
+import { authoredDeck } from './bridge-decks.js';
+
 // ------------------------------------------------------------ classes
 // laneM: lane width; lanes: default lanes both ways (oneWay: default on a
 // one-way way); extraM: shoulders and gutters; kmh: default speed; turn: how
@@ -437,6 +439,9 @@ function build(roads, project, heightAt) {
       ly: t.ly || 0,
       bridge: !!t.br || ((t.ly || 0) > 0 && !tu), // settled below by the crossings
       tagBridge: !!t.br,
+      // a deck of one of the authored Douro bridges (src/bridge-decks.js):
+      // it rides the model's real deck height
+      authored: t.br || (t.ly || 0) > 0 ? authoredDeck(t, f.kind, f.pts[0][0], f.pts[0][1]) : null,
       tunnel,
       tunnelType: bored ? 'bored' : 'covered',
       closed: false,
@@ -676,6 +681,15 @@ function build(roads, project, heightAt) {
       const inner = Math.min(1, Math.min(s, w.len - s) / (8 * S));
       y = Math.max(y, G[i] + 0.8 * S * inner);
       Y[i] = y;
+    }
+    // an authored bridge: its own deck height over the river, flat
+    if (w.authored) {
+      const d = w.authored;
+      const c = project(d.ll[0], d.ll[1]);
+      const base = heightAt(c.x, c.z); // the river at the bridge's centre
+      // never lower than the engine's own height (a deck enters a hill: it
+      // follows the ground there)
+      for (let i = a; i <= b; i++) Y[i] = Math.max(Y[i], base + d.deckM * S);
     }
     // every junction on the deck lifts what joins there: the approaches at
     // the ends, and a crossing or a slip road in the middle of the span

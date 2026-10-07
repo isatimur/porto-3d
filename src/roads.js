@@ -483,6 +483,7 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
   for (const wi of net.bridges) {
     const w = net.ways[wi];
     if (w.onDeck) continue;
+    if (w.authored) continue; // the landmark model draws the structure (src/bridge-decks.js)
     const pts = [];
     for (let i = w.start; i < w.start + w.n; i++) pts.push({ x: X[i], z: Z[i], y: Y[i], g: G[i], s: net.C[i] });
     const arch = w.t.bs === 'arch' || ARCH.test(w.t.name || '') || ARCH.test(w.t.bn || '');
