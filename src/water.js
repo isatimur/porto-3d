@@ -214,6 +214,7 @@ const waveList = WAVES.map(([L, A, deg, Q, wi, wt, wo], i) => {
 });
 const SWELL_DIR = { x: waveList[RIPPLES.length].dx, z: waveList[RIPPLES.length].dz };
 const COAST_MAX = 256; // uniform coast-profile slots
+const BRIDGE_LAMPS = 48;
 export const waterUniforms = {
   uWaveDir: { value: waveList.map((w) => new THREE.Vector4(w.dx, w.dz, w.k, w.A)) },
   uWaveQ: { value: waveList.map((w) => new THREE.Vector4(w.Q / w.k, w.L, 0, 0)) },
@@ -242,7 +243,23 @@ export const waterUniforms = {
   uWCoast: { value: new Float32Array(COAST_MAX) },
   uWCoastCount: { value: 0 },
   uWCoastZ: { value: new THREE.Vector2(0, 1) },
+  // the lit bridges: up to BRIDGE_LAMPS points (xyz world, w weight) whose
+  // glitter streaks the river after dark (a cheap mirrored-light term, no SSR)
+  uBLamp: { value: Array.from({ length: BRIDGE_LAMPS }, () => new THREE.Vector4()) },
+  uBLampN: { value: 0 },
+  uBNight: { value: 0 },
 };
+
+// Bridge lamp points for the night glitter; main.js collects the landmark
+// markers named 'bridge-lamp' once the models stand.
+export function setBridgeLamps(points) {
+  const n = Math.min(points.length, BRIDGE_LAMPS);
+  for (let i = 0; i < n; i++) waterUniforms.uBLamp.value[i].set(points[i].x, points[i].y, points[i].z, points[i].w ?? 1);
+  waterUniforms.uBLampN.value = n;
+}
+export function setBridgeNight(night) {
+  waterUniforms.uBNight.value = night;
+}
 
 const WATER_VERT_PARS = /* glsl */ `
 attribute vec2 aFlow;
@@ -266,6 +283,8 @@ uniform vec2 uWSwellOff, uWCoastZ;
 uniform vec4 uWWall;
 uniform float uWCoast[NCOAST];
 uniform vec3 uWSunDir, uWSunCol, uWDeep, uWEDeep, uWODeep, uWShallow, uWFoam;
+uniform vec4 uBLamp[${BRIDGE_LAMPS}];
+uniform float uBLampN, uBNight;
 varying vec2 vFlow;
 varying float vShore;
 varying float vKind;
@@ -446,6 +465,20 @@ reflectedLight.directSpecular *= 0.0;
   #ifdef BRG_WATER_LITE
   reflectedLight.indirectSpecular += glit;
   #else
+  // the lit bridges: the lamps' glitter, a warm streak under each
+  if (uBNight > 0.02 && uBLampN > 0.5) {
+    vec3 bl = vec3(0.0);
+    for (int i = 0; i < ${BRIDGE_LAMPS}; i++) {
+      if (float(i) >= uBLampN) break;
+      vec3 Lp = uBLamp[i].xyz - wP;
+      float d = length(Lp);
+      if (d > 520.0) continue;
+      float c = max(dot(R, Lp / d), 0.0);
+      bl += uBLamp[i].w * (pow(c, 1800.0) * 1.0 + pow(c, 420.0) * 0.12) / (1.0 + d * d * 0.0008);
+    }
+    float fres = 0.04 + 0.96 * pow(1.0 - max(dot(wN, wV), 0.0), 4.0);
+    reflectedLight.indirectSpecular += bl * vec3(1.0, 0.78, 0.45) * uBNight * (0.4 + 0.6 * fres) * 5.0;
+  }
   // subsurface: the ripple faces toward a low sun let a little light through
   float toward = pow(max(dot(-normalize(vec2(wV.x, wV.z) + 1e-4), normalize(L.xz + 1e-4)), 0.0), 2.0);
   vec3 sss = uWShallow * uWSunCol * toward * clamp(1.0 - wN.y, 0.0, 1.0) * 0.35 * shade;

@@ -11,7 +11,7 @@
 // Frame: u along the deck (+u = Gaia, local +z), v across, y up; the arch is
 // centred on the OSM corridor. Heights: metres over the water.
 // Sources and estimates: data/dimensions.json (ponte-infante).
-import { bridgeFrame, rod, crookLamp } from '../bridge-kit.js';
+import { bridgeFrame, rod, crookLamp, LAMP } from '../bridge-kit.js';
 
 const UC = -14; // arch centre along the corridor (middle of the OSM water polygon)
 const H = 140; // half the arch span
@@ -60,6 +60,16 @@ function builder(k, site) {
       p = q;
     }
   }
+  // lit from below at night: a strip along each lower edge of the slab
+  for (const s of [-1, 1]) {
+    p = null;
+    for (let i = 0; i <= N; i++) {
+      const u = -H + (2 * H * i) / N;
+      const q = [u, axisY(u) - thick(u) / 2 + 0.05, s * (ARCH_W / 2 - 0.3)];
+      if (p) rod(k, p, q, 0.26, 0.2, 0xfff0cf, { mat: 0, emit: LAMP(0.85), ext: 0.4 });
+      p = q;
+    }
+  }
   // the feet: the arch springs from a block built into the cliff
   for (const s of [-1, 1]) {
     const x = s * (H - 4);
@@ -85,6 +95,8 @@ function builder(k, site) {
     for (let u = -END; u <= END + 0.01; u += 2.5) rod(k, [u, DECK_Y + 0.6, s * (DECK_W / 2 - 0.2)], [u, DECK_Y + 1.6, s * (DECK_W / 2 - 0.2)], 0.05, 0.05, 0xa7adb2, { mat: 9 });
     for (let u = -END + 10 + (s > 0 ? 15 : 0); u < END - 6; u += 30) crookLamp(k, u, s * (DECK_W / 2 - 0.4), DECK_Y - 0.1, { h: 7.2, dir: s, reach: 2.2, color: 0x9ea5aa });
   }
+
+  for (let u = -END + 30; u < END; u += 60) k.marker('bridge-lamp', u, DECK_Y + 3, 0, { w: 1 });
 
   // ------------------------------------------------ the deck on the arch
   // trapezoid pier each side, then fins toward the feet

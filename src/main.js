@@ -5,7 +5,7 @@ import './style.css';
 import { loadData, loadStory } from './data.js';
 import { createProjection, METRES_PER_UNIT } from './geo.js';
 import { installAtmosphereFog, createRenderer, createAtmosphere, createGround, FOG_UNIFORMS, TIMES, DEFAULT_TIME, DPR, deviceDpr } from './scene.js';
-import { setWaterLite } from './water.js';
+import { setWaterLite, setBridgeLamps, setBridgeNight } from './water.js';
 import { buildRoads } from './roads.js';
 import { buildLandmarks, LAMP_UNIFORM } from './landmarks.js';
 import { buildBuildings, BUILDING_UNIFORMS, setBuildingsLite } from './buildings.js';
@@ -311,6 +311,15 @@ async function start() {
   const outlines = landmarks.map((l) => footprints?.[l.id]?.outline?.map((q) => project(q[0], q[1])) ?? null);
   const marks = buildLandmarks(landmarks, fits, heightAt, outlines, (i) => select(i), { lite: LITE, massing: true });
   scene.add(marks.group);
+  {
+    // the lit bridges' lamp points, for the glitter on the river at night
+    const lamps = [];
+    for (const f of fits) {
+      for (const m of f.markers || []) if (m.name === 'bridge-lamp') lamps.push({ x: f.pivot.x + m.pos[0], y: f.pivot.y + m.pos[1], z: f.pivot.z + m.pos[2], w: m.data?.w ?? 1 });
+    }
+    setBridgeLamps(lamps);
+    debug.bridgeLamps = lamps.length;
+  }
   debug.landmarks = marks.items.map((it) => ({
     id: it.data.id,
     type: it.type,
@@ -1609,6 +1618,7 @@ async function start() {
     const night = atmosphere.night;
     BUILDING_UNIFORMS.uNight.value = night;
     LAMP_UNIFORM.uLampNight.value = night;
+    setBridgeNight(night);
     roadLayer.setNight(night);
     roadLayer.setWaterLine(camDist > 320);
     roadLayer.setViewDistance(camDist);

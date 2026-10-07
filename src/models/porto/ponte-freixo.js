@@ -70,6 +70,7 @@ function builder(k, site) {
     // lamps on the outer edge, 36 m
     for (let u = U0 + 12; u < U1 - 8; u += 36) crookLamp(k, u, v0 + s * (W_TOP / 2 - 0.45), DECK_Y - 0.1, { h: 9.0, dir: s, reach: 2.4, color: 0x9ea5aa });
   }
+  for (let u = U0 + 40; u < U1; u += 95) k.marker('bridge-lamp', u, DECK_Y + 4, 0, { w: 1.2 });
   // the median where the two decks meet: a jersey barrier and its lamps
   k.box(U1 - U0, 0.9, 0.5, CONC, (U0 + U1) / 2, DECK_Y - 0.1, 0, C);
 

@@ -44,8 +44,8 @@ function builder(k, site) {
   k.begin('main');
   k.push({ ry: F.ang });
 
-  const archE = LAMP(0.5);
-  const deckE = LAMP(0.16);
+  const archE = LAMP(0.3); // the arch is floodlit: gold, lattice still readable
+  const deckE = LAMP(0.1);
 
   // ================================================== the arch (arch frame)
   k.push({ x: UC });
@@ -91,7 +91,7 @@ function builder(k, site) {
   for (const s of [-1, 1]) {
     for (let i = 0; i <= N; i += 2) {
       const u = -HALF + (2 * HALF * i) / N;
-      k.box(0.9, depthAt(u) * 0.9, 1.0, IRON_C, u, axisY(u) - depthAt(u) * 0.45, s * ribV(u), { mat: 9, emit: LAMP(0.4) });
+      k.box(0.9, depthAt(u) * 0.9, 1.0, IRON_C, u, axisY(u) - depthAt(u) * 0.45, s * ribV(u), { mat: 9, emit: LAMP(0.22) });
     }
   }
 
@@ -133,12 +133,16 @@ function builder(k, site) {
       const v = s * ribV(u);
       const yb = axisY(u) - depthAt(u) / 2;
       if (yb - LOWER_Y < 3) continue;
-      rod(k, [u, yb, v], [u, LOWER_Y - 0.9, v], 0.34, 0.34, IRON_C, { mat: 9, emit: LAMP(0.3) });
+      rod(k, [u, yb, v], [u, LOWER_Y - 0.9, v], 0.2, 0.2, IRON_C, { mat: 9, emit: LAMP(0.12) });
       const u2 = u + 3.58;
       const yb2 = axisY(u2) - depthAt(u2) / 2;
       if (u2 < HALF - 3 && yb2 - LOWER_Y > 3) rod(k, [u, LOWER_Y - 0.9, v], [u2, yb2 - 0.4, s * ribV(u2)], 0.16, 0.16, IRON_C);
     }
   }
+
+  // lamp points for the glitter on the river (src/water.js)
+  for (const u of [-60, -30, 0, 30, 60]) k.marker('bridge-lamp', u, axisY(u) + 1, 0, { w: 0.9 });
+  for (const u of [-50, 50]) k.marker('bridge-lamp', u, LOWER_Y + 1, 0, { w: 0.7 });
 
   // ---- springing blocks (granite) with the bearing of each rib
   for (const su of [-1, 1]) {
@@ -185,6 +189,7 @@ function builder(k, site) {
     for (const s of [-1, 1]) catenaryMast(k, u, s * (upW + 1.6), UPPER_Y - 0.4, { h: 6.2, dir: s, reach: 3.4 });
   }
   for (const v of [-1.5, 1.5]) wire(k, [U_PORTO, UPPER_Y + 5.0, v], [U_GAIA, UPPER_Y + 5.0, v], 0x303438, 0.06);
+  for (let u = U_PORTO + 40; u < U_GAIA; u += 44) k.marker('bridge-lamp', u, UPPER_Y + 1, 0, { w: 1 });
 
   // ---- iron lattice towers (beyond the arch the girder rides on them)
   const towers = [];

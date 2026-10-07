@@ -57,6 +57,16 @@ function builder(k, site) {
     if (p) rod(k, p, q, archW((u + p[0]) / 2) * 0.55, 0.5, CONC_D, { ...C, ext: 0.5 });
     p = q;
   }
+  // the arch is lit from below at night: a strip along each lower edge
+  for (const s of [-1, 1]) {
+    p = null;
+    for (let i = 0; i <= N; i++) {
+      const u = -H + (2 * H * i) / N;
+      const q = [u, archAxis(u) - archDepth(u) / 2 + 0.05, s * (archW(u) / 2 - 0.35)];
+      if (p) rod(k, p, q, 0.28, 0.2, 0xfff0cf, { mat: 0, emit: LAMP(0.9), ext: 0.4 });
+      p = q;
+    }
+  }
   // the walkway on top of the arch (Porto Bridge Climb): rail posts and rails
   for (const s of [-1, 1]) {
     let a = null;
@@ -95,11 +105,14 @@ function builder(k, site) {
     for (let u = -END + 12; u < END - 6; u += 24) crookLamp(k, u + (s > 0 ? 12 : 0), s * (DECK_W / 2 - 0.5), DECK_Y - 0.12, { h: 9.4, dir: s, reach: 2.6, color: 0x9ea5aa });
   }
 
+  for (let u = -END + 30; u < END; u += 52) k.marker('bridge-lamp', u, DECK_Y + 4, 0, { w: 1 });
+  for (const u of [-70, 0, 70]) k.marker('bridge-lamp', u, archAxis(u) + 1, 0, { w: 0.6 });
+
   // --------------------------------------------------- columns under the deck
-  const column = (u, yBase, yTop, wV = 6.2) => {
+  const column = (u, yBase, yTop, wV = 5.0) => {
     for (const du of [-1.35, 1.35]) {
-      k.box(0.9, yTop - yBase, wV, CONC, u + du, yBase, 0, C);
-      k.box(1.5, 0.6, wV + 0.6, CONC_D, u + du, yTop - 0.6, 0, C);
+      k.box(0.8, yTop - yBase, wV, CONC, u + du, yBase, 0, C);
+      k.box(1.4, 0.6, wV + 0.6, CONC_D, u + du, yTop - 0.6, 0, C);
     }
   };
   // over the arch: pairs from the arch top to the box
