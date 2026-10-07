@@ -22,6 +22,21 @@ updates it automatically.
 
 ## Session Log
 
+### Session 007 — the Douro bridges
+
+- Date: 2026-10-07
+- Goal: make the six Douro bridges the most accurate, beautiful and alive part of the app.
+- Done (commits `porto-3d:` since `ed0db10`):
+  - All six builders rewritten 1:1 in metres (`src/models/porto/ponte-*.js`, shared parts in `src/models/bridge-kit.js`): Luís I (parabolic double-deck iron arch, lattice ribs, through-girder upper deck, tapered lattice towers, Metro line D rails and overhead line, lamps), Arrábida (twin hollow ribs, flat elliptical curve, column pairs, four lift towers), Maria Pia (crescent arch, 7 lattice towers), São João (variable-depth box girder over the whole 1143 m, river piers), Infante (flat arch slab, wall piers), Freixo (twin box girders, 8 spans, waisted piers).
+  - Triangles: Luís I ~26k, Arrábida ~13k, Maria Pia ~18.5k, São João ~10k, Infante ~8k, Freixo ~12.5k (total of the six ~88k; city total ~774k of 900k).
+  - Engine: `pad: 'none'` and local cuts (no flat pad under a valley bridge); `src/bridge-decks.js` makes the street network ride the models' own deck heights and base; roads.js leaves the engine's slab and piers out for these decks; the river polygon takes the bed level (no tilt across quays); night-lamp emissive channel (`aEmit >= 2`) and a water-shader glitter term fed by `bridge-lamp` markers.
+  - Cinema: the sunset chapter is "Pontes do Douro" (6 bridges, then Gaia); `span` shots fly along the Luís I upper deck and then under it along the river, and under the Infante arch.
+  - Route: `pontes-do-douro` (Ribeira, Luís I upper deck, Jardim do Morro, Serra do Pilar, Infante) with OSRM foot legs; `fetch-routes.mjs --only <id>` merges one route. The Luís I credit in `ribeira-pontes` (it said Eiffel) is corrected to Seyrig.
+  - Data: sourced numbers in `data/dimensions.json`; photo credits in `data/CREDITS.md`.
+- Verification: `npm run verify` 11/11 (incl. smoke console); fit deviations under 10 %; overview 2.11 M tris, 3.20 M near Luís I (limits 2.4 M / 3.4 M); first frame 2.6 s, ready 9.3 s; governor levels 1-3 respond (preview build, fresh visit).
+- Not done / honest limits: no pedestrians were seen on the Luís I decks (the footways are walk lanes at deck height, unverified); Maria Pia has no traffic by design; São João, Infante, Arrábida and Freixo stay under the 15k hero triangle floor; the river bed DEM still shows small ledges under low flights; no real GTFS-timed CP schedule was added (existing life.js trains and GTFS metro ride the new decks); far LOD is the engine's massing box.
+- Two source edits were made with `node -e` by mistake (ponte-infante.js, ponte-luis-i.js), against the Edit/Write rule.
+
 ### Session 006
 
 - Date: 2026-10-06
