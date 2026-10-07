@@ -1132,6 +1132,7 @@ async function start() {
     rig,
     items: marks.items,
     sky,
+    heightAt,
     home,
     reducedMotion,
     setTime: modeTime,

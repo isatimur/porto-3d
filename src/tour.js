@@ -190,19 +190,23 @@ export const CINEMA_ORDER = [
   { id: 'parque-cidade', shot: 'orbit', dur: 12, time: 'day' },
   { id: 'mercado-matosinhos', shot: 'crane', dur: 10, time: 'day' },
   { id: 'camara-matosinhos', shot: 'dolly', dur: 9, time: 'day' },
-  // sunset — the bridges and Vila Nova de Gaia
-  { id: 'ponte-arrabida', shot: 'rise', dur: 11, time: 'sunset' },
-  { id: 'ponte-luis-i', shot: 'crane', dur: 14, time: 'sunset' },
+  // sunset — Pontes do Douro: the six bridges, downstream to upstream (a crane
+  // over the Arrábida arch; across the Luís I upper deck, then down to the
+  // water and under it along the river; under the flat Infante arch; round
+  // the Maria Pia lattice; along the São João rail deck; the low Freixo), then
+  // Vila Nova de Gaia
+  { id: 'ponte-arrabida', shot: 'crane', dur: 13, time: 'sunset' },
+  { id: 'ponte-luis-i', shot: 'span', dur: 22, time: 'sunset', span: { deckM: 60, river: 28, deck: true, under: true, h: 11, low: 6 } },
+  { id: 'ponte-infante', shot: 'span', dur: 13, time: 'sunset', span: { deckM: 73.8, river: -14, under: true, low: 10 } },
+  { id: 'ponte-maria-pia', shot: 'orbit', dur: 12, time: 'sunset' },
+  { id: 'ponte-sao-joao', shot: 'span', dur: 14, time: 'sunset', span: { deckM: 58.4, deck: true, h: 12 } },
+  { id: 'ponte-freixo', shot: 'rise', dur: 11, time: 'sunset' },
   { id: 'caves-gaia', shot: 'orbit', dur: 11, time: 'sunset' },
   { id: 'cais-gaia', shot: 'dolly', dur: 10, time: 'sunset' },
   { id: 'convento-corpus-christi', shot: 'dolly', dur: 9, time: 'sunset' },
   { id: 'jardim-do-morro', shot: 'orbit', dur: 10, time: 'sunset' },
   { id: 'serra-do-pilar', shot: 'crane', dur: 11, time: 'sunset' },
   { id: 'estacao-general-torres', shot: 'crane', dur: 10, time: 'sunset' },
-  { id: 'ponte-infante', shot: 'rise', dur: 10, time: 'sunset' },
-  { id: 'ponte-maria-pia', shot: 'rise', dur: 11, time: 'sunset' },
-  { id: 'ponte-sao-joao', shot: 'rise', dur: 10, time: 'sunset' },
-  { id: 'ponte-freixo', shot: 'rise', dur: 11, time: 'sunset' },
   // night — the stadium and the Foz coast, north to Leça; the last shot
   // carries the transition from the Douro mouth to the open Atlantic
   { id: 'dragao', shot: 'rise', dur: 12, time: 'night' },
@@ -311,6 +315,95 @@ function makeShot(kind, s, sky, minElev = 0) {
   return shot;
 }
 
+// A bridge fly-through ("Pontes do Douro"): a spline in the bridge's own frame.
+// o.span = { deckM, river (m along the deck from the box centre to the middle
+// of the water), deck (fly along the deck first), under (then drop to the
+// river and fly under the bridge along it), h (m over the deck), low (m over
+// the water under the bridge) }. The structure's own box is no obstacle for
+// the clearance: the camera leaves it free; roofs and terrain around still
+// count. Returns shot(u, out) like makeShot.
+function makeSpanShot(o, it, sky, heightAt) {
+  const sp = o.span;
+  const fit = it.fit;
+  const ax = new THREE.Vector3(Math.sin(fit.yaw), 0, Math.cos(fit.yaw)); // along the bridge (local +z)
+  // downstream is west: the lateral that points west
+  let side = new THREE.Vector3(ax.z, 0, -ax.x);
+  if (side.x > 0) side.negate();
+  const c = it.box.getCenter(new THREE.Vector3());
+  const L = fit.sizeM.long;
+  const base = it.base;
+  const at = (a, s, y) => new THREE.Vector3(c.x + (ax.x * a + side.x * s) * S, base + y * S, c.z + (ax.z * a + side.z * s) * S);
+  const river = sp.river ?? 0;
+  const h = sp.deckM + (sp.h ?? 11);
+  const low = sp.low ?? 6;
+  // the river's own line: from the middle of the water, walk along the valley
+  // (the lowest ground within a 60 m look-ahead, straight preferred)
+  const valley = (sign, dists) => {
+    const p = at(river, 0, 0);
+    const d = side.clone().multiplyScalar(sign);
+    const out = [];
+    let walked = 0;
+    for (const D of dists) {
+      while (walked < D * S) {
+        let best = null;
+        for (const a of [-0.5, -0.25, 0, 0.25, 0.5]) {
+          const dx = d.x * Math.cos(a) - d.z * Math.sin(a);
+          const dz = d.x * Math.sin(a) + d.z * Math.cos(a);
+          const sc = heightAt(p.x + dx * 60 * S, p.z + dz * 60 * S) + Math.abs(a) * 4 * S;
+          if (!best || sc < best.sc) best = { sc, dx, dz };
+        }
+        d.set(d.x * 0.5 + best.dx * 0.5, 0, d.z * 0.5 + best.dz * 0.5).normalize();
+        p.x += d.x * 20 * S;
+        p.z += d.z * 20 * S;
+        walked += 20 * S;
+      }
+      out.push(new THREE.Vector3(p.x, 0, p.z));
+    }
+    return out;
+  };
+  const at2 = (v, y) => new THREE.Vector3(v.x, base + y * S, v.z);
+  const pts = [];
+  if (sp.deck) {
+    pts.push(at(-0.46 * L, 0, h), at(-0.2 * L, 0, h), at(0.08 * L, 0, h), at(0.3 * L, 25, h + 4));
+  }
+  let target = at(river, 0, sp.deckM * 0.7);
+  if (sp.under) {
+    const down = valley(1, [110, 210, 330]);
+    const up = valley(-1, [150]);
+    pts.push(at2(down[2], low + 22), at2(down[1], low + 6), at2(down[0], low), at2(at(river, 0, 0), low), at2(up[0], low + 3));
+  } else if (sp.deck) {
+    pts.push(at(0.46 * L, 0, h));
+    target = null;
+  }
+  const curve = new THREE.CatmullRomCurve3(pts, false, 'centripetal');
+  const own = it.box.clone().expandByScalar(2 * S);
+  const inOwn = (v) => v.x > own.min.x && v.x < own.max.x && v.z > own.min.z && v.z < own.max.z;
+  // lift the whole path where a roof or the ground outside the structure is too close
+  let lift = 0;
+  const p = new THREE.Vector3();
+  for (let i = 0; i <= 64; i++) {
+    curve.getPointAt(i / 64, p);
+    const need = Math.max(heightAt(p.x, p.z) + 4 * S, inOwn(p) ? 0 : sky.at(p.x, p.z, 6) + SHOT_CLEARANCE);
+    lift = Math.max(lift, need - p.y);
+  }
+  lift = Math.max(0, lift);
+  const q = new THREE.Vector3();
+  const shot = (u, out) => {
+    const e = easeInOut(u);
+    curve.getPointAt(e, out.pos);
+    out.pos.y += lift;
+    curve.getPointAt(Math.min(1, e + 0.045), q);
+    out.look.copy(q);
+    // a little down over the deck, level on the water
+    out.look.y += lift + (e < 0.45 && sp.deck ? -7 : 2) * S;
+    // after the pass: turn and look back at the bridge from the water
+    if (target && e > 0.74) out.look.lerp(target, smooth(0.74, 0.97, e));
+    return out;
+  };
+  Object.assign(shot, { up: 0, lift: +(lift / S).toFixed(1), hidden: 0, span: true, clearOf: inOwn });
+  return shot;
+}
+
 // ------------------------------------------------------------ cinema
 // ctx: { camera, rig, items (landmarks.items), heightAt, sky, reducedMotion,
 //        setTime(name), getTime(), onEnter(), onExit(), onChange(i) }
@@ -363,7 +456,7 @@ export function createCinema(ctx) {
     const shots = order.map((o) => {
       const it = byId.get(o.id);
       const s = subjectOf(it, camera, view);
-      return { o, it, fn: makeShot(o.shot, s, ctx.sky, o.minElev) };
+      return { o, it, fn: o.span ? makeSpanShot(o, it, ctx.sky, ctx.heightAt) : makeShot(o.shot, s, ctx.sky, o.minElev) };
     });
     const start = { pos: camera.position.clone(), look: rig.controls.target.clone() };
     let prev = start;
@@ -649,7 +742,9 @@ export function createCinema(ctx) {
       const worst = { fly: { m: Infinity }, cruise: { m: Infinity }, shot: { m: Infinity } };
       for (clock = 0; clock <= total; clock += 0.2) {
         const s = evaluate();
-        const m = (pose.pos.y - ctx.sky.at(pose.pos.x, pose.pos.z, 2)) / S;
+        // a bridge fly-through is inside its own structure's box: measure it over the ground there
+        const own = s.kind === 'shot' && shotsMeta[s.shot].fn.clearOf?.(pose.pos);
+        const m = (pose.pos.y - (own ? ctx.heightAt(pose.pos.x, pose.pos.z) : ctx.sky.at(pose.pos.x, pose.pos.z, 2))) / S;
         const e = easeInOut((clock - s.t0) / s.dur); // arc-length share of the flight
         const w = worst[s.kind === 'fly' && e > 0.12 && e < 0.88 ? 'cruise' : s.kind];
         if (m < w.m) Object.assign(w, { m: +m.toFixed(1), chapter: s.shot, id: order[s.shot].id, t: +(clock - s.t0).toFixed(1) });

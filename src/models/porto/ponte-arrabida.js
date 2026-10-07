@@ -140,10 +140,12 @@ function builder(k, site) {
     k.box(5.4, SOFFIT - gy + 3, 11.5, CONC, u, gy - 3, 0, C);
     k.box(6.2, 0.7, 12.3, CONC_D, u, SOFFIT - 0.2, 0, C);
     // tower above the deck: slots like the real one (the lift shaft's grille)
+    // (one on each edge of the deck: the real ones stand outside the carriageways)
     const th = 8.6;
-    k.box(3.4, th, 9.0, CONC, u, DECK_Y - 0.1, 0, C);
-    k.box(4.0, 0.5, 9.6, CONC_D, u, DECK_Y + th - 0.2, 0, C);
-    for (let j = 0; j < 6; j++) for (const f of [-1, 1]) k.box(0.1, 0.9, 0.9, 0x6a6e72, u + f * 1.72, DECK_Y + 1.2 + j * 1.2, 0, { mat: 0 });
+    const tv = -s * 11.0;
+    k.box(3.4, th, 5.2, CONC, u, DECK_Y - 0.1, tv, C);
+    k.box(4.0, 0.5, 5.8, CONC_D, u, DECK_Y + th - 0.2, tv, C);
+    for (let j = 0; j < 6; j++) for (const f of [-1, 1]) k.box(0.1, 0.9, 0.9, 0x6a6e72, u + f * 1.72, DECK_Y + 1.2 + j * 1.2, tv, { mat: 0 });
     // the foot of the arch: a block it springs from
     k.box(14, 7.2, 12, CONC_D, s * (H - 3), gy - 1.2, 0, C);
   }
