@@ -16,7 +16,7 @@ import { bridgeFrame, rod, crookLamp, LAMP } from '../bridge-kit.js';
 const H = 135; // half the arch span
 const RISE = 52;
 const SPRING_Y = 7.7; // axis height at the feet (the crown axis sits 2.1 m under the deck soffit)
-const DECK_Y = 65; // road surface
+const DECK_Y = 67; // road surface: about 1.18 x the arch rise over the springing line (Commons photographs), dims.json says 70 (OSM height tag)
 const DECK_W = 26.5;
 const END = 248; // OSM way ends
 const SOFFIT = DECK_Y - 0.8 - 2.5; // under the central box
@@ -39,30 +39,31 @@ function builder(k, site) {
   k.push({ ry: F.ang });
 
   // ------------------------------------------------------------------ arch
+  // two parallel hollow ribs, together 8-10 m wide (pt.wikipedia), a slot between
   let p = null;
-  for (let i = 0; i <= N; i++) {
-    const u = -H + (2 * H * i) / N;
-    const q = [u, archAxis(u), 0];
-    if (p) {
-      const um = (u + p[0]) / 2;
-      rod(k, p, q, archW(um), archDepth(um), CONC, { ...C, ext: 0.6 });
+  for (const s of [-1, 1]) {
+    p = null;
+    for (let i = 0; i <= N; i++) {
+      const u = -H + (2 * H * i) / N;
+      const q = [u, archAxis(u), s * archW(u) * 0.26];
+      if (p) {
+        const um = (u + p[0]) / 2;
+        rod(k, p, q, archW(um) * 0.47, archDepth(um), CONC, { ...C, ext: 0.6 });
+      }
+      p = q;
     }
-    p = q;
   }
-  // soffit shadow line: a narrower darker box along the arch underside
-  p = null;
-  for (let i = 0; i <= N; i++) {
-    const u = -H + (2 * H * i) / N;
-    const q = [u, archAxis(u) - archDepth(u) / 2 + 0.2, 0];
-    if (p) rod(k, p, q, archW((u + p[0]) / 2) * 0.55, 0.5, CONC_D, { ...C, ext: 0.5 });
-    p = q;
+  // cross walls between the ribs, every 12 m
+  for (let u = -H + 6; u < H; u += 12) {
+    const um = Math.abs(u);
+    k.box(archW(um) * 0.2, archDepth(um) * 0.8, archW(um) * 0.2, CONC_D, u, archAxis(u) - archDepth(um) * 0.4, 0, { ...C, flat: true });
   }
   // the arch is lit from below at night: a strip along each lower edge
   for (const s of [-1, 1]) {
     p = null;
     for (let i = 0; i <= N; i++) {
       const u = -H + (2 * H * i) / N;
-      const q = [u, archAxis(u) - archDepth(u) / 2 + 0.05, s * (archW(u) / 2 - 0.35)];
+      const q = [u, archAxis(u) - archDepth(u) / 2 + 0.05, s * (archW(u) * 0.5 - 0.3)];
       if (p) rod(k, p, q, 0.28, 0.2, 0xfff0cf, { mat: 0, emit: LAMP(0.9), ext: 0.4 });
       p = q;
     }
@@ -141,7 +142,7 @@ function builder(k, site) {
     k.box(6.2, 0.7, 12.3, CONC_D, u, SOFFIT - 0.2, 0, C);
     // tower above the deck: slots like the real one (the lift shaft's grille)
     // (one on each edge of the deck: the real ones stand outside the carriageways)
-    const th = 8.6;
+    const th = 7.4;
     const tv = -s * 11.0;
     k.box(3.4, th, 5.2, CONC, u, DECK_Y - 0.1, tv, C);
     k.box(4.0, 0.5, 5.8, CONC_D, u, DECK_Y + th - 0.2, tv, C);

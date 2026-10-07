@@ -157,7 +157,7 @@ function builder(k, site) {
   k.pop(); // the arch frame
 
   // ============================================== upper deck (corridor frame)
-  const upW = 5.0; // girder centre lines
+  const upW = 4.3; // girder centre lines (the OSM footways run at +-3 m, the tracks inside them)
   const uLen = U_GAIA - U_PORTO;
   const uMid = (U_GAIA + U_PORTO) / 2;
   const nPan = Math.round(uLen / 3.44);
@@ -165,28 +165,28 @@ function builder(k, site) {
     truss(k, { u0: U_PORTO, u1: U_GAIA, n: nPan, lo: () => GIRDER_BOT, up: () => GIRDER_TOP, z: s * upW, color: IRON_C, cw: 0.7, ch: 0.5, ww: 0.4, wh: 0.3, mat: 9, emit: deckE });
   }
   // deck slab, walkways, cross beams
-  k.box(uLen, 0.5, 2 * upW + 4.6, 0x6d7076, uMid, UPPER_Y - 0.9, 0, { mat: 8, flat: true });
-  k.box(uLen, 0.12, 2 * upW + 4.6, 0x585b61, uMid, UPPER_Y - 0.42, 0, { mat: 8, flat: true });
+  k.box(uLen, 0.5, 2 * upW + 1.8, 0x6d7076, uMid, UPPER_Y - 0.9, 0, { mat: 8, flat: true });
+  k.box(uLen, 0.12, 2 * upW + 1.8, 0x585b61, uMid, UPPER_Y - 0.42, 0, { mat: 8, flat: true });
   for (let u = U_PORTO; u <= U_GAIA + 0.01; u += 3.44) {
-    rod(k, [u, GIRDER_BOT + 0.35, -upW - 2.2], [u, GIRDER_BOT + 0.35, upW + 2.2], 0.4, 0.5, IRON_C, { mat: 9 });
+    rod(k, [u, GIRDER_BOT + 0.35, -upW - 0.9], [u, GIRDER_BOT + 0.35, upW + 0.9], 0.4, 0.5, IRON_C, { mat: 9 });
   }
   // Metro tracks: ballast slab, rails
-  k.box(uLen, 0.14, 7.4, 0x77706a, uMid, UPPER_Y - 0.4, 0, { mat: 8 });
-  for (const v of [-2.45, -1.0, 1.0, 2.45]) rod(k, [U_PORTO, UPPER_Y - 0.2, v], [U_GAIA, UPPER_Y - 0.2, v], 0.1, 0.14, 0x9ba1a6);
+  k.box(uLen, 0.14, 5.7, 0x77706a, uMid, UPPER_Y - 0.4, 0, { mat: 8 });
+  for (const v of [-2.44, -1.0, 1.0, 2.44]) rod(k, [U_PORTO, UPPER_Y - 0.2, v], [U_GAIA, UPPER_Y - 0.2, v], 0.1, 0.14, 0x9ba1a6);
   // railings on the outside of the walkways, with the string of bulbs
   for (const s of [-1, 1]) {
-    railing(k, { u0: U_PORTO, u1: U_GAIA, v: s * (upW + 2.3), y: UPPER_Y - 0.4, h: 1.3, step: 3.44, color: IRON_C, rails: 3, w: 0.07 });
-    rod(k, [U_PORTO, UPPER_Y + 0.95, s * (upW + 2.3)], [U_GAIA, UPPER_Y + 0.95, s * (upW + 2.3)], 0.13, 0.13, 0xffe9b8, { emit: LAMP(0.9), mat: 0 });
-    for (let u = U_PORTO + 2; u <= U_GAIA; u += 6.88) k.box(0.28, 0.28, 0.28, 0xfff2cf, u, UPPER_Y + 0.86, s * (upW + 2.3), { emit: LAMP(1), mat: 0 });
+    railing(k, { u0: U_PORTO, u1: U_GAIA, v: s * (upW + 0.55), y: UPPER_Y - 0.4, h: 1.3, step: 3.44, color: IRON_C, rails: 3, w: 0.07 });
+    rod(k, [U_PORTO, UPPER_Y + 0.95, s * (upW + 0.55)], [U_GAIA, UPPER_Y + 0.95, s * (upW + 0.55)], 0.13, 0.13, 0xffe9b8, { emit: LAMP(0.9), mat: 0 });
+    for (let u = U_PORTO + 2; u <= U_GAIA; u += 6.88) k.box(0.28, 0.28, 0.28, 0xfff2cf, u, UPPER_Y + 0.86, s * (upW + 0.55), { emit: LAMP(1), mat: 0 });
   }
   // lamp posts (crook-top), staggered, and the Metro catenary
   let flip = 1;
   for (let u = U_PORTO + 9; u < U_GAIA - 4; u += 17.2) {
-    crookLamp(k, u, flip * (upW + 2.1), UPPER_Y - 0.4, { h: 4.9, dir: flip, reach: 1.7 });
+    crookLamp(k, u, flip * (upW + 0.35), UPPER_Y - 0.4, { h: 4.9, dir: flip, reach: 1.7 });
     flip = -flip;
   }
   for (let u = U_PORTO + 18; u < U_GAIA - 6; u += 34.4) {
-    for (const s of [-1, 1]) catenaryMast(k, u, s * (upW + 1.6), UPPER_Y - 0.4, { h: 6.2, dir: s, reach: 3.4 });
+    for (const s of [-1, 1]) catenaryMast(k, u, s * (upW + 0.2), UPPER_Y - 0.4, { h: 6.2, dir: s, reach: 3.1 });
   }
   for (const v of [-1.5, 1.5]) wire(k, [U_PORTO, UPPER_Y + 5.0, v], [U_GAIA, UPPER_Y + 5.0, v], 0x303438, 0.06);
   for (let u = U_PORTO + 40; u < U_GAIA; u += 44) k.marker('bridge-lamp', u, UPPER_Y + 1, 0, { w: 1 });
@@ -201,11 +201,11 @@ function builder(k, site) {
     const base = t.onArch ? 9.9 : Math.min(gr, GIRDER_BOT - 3) - 0.3;
     const H = GIRDER_BOT - base;
     if (H < 4) {
-      k.box(9, Math.max(1, UPPER_Y - 0.9 - (base - 3)), 15.2, 'graniteDark', ut, base - 3, 0);
+      k.box(9, Math.max(1, UPPER_Y - 0.9 - (base - 3)), 12.4, 'graniteDark', ut, base - 3, 0);
       continue;
     }
-    k.box(10.2, 1.9, 13.4, 'graniteDark', ut, base - 2.2, 0);
-    k.box(9.2, 0.5, 12.4, 'graniteLight', ut, base - 0.3, 0);
+    k.box(10.2, 1.9, 11.4, 'graniteDark', ut, base - 2.2, 0);
+    k.box(9.2, 0.5, 10.4, 'graniteLight', ut, base - 0.3, 0);
     const bw = 3.6; // half base width (u)
     const tw = 1.7; // half width at the girder
     const nP = Math.max(2, Math.round(H / 3.6));
@@ -236,8 +236,8 @@ function builder(k, site) {
     const sgn = e < 0 ? -1 : 1;
     const gy = g(e + sgn * 2, 0);
     const bot = Math.min(gy, UPPER_Y - 3) - 3;
-    k.box(7, UPPER_Y - 0.9 - bot, 15.6, 'graniteDark', e + sgn * 0.5, bot, 0);
-    k.box(7.6, 0.45, 16.4, 'graniteLight', e + sgn * 0.5, UPPER_Y - 0.9, 0);
+    k.box(7, UPPER_Y - 0.9 - bot, 11.4, 'graniteDark', e + sgn * 0.5, bot, 0);
+    k.box(7.6, 0.45, 12.2, 'graniteLight', e + sgn * 0.5, UPPER_Y - 0.9, 0);
   }
 
   k.pop();

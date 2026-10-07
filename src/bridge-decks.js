@@ -27,7 +27,7 @@ export const BRIDGE_DECKS = [
     id: 'arrabida',
     ll: [41.14706, -8.64052],
     r: 420,
-    deckM: 65,
+    deckM: 67,
     test: (t) => near(t, /Ponte da Arr[áa]bida/) || t.br === 'cantilever',
   },
   {
