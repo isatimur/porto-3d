@@ -5,13 +5,12 @@ import './style.css';
 import { loadData, loadStory } from './data.js';
 import { createProjection, METRES_PER_UNIT } from './geo.js';
 import { installAtmosphereFog, createRenderer, createAtmosphere, createGround, FOG_UNIFORMS, TIMES, DEFAULT_TIME, DPR, deviceDpr } from './scene.js';
-import { setWaterLite, setBridgeLamps, setBridgeNight } from './water.js';
+import { setWaterLite, setWaterLiteLive, setBridgeLamps, setBridgeNight } from './water.js';
 import { setDeckBases } from './bridge-decks.js';
 import { buildRoads } from './roads.js';
 import { buildLandmarks, LAMP_UNIFORM } from './landmarks.js';
 import { buildBuildings, BUILDING_UNIFORMS, setBuildingsLite } from './buildings.js';
 import { buildNature, buildNatureBase } from './nature.js';
-import { loadQuays, buildQuays } from './quays.js';
 import { createEffects } from './effects.js';
 import { createIntro } from './intro.js';
 import { createInstruments } from './ui.js';
@@ -26,16 +25,12 @@ import { createRouteLayer, createFlyAlong } from './routes.js';
 import { createPanorama } from './panorama.js';
 import { installShare } from './share.js';
 import { createGuide } from './guide.js';
-import { createLife } from './life.js';
-import { createSeasons } from './seasons.js';
 import { createFlyKeys } from './fly.js';
 import { createTiles } from './tiles.js';
-import { createMsBuildings } from './buildings-ms.js';
 import { CITY, loadCity, applyCityShell } from './city.js';
 import { loadCityModels } from './models.js';
-import { setLifeData } from './life.js';
-import { setTrafficAxes } from './traffic-model.js';
-import { installPois } from './pois.js';
+import { initPerf, showNotice } from './perf.js';
+import { CLASSES, MAX_PRESSURE, knobsFor, modeToClass } from './perf-classes.js';
 
 initLanguage();
 
@@ -45,56 +40,27 @@ const nextFrame = () => new Promise((r) => requestAnimationFrame(() => r()));
 // phones and small tablets
 const MOBILE = window.matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 820;
 
-// ------------------------------------------------------------ quality tier
-// 'low' (light mode) or 'high'. Light mode: DPR cap 1.5 (1.25 on a low-end
-// device), no post-processing, a 1024 shadow map cast by the landmarks
-// only, the phone budgets of every module (`mobile` below: trees, traffic,
-// birds, leaves, tiles and MS radius) tightened further, no MS far ring,
-// a simpler water shader. ?quality=low|high forces a tier and saves it;
-// ?quality=auto forgets the saved choice. Auto: phones and small tablets,
-// devices with <= 2 GB or <= 2 cores, and a device whose frame probe
-// (below) was slow on an earlier visit.
-const TIER = (() => {
-  const q = new URLSearchParams(location.search).get('quality');
-  const store = (k, v) => {
-    try {
-      if (v == null) localStorage.removeItem(k);
-      else localStorage.setItem(k, v);
-    } catch {
-      // storage may be blocked: the choice lasts for this page
-    }
-  };
-  const read = (k) => {
-    try {
-      return localStorage.getItem(k);
-    } catch {
-      return null;
-    }
-  };
-  const mem = navigator.deviceMemory || 8;
-  const cores = navigator.hardwareConcurrency || 8;
-  const weak = mem <= 2 || cores <= 2;
-  if (q === 'low' || q === 'high') {
-    store('porto-tier', q);
-    return { tier: q, reason: 'url', weak };
-  }
-  if (q === 'auto') {
-    store('porto-tier', null);
-    store('porto-tier-probe', null);
-  }
-  const saved = read('porto-tier');
-  if (saved === 'low' || saved === 'high') return { tier: saved, reason: 'saved', weak };
-  if (MOBILE) return { tier: 'low', reason: 'phone', weak: weak || mem <= 4 };
-  if (weak) return { tier: 'low', reason: 'low-end', weak };
-  if (read('porto-tier-probe') === 'low') return { tier: 'low', reason: 'probe', weak: true };
-  return { tier: 'high', reason: 'default', weak };
-})();
+// ------------------------------------------------------------ quality class
+// Light mode (classes M, S, P): the phone budgets of every module (`mobile`
+// below: trees, traffic, birds, leaves, tiles and MS radius), no
+// post-processing, a 1024 shadow map cast by the landmarks only, a simpler
+// water shader, no MS far ring. ?quality=ultra|high|medium|low|potato forces
+// a class and saves it; ?quality=auto forgets the saved choice and the
+// learned class. The tier is a device class (perf-classes.js:
+// P potato, S low, M medium, L high, XL ultra). perf.js scores the device
+// (GPU name, memory, cores, screen, network), honours ?quality= and the menu
+// choice, and starts a visit in the class an earlier visit ended in. The
+// governor (governor.js) then moves inside the class and, when needed, down.
+// `TIER.tier` stays 'low' for the phone-budget classes (M, S, P) and 'high'
+// for L and XL, so the module budgets that read `LITE` keep their meaning.
+const perf = initPerf();
+const TIER = { tier: perf.lite ? 'low' : 'high', reason: perf.reason, weak: perf.cls === 'S' || perf.cls === 'P', cls: perf.cls, score: perf.detected.score };
 // light mode: every module gets its phone budget through `mobile`
-const LITE = TIER.tier === 'low';
-DPR.cap = LITE ? (TIER.weak ? 1.25 : 1.5) : 2;
-if (LITE) {
+const LITE = perf.lite;
+DPR.cap = perf.cfg.dprCap;
+if (LITE || perf.cfg.waterLite) {
   setWaterLite(true);
-  setBuildingsLite(true);
+  setBuildingsLite(LITE);
 }
 
 // Exposed for tests and debugging: renderer.info, ready flags, flight count.
@@ -116,18 +82,25 @@ async function start() {
   let intro = null;
   let introDoneHook = null;
   const loader = createLoader();
+  if (!perf.caps.webgl2) {
+    // three.js needs WebGL 2: say so plainly instead of a blank page
+    loader.done();
+    showNotice(t('Нужен WebGL 2'), t('Этот браузер или видеокарта не поддерживает WebGL 2, поэтому 3D-карта Порту здесь не откроется. Попробуйте свежий Chrome, Firefox, Edge или Safari на другом устройстве.'));
+    return;
+  }
   loader.set(0.08, t('Загружаем данные'));
 
   mark('start');
-  // __porto.pois (pois.js): the POI list with opening hours, for the search
-  installPois(debug);
   const loaded = await loadData(() => loader.set(0.35, t('Данные получены')));
   mark('data');
   // data.js returns landmarks and routes already localized
-  const { landmarks, routes, roads, status, terrain: terrainData, footprints, buildings } = loaded;
+  const { landmarks, routes, status, terrain: terrainData, footprints } = loaded;
+  // roads.json and buildings.json are still downloading (data.js): `roads`
+  // is the city's origin and bbox until roadsReady, `buildings` null until
+  // buildingsReady. Both are awaited right before their build step.
+  let roads = loaded.roads;
+  let buildings = null;
   debug.dataStatus = status;
-  setLifeData(loaded.life);
-  setTrafficAxes(loaded.trafficAxes);
   if (!landmarks.length) loader.set(0.4, `${CITY.name[language] || CITY.name.en}: ${t('пока без достопримечательностей')}`);
   await nextFrame();
 
@@ -148,8 +121,9 @@ async function start() {
   debug.scene = scene;
   debug.camera = camera;
 
-  const atmosphere = createAtmosphere(renderer, scene, { reducedMotion, shadowSize: LITE ? 1024 : 4096 });
+  const atmosphere = createAtmosphere(renderer, scene, { reducedMotion, shadowSize: perf.cfg.shadow || 1024 });
   debug.atmosphere = atmosphere;
+  if (!perf.cfg.shadow) atmosphere.sun.castShadow = false; // class P: no shadow pass at all
 
   mark('atmosphere');
 
@@ -177,7 +151,7 @@ async function start() {
   let tiles = null; // the streamed city around the core, once the roads exist
   let geoTick = 0;
   function applyGeoLod(camDist) {
-    const k = (debug.governor?.level ?? 0) >= 2 ? 0.6 : 1;
+    const k = perf.knobs.geo; // class baseline times the governor's close-range cut
     const pick = (cur, d, a, b) => {
       // 8 % hysteresis around each threshold
       const up = (t, on) => d > t * k * (on ? 0.92 : 1);
@@ -340,6 +314,8 @@ async function start() {
   mark('landmarks');
 
   loader.set(0.66, t('Прокладываем улицы'));
+  roads = await loaded.roadsReady;
+  mark('roadsData');
   await nextFrame();
   const roadLayer = buildRoads(roads, project, heightAt, { waterRibbon: !loaded.nature, lite: LITE });
   scene.add(roadLayer.group);
@@ -352,6 +328,23 @@ async function start() {
   mark('roads');
 
   loader.set(0.74, t('Возводим здания'));
+  buildings = await loaded.buildingsReady;
+  mark('buildingsData');
+  // The layers that come after the first full frame are separate chunks
+  // (life with traffic, people and weather; the seasons; the MS ring; the
+  // quays; the POI list). They start downloading now that the critical data
+  // is in, so on a slow link they do not compete with it and are there when
+  // the deferred build steps ask for them.
+  const late = {
+    life: import('./life.js'),
+    seasons: import('./seasons.js'),
+    ms: import('./buildings-ms.js'),
+    quays: import('./quays.js'),
+    traffic: import('./traffic-model.js'),
+    pois: import('./pois.js'),
+  };
+  for (const p of Object.values(late)) p.catch((e) => console.warn('[porto] a late layer failed to load', e));
+  late.pois.then((m) => m.installPois(debug)).catch(() => {}); // __porto.pois: opening hours for the search
   await nextFrame();
   const city = buildBuildings(buildings, project, heightAt, {
     outlines: outlines.filter(Boolean),
@@ -422,7 +415,7 @@ async function start() {
     scene.add(nature.group);
     if (nature.landcover) ground.userData.setLandcover(nature.landcover, nature.landRect);
     debug.nature = nature.stats;
-    if (probeLow) nature.setNearRadius(LITE ? 160 : 220);
+    nature.setNearRadius(perf.knobs.natureNearM);
     mark('nature');
     // the streamed woods get their trees (the tiles already run, see below)
     tiles?.setNature(nature);
@@ -628,7 +621,9 @@ async function start() {
   // On by default on desktop; off on phones and under reduced motion.
   // ?fx=1 / ?fx=0 forces it (tests, screenshots). The user's own choice is
   // saved; the automatic low-end downgrade below never is.
-  const fx = createEffects(renderer, scene, camera, { reducedMotion });
+  // (classes that draw straight to the canvas never allocate the post targets
+  // until the user turns the effects on: effects.js `lazy`)
+  const fx = createEffects(renderer, scene, camera, { reducedMotion, lazy: !perf.cfg.fx });
   const fxParam = new URLSearchParams(location.search).get('fx');
   let fxSaved = null;
   try {
@@ -637,8 +632,9 @@ async function start() {
     fxSaved = null;
   }
   const fxForced = fxParam === '1' || fxParam === '0';
-  // light mode: no post-processing unless ?fx=1 (a saved "on" waits for high)
-  const fxWanted = fxForced ? fxParam === '1' : LITE ? false : fxSaved ? fxSaved === 'on' : !MOBILE && !reducedMotion;
+  // classes M, S and P: no post-processing unless ?fx=1; L and XL: on, unless
+  // the user saved "off" or prefers reduced motion
+  const fxWanted = fxForced ? fxParam === '1' : perf.cfg.fx ? (fxSaved ? fxSaved === 'on' : !reducedMotion) : false;
   const fxButton = document.getElementById('fx-toggle');
   // Emissive things need linear HDR values above the bloom threshold; with
   // effects off they are drawn untone-mapped and keep their plain colours.
@@ -669,84 +665,100 @@ async function start() {
     }
     debug.fx = { enabled: on, reason: reason || (fxForced ? 'url' : fxSaved ? 'saved' : 'default') };
   }
+  let userFx = false; // the user's own switch: the governor leaves the effects alone from then on
   fxButton?.addEventListener('click', () => {
-    probe = null; // an explicit choice ends the low-end probe
+    userFx = true;
     setFx(!fx.enabled, { save: true, reason: 'user' });
   });
-  // Low-end probe: average frame time over 3 s after the first frames
-  // (shader compiles and the environment map would skew it). Above 33 ms:
-  // no post-processing and half the shadow map.
-  let probe = fxForced || (fxSaved === 'on' && !LITE) ? null : { skip: 20, n: 0, sum: 0, t0: 0 };
-  let probeLow = false; // the probe found a slow device
 
-  // ------------------------------------------------------------ governor
-  // The one-shot probe above catches the first slow visit. On top of it a
-  // rolling window keeps watching the frame interval once the app is ready:
-  // when the device cannot hold the target the governor steps the expensive
-  // knobs down — drawing-buffer ratio, shadow map, post stack, landmark and
-  // nature near-LOD radii, tile budget — and steps them back up when there is
-  // headroom again. This is adaptive, not a static cap: a fast machine keeps
-  // the full tier, a slow one loses only what it cannot afford. An explicit
-  // ?quality=high/low (and a saved choice) sets the ceiling, so the governor
-  // never turns a phone into a desktop tier or the other way round.
-  const BASE_DPR = DPR.cap;
-  const BASE_SHADOW = LITE ? 1024 : 4096;
-  // Step down only when the median frame clearly misses the target, step back
-  // up only with real headroom: a phone holding ~30 fps keeps its quality, a
-  // desktop running at 30 fps gives some up, and a downscaled desktop recovers
-  // once it is back under 18 ms.
-  const GOV_DOWN_MS = LITE ? 38 : 21; // ~26 fps light, ~48 fps high
-  const GOV_UP_MS = LITE ? 26 : 18;
-  const GOV_MAX = 3;
-  const GOV_STEPS = [
-    { dpr: 1, shadow: 1, radius: 1, post: 0 },
-    { dpr: 0.82, shadow: 0.5, radius: 0.8, post: 1 },
-    { dpr: 0.66, shadow: 0.25, radius: 0.62, post: 2 },
-    { dpr: 0.5, shadow: 0.25, radius: 0.5, post: 3 },
-  ];
-  let govLevel = 0;
-  let govCooldown = 0;
-  const govWin = [];
-  function applyGovLevel(level) {
-    const s = GOV_STEPS[level];
-    DPR.cap = level === 0 ? BASE_DPR : Math.max(1, +(BASE_DPR * s.dpr).toFixed(2));
-    atmosphere.setShadowSize(level === 0 ? BASE_SHADOW : Math.max(1024, Math.round(BASE_SHADOW * s.shadow)));
-    marks.setNearRadiusM((LITE ? 1400 : 2200) * s.radius);
-    nature?.setNearRadius((LITE ? 160 : 220) * s.radius);
-    tiles?.setBudgetScale(s.radius);
-    fx.setPostLevel(s.post);
-    resize();
-    debug.governor = { level, dpr: DPR.cap, shadow: atmosphere.sun.shadow.mapSize.x, radiusK: s.radius, post: s.post };
-  }
-  // rawDt is the wall-clock frame interval; the median ignores one-off long
-  // tasks (tile integration, a shadow-map rebuild) so a single hitch does not
-  // downscale a device that is otherwise holding the target.
-  function governorTick(rawDt) {
-    if (probe) return; // the first-visit probe owns the start
-    if (debug.frames < 120 || document.hidden) return;
-    if (govCooldown > 0) { govCooldown--; return; }
-    govWin.push(rawDt);
-    if (govWin.length < 40) return;
-    const sorted = govWin.slice().sort((a, b) => a - b);
-    const medMs = sorted[sorted.length >> 1] * 1000;
-    govWin.length = 0;
-    debug.frameMs = +medMs.toFixed(1);
-    if (medMs > GOV_DOWN_MS && govLevel < GOV_MAX) {
-      applyGovLevel(++govLevel);
-      govCooldown = 200;
-    } else if (medMs < GOV_UP_MS && govLevel > 0) {
-      applyGovLevel(--govLevel);
-      govCooldown = 300;
+  // ------------------------------------------------------------ quality knobs
+  // The loop that decides is governor.js (p95 frame time, one `pressure` dial
+  // from the least visible cut to the most visible; perf.js wires it). This
+  // applies what it decides. Every knob has a runtime setter, so moving
+  // inside a class, or to the class below, never rebuilds the scene. The
+  // structural budgets (tree count, the phone module budgets) follow the
+  // class the visit started in.
+  const rates = { labelHz: perf.knobs.labelHz, simHz: perf.knobs.simHz };
+  let fxGovOff = false; // the governor, not the user, turned the effects off
+  function applyKnobs(k, why = '') {
+    DPR.cap = perf.cfg.dprCap;
+    DPR.scale = k.res; // dynamic resolution: the fastest and least visible cut
+    atmosphere.setShadowSize(k.shadow);
+    marks.setNearRadiusM(k.landmarkNearM);
+    marks.setLodBias(1 / Math.max(0.3, k.geo)); // close range: clustered copies sooner
+    cityRef?.group.userData.setLodScale?.(k.geo); // close range: detail and roof tiers end nearer
+    roadsRef?.setDetailScale?.(k.geo); // close range: markings and sidewalks end nearer
+    nature?.setNearRadius(k.natureNearM);
+    tiles?.setBudgetScale(k.radius);
+    setWaterLiteLive(k.waterLite);
+    fx.setPostLevel(Math.min(3, k.post));
+    if (!userFx && !fxForced) {
+      // post level 4: no composer at all, straight to the canvas
+      if (k.post >= 4 && fx.enabled) {
+        fxGovOff = true;
+        setFx(false, { reason: 'governor' });
+      } else if (k.post < 4 && fxGovOff) {
+        fxGovOff = false;
+        setFx(true, { reason: 'governor' });
+      }
     }
+    rates.labelHz = k.labelHz;
+    rates.simHz = k.simHz;
+    debug.governor = { level: k.pressure, cls: perf.cls, res: k.res, dpr: +(k.dpr).toFixed(2), shadow: k.shadow, radiusK: k.radius, post: k.post, geo: k.geo, why };
+    if (why) resize();
   }
-  debug.governor = { level: 0, dpr: DPR.cap, shadow: BASE_SHADOW, radiusK: 1, post: 0 };
-  // test/debug hook: force a governor level (0 full .. 3 cheapest)
+  debug.governor = { level: 0, cls: perf.cls, res: 1, dpr: perf.cfg.dprCap, shadow: perf.cfg.shadow, radiusK: perf.cfg.tileScale, post: perf.cfg.postLevel };
+  // test/debug hook: force a pressure level (0 full .. MAX_PRESSURE cheapest)
   debug.setGovernorLevel = (n) => {
-    govLevel = Math.max(0, Math.min(GOV_MAX, n | 0));
-    govWin.length = 0;
-    govCooldown = 300;
-    applyGovLevel(govLevel);
+    const p = Math.max(0, Math.min(MAX_PRESSURE, n | 0));
+    if (perf.gov) perf.gov.force(perf.cls, p, performance.now());
+    else {
+      perf.knobs = knobsFor(perf.cls, p);
+      applyKnobs(perf.knobs, 'forced');
+    }
   };
+  debug.perfSystem = perf;
+  applyKnobs(perf.knobs); // the class's own baseline, before the first full frame
+
+  // The menu: Auto / Ultra / High / Medium / Low / Potato. A choice inside the
+  // same module budget (L with XL, or M with S and P) applies live; across
+  // that line the scene is built again, which a reload does cleanly.
+  const qualitySel = document.getElementById('quality');
+  if (qualitySel) {
+    qualitySel.value = perf.mode;
+    qualitySel.addEventListener('change', () => {
+      const mode = perf.setMode(qualitySel.value);
+      const url = new URL(location.href);
+      url.searchParams.delete('quality'); // the saved choice must win after a reload
+      history.replaceState(null, '', url);
+      const target = modeToClass(mode) || perf.detected.cls;
+      if (!perf.gov || CLASSES[target].lite !== LITE) {
+        setTimeout(() => location.reload(), 150);
+        return;
+      }
+      perf.mode = mode;
+      perf.reason = mode === 'auto' ? 'detected' : 'menu';
+      perf.gov.setCeiling(mode === 'auto' ? perf.detected.cls : target, mode === 'auto');
+      perf.gov.force(target, 0, performance.now());
+    });
+  }
+
+  // A lost WebGL context (a phone under memory pressure, a driver reset, a
+  // GPU switch): three.js stops drawing and rebuilds its state when the
+  // browser hands a context back; what lives only in GPU memory (the
+  // environment map) is made again here.
+  let lostNotice = null;
+  canvas.addEventListener('webglcontextlost', (e) => {
+    e.preventDefault();
+    lostNotice ??= showNotice('', t('Видеокарта остановилась. Восстанавливаем сцену…'), { toast: true });
+    debug.contextLost = (debug.contextLost || 0) + 1;
+  });
+  canvas.addEventListener('webglcontextrestored', () => {
+    lostNotice?.remove();
+    lostNotice = null;
+    atmosphere.rebuildEnv();
+    debug.contextRestored = (debug.contextRestored || 0) + 1;
+  });
 
   const indexById = new Map(landmarks.map((l, i) => [l.id, i]));
   const routeById = new Map(routes.map((r) => [r.id, r]));
@@ -1125,7 +1137,18 @@ async function start() {
   // Two guided modes that drive the camera through the rig (tour.js,
   // story.js). Both hide the panels, change the time of day as they go and
   // put it back on exit; the hash says #cinema or #story while they run.
-  const sky = createSkyline({ buildings, project, heightAt, boxes: marks.items.map((it) => it.realBox) });
+  // The flight-clearance grid is made the first time a guided mode asks for
+  // it (it needs the landmark boxes and the pads, both final by then); the
+  // building list itself was let go after the core was built.
+  buildings = null;
+  let skyGrid = null;
+  const skyOf = () => (skyGrid ??= createSkyline({ rects: city.skyRects, buildings: null, project, heightAt, boxes: marks.items.map((it) => it.realBox) }));
+  const sky = {
+    at: (x, z, r) => skyOf().at(x, z, r),
+    get size() {
+      return skyOf().size;
+    },
+  };
   const modeTime = (name) => {
     atmosphere.setTime(name, { animate: !reducedMotion });
     debug.time = name;
@@ -1576,9 +1599,14 @@ async function start() {
   let clock = 0; // not `t`: that name is the translation function
   let cityCasts = true;
   let landCasts = true;
+  let simAcc = 0; // time owed to the simulations (life.js) at a reduced rate
+  let lastLabelPass = 0;
   function frame() {
     raf = requestAnimationFrame(frame);
     const now = performance.now();
+    // a 120 Hz panel below Ultra draws every other frame (perf.js): half the
+    // GPU work and heat for the same 60 fps
+    if (perf.shouldSkip(now, last)) return;
     const rawDt = Math.max(0, (now - last) / 1000);
     last = now;
     const dt = Math.min(rawDt, 1 / 30);
@@ -1633,7 +1661,13 @@ async function start() {
     nature?.update(reducedMotion ? 0 : dt, camera, lightInfo); // no sway or ripples under reduced motion
     tiles?.update(rawDt);
     ms?.update(rawDt);
-    life?.update(dt, camDist); // traffic, birds, funicular, fountains, weather (life.js)
+    // traffic, birds, funicular, fountains, weather (life.js) at the class's
+    // simulation rate: the time of the skipped frames is handed over at once
+    simAcc = Math.min(simAcc + dt, 0.25);
+    if (rates.simHz >= 58 || simAcc >= 1 / rates.simHz - 0.001) {
+      life?.update(simAcc, camDist);
+      simAcc = 0;
+    }
     seasons?.update(rawDt); // season blend, leaves, snow, quality (seasons.js)
     marks.updatePins(clock, !reducedMotion, camera.position);
     pulseHoverPin(rawDt);
@@ -1655,12 +1689,17 @@ async function start() {
     } else {
       renderer.render(scene, camera);
     }
-    labelRenderer.render(scene, camera);
+    // labels project and write their styles at the class's label rate (30 Hz
+    // on High, 10 Hz on Low); the declutter pass keeps its own 120 ms cadence
+    if (now - lastLabelPass >= 1000 / rates.labelHz - 2) {
+      lastLabelPass = now;
+      labelRenderer.render(scene, camera);
+      placeClusters();
+      fadeLabels(camDist);
+      instruments.update(camera, rig.controls.target, size.h);
+    }
     declutter(now, camDist);
-    placeClusters();
     placeCallout();
-    fadeLabels(camDist);
-    instruments.update(camera, rig.controls.target, size.h);
     debug.calls = renderer.info.render.calls;
     debug.triangles = renderer.info.render.triangles;
     if (first) {
@@ -1671,8 +1710,8 @@ async function start() {
       mark('interactive');
       debug.interactive = true;
     }
-    if (probe) probeFrame(rawDt);
-    else governorTick(rawDt);
+    perf.frame(now, rawDt * 1000);
+    if (debug.frames % 30 === 0) debug.frameMs = perf.stats().p50;
     if (debug.frames === 3) logStats();
   }
 
@@ -1682,37 +1721,6 @@ async function start() {
   const noCast = (o) => {
     o.castShadow = false;
   };
-
-  // Low-end probe (see setFx): measured over 3 s of real frames.
-  function probeFrame(rawDt) {
-    // only once everything is built: the deferred builds are long tasks
-    if (document.hidden || !debug.ready) return;
-    if (probe.skip > 0) {
-      probe.skip--;
-      return;
-    }
-    probe.n++;
-    probe.sum += rawDt;
-    if (probe.sum < 3) return;
-    const avgMs = (probe.sum / probe.n) * 1000;
-    debug.perf = { probeMs: +avgMs.toFixed(1), frames: probe.n };
-    if (avgMs > 33) {
-      if (fx.enabled) setFx(false, { reason: 'low-end' });
-      atmosphere.setShadowSize(LITE ? 1024 : 2048);
-      probeLow = true; // a nature layer built later gets the smaller radius too
-      nature?.setNearRadius(LITE ? 160 : 220);
-      // the next visit starts in light mode (an automatic choice only)
-      if (!LITE && TIER.reason === 'default') {
-        try {
-          localStorage.setItem('porto-tier-probe', 'low');
-        } catch {
-          // storage may be blocked
-        }
-      }
-      console.info(`[porto] ${avgMs.toFixed(1)} ms per frame: effects off, smaller shadow map${LITE ? '' : '; light mode from the next visit'}`);
-    }
-    probe = null;
-  }
 
   // Labels fade with distance relative to the view: in a close-up, far
   // landmarks give way; over the whole city every label stays.
@@ -1842,38 +1850,49 @@ async function start() {
     const step = async (name, fn) => {
       await idle();
       try {
-        fn();
+        await fn();
       } catch (e) {
         console.error(`[porto] ${name} failed`, e);
       }
     };
     mark('introWait');
-    const quaysP = loadQuays();
+    const quaysP = late.quays.then((m) => m.loadQuays().then((doc) => ({ m, doc })));
     await step('nature', buildNatureLayer);
     await step('quays', () => {
-      quaysP.then((doc) => {
+      quaysP.then(({ m, doc }) => {
         if (!doc) return;
-        const q = buildQuays({ doc, heightAt, S: 1 / METRES_PER_UNIT });
+        const q = m.buildQuays({ doc, heightAt, S: 1 / METRES_PER_UNIT });
         scene.add(q.group);
         debug.quays = q.stats;
         mark('quays');
       });
     });
-    await step('ms', () => {
-      ms = createMsBuildings({ scene, camera, terrain, heightAt, proj, footprints, plans: msPlans, osm: city.footprints, mobile: LITE, lite: LITE, debug });
+    await step('ms', async () => {
+      const m = await late.ms;
+      ms = m.createMsBuildings({ scene, camera, terrain, heightAt, proj, footprints, plans: msPlans, osm: city.footprints, mobile: LITE, lite: LITE, debug });
       mark('ms');
     });
-    await step('life', () => {
+    await step('life', async () => {
+      const [m, tm] = await Promise.all([late.life, late.traffic]);
+      m.setLifeData(loaded.life);
+      tm.setTrafficAxes(loaded.trafficAxes);
       // footprints, outlines: where the people of streetscape.js may not walk
-      life = createLife({ renderer, scene, camera, atmosphere, project, heightAt, roads, items: marks.items, nature, fx, reducedMotion, mobile: LITE, lite: LITE, debug, setHash: () => setHash(currentHash()), footprints: city.footprints, outlines });
+      life = m.createLife({ renderer, scene, camera, atmosphere, project, heightAt, roads, items: marks.items, nature, fx, reducedMotion, mobile: LITE, lite: LITE, debug, setHash: () => setHash(currentHash()), footprints: city.footprints, outlines });
     });
-    await step('seasons', () => {
-      seasons = createSeasons({ renderer, scene, camera, atmosphere, nature, fx, weather: life?.weather, terrain, ui, reducedMotion, mobile: LITE, lite: LITE, debug });
+    await step('seasons', async () => {
+      const m = await late.seasons;
+      seasons = m.createSeasons({ renderer, scene, camera, atmosphere, nature, fx, weather: life?.weather, terrain, ui, reducedMotion, mobile: LITE, lite: LITE, debug });
     });
     mark('life');
     await nextFrame();
     mark('ready');
     debug.ready = true;
+    // from here the governor judges frames (after a 2.5 s warm-up for the
+    // shader compiles and tile bursts the last builds just caused)
+    perf.marks = () => debug.timing;
+    perf.scene = () => ({ tris: debug.triangles, calls: debug.calls });
+    perf.start(applyKnobs);
+    perf.warmUntil = performance.now() + 2500;
     // the deferred layers changed what the scene holds: re-report the counts
     // (the first logStats ran before they existed) so logStats always ends
     // with the full picture, including life, streetscape, people and buses.

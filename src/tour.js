@@ -38,7 +38,9 @@ const smooth = (a, b, x) => {
 // Highest point (terrain or roof) around (x, z). Roofs come from the raw
 // OSM building list (lat/lon rings + height in metres); landmark boxes are
 // added on top.
-export function createSkyline({ buildings, project, heightAt, boxes = [] }) {
+// rects: a Float32Array of x0, z0, x1, z1, height (m) per building, from
+// buildBuildings; or `buildings`, the raw data/buildings.json list.
+export function createSkyline({ rects = null, buildings, project, heightAt, boxes = [] }) {
   const cells = new Map();
   const key = (i, j) => i * 100003 + j;
   const put = (x0, z0, x1, z1, top) => {
@@ -49,7 +51,17 @@ export function createSkyline({ buildings, project, heightAt, boxes = [] }) {
       }
     }
   };
-  const list = Array.isArray(buildings) ? buildings : buildings?.buildings || [];
+  if (rects) {
+    for (let i = 0; i + 4 < rects.length; i += 5) {
+      const x0 = rects[i];
+      const z0 = rects[i + 1];
+      const x1 = rects[i + 2];
+      const z1 = rects[i + 3];
+      const top = Math.max(heightAt(x0, z0), heightAt(x1, z1), heightAt((x0 + x1) / 2, (z0 + z1) / 2)) + rects[i + 4] * S;
+      put(x0, z0, x1, z1, top);
+    }
+  }
+  const list = rects ? [] : Array.isArray(buildings) ? buildings : buildings?.buildings || [];
   for (const b of list) {
     if (!Array.isArray(b?.p) || b.p.length < 3 || !(b.h > 0)) continue;
     let x0 = Infinity;

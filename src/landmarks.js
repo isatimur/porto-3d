@@ -553,6 +553,10 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
   // 10 m tower seen from the whole-city view is still a findable gold mark.
   // far LOD (LOD_K above): device pixels per world unit at distance 1
   let pxPerUnit = 900 / 2 / TAN_HALF_FOV;
+  // The governor's close-range cut: above 1 a landmark takes its clustered
+  // copy (about a quarter of the triangles) while its grid cell is still
+  // that many times larger on screen (main.js applyKnobs sets it from `geo`).
+  let lodBias = 1;
 
   // Distance LOD: decide per landmark whether it draws its own geometry or
   // the shared massing box. Then apply category + LOD visibility and write
@@ -576,7 +580,7 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
         }
         const cellPx = ((L.r / LOD_K) * pxPerUnit) / d;
         const onFar = mesh.geometry !== L.full;
-        const want = !active && cellPx < (onFar ? LOD_OFF_PX : LOD_ON_PX);
+        const want = !active && cellPx < (onFar ? LOD_OFF_PX : LOD_ON_PX) * lodBias;
         if (want && !L.far) {
           if (built) {
             mesh.geometry = L.full; // one cluster build per frame
@@ -732,6 +736,9 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
     // adaptive: shrink the radius the full landmark meshes draw within
     setNearRadiusM(m) {
       lodNearU = Math.max(300, m) * S;
+    },
+    setLodBias(b) {
+      lodBias = Math.max(1, Math.min(4, b || 1));
     },
     // dpr: drawing-buffer pixels per CSS pixel, for the far LOD
     setResolution(w, h, dpr = 1) {

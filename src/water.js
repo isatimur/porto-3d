@@ -38,6 +38,18 @@ let LITE = false;
 export function setWaterLite(on) {
   LITE = !!on;
 }
+// The governor's water step: the same switch on the materials that exist
+// (one shader recompile), not only on the ones made later.
+const WATER_MATS = new Set();
+export function setWaterLiteLive(on) {
+  LITE = !!on;
+  for (const m of WATER_MATS) {
+    if (on === ('BRG_WATER_LITE' in m.defines)) continue;
+    if (on) m.defines.BRG_WATER_LITE = '';
+    else delete m.defines.BRG_WATER_LITE;
+    m.needsUpdate = true;
+  }
+}
 
 // ------------------------------------------------------------ spectra
 // Inland ripples: [wavelength (world units), amplitude, heading offset from
@@ -578,6 +590,7 @@ export function createWaterMaterial() {
   mat.name = 'water';
   mat.defines = { BRG_WATER: '' };
   if (LITE) mat.defines.BRG_WATER_LITE = '';
+  WATER_MATS.add(mat);
   mat.onBeforeCompile = (sh) => {
     Object.assign(sh.uniforms, waterUniforms);
     sh.vertexShader = sh.vertexShader

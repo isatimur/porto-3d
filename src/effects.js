@@ -254,33 +254,47 @@ const FinishShader = {
 };
 
 // ------------------------------------------------------------ public
-export function createEffects(renderer, scene, camera, { reducedMotion = false } = {}) {
+export function createEffects(renderer, scene, camera, { reducedMotion = false, lazy = false } = {}) {
   // Quality tier: the DPR cap is 2 in high quality and 1.5/1.25 in light mode
   // (main.js sets it before the renderer exists). Rays are off on low/lite.
   // Read live (not captured) so the adaptive governor lowering DPR.cap also
   // drops the ray pass.
   const raysAllowed = () => DPR.cap >= 2;
-  const size = renderer.getSize(new THREE.Vector2());
-  const target = new THREE.WebGLRenderTarget(size.x || 1, size.y || 1, {
-    type: THREE.HalfFloatType,
-    depthTexture: new THREE.DepthTexture(size.x || 1, size.y || 1),
-  });
-  const composer = new EffectComposer(renderer, target);
-  composer.setPixelRatio(renderer.getPixelRatio());
+  // The pipeline allocates a half-float target with a depth texture and about
+  // a dozen more full and half-size targets (bloom mips, SMAA, rays). A class
+  // that draws straight to the canvas (lazy) never pays for them until the
+  // user turns the effects on.
+  let composer = null;
+  let rays = null;
+  let bloom = null;
+  let smaa = null;
+  let finish = null;
+  function build() {
+    if (composer) return;
+    const size = renderer.getSize(new THREE.Vector2());
+    const target = new THREE.WebGLRenderTarget(size.x || 1, size.y || 1, {
+      type: THREE.HalfFloatType,
+      depthTexture: new THREE.DepthTexture(size.x || 1, size.y || 1),
+    });
+    composer = new EffectComposer(renderer, target);
+    composer.setPixelRatio(renderer.getPixelRatio());
 
-  const renderPass = new RenderPass(scene, camera);
-  const rays = new SunRaysPass();
-  const bloom = new UnrealBloomPass(new THREE.Vector2(size.x || 1, size.y || 1), 0.55, 0.55, BLOOM_THRESHOLD);
-  const output = new OutputPass();
-  const smaa = new SMAAPass();
-  const finish = new ShaderPass(FinishShader);
-  composer.addPass(renderPass);
-  composer.addPass(rays);
-  composer.addPass(bloom);
-  composer.addPass(output);
-  composer.addPass(smaa);
-  composer.addPass(finish);
-
+    const renderPass = new RenderPass(scene, camera);
+    rays = new SunRaysPass();
+    bloom = new UnrealBloomPass(new THREE.Vector2(size.x || 1, size.y || 1), 0.55, 0.55, BLOOM_THRESHOLD);
+    const output = new OutputPass();
+    smaa = new SMAAPass();
+    finish = new ShaderPass(FinishShader);
+    composer.addPass(renderPass);
+    composer.addPass(rays);
+    composer.addPass(bloom);
+    composer.addPass(output);
+    composer.addPass(smaa);
+    composer.addPass(finish);
+    bloom.enabled = postLevel < 2;
+    smaa.enabled = postLevel < 3;
+    if (last) applySize(last.w, last.h, last.dpr);
+  }
   let enabled = false;
   // Post level from the adaptive governor: 0 all, 1 no rays, 2 no bloom,
   // 3 no SMAA. The pass list stays fixed; only the expensive passes gate.
@@ -349,27 +363,39 @@ export function createEffects(renderer, scene, camera, { reducedMotion = false }
       renderer.setPixelRatio(r);
       renderer.setSize(w, h, false);
     }
-    composer.setPixelRatio(r);
-    composer.setSize(w, h);
-    finish.uniforms.uAspect.value = w / Math.max(1, h);
+    if (composer) {
+      composer.setPixelRatio(r);
+      composer.setSize(w, h);
+      finish.uniforms.uAspect.value = w / Math.max(1, h);
+    }
     return r;
   }
 
-  return {
-    composer,
-    bloom,
-    rays,
+  const api = {
+    get composer() {
+      return composer;
+    },
+    get bloom() {
+      return bloom;
+    },
+    get rays() {
+      return rays;
+    },
+    get built() {
+      return !!composer;
+    },
     get enabled() {
       return enabled;
     },
     setEnabled(on) {
       enabled = !!on;
+      if (enabled) build();
     },
     // adaptive post cost: 0 all passes, 1 no sun rays, 2 no bloom, 3 no SMAA
     setPostLevel(n) {
       postLevel = THREE.MathUtils.clamp(n | 0, 0, 3);
-      bloom.enabled = postLevel < 2;
-      smaa.enabled = postLevel < 3;
+      if (bloom) bloom.enabled = postLevel < 2;
+      if (smaa) smaa.enabled = postLevel < 3;
     },
     get postLevel() {
       return postLevel;
@@ -404,6 +430,7 @@ export function createEffects(renderer, scene, camera, { reducedMotion = false }
     },
     // night: 0..1; bloom a little stronger so lamps and windows glow
     update(dt, sunDir, night) {
+      build();
       if (!reducedMotion) finish.uniforms.uTime.value += dt;
       if (!reducedMotion) rays.compMat.uniforms.uTime.value += dt;
       rays.compMat.uniforms.uNearFar.value.set(camera.near, camera.far);
@@ -420,11 +447,14 @@ export function createEffects(renderer, scene, camera, { reducedMotion = false }
       bloom.radius = 0.45 + 0.08 * night - 0.2 * far;
     },
     render() {
+      build();
       composer.render();
     },
     dispose() {
-      composer.dispose();
-      rays.dispose();
+      composer?.dispose();
+      rays?.dispose();
     },
   };
+  if (!lazy) build();
+  return api;
 }

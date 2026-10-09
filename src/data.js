@@ -1,19 +1,34 @@
 import { language, loadTranslations, localizeLandmark, localizeRoute } from './i18n.js';
 import { CITY, dataPath } from './city.js';
 import { setDims } from './fit.js';
+import { unpackBuildings } from './buildings-pack.js';
 
 const BASE = import.meta.env.BASE_URL;
+
+// Content hashes of the data files (vite.config.js `__DATA_V__`): a data URL
+// carries ?v=<hash>, so Vercel can serve it as immutable (vercel.json) and a
+// returning visitor makes no request for a file that did not change. A new
+// deploy that changes a file changes only that file's URL. The tile folders
+// share the hash of their index.
+const DATA_V = typeof __DATA_V__ !== 'undefined' ? __DATA_V__ : {};
+function versionOf(rel) {
+  if (DATA_V[rel]) return DATA_V[rel];
+  for (const dir of ['data/tiles/', 'data/tiles-ms/']) if (rel.startsWith(dir) && DATA_V[dir]) return DATA_V[dir];
+  return null;
+}
 
 export function assetUrl(path) {
   if (!path) return '';
   if (/^https?:\/\//.test(path)) return path;
-  return BASE + String(path).replace(/^\.?\//, '');
+  const rel = String(path).replace(/^\.?\//, '');
+  const v = rel.includes('?') ? null : versionOf(rel);
+  return BASE + rel + (v ? `?v=${v}` : '');
 }
 
 // The Vite dev server answers a missing file with index.html and status 200,
 // so a 200 alone proves nothing. Require JSON content and a clean parse.
 async function fetchJSON(path) {
-  const res = await fetch(assetUrl(path), { cache: 'no-cache' });
+  const res = await fetch(assetUrl(path));
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const type = res.headers.get('content-type') || '';
   if (!type.includes('json')) throw new Error(`content-type "${type}" is not JSON`);
@@ -160,17 +175,65 @@ async function fetchTable(file, key, status) {
   }
 }
 
+// The core buildings: data/buildings.bin.gz (buildings-pack.js, a fifth of the
+// JSON's size on the wire and no 9 MB parse), unpacked with the browser's own
+// DecompressionStream; the JSON file stays the fallback for a browser without
+// it, and for a city that has no packed file.
+async function fetchBuildings() {
+  const packed = dataPath('buildings.bin.gz');
+  if (typeof DecompressionStream !== 'undefined' && DATA_V[packed]) {
+    try {
+      const res = await fetch(assetUrl(packed));
+      if (res.ok && res.body) {
+        const buf = await new Response(res.body.pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
+        return unpackBuildings(buf);
+      }
+    } catch (e) {
+      console.warn(`[porto] ${packed} unavailable (${e.message}); falling back to buildings.json`);
+    }
+  }
+  return fetchJSON(dataPath('buildings.json'));
+}
+
+// What the first frame needs is awaited here; the two big files are not.
+// roads.json (2.8 MB) and buildings.json (9 MB) download while the landmarks
+// are fitted and the sky is already on screen; the build steps await
+// `roadsReady` and `buildingsReady` right before they use them. The map's
+// projection needs only the roads' origin and bbox, which are the city's own
+// (cities/<id>.json origin and core_bbox; the data pipeline writes the same
+// values), so `roads` starts as that stub.
 export async function loadData(onStep = () => {}) {
-  const status = { landmarks: 'real', roads: 'real', routes: 'real' };
+  const status = { landmarks: 'real', roads: 'loading', routes: 'real', buildings: 'loading' };
   const D = CITY.data_dir;
 
-  const [lmRes, rdRes, rtRes, trRes, fpRes, bdRes, locRes, ntRes, dims, life, axes] = await Promise.allSettled([
+  const stubRoads = { origin: CITY.origin, bbox: CITY.core_bbox, features: [] };
+  const roadsReady = fetchJSON(dataPath('roads.json'))
+    .then(cleanRoads)
+    .then((r) => {
+      status.roads = 'real';
+      return r;
+    })
+    .catch((e) => {
+      console.warn(`[porto] ${D}/roads.json unavailable (${e.message}). No streets.`);
+      status.roads = 'none';
+      return stubRoads;
+    });
+  const buildingsReady = fetchBuildings()
+    .then((b) => {
+      status.buildings = 'real';
+      return b;
+    })
+    .catch((e) => {
+      console.warn(`[porto] ${D}/buildings.json unavailable (${e.message}). buildings layer disabled.`);
+      status.buildings = 'missing';
+      return null;
+    });
+
+  const [lmRes, rtRes, trRes, fpRes, locRes, ntRes, dims, life, axes] = await Promise.allSettled([
     fetchJSON(CITY.landmarks_file).then(cleanLandmarks),
-    fetchJSON(dataPath('roads.json')).then(cleanRoads),
     fetchJSON(dataPath('routes.json')),
     fetchJSON(dataPath('terrain.json')),
     fetchJSON(dataPath('footprints.json')),
-    fetchJSON(dataPath('buildings.json')),
     loadTranslations(language, CITY.id),
     fetchJSON(dataPath('nature.json')),
     fetchTable('dimensions.json', 'dimensions', status),
@@ -184,7 +247,7 @@ export async function loadData(onStep = () => {}) {
   // scene degrades (flat ground, no city mass, model-sized landmarks) and
   // says so in the console.
   const geo = {};
-  for (const [key, res, file] of [['terrain', trRes, 'terrain.json'], ['footprints', fpRes, 'footprints.json'], ['buildings', bdRes, 'buildings.json'], ['nature', ntRes, 'nature.json']]) {
+  for (const [key, res, file] of [['terrain', trRes, 'terrain.json'], ['footprints', fpRes, 'footprints.json'], ['nature', ntRes, 'nature.json']]) {
     if (res.status === 'fulfilled') {
       geo[key] = res.value;
       status[key] = 'real';
@@ -204,15 +267,6 @@ export async function loadData(onStep = () => {}) {
     console.info(`[porto] ${CITY.name.en}: no landmarks yet (${CITY.landmarks_file}: ${lmRes.reason?.message}). Empty list.`);
     landmarks = [];
     status.landmarks = 'none';
-  }
-
-  let roads;
-  if (rdRes.status === 'fulfilled') {
-    roads = rdRes.value;
-  } else {
-    console.warn(`[porto] ${D}/roads.json unavailable (${rdRes.reason?.message}). No streets.`);
-    roads = { origin: CITY.origin, bbox: CITY.core_bbox, features: [] };
-    status.roads = 'none';
   }
 
   for (const l of landmarks) cleanRich(l);
@@ -236,6 +290,6 @@ export async function loadData(onStep = () => {}) {
   landmarks = landmarks.map((l) => localizeLandmark(l, tr?.landmarks?.[l.id]));
   routes = routes.map((r) => localizeRoute(r, tr?.routes?.[r.id]));
 
-  return { landmarks, roads, routes, status, life: life.value || {}, trafficAxes: axes.value || {}, ...geo };
+  return { landmarks, roads: stubRoads, roadsReady, buildingsReady, routes, status, life: life.value || {}, trafficAxes: axes.value || {}, ...geo };
 }
 

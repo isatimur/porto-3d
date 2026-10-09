@@ -52,7 +52,10 @@ function withDefaults(cfg) {
 
 export async function loadCity(id = CITY_ID) {
   const base = import.meta.env.BASE_URL;
-  const res = await fetch(`${base}cities/${id}.json`, { cache: 'no-cache' });
+  // versioned by content hash (vite.config.js __DATA_V__): cached as
+  // immutable on Vercel, so a returning visit pays no round trip here
+  const v = typeof __DATA_V__ !== 'undefined' ? __DATA_V__[`cities/${id}.json`] : null;
+  const res = await fetch(`${base}cities/${id}.json${v ? `?v=${v}` : ''}`, v ? undefined : { cache: 'no-cache' });
   if (!res.ok) throw new Error(`cities/${id}.json: HTTP ${res.status}`);
   if (!(res.headers.get('content-type') || '').includes('json')) throw new Error(`cities/${id}.json is not JSON (unknown city?)`);
   const cfg = withDefaults(await res.json());

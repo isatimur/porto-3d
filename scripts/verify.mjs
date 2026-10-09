@@ -48,6 +48,19 @@ const checks = [
     needs: ['data/footprints.json', 'data/landmarks.json', 'data/roads.json', 'data/terrain.json'],
     why: 'footprints.json lands in porto-004',
   },
+  {
+    name: 'packed buildings',
+    cmd: ['node', 'scripts/pack-buildings.mjs', '--city', CITY, '--check'],
+    needs: ['data/buildings.json'],
+    why: 'data/buildings.bin.gz must decode to exactly buildings.json (node scripts/pack-buildings.mjs rewrites it)',
+    skipExit: 77,
+  },
+  {
+    name: 'smoke perf',
+    cmd: ['node', 'scripts/smoke-perf.mjs'],
+    needs: [],
+    why: 'device classes, GPU scoring, the pressure ladder and the governor against a synthetic load schedule',
+  },
 ];
 
 // Behavioural smoke tests for src/life.js. They load the real module through
@@ -94,6 +107,20 @@ checks.push({
   why: '',
   skipExit: 77,
 });
+
+// Performance budgets (perf/budgets.json) on a reduced device matrix, after
+// the console smoke (they share a port, so they run one after the other).
+// A soft gate: a miss prints WARN lines and the summary says so, but does not
+// fail verify; a console error in the bench does. VERIFY_PERF=0 leaves it out.
+if (process.env.VERIFY_PERF !== '0') {
+  checks.push({
+    name: 'perf budgets (soft)',
+    cmd: ['node', 'scripts/perf-bench.mjs', '--reduced', '--check', '--out', '/tmp/porto-perf-verify.json'],
+    needs: ['dist/index.html', 'perf/budgets.json', 'perf/profiles.json'],
+    why: '',
+    skipExit: 77,
+  });
+}
 
 const results = [];
 let failed = 0;

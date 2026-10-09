@@ -13,6 +13,7 @@
 // one hexagonal-prism bollard set per cell inside the same geometry.
 import * as THREE from 'three';
 import { dataPath, hasData } from './city.js';
+import { assetUrl } from './data.js';
 
 const STEP_M = 5; // sample spacing along a line
 const BOLLARD_M = 30;
@@ -33,7 +34,7 @@ const WATER_EPS_M = 0.4; // ground this close to the water counts as the waterli
 export async function loadQuays() {
   if (!hasData('quays.json')) return null;
   try {
-    const res = await fetch(`${import.meta.env.BASE_URL}${dataPath('quays.json')}`, { cache: 'no-cache' });
+    const res = await fetch(assetUrl(dataPath('quays.json')));
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     if (!(res.headers.get('content-type') || '').includes('json')) throw new Error('not JSON');
     const doc = JSON.parse(await res.text());

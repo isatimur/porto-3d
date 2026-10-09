@@ -365,8 +365,10 @@ if (cloudShape.z > 0.001) {
 // The one device-pixel-ratio cap of the app: 2 in high quality, 1.5 in
 // light mode, 1.25 on a low-end device (main.js sets it before the renderer
 // exists). createRenderer, main.js resize() and effects.js read it here.
-export const DPR = { cap: 2 };
-export const deviceDpr = () => Math.min(window.devicePixelRatio || 1, DPR.cap);
+// `scale` is the governor's dynamic resolution (0.5 .. 1): it multiplies the
+// capped ratio, so it also bites on a 1x screen.
+export const DPR = { cap: 2, scale: 1 };
+export const deviceDpr = () => Math.max(0.5, Math.min(window.devicePixelRatio || 1, DPR.cap) * DPR.scale);
 
 export function createRenderer(canvas, { antialias = true } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias, powerPreference: 'high-performance', stencil: false });
@@ -960,7 +962,15 @@ export function createAtmosphere(renderer, scene, { reducedMotion = false, shado
     apply();
   }
 
+  // n = 0 turns the shadow pass off (the map is freed); a size turns it back on
   function setShadowSize(n) {
+    const on = n > 0;
+    if (sun.castShadow !== on) sun.castShadow = on;
+    if (!on) {
+      sun.shadow.map?.dispose();
+      sun.shadow.map = null;
+      return;
+    }
     if (sun.shadow.mapSize.x === n) return;
     sun.shadow.mapSize.set(n, n);
     sun.shadow.map?.dispose();
@@ -987,6 +997,7 @@ export function createAtmosphere(renderer, scene, { reducedMotion = false, shado
     update,
     setLinearOutput,
     setShadowSize,
+    rebuildEnv, // after a lost WebGL context: the environment target comes back empty
     onChange: (f) => listeners.add(f),
     get time() {
       return time;

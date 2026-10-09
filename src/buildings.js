@@ -577,7 +577,9 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
   group.name = 'buildings';
   const stats = { input: 0, built: 0, skippedOutline: 0, skippedPlan: 0, droppedSmall: 0, degenerate: 0, tiles: 0, triangles: 0, vertices: 0 };
   const list = data?.buildings;
-  if (!Array.isArray(list) || !list.length) return { group, stats, material: null };
+  // `list` is the JSON array, or the packed list of buildings-pack.js (length
+  // and at(i), one building made per call); both answer at(i)
+  if (!list || !(list.length > 0) || typeof list.at !== 'function') return { group, stats, material: null };
   stats.input = list.length;
   // the historic centre the facade zones count from (scripts/fetch-buildings.mjs
   // writes it; older files: the map origin)
@@ -593,9 +595,10 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
 
   // --- pass 1: project, clean, classify
   const items = [];
+  const skyRects = []; // x0, z0, x1, z1, height (metres) per building
   let tris = 0;
   for (let bi = 0; bi < list.length; bi++) {
-    const b = list[bi];
+    const b = list.at(bi);
     if (!Array.isArray(b.p) || b.p.length < 3 || !(b.h > 0)) {
       stats.degenerate++;
       continue;
@@ -610,6 +613,21 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
     if (pts.length < 3) {
       stats.degenerate++;
       continue;
+    }
+    {
+      // the skyline grid (tour.js createSkyline) wants every building's box
+      // and height; keeping five floats each lets the 9 MB list go
+      let x0 = Infinity;
+      let x1 = -Infinity;
+      let z0 = Infinity;
+      let z1 = -Infinity;
+      for (const p of pts) {
+        if (p.x < x0) x0 = p.x;
+        if (p.x > x1) x1 = p.x;
+        if (p.z < z0) z0 = p.z;
+        if (p.z > z1) z1 = p.z;
+      }
+      skyRects.push(x0, z0, x1, z1, b.h);
     }
     let area2 = 0;
     let cx = 0;
@@ -766,8 +784,17 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
   const VFAR = 6000 * S;
   const KEEP = 3000 * S;
   const MID = MID_M * S;
-  const DETAIL = DETAIL_M * S;
+  const DETAIL_BASE = DETAIL_M * S;
+  const MID_BASE = MID_M * S;
+  // The governor's close-range cut: below 1 the facade and roof detail and
+  // the pitched-roof tier end nearer to the camera (main.js applyKnobs).
+  let lodK = 1;
+  group.userData.setLodScale = (k) => {
+    lodK = Math.max(0.3, Math.min(1, k));
+  };
   group.userData.updateLod = (cam, focus) => {
+    const MID = MID_BASE * lodK;
+    const DETAIL = DETAIL_BASE * lodK;
     for (const mesh of group.children) {
       const full = mesh.userData.full;
       const bs = full.boundingSphere;
@@ -800,5 +827,13 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
     }
   };
   // projected footprints, for the nature layer's masks
-  return { group, stats, material, footprints: keep.map((it) => it.pts) };
+  const footprints = keep.map((it) => it.pts);
+  // `tileOf` and `updateLod` share one closure context, so `tiles` (every
+  // tile's vertex buffers as plain arrays, 8 bytes per number: about 500 MB
+  // for the core) would stay alive as long as the layer does. The meshes own
+  // typed copies; let the plain ones go.
+  tiles.clear();
+  items.length = 0;
+  keep.length = 0;
+  return { group, stats, material, footprints, skyRects: new Float32Array(skyRects) };
 }

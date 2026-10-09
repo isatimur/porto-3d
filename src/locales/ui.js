@@ -85,6 +85,13 @@ export const messages = {
   'утро': ['manhã', 'morning'], 'день': ['dia', 'day'], 'закат': ['pôr do sol', 'sunset'], 'ночь': ['noite', 'night'],
   'Эффекты:': ['Efeitos:', 'Effects:'], 'вкл': ['ligados', 'on'], 'выкл': ['desligados', 'off'],
   'Свечение, лучи солнца, сглаживание': ['Brilho, raios de sol e suavização', 'Glow, sun rays and anti-aliasing'],
+  // quality menu and the performance overlay (src/perf.js)
+  'Качество:': ['Qualidade:', 'Quality:'], 'Качество': ['Qualidade', 'Quality'],
+  'Скорость и детализация. Авто подбирает по устройству': ['Velocidade e detalhe. O modo automático escolhe pelo dispositivo', 'Speed and detail. Auto picks by device'],
+  'Авто': ['Auto', 'Auto'], 'Ультра': ['Ultra', 'Ultra'], 'Высокое': ['Alta', 'High'], 'Среднее': ['Média', 'Medium'], 'Низкое': ['Baixa', 'Low'], 'Картошка': ['Batata', 'Potato'],
+  'Нужен WebGL 2': ['É preciso WebGL 2', 'WebGL 2 is required'],
+  'Этот браузер или видеокарта не поддерживает WebGL 2, поэтому 3D-карта Порту здесь не откроется. Попробуйте свежий Chrome, Firefox, Edge или Safari на другом устройстве.': ['Este navegador ou placa gráfica não suporta WebGL 2, por isso o mapa 3D do Porto não abre aqui. Experimente uma versão recente do Chrome, Firefox, Edge ou Safari noutro dispositivo.', 'This browser or graphics card does not support WebGL 2, so the 3D map of Porto cannot open here. Try a current Chrome, Firefox, Edge or Safari, or another device.'],
+  'Видеокарта остановилась. Восстанавливаем сцену…': ['A placa gráfica parou. A recuperar a cena…', 'The graphics card stopped. Restoring the scene…'],
   'Повернуть карту на север': ['Orientar o mapa para norte', 'Turn the map to face north'], 'С': ['N', 'N'],
   'официальный сайт': ['site oficial', 'official website'],
   'Текст пока только на русском': ['Por agora, este texto existe apenas em russo', 'This text is in Russian for now'],

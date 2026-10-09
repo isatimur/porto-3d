@@ -28,7 +28,7 @@ import { S } from './geo.js';
 import { buildNetwork, surfaceOf } from './road-network.js';
 import { bridgeGeometry, portalGeometry, quad as embankmentQuad } from './road-structures.js';
 import { language } from './i18n.js';
-import { calcadaMaterial, calcadaPatternOf, CALCADA } from './streetscape.js';
+import { calcadaMaterial, calcadaPatternOf, CALCADA } from './calcada.js';
 
 // Order is draw order (later draws on top). metres: fallback width; px: the
 // line's CSS pixel width (the floor); surface: ribbon tone of the colour.
@@ -283,6 +283,7 @@ function paintArrow(T, p, d, l, off, kind, y, lift, col) {
 // and the golden streets are the look.)
 export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite = false } = {}) {
   const DETAIL_U = lite ? 450 : 900;
+  let detailK = 1;
   const group = new THREE.Group();
   group.name = 'roads';
   const materials = [];
@@ -1039,7 +1040,7 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
         lastFar = far;
         applyBloom();
       }
-      const on = d < DETAIL_U;
+      const on = d < DETAIL_U * detailK;
       if (on !== detailOn) {
         detailOn = on;
         detail.visible = on;
@@ -1047,6 +1048,11 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
       if (Math.abs(k - lastClose) < 0.01) return;
       lastClose = k;
       applyOpacity();
+    },
+    // the governor's close-range cut: markings, sidewalks and islands show
+    // within DETAIL_U * k only (main.js applyKnobs passes the `geo` knob)
+    setDetailScale(k) {
+      detailK = Math.max(0.3, Math.min(1, k));
     },
     // the thin blue river line is for the far view; up close the water
     // surface shows the river at its width

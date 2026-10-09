@@ -896,6 +896,24 @@ dialog { color: var(--text); font: 400 14px/1.5 var(--sans); }
 .fx-toggle[aria-pressed='false'] { border-color: rgba(240, 222, 192, 0.2); color: var(--text); }
 .fx-toggle[aria-pressed='false'] .fx-state { color: var(--text-3); }
 
+/* ------------------------------------------------------------ quality menu, performance overlay */
+.quality-row { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.quality-row .scale-name { color: var(--text-2); }
+.tools-sheet .quality-row .scale-name { color: var(--mut); }
+.quality-row select { flex: 1 1 auto; min-width: 0; }
+.perf-overlay { position: fixed; left: 8px; bottom: 8px; z-index: 40; max-width: min(520px, calc(100vw - 16px)); padding: 8px 10px; border-radius: 8px; background: rgba(14, 10, 6, 0.82); color: #f0deC0; font: 11px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; pointer-events: auto; }
+.perf-overlay[hidden] { display: none; }
+.perf-overlay pre { margin: 0 0 6px; white-space: pre-wrap; font: inherit; }
+.perf-overlay-row { display: flex; gap: 6px; }
+.perf-overlay button { font: inherit; padding: 3px 8px; border-radius: 5px; border: 1px solid rgba(240, 222, 192, 0.35); background: transparent; color: inherit; cursor: pointer; }
+.perf-overlay button:hover, .perf-overlay button:focus-visible { border-color: #ffc862; outline: none; }
+.gpu-notice { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 24px; background: rgba(14, 10, 6, 0.94); color: #f0deC0; text-align: center; }
+.gpu-notice > div { max-width: 460px; }
+.gpu-notice h1 { margin: 0 0 12px; font-size: 22px; font-weight: 600; }
+.gpu-notice p { margin: 0; line-height: 1.55; opacity: 0.9; }
+.gpu-notice.is-toast { inset: auto 0 16px 0; background: transparent; pointer-events: none; padding: 0 16px; }
+.gpu-notice.is-toast > div { margin: 0 auto; padding: 10px 14px; border-radius: 8px; background: rgba(14, 10, 6, 0.9); font-size: 13px; }
+
 /* ------------------------------------------------------------ compass, scale bar */
 .instruments {
   position: absolute;
