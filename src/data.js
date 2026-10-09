@@ -17,12 +17,33 @@ function versionOf(rel) {
   return null;
 }
 
+// Photos and panoramas are shipped as WebP next to the JPEGs
+// (scripts/optimize-images.mjs): a third to a half of the bytes for the
+// hero image, a tenth for the 480 px thumbnail. The JPEG stays for the social
+// previews and for a browser that cannot decode WebP.
+const WEBP = (() => {
+  try {
+    return document.createElement('canvas').toDataURL('image/webp').startsWith('data:image/webp');
+  } catch {
+    return false;
+  }
+})();
+const PHOTO = /^assets\/(img|pano)\/[^?]+\.jpe?g$/i;
+
 export function assetUrl(path) {
   if (!path) return '';
   if (/^https?:\/\//.test(path)) return path;
-  const rel = String(path).replace(/^\.?\//, '');
+  let rel = String(path).replace(/^\.?\//, '');
+  if (WEBP && PHOTO.test(rel)) rel = rel.replace(/\.jpe?g$/i, '.webp');
   const v = rel.includes('?') ? null : versionOf(rel);
   return BASE + rel + (v ? `?v=${v}` : '');
+}
+
+// the 480 px thumbnail of a landmark photo (labels, lists)
+export function thumbUrl(path) {
+  const rel = String(path || '').replace(/^\.?\//, '');
+  if (WEBP && /^assets\/img\/[^?]+\.jpe?g$/i.test(rel)) return BASE + rel.replace(/\.jpe?g$/i, '-480.webp');
+  return assetUrl(path);
 }
 
 // The Vite dev server answers a missing file with index.html and status 200,

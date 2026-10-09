@@ -673,8 +673,9 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
   // nearest the centre first, so the detail is concentrated where the camera
   // spends its time. Detail is baked into the tile's own index block, drawn
   // only within DETAIL_M; the mid and far tiers are untouched.
-  const DETAIL_FACADE_TRI = 150000;
-  const DETAIL_ROOF_TRI = 100000;
+  // light classes (phones, old laptops) get half the near-detail budget
+  const DETAIL_FACADE_TRI = WIN_LITE ? 75000 : 150000;
+  const DETAIL_ROOF_TRI = WIN_LITE ? 50000 : 100000;
   {
     const facade = [];
     const roof = [];
@@ -716,7 +717,9 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
   for (const it of keep) {
     const T = tileOf(it);
     extrudeBuilding(T, it.pts, it.h, it.k, it.areaM2, it.seed, heightAt, false, it.attrs, it.detailLevel || 0);
-    extrudeBuilding(T.roofs, it.pts, it.h, it.k, it.areaM2, it.seed, heightAt, true, it.attrs);
+    // the roofs-only copy (a second set of vertex buffers) serves tiles beyond
+    // 6 km; light classes keep the shared mid range there instead
+    if (!WIN_LITE) extrudeBuilding(T.roofs, it.pts, it.h, it.k, it.areaM2, it.seed, heightAt, true, it.attrs);
     stats.built++;
   }
 
@@ -749,7 +752,9 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
     for (let i = 0; i < nD; i++) detailIdx[i] = T.detail.idx[i] + baseV;
     const all = detailIdx.concat(T.near, T.idx, T.farCap);
     g.setIndex(all);
-    g.userData.ranges = { detail: [0, nD + nA + nB], near: [nD, nA + nB], mid: [nD + nA, nB + nC] };
+    // caps: the flat tops alone (the far-cap block of the same buffers), for
+    // the potato class and the deepest governor pressure: no walls at distance
+    g.userData.ranges = { detail: [0, nD + nA + nB], near: [nD, nA + nB], mid: [nD + nA, nB + nC], caps: [nD + nA + nB, nC] };
     g.setDrawRange(nD, nA + nB);
     g.computeBoundingSphere();
     g.computeBoundingBox();
@@ -789,8 +794,21 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
   // The governor's close-range cut: below 1 the facade and roof detail and
   // the pitched-roof tier end nearer to the camera (main.js applyKnobs).
   let lodK = 1;
+  let capsOnly = false;
   group.userData.setLodScale = (k) => {
     lodK = Math.max(0.3, Math.min(1, k));
+  };
+  // far tiles draw only their flat tops (potato class, deepest pressure)
+  group.userData.setCapsOnly = (on) => {
+    if (capsOnly === !!on) return;
+    capsOnly = !!on;
+    for (const mesh of group.children) {
+      const full = mesh.userData.full;
+      if (mesh.userData.tier === 'mid' && full.userData.ranges) {
+        const [s, c] = full.userData.ranges[capsOnly ? 'caps' : 'mid'];
+        full.setDrawRange(s, c);
+      }
+    }
   };
   group.userData.updateLod = (cam, focus) => {
     const MID = MID_BASE * lodK;
@@ -813,7 +831,7 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
         } else if (dc > MID) want = 'mid';
         else if (dc < DETAIL * 0.9 && r.detail[1] > r.detail[0]) want = 'detail';
         if (want !== cur) {
-          const [s, c] = r[want];
+          const [s, c] = r[want === 'mid' && capsOnly ? 'caps' : want];
           full.setDrawRange(s, c);
           mesh.userData.tier = want;
         }

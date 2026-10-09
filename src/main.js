@@ -20,7 +20,7 @@ import { createSkyline, createCinema } from './tour.js';
 import { createStory } from './story.js';
 import { createUI, createLoader, placesWord } from './ui.js';
 import { createSearch, IMPORTANCE } from './search.js';
-import { assetUrl } from './data.js';
+import { assetUrl, thumbUrl } from './data.js';
 import { createRouteLayer, createFlyAlong } from './routes.js';
 import { createPanorama } from './panorama.js';
 import { installShare } from './share.js';
@@ -687,6 +687,7 @@ async function start() {
     marks.setNearRadiusM(k.landmarkNearM);
     marks.setLodBias(1 / Math.max(0.3, k.geo)); // close range: clustered copies sooner
     cityRef?.group.userData.setLodScale?.(k.geo); // close range: detail and roof tiers end nearer
+    cityRef?.group.userData.setCapsOnly?.(k.geo <= 0.6); // deepest cut: far tiles are flat tops only
     roadsRef?.setDetailScale?.(k.geo); // close range: markings and sidewalks end nearer
     nature?.setNearRadius(k.natureNearM);
     tiles?.setBudgetScale(k.radius);
@@ -1486,7 +1487,7 @@ async function start() {
           img.alt = '';
           img.decoding = 'async';
           img.loading = 'lazy';
-          img.src = assetUrl(o.it.data.image);
+          img.src = thumbUrl(o.it.data.image);
           th.append(img);
         }
       }

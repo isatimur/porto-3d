@@ -1,0 +1,63 @@
+{
+  "_doc": "Limits for scripts/perf-bench.mjs --check (npm run perf, and the soft gate in npm run verify). Each number is the measured value of the performance round plus about 20 % for noise; a miss prints WARN and fails only with --strict. Units: transferKB at ready (brotli, cold cache), *Ms in milliseconds since navigation, p95FrameMs the worst p95 over the four camera paths with the bench's 60 Hz cap, tris and calls the worst path, gpuMB bytes the page allocated on the GPU (bufferData, textures, renderbuffers), jsHeapMB live heap after a full GC, longTaskMs main-thread tasks over 50 ms until ready. Console errors are not a budget: any error fails the check.",
+  "profiles": {
+    "desktop-gpu": {
+      "transferKB": 2500,
+      "firstFrameMs": 1200,
+      "interactiveMs": 5200,
+      "readyMs": 8000,
+      "warmReadyMs": 6200,
+      "p95FrameMs": 20,
+      "tris": 3900000,
+      "calls": 330,
+      "gpuMB": 780,
+      "longTaskMs": 5600,
+      "jsHeapMB": 240
+    },
+    "laptop-igpu": {
+      "transferKB": 2500,
+      "firstFrameMs": 1800,
+      "interactiveMs": 9400,
+      "readyMs": 14000,
+      "p95FrameMs": 36,
+      "tris": 3000000,
+      "calls": 240,
+      "gpuMB": 340,
+      "longTaskMs": 9500,
+      "jsHeapMB": 240
+    },
+    "phone-high": {
+      "transferKB": 2700,
+      "firstFrameMs": 12000,
+      "interactiveMs": 26000,
+      "readyMs": 31000,
+      "p95FrameMs": 36,
+      "tris": 2800000,
+      "calls": 180,
+      "gpuMB": 390,
+      "longTaskMs": 18000,
+      "jsHeapMB": 240
+    },
+    "phone-low": {
+      "transferKB": 2700,
+      "firstFrameMs": 15000,
+      "interactiveMs": 37000,
+      "readyMs": 42000,
+      "p95FrameMs": 60,
+      "tris": 2800000,
+      "calls": 170,
+      "gpuMB": 380,
+      "longTaskMs": 28000,
+      "jsHeapMB": 240
+    },
+    "potato": {
+      "transferKB": 2700,
+      "firstFrameMs": 8000,
+      "interactiveMs": 40000,
+      "readyMs": 70000,
+      "gpuMB": 330,
+      "longTaskMs": 55000,
+      "jsHeapMB": 240
+    }
+  }
+}
