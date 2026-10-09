@@ -58,6 +58,8 @@ const perf = initPerf();
 const TIER = { tier: perf.lite ? 'low' : 'high', reason: perf.reason, weak: perf.cls === 'S' || perf.cls === 'P', cls: perf.cls, score: perf.detected.score };
 // light mode: every module gets its phone budget through `mobile`
 const LITE = perf.lite;
+// the lite scene (src/lite/, class Potato): the same data through much cheaper builders
+const LITE_SCENE = perf.liteScene;
 DPR.cap = perf.cfg.dprCap;
 if (LITE || perf.cfg.waterLite) {
   setWaterLite(true);
@@ -92,6 +94,8 @@ async function start() {
   loader.set(0.08, t('Загружаем данные'));
 
   mark('start');
+  // the lite scene's builders (a separate chunk: the full scene never loads it)
+  const lite = LITE_SCENE ? await import('./lite/index.js') : null;
   // the bridges' builder chunk: its fit rules hold functions the terrain needs
   const bridgesGroup = import('./models/loader.js').then((m) => m.loadGroup('bridges'));
   bridgesGroup.catch(() => {}); // reported where it is awaited
@@ -117,7 +121,12 @@ async function start() {
   // the shared height fog replaces the stock chunks before any shader exists
   installAtmosphereFog();
   const canvas = document.getElementById('scene');
-  const renderer = createRenderer(canvas);
+  const renderer = createRenderer(canvas, { antialias: !LITE_SCENE });
+  if (LITE_SCENE) {
+    // unlit vertex colours straight to the canvas: no tone curve, no shadow pass
+    renderer.toneMapping = THREE.NoToneMapping;
+    renderer.shadowMap.enabled = false;
+  }
   const scene = new THREE.Scene();
   // near follows the orbit distance in the render loop (0.5 .. 6 units)
   const camera = new THREE.PerspectiveCamera(38, 1, 0.5, 16000);
@@ -125,8 +134,11 @@ async function start() {
   debug.scene = scene;
   debug.camera = camera;
 
-  const atmosphere = createAtmosphere(renderer, scene, { reducedMotion, shadowSize: perf.cfg.shadow || 1024 });
+  const atmosphere = LITE_SCENE
+    ? lite.createAtmosphereLite(renderer, scene, { reducedMotion, time: START_TIME })
+    : createAtmosphere(renderer, scene, { reducedMotion, shadowSize: perf.cfg.shadow || 1024 });
   debug.atmosphere = atmosphere;
+  debug.liteScene = LITE_SCENE;
   if (!perf.cfg.shadow) atmosphere.sun.castShadow = false; // class P: no shadow pass at all
 
   mark('atmosphere');
@@ -139,7 +151,8 @@ async function start() {
   // __porto.ready still means "fully built and interactive".
   loader.set(0.45, t('Строим рельеф'));
   const tb = terrain.bounds;
-  const ground = createGround(terrain);
+  const ground = LITE_SCENE ? lite.createGroundLite({ terrain, heightAt, atmosphere, S: proj.S }) : createGround(terrain);
+  const surfaceAt = LITE_SCENE ? ground.userData.surfaceAt : heightAt;
 
   // Geometry LOD by the distance from the camera to the focus (world units;
   // 250 units = 1 km). Within CAST_NEAR_U (2.8 km) the scene is untouched.
@@ -178,7 +191,7 @@ async function start() {
     }
     // the core buildings' own tiers (near / mid / roofs only) follow the camera
     // from the first frame, not only once the streamed tiles exist
-    if (cityRef && geoTick++ % 10 === 0) cityRef.group.userData.updateLod?.(camera.position, camera.userData.focus || home.target);
+    if (cityRef && (LITE_SCENE || geoTick++ % 10 === 0)) cityRef.group.userData.updateLod?.(camera.position, camera.userData.focus || home.target);
     debug.geoLod = geoState;
   }
   scene.add(ground);
@@ -195,7 +208,7 @@ async function start() {
   // rest follow in the deferred layers.
   let natureBase = null;
   try {
-    natureBase = buildNatureBase({ data: loaded.nature, project, heightAt, rect: { x0: tb.x0, zN: tb.zN, x1: tb.x1, zS: tb.zS } });
+    natureBase = buildNatureBase({ data: loaded.nature, project, heightAt, rect: { x0: tb.x0, zN: tb.zN, x1: tb.x1, zS: tb.zS }, noWater: LITE_SCENE });
   } catch (e) {
     console.error('[porto] nature base failed', e);
   }
@@ -211,7 +224,8 @@ async function start() {
   // exist, and the main thread takes 2 ms a frame. The streets' lines come
   // from the road layer later (roadHolder), the trees from the nature layer.
   const roadHolder = {};
-  tiles = createTiles({ renderer, scene, camera, terrain, heightAt, proj, roadLayer: roadHolder, nature: natureBase, ground, mobile: LITE, debug });
+  // (the lite scene draws the core only: no streamed ring)
+  if (!LITE_SCENE) tiles = createTiles({ renderer, scene, camera, terrain, heightAt, proj, roadLayer: roadHolder, nature: natureBase, ground, mobile: LITE, debug });
 
   // the landmark positions before the fits: the centre of the OSM outline's
   // box (the fit's pivot), else the point itself
@@ -323,8 +337,19 @@ async function start() {
   loader.set(0.58, t('Ставим достопримечательности'));
   await nextFrame();
   const outlines = landmarks.map((l) => footprints?.[l.id]?.outline?.map((q) => project(q[0], q[1])) ?? null);
-  const marks = buildLandmarks(landmarks, fits, heightAt, outlines, (i) => select(i), { lite: LITE, massing: true, lazy: lazyModels, client: modelClient });
-  marks.setModelBudget({ keep: perf.knobs.modelsKeep, ahead: perf.knobs.modelsAhead, idle: perf.knobs.modelsIdle });
+  // lite scene: only the 12 most important landmarks ever get their detailed model
+  // (when selected or filmed); the others stay coloured boxes
+  const topIds = new Set([...landmarks].sort((a, b) => (IMPORTANCE[b.id] ?? 3) - (IMPORTANCE[a.id] ?? 3)).slice(0, 12).map((l) => l.id));
+  const marks = buildLandmarks(landmarks, fits, surfaceAt, outlines, (i) => select(i), {
+    lite: LITE,
+    massing: true,
+    lazy: lazyModels,
+    client: modelClient,
+    ...(LITE_SCENE ? { liteScene: true, atmosphere, modelAllowed: (it) => topIds.has(it.data.id) } : {}),
+  });
+  // (the lite scene builds a detailed model only for a selected or filmed landmark, keeps 3)
+  const modelBudget = (k) => (LITE_SCENE ? { keep: 3, ahead: 0, idle: 0 } : { keep: k.modelsKeep, ahead: k.modelsAhead, idle: k.modelsIdle });
+  marks.setModelBudget(modelBudget(perf.knobs));
   scene.add(marks.group);
   {
     // the lit bridges' lamp points, for the glitter on the river at night
@@ -355,7 +380,9 @@ async function start() {
   roads = await loaded.roadsReady;
   mark('roadsData');
   await nextFrame();
-  const roadLayer = buildRoads(roads, project, heightAt, { waterRibbon: !loaded.nature, lite: LITE });
+  const roadLayer = LITE_SCENE
+    ? lite.buildRoadsLite(roads, project, surfaceAt, atmosphere, proj.S)
+    : buildRoads(roads, project, heightAt, { waterRibbon: !loaded.nature, lite: LITE });
   scene.add(roadLayer.group);
   fadeIn((k) => roadLayer.setReveal(k), 1200);
   debug.roadSegments = roadLayer.counts;
@@ -373,21 +400,33 @@ async function start() {
   // quays; the POI list). They start downloading now that the critical data
   // is in, so on a slow link they do not compete with it and are there when
   // the deferred build steps ask for them.
-  const late = {
-    life: import('./life.js'),
-    seasons: import('./seasons.js'),
-    ms: import('./buildings-ms.js'),
-    quays: import('./quays.js'),
-    traffic: import('./traffic-model.js'),
-    pois: import('./pois.js'),
-  };
+  // (the lite scene has none of them: no life, seasons, MS ring, quays; the POI
+  // list loads when the search asks)
+  const late = LITE_SCENE
+    ? { pois: import('./pois.js') }
+    : {
+        life: import('./life.js'),
+        seasons: import('./seasons.js'),
+        ms: import('./buildings-ms.js'),
+        quays: import('./quays.js'),
+        traffic: import('./traffic-model.js'),
+        pois: import('./pois.js'),
+      };
   for (const p of Object.values(late)) p.catch((e) => console.warn('[porto] a late layer failed to load', e));
   late.pois.then((m) => m.installPois(debug)).catch(() => {}); // __porto.pois: opening hours for the search
   await nextFrame();
-  const city = buildBuildings(buildings, project, heightAt, {
+  const cityMasks = {
     outlines: outlines.filter(Boolean),
     plans: fits.filter((f) => !f.fallback).map((f) => f.plan),
-  });
+  };
+  const city = LITE_SCENE
+    ? lite.createCityLite({ buildings, project, surfaceAt, atmosphere, S: proj.S, masks: cityMasks, budget: perf.cls === 'P' ? 6500 : 9000 })
+    : buildBuildings(buildings, project, heightAt, cityMasks);
+  if (LITE_SCENE) {
+    // the ground reads the built-up share from the city's coarse blocks
+    ground.userData.setBuilt(city.builtAt);
+    city.group.userData.updateLod = (camPos, focus) => city.update(focus, camPos.distanceTo(focus));
+  }
   scene.add(city.group);
   cityRef = city;
   fadeIn((k) => {
@@ -416,7 +455,7 @@ async function start() {
   // station or a church would stand on a lawn)
   const URBAN_CATS = new Set(['civic', 'religious', 'museum', 'culture', 'education']);
   const forecourt = 14 / METRES_PER_UNIT;
-  natureBase?.paintBuilt(
+  if (!LITE_SCENE) natureBase?.paintBuilt(
     city.footprints,
     fits.flatMap((f, i) => (f.fallback || !URBAN_CATS.has(landmarks[i]?.category) ? [] : [{ ...f.plan, hu: f.plan.hu + forecourt, hv: f.plan.hv + forecourt }])),
   );
@@ -723,7 +762,7 @@ async function start() {
     DPR.scale = k.res; // dynamic resolution: the fastest and least visible cut
     atmosphere.setShadowSize(k.shadow);
     marks.setNearRadiusM(k.landmarkNearM);
-    marks.setModelBudget({ keep: k.modelsKeep, ahead: k.modelsAhead, idle: k.modelsIdle });
+    marks.setModelBudget(modelBudget(k));
     marks.setLodBias(1 / Math.max(0.3, k.geo)); // close range: clustered copies sooner
     cityRef?.group.userData.setLodScale?.(k.geo); // close range: detail and roof tiers end nearer
     cityRef?.group.userData.setCapsOnly?.(k.geo <= 0.6); // deepest cut: far tiles are flat tops only
@@ -772,7 +811,8 @@ async function start() {
       url.searchParams.delete('quality'); // the saved choice must win after a reload
       history.replaceState(null, '', url);
       const target = modeToClass(mode) || perf.detected.cls;
-      if (!perf.gov || CLASSES[target].lite !== LITE) {
+      // (Potato runs the lite scene, the others the full one: crossing that line reloads)
+      if (!perf.gov || CLASSES[target].lite !== LITE || (CLASSES[target].scene === 'lite') !== LITE_SCENE) {
         setTimeout(() => location.reload(), 150);
         return;
       }
@@ -1888,9 +1928,10 @@ async function start() {
     const idle = () => new Promise((r) => (window.requestIdleCallback ? requestIdleCallback(() => r(), { timeout: 300 }) : setTimeout(r, 60)));
     const t0 = performance.now();
     // desktops wait 1.5 s at most (a 0.6 s build inside the flight), phones 6 s
-    const waitMs = LITE ? 6000 : 1500;
+    const waitMs = LITE_SCENE ? 0 : LITE ? 6000 : 1500; // (the lite scene has no deferred layer to wait for)
     while (intro?.active && performance.now() - t0 < waitMs) await nextFrame();
     const step = async (name, fn) => {
+      if (LITE_SCENE) return; // the lite scene builds none of the deferred layers
       await idle();
       try {
         await fn();
@@ -1899,7 +1940,7 @@ async function start() {
       }
     };
     mark('introWait');
-    const quaysP = late.quays.then((m) => m.loadQuays().then((doc) => ({ m, doc })));
+    const quaysP = late.quays ? late.quays.then((m) => m.loadQuays().then((doc) => ({ m, doc }))) : null;
     await step('nature', buildNatureLayer);
     await step('quays', () => {
       quaysP.then(({ m, doc }) => {
@@ -1933,6 +1974,11 @@ async function start() {
       const m = await late.seasons;
       seasons = m.createSeasons({ renderer, scene, camera, atmosphere, nature, fx, weather: life?.weather, terrain, ui, reducedMotion, mobile: LITE, lite: LITE, debug });
     });
+    if (LITE_SCENE) {
+      // seasons are a colour tint here (lite/seasons.js)
+      lite.createSeasonsLite({ atmosphere, debug });
+      natureBase = null; // the land-cover canvas and masks are no longer needed
+    }
     mark('life');
     await nextFrame();
     // the models around the camera are built (none at the overview; a deep link

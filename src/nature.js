@@ -640,7 +640,8 @@ export function buildNatureBase(opts) {
   const landRect = { x0: rect.x0, z0: rect.zN, w: lw / LAND_PX, d: lh / LAND_PX };
 
   // ---- water: river ribbons and pond / reservoir polygons (src/water.js)
-  let water = createWater({ data, areas, project, heightAt });
+  // (the lite scene draws one flat plane instead: opts.noWater)
+  let water = opts.noWater ? null : createWater({ data, areas, project, heightAt });
   return {
     rect,
     areas,
@@ -654,6 +655,7 @@ export function buildNatureBase(opts) {
     // the landmark pads change the ground under the banks after the first
     // build: make the water again on the final heights and swap it in
     rebuildWater(parent) {
+      if (opts.noWater) return;
       const old = water;
       water = createWater({ data, areas, project, heightAt });
       if (old?.mesh) {

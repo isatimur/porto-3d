@@ -123,6 +123,7 @@ export const CLASSES = {
   },
   P: {
     label: 'Potato',
+    scene: 'lite', // the lite scene (src/lite/): flat colours, merged boxes, no lights, no post
     lite: true,
     dprCap: 1,
     shadow: 0, // no shadow pass at all

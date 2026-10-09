@@ -49,6 +49,12 @@ const checks = [
     why: 'footprints.json lands in porto-004',
   },
   {
+    name: 'fit cache',
+    cmd: ['node', 'scripts/bake-fits.mjs', '--check', '--city', CITY],
+    needs: ['data/fits.json', 'data/footprints.json', 'data/landmarks.json', 'data/terrain.json', 'data/dimensions.json', 'data/roads.json'],
+    why: 'data/fits.json (node scripts/bake-fits.mjs) must equal a live fit of every model: lazy landmark models fit from it',
+  },
+  {
     name: 'packed buildings',
     cmd: ['node', 'scripts/pack-buildings.mjs', '--city', CITY, '--check'],
     needs: ['data/buildings.json'],

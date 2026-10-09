@@ -85,23 +85,43 @@ try {
 }
 
 const problems = [];
+// Two passes: the default scene, and the lite scene (?quality=potato), where a
+// landmark is also selected so its detailed model is built and audited, and the
+// triangle budget of the lite scene (0.2 M) is checked.
+const LITE_TRIS = 200000;
+for (const [label, query] of [['default', ''], ['lite scene', '?quality=potato']]) {
 const page = await (await browser.newContext({ viewport: { width: 1280, height: 800 } })).newPage();
+const tag = (s) => (label === 'default' ? s : `[${label}] ${s}`);
 page.on('console', (m) => {
   const text = m.text();
-  if (m.type() === 'error' || /GL_INVALID|GL ERROR|WebGL.*(error|lost)/i.test(text)) problems.push(`console.${m.type()}: ${text.slice(0, 240)}`);
+  if (m.type() === 'error' || /GL_INVALID|GL ERROR|WebGL.*(error|lost)/i.test(text)) problems.push(tag(`console.${m.type()}: ${text.slice(0, 240)}`));
 });
-page.on('pageerror', (e) => problems.push(`pageerror: ${String(e).slice(0, 240)}`));
+page.on('pageerror', (e) => problems.push(tag(`pageerror: ${String(e).slice(0, 240)}`)));
 page.on('response', (r) => {
-  if (r.status() >= 400 && !r.url().endsWith('/favicon.ico')) problems.push(`HTTP ${r.status()} ${r.url()}`);
+  if (r.status() >= 400 && !r.url().endsWith('/favicon.ico')) problems.push(tag(`HTTP ${r.status()} ${r.url()}`));
 });
 
-await page.goto(url);
+await page.goto(url + query);
 try {
   await page.waitForFunction(() => window.__porto?.ready === true, null, { timeout: 120000 });
 } catch {
-  problems.push('app never reported __porto.ready within 120 s');
+  problems.push(tag('app never reported __porto.ready within 120 s'));
 }
 await new Promise((r) => setTimeout(r, 6000));
+if (query) {
+  const liteOk = await page.evaluate(() => window.__porto?.liteScene === true);
+  if (!liteOk) problems.push(tag('?quality=potato did not start the lite scene'));
+  // the lite scene builds a model only for a selected landmark: select Clérigos and wait for it
+  await page.evaluate(() => window.__porto?.select?.(0));
+  try {
+    await page.waitForFunction(() => window.__porto?.marks?.items?.[0]?.built === true, null, { timeout: 30000 });
+  } catch {
+    problems.push(tag('the selected landmark never built its detailed model'));
+  }
+  await new Promise((r) => setTimeout(r, 3000));
+  const tris = await page.evaluate(() => window.__porto?.triangles ?? 0);
+  if (tris > LITE_TRIS) problems.push(tag(`lite scene draws ${tris} triangles (budget ${LITE_TRIS})`));
+}
 
 const bad = await page.evaluate(() => {
   const out = [];
@@ -133,7 +153,9 @@ const bad = await page.evaluate(() => {
   });
   return out;
 });
-problems.push(...bad.slice(0, 20).map((b) => `geometry: ${b}`));
+problems.push(...bad.slice(0, 20).map((b) => tag(`geometry: ${b}`)));
+await page.close();
+}
 
 await browser.close();
 stop();

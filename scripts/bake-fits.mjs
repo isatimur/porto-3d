@@ -182,7 +182,7 @@ const lazyCtx = { project: proj.project, rawAt: T.rawAt, footprints, models: met
 console.warn = () => {};
 const lazy = landmarks.map((l) => fitLandmark(l, lazyCtx));
 console.warn = warn;
-const SKIP = new Set(['geometry', 'glass', 'frame', 'footprint', 'rule', 'spec', 'dims', 'lazy', 'bakedSphere']);
+const SKIP = new Set(['geometry', 'glass', 'frame', 'footprint', 'rule', 'spec', 'dims', 'lazy', 'bakedSphere', 'baked']);
 let shrinkLive = 0;
 let shrinkLazy = 0;
 for (let i = 0; i < landmarks.length; i++) {

@@ -12,7 +12,9 @@ The bench runs on one Apple M1 Max. It can slow the CPU and the network down. It
 | Android budget phone, 2 to 3 GB (Mali-G52, Adreno 6xx), Chrome | the Low class, memory pressure |
 | A 5-year-old laptop with Intel UHD or HD graphics | iGPU fill rate |
 | A desktop or laptop with a 120 Hz or 144 Hz display | the 60 fps cap below Ultra |
-| Any machine with hardware acceleration switched off in the browser | the Potato class (software GL) |
+| Any machine with hardware acceleration switched off in the browser | the Potato class (software GL): it must start the lite scene (`__porto.liteScene` is true, flat colours, no weather) at 8 fps or better |
+| A very old phone (2 GB, Mali-400 / Adreno 3xx class) with WebGL 2 | `?quality=potato` on a real weak GPU: is the lite scene's 125 k to 150 k triangles and 8 to 60 draw calls smooth? Does the model worker start (Safari 15+ needs module workers)? |
+| A browser with WebGL 1 only | three.js r186 cannot run: the message "Нужен WebGL 2" must show, not a blank page |
 
 ## What to look at
 
@@ -26,12 +28,21 @@ The bench runs on one Apple M1 Max. It can slow the CPU and the network down. It
    - `js heap`: Chrome only.
    - `long tasks`: main-thread stalls over 50 ms in the last 10 seconds.
 4. Try the menu: Menu, Image, Quality. Switch between Auto, Ultra, High, Medium, Low, Potato. Medium, Low and Potato switch live; Ultra to High is live too; crossing between High and Medium reloads the page.
+   Menu entry "Potato - lite scene" switches to the lite scene (it reloads; the other entries switch live or reload across High and Medium). `?scene=lite` forces the lite scene on any class, `?scene=full` keeps the full scene on Potato.
+   Lite scene checks: the overview shows land cover colours, roads, terracotta blocks, 70 pins and labels; click a place from the top 12 (Clerigos, Luis I, Se, Bolsa, Sao Bento, Lello, Ribeira, Casa da Musica, Sao Francisco, Serralves, Dragao, Arrabida): its model appears within a second, flat coloured; the others stay boxes. Time of day and season buttons change colours only. Overlay `tris` stays under 200 k; `landmarkModels()` in the console shows `built` at most 3.
 5. Rotate the phone, switch tabs for 30 seconds and come back, lock and unlock the screen. The scene must come back without a reload (or reload cleanly).
 6. Offline: after one visit, switch on airplane mode and reload. The page must open.
 
 ## Send the numbers back
 
 Press **Export JSON** in the overlay. The file `porto-perf-<date>.json` holds the device caps and GPU name, the class and why, every governor change with its time, frame statistics, a one-second series (fps, p95, triangles, draw calls, GPU MB, JS heap), long tasks, load marks and errors. Attach it to the issue, or paste its content.
+
+## Lazy landmark models (all classes)
+
+- Fly to five landmarks one after another (Menu > Places, or the labels). A model must be there when the camera arrives; if a box shows for a moment, note the device, the class and the flight length.
+- Console: `__porto.landmarkModels()` gives `built`, `freed`, `failed`, `mismatch` (must be 0), `maxWrapMs` (main-thread cost of wrapping one model, expect under 1 ms) and the worker's `builds` and `buildMs`.
+- On a phone, watch `long tasks` in the overlay during a flight: the build runs in a worker, so a task over 50 ms at that moment is something else (tiles, GPU upload of a 30 k triangle model on first draw: the emulation cannot show that one).
+- iOS: does the worker survive the tab going to the background and back (the next flight must still build)?
 
 ## What the bench cannot tell you
 

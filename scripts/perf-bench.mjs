@@ -610,6 +610,8 @@ export function metricsOf(r) {
     readyMs: m.ready ?? null,
     warmReadyMs: r.warm?.marks?.ready ?? null,
     p95FrameMs: max((x) => x.frameMs.p95),
+    // the slowest path's mean frame time: 125 ms is 8 fps (the Potato lite scene's floor)
+    meanFrameMs: max((x) => x.frameMs.mean),
     tris: max((x) => Math.round(x.tris.mean)),
     calls: max((x) => Math.round(x.calls.mean)),
     gpuMB: sc.gpuMemory?.gl?.peakMB ?? null,

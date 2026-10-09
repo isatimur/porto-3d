@@ -347,11 +347,19 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
   const MASSING = opts.massing !== false;
   const group = new THREE.Group();
   group.name = 'landmarks';
-  const material = stoneMaterial(list.length);
-  const glassMat = glassMaterial();
-  const outlineMat = new LineMaterial({ color: 0xffc862, linewidth: 1.6, transparent: true, opacity: 0.9, depthWrite: false });
+  // The lite scene (opts.liteScene, src/lite/): the models, when one is built at
+  // all, are drawn unlit with their vertex colours; the far boxes are oriented,
+  // coloured by category with baked face shading; no glass, no fat outlines.
+  const LITE_SCENE = !!opts.liteScene;
+  const material = LITE_SCENE
+    ? opts.atmosphere.register(new THREE.MeshBasicMaterial({ vertexColors: true }))
+    : stoneMaterial(list.length);
+  const glassMat = LITE_SCENE ? null : glassMaterial();
+  const outlineMat = LITE_SCENE
+    ? new THREE.LineBasicMaterial({ color: 0xffc862 })
+    : new LineMaterial({ color: 0xffc862, linewidth: 1.6, transparent: true, opacity: 0.9, depthWrite: false });
   outlineMat.toneMapped = false;
-  outlineMat.fog = true;
+  outlineMat.fog = !LITE_SCENE;
 
   // Lazy models (opts.lazy, src/model-client.js): the fits come from the baked
   // cache and carry no geometry. Each landmark starts as a placeholder mesh
@@ -419,9 +427,16 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
           arr.push(x0, heightAt(x0, z0) + OUTLINE_LIFT, z0, x1, heightAt(x1, z1) + OUTLINE_LIFT, z1);
         }
       }
-      const lg = new LineSegmentsGeometry();
-      lg.setPositions(arr);
-      outline = new LineSegments2(lg, outlineMat);
+      if (LITE_SCENE) {
+        // a plain 1 px line set: no triangles, no line shader
+        const lg = new THREE.BufferGeometry();
+        lg.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3));
+        outline = new THREE.LineSegments(lg, outlineMat);
+      } else {
+        const lg = new LineSegmentsGeometry();
+        lg.setPositions(arr);
+        outline = new LineSegments2(lg, outlineMat);
+      }
       outline.name = `outline-${l.id}`;
       outline.renderOrder = 6;
       outline.frustumCulled = false;
@@ -489,7 +504,7 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
       mesh.add(pm);
       it.movers.push(pm);
     }
-    if (fit.glass) {
+    if (fit.glass && glassMat) {
       const gm = new THREE.Mesh(fit.glass, glassMat);
       gm.position.copy(fit.pivot);
       gm.renderOrder = 2;
@@ -545,7 +560,26 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
   // Far LOD: one instanced box per landmark, sized to its fitted box. Only
   // the ones beyond the near radius are drawn (scale 0 otherwise), so the
   // whole distant city is one draw call.
-  const massing = MASSING ? new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), massingMaterial(), items.length) : null;
+  let massingGeo = new THREE.BoxGeometry(1, 1, 1);
+  let massingMat;
+  if (LITE_SCENE) {
+    // baked face shading (px, nx, py, ny, pz, nz), the category colour per instance
+    const shade = [0.8, 0.7, 1.0, 0.5, 0.9, 0.76];
+    const c = new Float32Array(24 * 3);
+    shade.forEach((s, f) => {
+      for (let v = 0; v < 4; v++) c.set([s, s, s], (f * 4 + v) * 3);
+    });
+    massingGeo.setAttribute('color', new THREE.BufferAttribute(c, 3));
+    massingMat = opts.atmosphere.register(new THREE.MeshBasicMaterial({ vertexColors: true }));
+  } else {
+    massingMat = massingMaterial();
+  }
+  const massing = MASSING ? new THREE.InstancedMesh(massingGeo, massingMat, items.length) : null;
+  if (massing && LITE_SCENE) {
+    const CAT = { religious: 0xd9bf93, civic: 0xd0c0a0, museum: 0xc8b698, structure: 0x9a9da3, street: 0xc2b394, sport: 0xb4b0a6, park: 0x86a05e, education: 0xcdb78f, culture: 0xc9ae92, coast: 0xd6c8a4 };
+    const col = new THREE.Color();
+    for (const it of items) massing.setColorAt(it.index, col.set(CAT[it.data.category] ?? 0xcdbf9f));
+  }
   if (massing) {
     massing.name = 'landmark-massing';
     massing.frustumCulled = false;
@@ -634,6 +668,40 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
     applyVisibility();
   }
 
+  // Lite scene: the far box in the model's own (turned) frame instead of the
+  // world box; a bridge is a thin deck at its deck height, not a block.
+  const _lq = new THREE.Quaternion();
+  const _lp = new THREE.Vector3();
+  const _ls = new THREE.Vector3();
+  function liteBox(it) {
+    const fit = it.fit;
+    const lb = fit.localBox;
+    const cxl = (lb.min.x + lb.max.x) / 2;
+    const czl = (lb.min.z + lb.max.z) / 2;
+    let sx = lb.max.x - lb.min.x;
+    let sz = lb.max.z - lb.min.z;
+    let y0 = lb.min.y - 6; // a skirt into the coarse ground
+    let y1 = lb.max.y;
+    if (/^ponte-/.test(it.data.id)) {
+      const h = fit.dims?.height_m;
+      const deck = h?.upper_deck ?? h?.deck ?? y1 * 0.9;
+      y1 = deck;
+      y0 = deck - 3.5;
+      sx = Math.max(sx, 11);
+    } else if (sx * sz > 12000) {
+      const k = Math.max(0.35, Math.sqrt(12000 / (sx * sz)));
+      sx *= k;
+      sz *= k;
+    }
+    const cy = fit.pivot.y + ((y0 + y1) / 2) * S;
+    const cs = Math.cos(fit.yaw);
+    const sn = Math.sin(fit.yaw);
+    _lp.set(fit.pivot.x + (cxl * cs + czl * sn) * S, cy, fit.pivot.z + (-cxl * sn + czl * cs) * S);
+    _lq.setFromAxisAngle(_up, fit.yaw);
+    _ls.set(Math.max(sx, 1) * S, Math.max(y1 - y0, 1) * S, Math.max(sz, 1) * S);
+    _m.compose(_lp, _lq, _ls);
+  }
+
   // Category filter + distance LOD in one place: the detailed meshes and
   // movers draw only when their category is on and they are near (the
   // selection always full); the massing boxes cover the rest.
@@ -665,10 +733,14 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
         }
       }
       if (it.catOn && !full && !wide) {
-        _msz.x = Math.max(_msz.x, 1);
-        _msz.y = Math.max(_msz.y, 1);
-        _msz.z = Math.max(_msz.z, 1);
-        _m.compose(_mc, _mq, _msz);
+        if (LITE_SCENE) {
+          liteBox(it);
+        } else {
+          _msz.x = Math.max(_msz.x, 1);
+          _msz.y = Math.max(_msz.y, 1);
+          _msz.z = Math.max(_msz.z, 1);
+          _m.compose(_mc, _mq, _msz);
+        }
         it.massing = true;
       } else {
         _m.makeScale(0, 0, 0);
@@ -718,6 +790,7 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
   // priority of one item (smaller first); Infinity: not wanted now
   function priorityOf(it, cam, now) {
     if (it.built || it.failed || it.building) return Infinity;
+    if (opts.modelAllowed && !opts.modelAllowed(it)) return Infinity; // lite scene: the top 12 only
     if (it.index === activeIndex || (lm.until.get(it.index) ?? 0) > now) return -1;
     if (!it.catOn) return Infinity;
     const d = Math.max(1, cam.distanceTo(it.center));
@@ -1000,7 +1073,7 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
     },
     // dpr: drawing-buffer pixels per CSS pixel, for the far LOD
     setResolution(w, h, dpr = 1) {
-      outlineMat.resolution.set(w, h);
+      outlineMat.resolution?.set(w, h);
       pxPerUnit = (h * dpr) / 2 / TAN_HALF_FOV;
     },
     // for tests: how many models draw their far LOD now
@@ -1042,7 +1115,7 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
     // class budgets (main.js applyKnobs): detailed models kept, prefetch factor, idle builds
     setModelBudget({ keep, ahead, idle } = {}) {
       if (keep != null) lm.keep = Math.max(2, keep);
-      if (ahead != null) lm.ahead = Math.max(1, ahead);
+      if (ahead != null) lm.ahead = Math.max(0, ahead); // 0: only a selected landmark is built
       if (idle != null) lm.idle = Math.max(0, idle);
     },
     // idle builds start after `fromMs` (performance.now) and only while gate() is true

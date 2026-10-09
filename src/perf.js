@@ -292,6 +292,10 @@ export function initPerf() {
     cls,
     bootCls: cls,
     lite: CLASSES[cls].lite,
+    // the lite scene (src/lite/): a separate, much cheaper build of the same data,
+    // chosen by the class at the start of the visit (Potato). ?scene=lite forces
+    // it on any class, ?scene=full keeps the full scene on Potato.
+    liteScene: params.get('scene') === 'lite' || (params.get('scene') !== 'full' && CLASSES[cls].scene === 'lite'),
     cfg: CLASSES[cls],
     knobs: knobsFor(cls, 0),
     refreshMs: 1000 / 60,

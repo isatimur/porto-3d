@@ -51,13 +51,18 @@
       "jsHeapMB": 240
     },
     "potato": {
-      "transferKB": 2700,
-      "firstFrameMs": 8000,
-      "interactiveMs": 40000,
-      "readyMs": 70000,
-      "gpuMB": 330,
-      "longTaskMs": 55000,
-      "jsHeapMB": 240
+      "_doc": "The lite scene (src/lite/): at least 8 fps (mean frame under 125 ms on every path) and at most 0.2 M triangles on SwiftShader at 1280x720, CPU 4x.",
+      "transferKB": 2400,
+      "firstFrameMs": 6000,
+      "interactiveMs": 8000,
+      "readyMs": 12000,
+      "meanFrameMs": 125,
+      "p95FrameMs": 190,
+      "tris": 200000,
+      "calls": 100,
+      "gpuMB": 40,
+      "longTaskMs": 4000,
+      "jsHeapMB": 60
     }
   }
 }
