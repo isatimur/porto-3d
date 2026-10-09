@@ -17,30 +17,25 @@
 // outline, real parts, real heights). Detailed builders replace it one by
 // one: add src/models/porto/<name>.js exporting { [id]: builder } and spread
 // it into DETAILED below.
-import { Kit, PALETTE, MAT, triangleCount } from './models/kit.js';
-import { blockBuilders } from './models/porto/block.js';
-// Detailed 1:1 builders (one file per landmark, { [id]: builder }).
-import ponteLuisI from './models/porto/ponte-luis-i.js';
-import ponteArrabida from './models/porto/ponte-arrabida.js';
-import ponteMariaPia from './models/porto/ponte-maria-pia.js';
-import clerigos from './models/porto/clerigos.js';
-import sePorto from './models/porto/se-porto.js';
-import bolsa from './models/porto/bolsa.js';
-import saoBento from './models/porto/sao-bento.js';
-import lello from './models/porto/lello.js';
-import casaMusica from './models/porto/casa-musica.js';
-import serralves from './models/porto/serralves.js';
-import dragao from './models/porto/dragao.js';
-import mercadoBolhao from './models/porto/mercado-bolhao.js';
-import carmo from './models/porto/carmo.js';
-import uportoReitoria from './models/porto/uporto-reitoria.js';
-import saoFranciscoPorto from './models/porto/sao-francisco-porto.js';
-import ribeira from './models/porto/ribeira.js';
-import felgueiras from './models/porto/felgueiras.js';
-import cavesGaia from './models/porto/caves-gaia.js';
-import aliados from './models/porto/aliados.js';
-import palacioCristal from './models/porto/palacio-cristal.js';
-import { builders as portoBuilders, specs as portoSpecs } from './models/porto/index.js';
+//
+// The browser does not import this file (it pulls in every builder). The main
+// thread reads data/fits.json (src/model-meta.js) and the model worker loads
+// builders by group (src/models/loader.js). This file is the whole registry
+// for node: scripts/bake-fits.mjs, check-fit.mjs, count-tris.mjs, smoke-rail.mjs.
+import { PALETTE, MAT, triangleCount } from './models/kit.js';
+import { makeModels } from './model-build.js';
+// The builder groups (one file per landmark, { [id]: builder }, merged per group).
+import bridges from './models/groups/bridges.js';
+import churchesCore from './models/groups/churches-core.js';
+import churchesOuter from './models/groups/churches-outer.js';
+import civic from './models/groups/civic.js';
+import museums from './models/groups/museums.js';
+import theatres from './models/groups/theatres.js';
+import coast from './models/groups/coast.js';
+import parks from './models/groups/parks.js';
+import river from './models/groups/river.js';
+import stadiums from './models/groups/stadiums.js';
+import { specs as portoSpecs } from './models/porto/index.js';
 
 export { PALETTE, MAT, triangleCount };
 
@@ -79,87 +74,28 @@ export const LANDMARK_SPECS = {
   'paco-episcopal': { type: 'palace', h: 26, yaw: 0 },
 };
 
-const DETAILED = {
-  ...ponteLuisI,
-  ...ponteArrabida,
-  ...ponteMariaPia,
-  ...clerigos,
-  ...sePorto,
-  ...bolsa,
-  ...saoBento,
-  ...lello,
-  ...casaMusica,
-  ...serralves,
-  ...dragao,
-  ...mercadoBolhao,
-  ...carmo,
-  ...uportoReitoria,
-  ...saoFranciscoPorto,
-  ...ribeira,
-  ...felgueiras,
-  ...cavesGaia,
-  ...aliados,
-  ...palacioCristal,
-  ...portoBuilders,
-};
+// Per group, for scripts/bake-fits.mjs (it writes the id -> group table).
+export const GROUPS = { bridges, 'churches-core': churchesCore, 'churches-outer': churchesOuter, civic, museums, theatres, coast, parks, river, stadiums };
 
 // Roster-expansion specs (id -> { type, h, yaw }) merged before the derived maps.
 Object.assign(LANDMARK_SPECS, portoSpecs);
 
-const BUILDERS = { ...blockBuilders(Object.keys(LANDMARK_SPECS)), ...DETAILED };
-const TYPE_DEFAULT = Object.fromEntries(Object.entries(LANDMARK_SPECS).map(([id, s]) => [s.type, id]));
-export const MODEL_TYPES = Object.keys(TYPE_DEFAULT);
+const DETAILED = Object.assign({}, ...Object.values(GROUPS));
+const M = makeModels({ builders: DETAILED, specs: LANDMARK_SPECS });
+export const MODEL_TYPES = M.MODEL_TYPES;
 
-// Kept for the shared engine (src/main.js): one city per project, nothing to load.
+// Kept for the shared engine: one city per project, nothing to load.
 export function registerModels({ builders = {}, specs = {} } = {}) {
-  Object.assign(BUILDERS, builders);
+  Object.assign(M.BUILDERS, builders);
   Object.assign(LANDMARK_SPECS, specs);
 }
 export async function loadCityModels() {
   return null;
 }
 
-function resolve(type, landmarkId) {
-  if (landmarkId && BUILDERS[landmarkId]) return landmarkId;
-  if (TYPE_DEFAULT[type]) return TYPE_DEFAULT[type];
-  return 'clerigos';
-}
-
-export function specFor(landmarkId, type) {
-  return LANDMARK_SPECS[landmarkId] ?? LANDMARK_SPECS[resolve(type, landmarkId)] ?? { h: 50, yaw: 0 };
-}
-
-export function isMetric(type, landmarkId) {
-  return !!BUILDERS[resolve(type, landmarkId)].metric;
-}
-
-// Fit rules a builder carries with it (builder.rule, see fit.js FIT_RULES).
-export function builderRule(type, landmarkId) {
-  return BUILDERS[resolve(type, landmarkId)].rule || {};
-}
-
-function hash(s) {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
-  return h >>> 0;
-}
-
-// site: { footprint, dims } for metric builders.
-export function buildModel(type, landmarkId, site = null) {
-  const id = resolve(type, landmarkId);
-  const spec = LANDMARK_SPECS[id];
-  const fn = BUILDERS[id];
-  const k = new Kit(hash(id));
-  let g;
-  if (fn.metric) {
-    fn(k, site);
-    g = k.build();
-    g.userData.metric = true;
-  } else {
-    fn(k);
-    g = k.build(spec.h);
-  }
-  g.userData.type = spec.type;
-  g.userData.builder = id;
-  return g;
-}
+export const specFor = M.specFor;
+export const isMetric = M.isMetric;
+export const builderRule = M.builderRule;
+export const buildModel = M.buildModel;
+// the registry the fit takes as ctx.models (src/fit.js)
+export const models = { specFor, builderRule, isMetric, buildModel };

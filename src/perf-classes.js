@@ -27,6 +27,9 @@ export const CLASSES = {
     fx: true, // composer on at start
     tileScale: 1, // tiles.js setBudgetScale: streamed tile radius and budget
     landmarkNearM: 2200, // landmarks.js setNearRadiusM: full-detail radius
+    modelsKeep: 70, // landmarks.js setModelBudget: detailed models kept built (the rest are freed, farthest first)
+    modelsAhead: 1.35, // build a model when the camera is within this x its full-detail radius
+    modelsIdle: 20, // build this many (in list order) in idle time after the first full frame
     natureNearM: 220, // nature.js setNearRadius
     trees: 5000, // buildNature budget (tree clumps)
     cars: 600, // life.js carMax
@@ -50,6 +53,9 @@ export const CLASSES = {
     fx: true,
     tileScale: 0.85,
     landmarkNearM: 1800,
+    modelsKeep: 70,
+    modelsAhead: 1.35,
+    modelsIdle: 12,
     natureNearM: 190,
     trees: 3500,
     cars: 400,
@@ -73,6 +79,9 @@ export const CLASSES = {
     fx: false,
     tileScale: 1, // the phone tile budget (tiles.js `mobile`) is the Medium baseline
     landmarkNearM: 1400,
+    modelsKeep: 24,
+    modelsAhead: 1.5,
+    modelsIdle: 0,
     natureNearM: 160,
     trees: 1200,
     cars: 150,
@@ -96,6 +105,9 @@ export const CLASSES = {
     fx: false,
     tileScale: 0.8,
     landmarkNearM: 1100,
+    modelsKeep: 14,
+    modelsAhead: 1.6,
+    modelsIdle: 0,
     natureNearM: 130,
     trees: 800,
     cars: 100,
@@ -119,6 +131,9 @@ export const CLASSES = {
     fx: false,
     tileScale: 0.55,
     landmarkNearM: 700,
+    modelsKeep: 8,
+    modelsAhead: 1.6,
+    modelsIdle: 0,
     natureNearM: 90,
     trees: 300,
     cars: 40,
@@ -318,6 +333,9 @@ export function knobsFor(cls, pressure) {
     geo: +(c.geoK * k.geo).toFixed(3),
     radius: +(c.tileScale * k.radius).toFixed(3),
     landmarkNearM: Math.round(c.landmarkNearM * k.radius),
+    modelsKeep: c.modelsKeep ?? 70,
+    modelsAhead: c.modelsAhead ?? 1.5,
+    modelsIdle: c.modelsIdle ?? 0,
     natureNearM: Math.round(c.natureNearM * k.radius),
     labelHz: Math.max(2, Math.round(c.labelHz * k.hz)),
     simHz: Math.max(5, Math.round(c.simHz * k.hz)),

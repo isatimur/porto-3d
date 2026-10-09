@@ -18,7 +18,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { createProjection } from '../src/geo.js';
 import { fitLandmark, setDims } from '../src/fit.js';
-import { triangleCount, loadCityModels, builderRule } from '../src/models.js';
+import { triangleCount, loadCityModels, builderRule, models } from '../src/models.js';
 import { CITY, dataPath } from './city-lib.mjs';
 
 const MAX_MODEL = 40000;
@@ -50,7 +50,7 @@ const footprints = load('footprints.json');
 const proj = createProjection(roads.origin, roads.bbox, list, load('terrain.json'));
 const warn = console.warn;
 console.warn = () => {};
-const fits = list.map((l) => fitLandmark(l, { project: proj.project, rawAt: proj.terrain.rawAt, footprints }));
+const fits = list.map((l) => fitLandmark(l, { project: proj.project, rawAt: proj.terrain.rawAt, footprints, models }));
 console.warn = warn;
 
 let total = 0;

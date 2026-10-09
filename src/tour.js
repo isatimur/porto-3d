@@ -459,6 +459,7 @@ export function createCinema(ctx) {
   let total = 0;
   let clock = 0;
   let current = -1; // chapter shown
+  let prefetched = -1; // chapter whose landmark models were asked for
   let cutNext = false;
   let savedTime = null;
   const pose = { pos: new THREE.Vector3(), look: new THREE.Vector3(), cut: false };
@@ -625,6 +626,12 @@ export function createCinema(ctx) {
       if (!paused) clock = Math.min(total, clock + dt);
       const s = evaluate();
       const prevShot = current;
+      // lazy landmark models: build this shot's landmark and the next one now
+      if (s.shot !== prefetched) {
+        prefetched = s.shot;
+        ctx.prefetch?.(shotsMeta[s.shot].it.index);
+        if (shotsMeta[s.shot + 1]) ctx.prefetch?.(shotsMeta[s.shot + 1].it.index);
+      }
       updateOverlay(s);
       // time of day: when a flight toward a new chapter begins
       const o = order[s.shot];

@@ -65,6 +65,9 @@ export default defineConfig({
   base: './',
   publicDir: 'public',
   define: { __DATA_V__: JSON.stringify(dataVersions()) },
+  // module workers: the model worker loads its builders by group chunk (dynamic
+  // imports need a code-splitting format; the default, IIFE, has none)
+  worker: { format: 'es' },
   build: {
     assetsDir: 'static',
     chunkSizeWarningLimit: 1200,

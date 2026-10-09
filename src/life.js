@@ -60,7 +60,9 @@ import { createWeather, addScaled } from './weather.js';
 import { createLive } from './live.js';
 import { createTrafficModel } from './traffic-model.js';
 import { buildNetwork, createFlow } from './road-network.js';
-import { createStreetscape } from './streetscape.js';
+import { createStreetscape, floorSites } from './streetscape.js';
+
+export { floorSites };
 
 // shared by the materials here: night 0..1 and the emissive boost (above
 // the bloom threshold when post-processing is on)

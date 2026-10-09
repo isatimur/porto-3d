@@ -8,6 +8,9 @@
   },
   "scripts": {
     "dev": "vite",
+    "prebuild": "node scripts/bake-fits.mjs --if-stale",
+    "bake:fits": "node scripts/bake-fits.mjs",
+    "check:fits": "node scripts/bake-fits.mjs --check",
     "build": "vite build",
     "preview": "vite preview",
     "verify": "node scripts/verify.mjs",

@@ -10,7 +10,7 @@
 import { readFileSync } from 'node:fs';
 import { createProjection, S } from '../src/geo.js';
 import { fitLandmark, padFor, shrinkCheck, DEVIATION_FAIL, SHRINK_MIN, setDims } from '../src/fit.js';
-import { loadCityModels } from '../src/models.js';
+import { loadCityModels, models } from '../src/models.js';
 import { CITY, dataPath } from './city-lib.mjs';
 import { existsSync } from 'node:fs';
 
@@ -32,7 +32,7 @@ const allowLegacy = process.argv.includes('--allow-legacy');
 
 const warn = console.warn;
 console.warn = () => {}; // the guard's warnings are summarised in the table
-const fits = landmarks.map((l) => fitLandmark(l, { project: proj.project, rawAt: T.rawAt, footprints }));
+const fits = landmarks.map((l) => fitLandmark(l, { project: proj.project, rawAt: T.rawAt, footprints, models }));
 console.warn = warn;
 for (const f of fits) {
   const pad = f.fallback ? null : padFor(f);

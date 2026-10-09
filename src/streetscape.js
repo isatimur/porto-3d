@@ -155,6 +155,27 @@ function carIndex(net, zones, CELL = 8) {
   };
 }
 
+// The landmarks whose built model landmarkFloors() reads (lazy models,
+// landmarks.js ensureBuilt): near the centre and over 1500 m2. Same tests as
+// below; keep them in step.
+export function floorSites({ items, outlines, project, lite }) {
+  const ms = CITY.ms_centre;
+  const c = Array.isArray(ms) ? project(ms[0], ms[1]) : { x: 0, z: 0 };
+  const r = (lite ? 250 : 330) + 80;
+  const out = [];
+  for (const it of items || []) {
+    const poly = outlines?.[it.index];
+    if (!poly || poly.length < 3) continue;
+    const xs = poly.map((p) => p.x);
+    const zs = poly.map((p) => p.z);
+    const mx = (Math.min(...xs) + Math.max(...xs)) / 2;
+    const mz = (Math.min(...zs) + Math.max(...zs)) / 2;
+    if ((mx - c.x) ** 2 + (mz - c.z) ** 2 >= r * r) continue;
+    if (Math.abs(polyArea(poly)) / (S * S) >= 1500) out.push(it.index);
+  }
+  return out;
+}
+
 // The landmarks around the centre. A landmark that is a paved square (its
 // model has a floor near the ground over most of its outline) can be walked
 // on: at(x, z) is the floor's height there, NaN where something stands on

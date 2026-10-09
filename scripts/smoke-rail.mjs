@@ -17,7 +17,7 @@ import { dirname, join } from 'node:path';
 import { createServer } from 'vite';
 import { createProjection, S } from '../src/geo.js';
 import { fitLandmark, setDims } from '../src/fit.js';
-import { loadCityModels } from '../src/models.js';
+import { loadCityModels, models } from '../src/models.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const j = (f) => JSON.parse(readFileSync(join(ROOT, f), 'utf8'));
@@ -59,7 +59,7 @@ await loadCityModels('porto');
 const fitById = {};
 for (const id of ['ponte-luis-i', 'ponte-sao-joao']) {
   const l = landmarks.find((x) => x.id === id);
-  const f = fitLandmark(l, { project, rawAt: T.rawAt, footprints });
+  const f = fitLandmark(l, { project, rawAt: T.rawAt, footprints, models });
   f.geometry.computeBoundingBox();
   fitById[id] = f;
 }

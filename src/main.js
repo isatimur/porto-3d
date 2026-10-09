@@ -14,7 +14,9 @@ import { buildNature, buildNatureBase } from './nature.js';
 import { createEffects } from './effects.js';
 import { createIntro } from './intro.js';
 import { createInstruments } from './ui.js';
-import { fitLandmark, padFor } from './fit.js';
+import { fitLandmark, padFor, getDims } from './fit.js';
+import { createMeta } from './model-meta.js';
+import { createModelClient } from './model-client.js';
 import { createCameraRig } from './camera.js';
 import { createSkyline, createCinema } from './tour.js';
 import { createStory } from './story.js';
@@ -28,7 +30,6 @@ import { createGuide } from './guide.js';
 import { createFlyKeys } from './fly.js';
 import { createTiles } from './tiles.js';
 import { CITY, loadCity, applyCityShell } from './city.js';
-import { loadCityModels } from './models.js';
 import { initPerf, showNotice } from './perf.js';
 import { CLASSES, MAX_PRESSURE, knobsFor, modeToClass } from './perf-classes.js';
 
@@ -91,6 +92,9 @@ async function start() {
   loader.set(0.08, t('Загружаем данные'));
 
   mark('start');
+  // the bridges' builder chunk: its fit rules hold functions the terrain needs
+  const bridgesGroup = import('./models/loader.js').then((m) => m.loadGroup('bridges'));
+  bridgesGroup.catch(() => {}); // reported where it is awaited
   const loaded = await loadData(() => loader.set(0.35, t('Данные получены')));
   mark('data');
   // data.js returns landmarks and routes already localized
@@ -259,10 +263,43 @@ async function start() {
   // Fit every landmark to its footprint: the fits level the ground under
   // them (terrain pads), and everything after reads that ground. Yield
   // every ~60 ms, so the boot view keeps drawing.
+  // The models are lazy when the baked cache is there (data/fits.json): the fit
+  // takes the model-derived numbers from it and builds nothing; the detailed
+  // models come from the model worker when the camera nears (landmarks.js).
+  // ?lazymodels=0 builds all of them here, as before (A/B tests, screenshots).
+  const lazyModels = !!loaded.fits && new URLSearchParams(location.search).get('lazymodels') !== '0';
+  let fitCtx;
+  let modelClient = null;
+  if (lazyModels) {
+    // the four big bridges' pad rules hold functions (the terrain calls them):
+    // they come from the bridges group, fetched since the start of the page
+    const ruleSources = {};
+    const withFn = Object.keys(loaded.fits.models).filter((id) => loaded.fits.models[id].fn);
+    if (withFn.length) {
+      const bridges = await bridgesGroup;
+      for (const id of withFn) ruleSources[id] = bridges[id].rule;
+    }
+    const meta = createMeta(loaded.fits, ruleSources);
+    fitCtx = { project, rawAt: terrain.rawAt, footprints, models: meta.models, baked: (id) => meta.entry(id) };
+    modelClient = createModelClient({
+      origin: { lat: proj.lat0, lon: proj.lon0 },
+      grid: terrain.grid,
+      footprints,
+      dims: getDims(),
+      landmarks: landmarks.map((l) => ({ id: l.id, model: l.model, lat: l.lat, lon: l.lon })),
+      specs: Object.fromEntries(Object.entries(loaded.fits.models).map(([id, m]) => [id, m.spec])),
+      groupOf: loaded.fits.groups,
+    });
+  } else {
+    const { models } = await import('./models.js');
+    fitCtx = { project, rawAt: terrain.rawAt, footprints, models };
+  }
+  debug.lazyModels = lazyModels;
+  debug.modelClient = modelClient;
   const fits = [];
   let tYield = performance.now();
   for (const l of landmarks) {
-    fits.push(fitLandmark(l, { project, rawAt: terrain.rawAt, footprints }));
+    fits.push(fitLandmark(l, fitCtx));
     if (performance.now() - tYield > 60) {
       await nextFrame();
       tYield = performance.now();
@@ -286,7 +323,8 @@ async function start() {
   loader.set(0.58, t('Ставим достопримечательности'));
   await nextFrame();
   const outlines = landmarks.map((l) => footprints?.[l.id]?.outline?.map((q) => project(q[0], q[1])) ?? null);
-  const marks = buildLandmarks(landmarks, fits, heightAt, outlines, (i) => select(i), { lite: LITE, massing: true });
+  const marks = buildLandmarks(landmarks, fits, heightAt, outlines, (i) => select(i), { lite: LITE, massing: true, lazy: lazyModels, client: modelClient });
+  marks.setModelBudget({ keep: perf.knobs.modelsKeep, ahead: perf.knobs.modelsAhead, idle: perf.knobs.modelsIdle });
   scene.add(marks.group);
   {
     // the lit bridges' lamp points, for the glitter on the river at night
@@ -685,6 +723,7 @@ async function start() {
     DPR.scale = k.res; // dynamic resolution: the fastest and least visible cut
     atmosphere.setShadowSize(k.shadow);
     marks.setNearRadiusM(k.landmarkNearM);
+    marks.setModelBudget({ keep: k.modelsKeep, ahead: k.modelsAhead, idle: k.modelsIdle });
     marks.setLodBias(1 / Math.max(0.3, k.geo)); // close range: clustered copies sooner
     cityRef?.group.userData.setLodScale?.(k.geo); // close range: detail and roof tiers end nearer
     cityRef?.group.userData.setCapsOnly?.(k.geo <= 0.6); // deepest cut: far tiles are flat tops only
@@ -1164,6 +1203,7 @@ async function start() {
     reducedMotion,
     setTime: modeTime,
     getTime: () => atmosphere.time,
+    prefetch: (i) => marks.prefetch(i), // lazy models: the next shot's landmark is built ahead
     onExit: () => {
       setTime(atmosphere.time, { writeHash: false }); // buttons and storage follow
       setHash(currentHash());
@@ -1173,6 +1213,7 @@ async function start() {
   const storyLabels = (ids) => {
     const on = new Set(ids);
     for (const it of marks.items) it.labelEl.classList.toggle('is-story-focus', on.has(it.data.id));
+    for (const it of marks.items) if (on.has(it.data.id)) marks.prefetch(it.index);
   };
   story = createStory({
     ...modeCtx,
@@ -1747,6 +1788,7 @@ async function start() {
       if (!o.isMesh || o.isInstancedMesh) return;
       meshes++;
       const g = o.geometry;
+      if (!g.attributes.position) return; // a landmark whose model is not built yet
       sceneTris += (g.index ? g.index.count : g.attributes.position.count) / 3;
     });
     const stats = {
@@ -1877,6 +1919,13 @@ async function start() {
       const [m, tm] = await Promise.all([late.life, late.traffic]);
       m.setLifeData(loaded.life);
       tm.setTrafficAxes(loaded.trafficAxes);
+      // the streetscape reads the floors of the big landmarks near the centre
+      // from their built models (paved squares are walked on): build and keep them
+      if (lazyModels) {
+        const sites = m.floorSites({ items: marks.items, outlines, project, lite: LITE });
+        debug.floorSites = sites.map((i) => landmarks[i].id);
+        await marks.ensureBuilt(sites, { pin: true });
+      }
       // footprints, outlines: where the people of streetscape.js may not walk
       life = m.createLife({ renderer, scene, camera, atmosphere, project, heightAt, roads, items: marks.items, nature, fx, reducedMotion, mobile: LITE, lite: LITE, debug, setHash: () => setHash(currentHash()), footprints: city.footprints, outlines });
     });
@@ -1886,6 +1935,10 @@ async function start() {
     });
     mark('life');
     await nextFrame();
+    // the models around the camera are built (none at the overview; a deep link
+    // to a place waits for that one), so "ready" still means the scene is complete
+    await marks.whenSettled(5000);
+    marks.setIdleGate(() => !rig.flying && (debug.frameMs ?? 0) < 22, performance.now() + 2500);
     mark('ready');
     debug.ready = true;
     // from here the governor judges frames (after a 2.5 s warm-up for the
@@ -1911,7 +1964,7 @@ async function start() {
   applyHash();
   window.addEventListener('hashchange', applyHash);
 
-  Object.assign(debug, { select, close, openRoute, exitRoute, startTour, stopTour, ui, panorama, routes, rig, landmarksRealScale: marks.realScale, shrink: marks.shrink, lodStats: () => marks.lodStats, landmarkDraw: () => marks.drawnStats });
+  Object.assign(debug, { select, close, openRoute, exitRoute, startTour, stopTour, ui, panorama, routes, rig, landmarksRealScale: marks.realScale, shrink: marks.shrink, lodStats: () => marks.lodStats, landmarkDraw: () => marks.drawnStats, landmarkModels: () => ({ ...marks.models, client: modelClient?.stats ?? null }), marks });
   Object.defineProperty(debug, 'touring', { get: () => !!tour });
   installShare({ renderer, scene, camera, fx, setFx, atmosphere, roadLayer, routeLayer, marks, landmarks, routes, ui, getSize: () => size });
   // the talking guide (guide.js, api/guide.js) is parked until later; ?guide=1 turns it on for testing
@@ -1927,7 +1980,6 @@ loadCity()
     debug.city = city;
     mark('city');
     applyCityShell();
-    await loadCityModels(city.id);
     mark('models');
     return start();
   })

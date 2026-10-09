@@ -23,7 +23,6 @@
 // THREE rotation.y = yaw maps local +z to world (sin yaw, cos yaw), so a model
 // whose front (+z) faces compass bearing F gets yaw = PI - F.
 import * as THREE from 'three';
-import { buildModel, specFor, builderRule } from './models.js';
 import { S } from './geo.js';
 import { bbox, edges, clean, inside } from './models/geom.js';
 
@@ -33,6 +32,9 @@ let DIMS = {};
 export function setDims(dims) {
   DIMS = dims && typeof dims === 'object' ? dims : {};
 }
+
+// the table the worker that builds the models needs a copy of (model-job.js)
+export const getDims = () => DIMS;
 
 const DEG = Math.PI / 180;
 export const DEVIATION_WARN = 0.1;
@@ -255,13 +257,53 @@ function samplePoly(pts, fn) {
   return out;
 }
 
+const box3Of = (a) => new THREE.Box3(new THREE.Vector3(a[0], a[1], a[2]), new THREE.Vector3(a[3], a[4], a[5]));
+const arrOf = (b) => [b.min.x, b.min.y, b.min.z, b.max.x, b.max.y, b.max.z];
+
+// The model-derived numbers of a freshly fitted landmark that the cache
+// (data/fits.json, scripts/bake-fits.mjs) stores, so a later fit can skip
+// the build. fit must come from an eager fitLandmark().
+export function bakedFit(fit) {
+  const g = fit.geometry;
+  if (!g) throw new Error(`bakedFit(${fit.id}): the fit has no geometry`);
+  g.computeBoundingSphere();
+  const sp = g.boundingSphere;
+  const groups = {};
+  for (const [name, b] of Object.entries(fit.groups)) groups[name] = arrOf(b);
+  const r4 = (v) => +v.toFixed(5);
+  return {
+    legacy: !!fit.legacy,
+    box: arrOf(fit.localBox),
+    real: arrOf(g.userData.realBox),
+    groups,
+    glass: !!fit.glass,
+    draped: !!fit.draped,
+    // the local (metre) positions and data, as the builder gave them
+    markers: fit.markers.map((m) => ({ name: m.name, data: m.data, pos: m.localPos })),
+    pieces: fit.pieces.map((p) => ({ name: p.name, data: p.localData })),
+    sphere: [r4(sp.center.x), r4(sp.center.y), r4(sp.center.z), r4(sp.radius)],
+    tris: Math.round((g.index ? g.index.count : g.attributes.position.count) / 3),
+  };
+}
+
 // ------------------------------------------------------------ the fit
-// ctx: { project, rawAt(x,z) (terrain without pads), footprints }
+// ctx: {
+//   project, rawAt(x,z) (terrain without pads), footprints,
+//   models: { specFor, builderRule, buildModel } (src/models.js in node, the
+//     baked meta of src/model-meta.js in the browser, the loaded groups in the
+//     model worker),
+//   baked(id): optional, the model-derived numbers of data/fits.json for this
+//     landmark (bakedFit() below). With it nothing is built: the fit gets the
+//     same numbers it would have measured on the model, `geometry` stays null
+//     and the model arrives later from the model worker.
+// }
 export function fitLandmark(l, ctx) {
   const fp = ctx.footprints?.[l.id];
   const dims = dimsFor(l.id);
+  const { specFor, builderRule, buildModel } = ctx.models;
   const rule = { ...FIT_RULES[l.id], ...builderRule(l.model, l.id) };
   const spec = specFor(l.id, l.model);
+  const bk = ctx.baked?.(l.id) ?? null;
   const fit = { id: l.id, rule, spec, dims, heightSource: dims ? 'dimensions.json' : fp?.height_source ?? 'model' };
 
   // --- no footprint: a rectangle of the dims size (or 20 x 20 m) at the point
@@ -345,11 +387,29 @@ export function fitLandmark(l, ctx) {
   const eb = bbox(extentPts);
   const ob = bbox(frame.outline);
 
-  // --- build (metric builders draw in metres on this footprint)
-  let g = buildModel(l.model, l.id, { footprint, dims });
-  let glass = g.userData.glass || null;
-  const groundLine = g.userData.groundLine || null;
-  let groups = g.userData.groups || {};
+  // --- build (metric builders draw in metres on this footprint). With a baked
+  // entry nothing is built: the numbers below come from the cache.
+  let g = null;
+  let glass = null;
+  let groups;
+  let mb;
+  let hasGlass;
+  let draped;
+  let bakedReal = null;
+  if (bk) {
+    groups = {};
+    for (const [name, b] of Object.entries(bk.groups || {})) groups[name] = box3Of(b);
+    mb = box3Of(bk.box);
+    bakedReal = box3Of(bk.real);
+    hasGlass = !!bk.glass;
+    draped = !!bk.draped;
+    if (bk.legacy) fit.legacy = true;
+  } else {
+  g = buildModel(l.model, l.id, { footprint, dims });
+  glass = g.userData.glass || null;
+  hasGlass = !!glass;
+  draped = !!g.userData.groundLine;
+  groups = g.userData.groups || {};
   // rule.fitTo: map the authored model onto the OSM extent (plan) and the
   // real height, so a builder authored in its own metres still stands at the
   // size of the footprint it represents. Opt-in per landmark.
@@ -384,7 +444,8 @@ export function fitLandmark(l, ctx) {
     fit.legacy = true;
   }
   g.computeBoundingBox();
-  const mb = g.boundingBox.clone(); // local metres
+  mb = g.boundingBox.clone(); // local metres
+  }
   fit.localBox = mb;
   fit.groups = groups;
 
@@ -413,15 +474,23 @@ export function fitLandmark(l, ctx) {
     geo.userData.realBox = geo.boundingBox.clone();
     geo.computeBoundingSphere();
   };
-  place(g);
-  if (glass) place(glass);
+  if (g) {
+    place(g);
+    if (glass) place(glass);
+  }
   // local metres [x, y, z] -> mesh-local world units
   const toMesh = ([lx, ly, lz]) => [(lx * ex.x + lz * ez.x) * S, ly * S, (lx * ex.z + lz * ez.z) * S];
   // detached pieces (moving parts): geometry in world units around its own
   // origin, turned with the model; a track (local metres) becomes world
   // units relative to the landmark pivot
-  const pieces = (g.userData.pieces || []).map((p) => {
+  const pieces = (g ? g.userData.pieces || [] : (bk.pieces || []).map((p) => ({ ...p, geometry: null }))).map((p) => {
     const pg = p.geometry;
+    if (!pg) {
+      // baked: the geometry arrives with the model worker
+      const data = { ...p.data };
+      if (p.data.track) data.track = p.data.track.map(toMesh);
+      return { name: p.name, geometry: null, data, localData: p.data };
+    }
     if (p.data.track) {
       // on a track: the part's own frame, turned and pitched by the app
       const a = pg.attributes.position.array;
@@ -431,10 +500,10 @@ export function fitLandmark(l, ctx) {
     } else place(pg); // a fixed part: turned with the model
     const data = { ...p.data };
     if (p.data.track) data.track = p.data.track.map(toMesh);
-    return { name: p.name, geometry: pg, data };
+    return { name: p.name, geometry: pg, data, localData: p.data };
   });
-  const markers = (g.userData.markers || []).map((m) => ({ name: m.name, data: m.data, pos: toMesh(m.pos) }));
-  const box = g.userData.realBox.clone().translate(pivot);
+  const markers = (g ? g.userData.markers || [] : bk.markers || []).map((m) => ({ name: m.name, data: m.data, pos: toMesh(m.pos), localPos: m.pos }));
+  const box = (g ? g.userData.realBox : bakedReal).clone().translate(pivot);
   // camera framing box: the whole model, or rule.frame = local box
   // { x0, x1, z0, z1 } (metres) for sites much larger than their subject
   let frameBox = box;
@@ -546,7 +615,11 @@ export function fitLandmark(l, ctx) {
     plan,
     padPlan,
     padLevel,
-    draped: !!groundLine,
+    draped,
+    hasGlass,
+    lazy: !!bk,
+    bakedSphere: bk?.sphere ?? null,
+    baked: bk,
     sizeM: { long, short, height: H, x: size.x, z: size.z, y0: mb.min.y },
     extentM: { x: eb.w, z: eb.d, outlineX: ob.w, outlineZ: ob.d },
     mainM: main ? { x: main.max.x - main.min.x, z: main.max.z - main.min.z, h: main.max.y } : null,

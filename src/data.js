@@ -250,7 +250,7 @@ export async function loadData(onStep = () => {}) {
       return null;
     });
 
-  const [lmRes, rtRes, trRes, fpRes, locRes, ntRes, dims, life, axes] = await Promise.allSettled([
+  const [lmRes, rtRes, trRes, fpRes, locRes, ntRes, dims, life, axes, fitsRes] = await Promise.allSettled([
     fetchJSON(CITY.landmarks_file).then(cleanLandmarks),
     fetchJSON(dataPath('routes.json')),
     fetchJSON(dataPath('terrain.json')),
@@ -260,6 +260,9 @@ export async function loadData(onStep = () => {}) {
     fetchTable('dimensions.json', 'dimensions', status),
     fetchTable('life.json', 'life', status),
     fetchTable('traffic-axes.json', 'trafficAxes', status),
+    // the baked model-derived fit numbers (scripts/bake-fits.mjs); without
+    // them (or with an older version) every model is built at boot
+    fetchJSON(dataPath('fits.json')),
   ]);
   onStep();
   setDims(dims.value || {});
@@ -311,6 +314,8 @@ export async function loadData(onStep = () => {}) {
   landmarks = landmarks.map((l) => localizeLandmark(l, tr?.landmarks?.[l.id]));
   routes = routes.map((r) => localizeRoute(r, tr?.routes?.[r.id]));
 
-  return { landmarks, roads: stubRoads, roadsReady, buildingsReady, routes, status, life: life.value || {}, trafficAxes: axes.value || {}, ...geo };
+  const fits = fitsRes.status === 'fulfilled' && fitsRes.value?.v === 1 ? fitsRes.value : null;
+  status.fits = fits ? 'real' : 'missing';
+  return { landmarks, roads: stubRoads, roadsReady, buildingsReady, routes, status, life: life.value || {}, trafficAxes: axes.value || {}, fits, ...geo };
 }
 

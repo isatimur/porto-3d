@@ -353,12 +353,33 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
   outlineMat.toneMapped = false;
   outlineMat.fog = true;
 
+  // Lazy models (opts.lazy, src/model-client.js): the fits come from the baked
+  // cache and carry no geometry. Each landmark starts as a placeholder mesh
+  // with the right boxes (nothing to draw; the instanced massing box stands in
+  // for it) and gets its detailed model from the model worker when the camera
+  // comes near, when it is selected, or in idle time (see "lazy models" below).
+  const lazy = !!opts.lazy && !!opts.client;
+  const placeholders = new Map();
+  function placeholderFor(fit) {
+    const g = new THREE.BufferGeometry();
+    g.boundingBox = fit.box.clone().translate(new THREE.Vector3().copy(fit.pivot).negate());
+    const s = fit.bakedSphere;
+    g.boundingSphere = s ? new THREE.Sphere(new THREE.Vector3(s[0], s[1], s[2]), s[3]) : g.boundingBox.getBoundingSphere(new THREE.Sphere());
+    g.userData.placeholder = true;
+    placeholders.set(fit.id, g);
+    return g;
+  }
+
   let fountainCount = 0;
   const items = list.map((l, index) => {
     const fit = fits[index];
-    const g = fit.geometry;
-    // per-landmark id for the focus effect in the shader
-    g.setAttribute('aLid', new THREE.BufferAttribute(new Float32Array(g.attributes.position.count).fill(index), 1));
+    let g = fit.geometry;
+    if (g) {
+      // per-landmark id for the focus effect in the shader
+      g.setAttribute('aLid', new THREE.BufferAttribute(new Float32Array(g.attributes.position.count).fill(index), 1));
+    } else {
+      g = placeholderFor(fit);
+    }
     const mesh = new THREE.Mesh(g, material);
     mesh.position.copy(fit.pivot);
     mesh.castShadow = true;
@@ -369,22 +390,6 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
     // moving parts: own meshes, children of the model, so visibility
     // follows it (the Bom Jesus funicular cars are life.js' own now)
     const movers = [];
-    for (const p of fit.pieces || []) {
-      const pg = p.geometry;
-      pg.setAttribute('aLid', new THREE.BufferAttribute(new Float32Array(pg.attributes.position.count).fill(index), 1));
-      const pm = new THREE.Mesh(pg, material);
-      pm.name = p.name;
-      pm.castShadow = true;
-      pm.receiveShadow = true;
-      Object.assign(pm.userData, p.data, { landmark: l.id });
-      if (p.data.track) {
-        pm.rotation.order = 'YXZ';
-        pm.userData.setT = (t) => poseOnTrack(pm, t);
-        poseOnTrack(pm, p.data.t ?? 0);
-      }
-      mesh.add(pm);
-      movers.push(pm);
-    }
     // named points (fountains): empty objects at the spout / basin centre,
     // numbered across all landmarks in list order
     const points = [];
@@ -395,14 +400,6 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
       Object.assign(o.userData, m.data, { landmark: l.id, pos: m.pos });
       mesh.add(o);
       points.push(o);
-    }
-    if (fit.glass) {
-      const gm = new THREE.Mesh(fit.glass, glassMat);
-      gm.position.copy(fit.pivot);
-      gm.renderOrder = 2;
-      gm.name = `glass-${l.id}`;
-      group.add(gm);
-      meshes.push(gm);
     }
 
     // the OSM outline, draped on the (padded) ground
@@ -443,7 +440,13 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
       points,
       outline,
       draped: !!fit.draped, // climbs the real slope (Bom Jesus): framing uses the box bottom
-      type: g.userData.type,
+      type: fit.spec?.type ?? g.userData.type,
+      // lazy models: the detailed mesh exists (always true when not lazy)
+      built: !!fit.geometry,
+      building: false,
+      failed: false,
+      pinned: false, // never freed (streetscape floors, fountains)
+      placeholder: fit.geometry ? null : g,
       // distance-LOD state, recomputed in updateLod(); catOn follows the
       // category filter (setHiddenCategories)
       catOn: true,
@@ -462,6 +465,40 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
       sphere: new THREE.Sphere(),
     };
   });
+
+  // The glass and the moving parts of a built model (own meshes next to /
+  // under the stone mesh, so the category filter and the distance LOD treat
+  // them as one).
+  function attachParts(it) {
+    const { fit, data: l, index } = it;
+    const mesh = it.meshes[0];
+    for (const p of fit.pieces || []) {
+      const pg = p.geometry;
+      if (!pg) continue;
+      if (!pg.attributes.aLid) pg.setAttribute('aLid', new THREE.BufferAttribute(new Float32Array(pg.attributes.position.count).fill(index), 1));
+      const pm = new THREE.Mesh(pg, material);
+      pm.name = p.name;
+      pm.castShadow = true;
+      pm.receiveShadow = true;
+      Object.assign(pm.userData, p.data, { landmark: l.id });
+      if (p.data.track) {
+        pm.rotation.order = 'YXZ';
+        pm.userData.setT = (t) => poseOnTrack(pm, t);
+        poseOnTrack(pm, p.data.t ?? 0);
+      }
+      mesh.add(pm);
+      it.movers.push(pm);
+    }
+    if (fit.glass) {
+      const gm = new THREE.Mesh(fit.glass, glassMat);
+      gm.position.copy(fit.pivot);
+      gm.renderOrder = 2;
+      gm.name = `glass-${l.id}`;
+      group.add(gm);
+      it.meshes.push(gm);
+    }
+  }
+  for (const it of items) if (it.built) attachParts(it);
 
   // Pose of one landmark at its real size: box, centre, sphere, top.
   const pivotY = (it) => it.fit.pivot.y || it.base;
@@ -563,6 +600,7 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
   // the massing instance matrices.
   function updateLod(camPos) {
     let built = false;
+    if (lazy) pumpModels(camPos);
     for (const it of items) {
       const d = Math.max(1, camPos.distanceTo(it.center));
       const R = lodNearU + it.radius * LOD_SIZE_K;
@@ -572,7 +610,7 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
       const mesh = it.meshes[0];
       // within the near radius (or the selection), keep the real geometry;
       // tiny-on-screen models still fall back to the vertex-clustered copy
-      if (it.lodNear) {
+      if (it.lodNear && it.built) {
         const L = (mesh.userData.lod ??= { full: mesh.geometry, far: null, r: 0 });
         if (!L.r) {
           if (!L.full.boundingSphere) L.full.computeBoundingSphere();
@@ -601,10 +639,12 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
   // selection always full); the massing boxes cover the rest.
   function applyVisibility() {
     for (const it of items) {
-      const full = it.catOn && (it.lodNear || it.index === activeIndex);
+      // a model that is not built yet (lazy) draws as its massing box
+      const near = it.catOn && (it.lodNear || it.index === activeIndex);
+      const full = near && it.built;
       for (const m of it.meshes) m.visible = full;
       for (const mv of it.movers) mv.visible = full;
-      if (it.outline) it.outline.visible = full;
+      if (it.outline) it.outline.visible = near;
       it.label.visible = it.catOn;
       if (!massing) continue;
       // Parks, gardens and beaches are low and wide (Parque da Cidade
@@ -640,6 +680,224 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
     if (massing) massing.instanceMatrix.needsUpdate = true;
   }
   applyVisibility();
+
+  // ------------------------------------------------------------ lazy models
+  // The queue. One build in flight in the worker; the next one is the wanted
+  // landmark with the smallest priority number:
+  //   -1     the selected landmark, and any landmark somebody asked for
+  //          (ensureBuilt: the streetscape's floors; prefetch: the cinema's next shot)
+  //   d / R  the camera is within `ahead` x the full-detail radius R of it
+  //          (nearest first), so the swap from the massing box at R finds
+  //          the model ready
+  //   idle   the first `idle` landmarks of the list, one at a time, when the
+  //          frame budget allows (high classes only)
+  // A finished model is wrapped into geometry one per frame (a few hundred
+  // microseconds: the arrays came ready from the worker).
+  const lm = {
+    keep: 70, // detailed models kept built; the farthest beyond this are freed
+    ahead: 1.5,
+    idle: 0,
+    idleGate: () => true,
+    idleFrom: 0, // performance.now() before which no idle build starts
+    inflight: null,
+    done: [], // { it, result } waiting to be wrapped
+    until: new Map(), // index -> performance.now() until which a prefetch holds
+    waiters: [], // { want: Set of indices | null (everything wanted), resolve }
+    cam: new THREE.Vector3(),
+    pending: 0, // wanted, not built, not failed
+    stats: { built: 0, freed: 0, failed: 0, mismatch: 0, wrapMs: 0, maxWrapMs: 0, lastBuildMs: 0 },
+  };
+  const toGeometry = (p) => {
+    const g = new THREE.BufferGeometry();
+    for (const [name, a] of Object.entries(p.attrs)) g.setAttribute(name, new THREE.BufferAttribute(a.array, a.itemSize, a.normalized));
+    if (p.index) g.setIndex(new THREE.BufferAttribute(p.index.array, 1));
+    return g;
+  };
+  const sameNums = (a, b, tol = 1e-3) => a.length === b.length && a.every((v, i) => Math.abs(v - b[i]) <= tol + tol * Math.abs(v));
+
+  // priority of one item (smaller first); Infinity: not wanted now
+  function priorityOf(it, cam, now) {
+    if (it.built || it.failed || it.building) return Infinity;
+    if (it.index === activeIndex || (lm.until.get(it.index) ?? 0) > now) return -1;
+    if (!it.catOn) return Infinity;
+    const d = Math.max(1, cam.distanceTo(it.center));
+    const R = lodNearU + it.radius * LOD_SIZE_K;
+    return d < R * lm.ahead ? d / R : Infinity;
+  }
+
+  function wrapModel(it, result) {
+    const t0 = performance.now();
+    const fit = it.fit;
+    const bk = fit.baked;
+    const chk = result.check;
+    // the worker's fit must be the cached fit: a mismatch means data/fits.json is
+    // stale (npm run bake:fits); verify catches it, this reports it in the field
+    if (bk && !(sameNums(chk.real, bk.real, 1e-3) && sameNums(chk.box, bk.box, 1e-3))) {
+      lm.stats.mismatch++;
+      if (lm.stats.mismatch <= 3) console.warn(`[porto] ${it.data.id}: the built model differs from data/fits.json (stale cache?)`);
+    }
+    const geo = toGeometry(result.geometry);
+    geo.boundingBox = new THREE.Box3(new THREE.Vector3(chk.real[0], chk.real[1], chk.real[2]), new THREE.Vector3(chk.real[3], chk.real[4], chk.real[5]));
+    geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(chk.sphere[0], chk.sphere[1], chk.sphere[2]), chk.sphere[3]);
+    fit.geometry = geo;
+    it.meshes[0].geometry = geo;
+    it.meshes[0].userData.lod = undefined;
+    if (result.glass) fit.glass = toGeometry(result.glass);
+    result.pieces.forEach((p, i) => {
+      const pg = toGeometry(p.geometry);
+      pg.computeBoundingBox();
+      pg.computeBoundingSphere();
+      if (fit.pieces[i]) fit.pieces[i].geometry = pg;
+    });
+    attachParts(it);
+    it.built = true;
+    lm.stats.built++;
+    const ms = performance.now() - t0;
+    lm.stats.wrapMs += ms;
+    lm.stats.maxWrapMs = Math.max(lm.stats.maxWrapMs, ms);
+    applyVisibility();
+  }
+
+  // Free a built model: its GPU buffers, its cluster copy, its glass and parts.
+  function freeModel(it) {
+    const mesh = it.meshes[0];
+    const L = mesh.userData.lod;
+    if (L?.far) L.far.dispose();
+    if (L?.full) L.full.dispose();
+    mesh.geometry.dispose();
+    mesh.geometry = it.placeholder;
+    mesh.userData.lod = undefined;
+    for (const m of it.meshes.slice(1)) {
+      group.remove(m);
+      m.geometry.dispose();
+    }
+    it.meshes.length = 1;
+    for (const mv of it.movers) {
+      mesh.remove(mv);
+      mv.geometry.dispose();
+    }
+    it.movers.length = 0;
+    it.fit.geometry = null;
+    it.fit.glass = null;
+    for (const p of it.fit.pieces || []) p.geometry = null;
+    it.built = false;
+    lm.stats.freed++;
+  }
+
+  function enforceKeep(cam) {
+    let n = 0;
+    for (const it of items) if (it.built) n++;
+    while (n > lm.keep) {
+      let victim = null;
+      let worst = 0;
+      for (const it of items) {
+        if (!it.built || it.pinned || it.index === activeIndex || (lm.until.get(it.index) ?? 0) > performance.now()) continue;
+        const R = lodNearU + it.radius * LOD_SIZE_K;
+        const r = Math.max(1, cam.distanceTo(it.center)) / R;
+        if (r > worst) {
+          worst = r;
+          victim = it;
+        }
+      }
+      // only models well outside the build radius go; nothing there: keep all
+      if (!victim || worst < lm.ahead * 1.15) break;
+      freeModel(victim);
+      n--;
+    }
+  }
+
+  function settleWaiters() {
+    if (!lm.waiters.length) return;
+    lm.waiters = lm.waiters.filter((w) => {
+      const open = w.want ? [...w.want].some((i) => !items[i].built && !items[i].failed) : lm.pending > 0 || lm.inflight || lm.done.length;
+      if (open) return true;
+      w.resolve();
+      return false;
+    });
+  }
+
+  function startBuild(it) {
+    it.building = true;
+    const t0 = performance.now();
+    lm.inflight = it;
+    opts.client.build(it.data.id, it.index).then(
+      (result) => {
+        lm.inflight = null;
+        it.building = false;
+        lm.stats.lastBuildMs = performance.now() - t0;
+        lm.done.push({ it, result });
+      },
+      (e) => {
+        lm.inflight = null;
+        it.building = false;
+        it.failed = true;
+        lm.stats.failed++;
+        console.warn(`[porto] model ${it.data.id} failed to build; it stays a massing box`, e?.message || e);
+        settleWaiters();
+      },
+    );
+  }
+
+  function pumpModels(cam) {
+    lm.cam.copy(cam);
+    const now = performance.now();
+    if (lm.done.length) {
+      const { it, result } = lm.done.shift();
+      if (!it.built) wrapModel(it, result);
+      enforceKeep(cam);
+    }
+    let best = null;
+    let bestP = Infinity;
+    let pending = 0;
+    for (const it of items) {
+      const p = priorityOf(it, cam, now);
+      if (p === Infinity) continue;
+      pending++;
+      if (p < bestP) {
+        bestP = p;
+        best = it;
+      }
+    }
+    lm.pending = pending;
+    if (!lm.inflight) {
+      if (best) startBuild(best);
+      else if (lm.idle > 0 && now > lm.idleFrom && lm.idleGate()) {
+        const next = items.slice(0, lm.idle).find((it) => !it.built && !it.failed && !it.building && it.catOn);
+        if (next) startBuild(next);
+      }
+    }
+    settleWaiters();
+  }
+
+  // Promise: these landmarks (indices) are built (or failed). Pinned ones are
+  // never freed. Not lazy: resolves at once.
+  function ensureBuilt(indices, { pin = false } = {}) {
+    const want = new Set(indices.filter((i) => items[i]));
+    if (!lazy) return Promise.resolve();
+    for (const i of want) {
+      lm.until.set(i, performance.now() + 60000);
+      if (pin) items[i].pinned = true;
+    }
+    return new Promise((resolve) => {
+      lm.waiters.push({ want, resolve });
+    });
+  }
+
+  // Everything the camera needs is built (the queue is empty); resolves after
+  // `timeoutMs` at the latest.
+  function whenSettled(timeoutMs = 4000) {
+    if (!lazy) return Promise.resolve();
+    return new Promise((resolve) => {
+      const t = setTimeout(resolve, timeoutMs);
+      lm.waiters.push({
+        want: null,
+        resolve: () => {
+          clearTimeout(t);
+          resolve();
+        },
+      });
+    });
+  }
 
   function updatePins(time, animate, camPos) {
     if (camPos) updateLod(camPos);
@@ -756,7 +1014,7 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
       let massingN = 0;
       for (const it of items) {
         if (!it.catOn) continue;
-        if (it.lodNear || it.index === activeIndex) {
+        if ((it.lodNear || it.index === activeIndex) && it.built) {
           const L = it.meshes[0].userData.lod;
           if (L && it.meshes[0].geometry !== L.full) cluster++;
           else full++;
@@ -764,13 +1022,41 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
       }
       return { full, cluster, massing: massingN, total: items.length, nearRadiusM: lodNearU / S };
     },
+    // the lazy model queue (src/model-client.js), for the overlay, the bench and tests
+    get models() {
+      let built = 0;
+      let failed = 0;
+      for (const it of items) {
+        if (it.built) built++;
+        if (it.failed) failed++;
+      }
+      return { lazy, built, failed, total: items.length, pending: lm.pending, inflight: lm.inflight?.data.id ?? null, queued: lm.done.length, keep: lm.keep, ahead: lm.ahead, ...lm.stats };
+    },
+    isBuilt: (index) => !!items[index]?.built,
+    ensureBuilt,
+    whenSettled,
+    // the cinema asks for the next shot's landmark ahead of time; it holds `holdMs`
+    prefetch(index, holdMs = 20000) {
+      if (lazy && items[index]) lm.until.set(index, performance.now() + holdMs);
+    },
+    // class budgets (main.js applyKnobs): detailed models kept, prefetch factor, idle builds
+    setModelBudget({ keep, ahead, idle } = {}) {
+      if (keep != null) lm.keep = Math.max(2, keep);
+      if (ahead != null) lm.ahead = Math.max(1, ahead);
+      if (idle != null) lm.idle = Math.max(0, idle);
+    },
+    // idle builds start after `fromMs` (performance.now) and only while gate() is true
+    setIdleGate(gate, fromMs = 0) {
+      lm.idleGate = gate;
+      lm.idleFrom = fromMs;
+    },
     // for reports: the triangles the landmark layer actually draws now
     get drawnStats() {
       let fullTris = 0;
       let meshes = 0;
       let massingN = 0;
       for (const it of items) {
-        const full = it.catOn && (it.lodNear || it.index === activeIndex);
+        const full = it.catOn && (it.lodNear || it.index === activeIndex) && it.built;
         if (!full) {
           if (it.catOn) massingN++;
           continue;
