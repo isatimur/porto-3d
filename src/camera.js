@@ -8,6 +8,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 const MAP_LIMIT = 1700;
+const REACH_MARGIN = 300; // world units kept around a flight destination outside MAP_LIMIT
 const GROUND_CLEARANCE = 3; // world units (12 m) above the terrain
 export const MIN_DISTANCE = 30; // orbit distance floor, world units (120 m)
 const IDLE_MS = 2200;
@@ -22,6 +23,10 @@ const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2
 
 export function createCameraRig(camera, dom, heightAt, { reducedMotion, onFlightEnd, onFlightStart, onTourCancel, bounds = null }) {
   const controls = new OrbitControls(camera, dom);
+  let reach = MAP_LIMIT; // target clamp, widened while a place outside MAP_LIMIT is in play
+  const reachFor = (...pts) => {
+    reach = Math.max(MAP_LIMIT, ...pts.flatMap((p) => [Math.abs(p.x) + REACH_MARGIN, Math.abs(p.z) + REACH_MARGIN]));
+  };
   controls.enableDamping = true;
   controls.dampingFactor = 0.065; // a little more glide after a drag
   // frame() lowers it for landmarks smaller than the floor can show
@@ -328,6 +333,12 @@ export function createCameraRig(camera, dom, heightAt, { reducedMotion, onFlight
   // also swings this far around the target and settles on the framing as
   // it lands. Off under reduced motion.
   function flyTo(toPos, toTarget, duration, { orbit = 0 } = {}) {
+    // A destination beyond the map limit (Farol de Leça, 8.5 km west of the
+    // origin) must stay the orbit target: clampPose() would otherwise drag
+    // the target back to the limit, kilometres inland of the subject.
+    // The flight starts from the current target too, so the clamp must hold
+    // both ends until it lands (then it shrinks back, see the flight end).
+    reachFor(controls.target, toTarget);
     tour = null;
     vel.set(0, 0, 0); // a framing flight ends any keyboard glide
     // A new request replaces any flight in progress, starting from the
@@ -414,8 +425,8 @@ export function createCameraRig(camera, dom, heightAt, { reducedMotion, onFlight
 
   function clampPose() {
     const t = controls.target;
-    t.x = THREE.MathUtils.clamp(t.x, -MAP_LIMIT, MAP_LIMIT);
-    t.z = THREE.MathUtils.clamp(t.z, -MAP_LIMIT, MAP_LIMIT);
+    t.x = THREE.MathUtils.clamp(t.x, -reach, reach);
+    t.z = THREE.MathUtils.clamp(t.z, -reach, reach);
     t.y = THREE.MathUtils.clamp(t.y, heightAt(t.x, t.z), 200);
     const floor = heightAt(camera.position.x, camera.position.z) + GROUND_CLEARANCE;
     if (camera.position.y < floor) camera.position.y = floor;
@@ -455,6 +466,7 @@ export function createCameraRig(camera, dom, heightAt, { reducedMotion, onFlight
       offset.set(0, 0, 0);
       if (flight.t >= 1) {
         flight = null;
+        reachFor(controls.target); // back to MAP_LIMIT when the landing is inside the map
         controls.enabled = true;
         controls.update();
         onFlightEnd?.();
