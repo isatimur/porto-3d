@@ -321,10 +321,43 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
     return pad;
   }
 
-  function heightAt(x, z) {
-    let h = rawAt(x, z);
+  // heightAt runs hundreds of thousands of times at load (every building,
+  // road and tree vertex) and every frame (traffic, people, camera). It used
+  // to test all ~70 pads on each call. A coarse grid now lists, per cell, the
+  // pads whose bounding square touches it, in pad order, so the result is
+  // bit-for-bit the same as the full scan (a pad left out of a cell would have
+  // failed the radius test there). Rebuilt lazily when pads are added.
+  const PAD_CELL = 48; // world units (192 m)
+  let padCells = null;
+  let padCount = -1;
+  const padKey = (ix, iz) => (ix + 2048) * 4096 + (iz + 2048);
+  function buildPadCells() {
+    padCells = new Map();
     for (let i = 0; i < pads.length; i++) {
       const p = pads[i];
+      const x0 = Math.floor((p.cx - p.r) / PAD_CELL);
+      const x1 = Math.floor((p.cx + p.r) / PAD_CELL);
+      const z0 = Math.floor((p.cz - p.r) / PAD_CELL);
+      const z1 = Math.floor((p.cz + p.r) / PAD_CELL);
+      for (let ix = x0; ix <= x1; ix++) {
+        for (let iz = z0; iz <= z1; iz++) {
+          const k = padKey(ix, iz);
+          const list = padCells.get(k);
+          if (list) list.push(i);
+          else padCells.set(k, [i]);
+        }
+      }
+    }
+    padCount = pads.length;
+  }
+
+  function heightAt(x, z) {
+    let h = rawAt(x, z);
+    if (padCount !== pads.length) buildPadCells();
+    const list = padCells.get(padKey(Math.floor(x / PAD_CELL), Math.floor(z / PAD_CELL)));
+    if (!list) return h;
+    for (let j = 0; j < list.length; j++) {
+      const p = pads[list[j]];
       const dx = x - p.cx;
       const dz = z - p.cz;
       if (dx * dx + dz * dz > p.r * p.r) continue;
