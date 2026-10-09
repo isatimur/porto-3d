@@ -1,4 +1,5 @@
 {
+  "_doc2": "rendererString replaces only the UNMASKED_RENDERER_WEBGL text the app reads to pick its class (a laptop with an Intel UHD 620, a Snapdragon phone with an Adreno 740, a budget phone with a Mali-G52); the GPU behind it is still this machine's. The numbers measured before the performance round ran the old code, which never read that string.",
   "_doc": "Synthetic device classes for scripts/perf-bench.mjs. Everything runs on one Apple M1 Max, so a profile can only slow the machine down: CPU throttling (CDP Emulation.setCPUThrottlingRate) is real main-thread slowdown; network throttling (CDP Network.emulateNetworkConditions) is real transfer shaping; the GPU is the real Apple GPU unless gpu is 'swiftshader' (pure software rasteriser, a hard lower bound) or gpuLoad adds competing GPU work from OffscreenCanvas workers (a rough proxy for a GPU 1/(workers+1) as fast, not a real iGPU). deviceMemory and hardwareConcurrency are overridden by an init script, they do not limit the machine.",
   "desktop-gpu": {
     "label": "Desktop with a discrete or Apple-silicon GPU",
@@ -23,6 +24,7 @@
     "cpuThrottle": 2,
     "network": null,
     "gpu": "metal",
+    "rendererString": "ANGLE (Intel, Intel(R) UHD Graphics 620 Direct3D11 vs_5_0 ps_5_0, D3D11)",
     "gpuLoad": { "workers": 2, "size": 2048, "iterations": 24 },
     "deviceMemory": 8,
     "hardwareConcurrency": 8,
@@ -39,6 +41,7 @@
     "cpuThrottle": 4,
     "network": { "name": "Slow 4G", "downloadKbps": 1600, "uploadKbps": 750, "latencyMs": 150 },
     "gpu": "metal",
+    "rendererString": "ANGLE (Qualcomm, Adreno (TM) 740, OpenGL ES 3.2)",
     "gpuLoad": null,
     "deviceMemory": 8,
     "hardwareConcurrency": 8,
@@ -55,6 +58,7 @@
     "cpuThrottle": 6,
     "network": { "name": "Fast 3G", "downloadKbps": 1600, "uploadKbps": 750, "latencyMs": 562 },
     "gpu": "metal",
+    "rendererString": "ANGLE (ARM, Mali-G52 MC2, OpenGL ES 3.2)",
     "gpuLoad": { "workers": 2, "size": 2048, "iterations": 24 },
     "deviceMemory": 2,
     "hardwareConcurrency": 4,

@@ -22,13 +22,15 @@ const TYPES = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css',
   '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
   '.webp': 'image/webp', '.avif': 'image/avif', '.ico': 'image/x-icon', '.webmanifest': 'application/manifest+json',
-  '.txt': 'text/plain', '.xml': 'application/xml', '.bin': 'application/octet-stream', '.ktx2': 'image/ktx2', '.woff2': 'font/woff2',
+  '.txt': 'text/plain', '.xml': 'application/xml', '.bin': 'application/octet-stream', '.gz': 'application/gzip', '.ktx2': 'image/ktx2', '.woff2': 'font/woff2',
 };
 const COMPRESSIBLE = new Set(['.html', '.js', '.mjs', '.css', '.json', '.svg', '.txt', '.xml', '.webmanifest', '.bin']);
 const cache = new Map(); // path+enc -> Buffer (brotli level 11 is slow: do it once)
 
-function cacheControl(url) {
+function cacheControl(url, versioned = false) {
   if (/^\/(assets|static)\//.test(url)) return 'public, max-age=31536000, immutable';
+  // data and cities with ?v=<hash> are immutable (the last rules of vercel.json)
+  if (versioned && /^\/(data|cities)\//.test(url)) return 'public, max-age=31536000, immutable';
   if (url.startsWith('/data/tiles')) return 'public, max-age=300, stale-while-revalidate=86400';
   if (url.startsWith('/data/')) return 'public, max-age=300, stale-while-revalidate=600';
   if (url === '/sw.js') return 'no-cache';
@@ -38,7 +40,8 @@ function cacheControl(url) {
 
 createServer(async (req, res) => {
   try {
-    const url = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+    const parsed = new URL(req.url, 'http://x');
+    const url = decodeURIComponent(parsed.pathname);
     let file = normalize(join(ROOT, url === '/' ? 'index.html' : url));
     if (!file.startsWith(ROOT)) throw new Error('bad path');
     let st = await stat(file).catch(() => null);
@@ -46,7 +49,7 @@ createServer(async (req, res) => {
     if (!st) { res.writeHead(404, { 'content-type': 'text/plain' }); res.end('not found'); return; }
     const ext = extname(file);
     let body = await readFile(file);
-    const headers = { 'content-type': TYPES[ext] || 'application/octet-stream', 'cache-control': cacheControl(url), 'access-control-allow-origin': '*' };
+    const headers = { 'content-type': TYPES[ext] || 'application/octet-stream', 'cache-control': cacheControl(url, parsed.searchParams.has('v')), 'access-control-allow-origin': '*' };
     const accept = String(req.headers['accept-encoding'] || '');
     if (COMPRESSIBLE.has(ext) && body.length > 512) {
       const enc = /\bbr\b/.test(accept) ? 'br' : /\bgzip\b/.test(accept) ? 'gzip' : null;
@@ -61,6 +64,14 @@ createServer(async (req, res) => {
         headers['content-encoding'] = enc;
         headers.vary = 'Accept-Encoding';
       }
+    }
+    // validators like Vercel's: a no-cache fetch revalidates with If-None-Match
+    // and gets a 304 instead of the whole file
+    headers.etag = `"${st.size.toString(16)}-${Math.round(st.mtimeMs).toString(16)}${headers['content-encoding'] ? '-' + headers['content-encoding'] : ''}"`;
+    if (req.headers['if-none-match'] === headers.etag) {
+      res.writeHead(304, { etag: headers.etag, 'cache-control': headers['cache-control'] });
+      res.end();
+      return;
     }
     headers['content-length'] = body.length;
     res.writeHead(200, headers);

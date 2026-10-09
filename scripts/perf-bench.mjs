@@ -161,6 +161,13 @@ async function newSession(chromium, prof, { extraArgs = [], pageUrl = URL_BASE, 
   if (prof.deviceMemory) await ctx.addInitScript(`Object.defineProperty(Navigator.prototype,'deviceMemory',{get:()=>${prof.deviceMemory},configurable:true});`);
   if (prof.hardwareConcurrency) await ctx.addInitScript(`Object.defineProperty(Navigator.prototype,'hardwareConcurrency',{get:()=>${prof.hardwareConcurrency},configurable:true});`);
   if (prof.gpuLoad) await ctx.addInitScript(gpuLoadScript(prof.gpuLoad));
+  // the profile's GPU name: only the UNMASKED_RENDERER string changes (it
+  // feeds the app's class pick); the GPU itself is the one of this machine
+  if (prof.rendererString) {
+    await ctx.addInitScript(
+      `(() => { const R = ${JSON.stringify(prof.rendererString)}; for (const C of [WebGLRenderingContext, WebGL2RenderingContext]) { const o = C.prototype.getParameter; C.prototype.getParameter = function (p) { return p === 0x9246 ? R : o.call(this, p); }; } })();`,
+    );
+  }
   const page = await ctx.newPage();
   const cdp = await ctx.newCDPSession(page);
   const net = { reqs: new Map(), done: [], t0: 0, failed: [] };
@@ -251,6 +258,7 @@ async function loadTimings(s, tStartWall) {
       domContentLoaded: nav ? Math.round(nav.domContentLoadedEventEnd) : null,
       longTasksToReady: { count: pre.length, totalMs: pre.reduce((a, x) => a + x[1], 0), tbtMs: pre.reduce((a, x) => a + Math.max(0, x[1] - 50), 0), maxMs: pre.reduce((a, x) => Math.max(a, x[1]), 0) },
       tier: P.tier || null,
+      perfClass: P.perfSystem ? { cls: P.perfSystem.cls, boot: P.perfSystem.bootCls, mode: P.perfSystem.mode, reason: P.perfSystem.reason, score: P.perfSystem.detected?.score, reasons: P.perfSystem.reasons } : null,
       wallMs: Date.now() - wall,
       heapMB: window.__bench.heapMB(),
     };
@@ -584,6 +592,66 @@ async function runProfile(chromium, name, prof, { reduced, withAnalysis }) {
   return res;
 }
 
+// ------------------------------------------------------------------ budgets
+// perf/budgets.json holds, per profile, the limits of the numbers a change
+// must not make worse. `--check` prints every miss as WARN; it exits 1 only
+// with --strict (a soft gate in `npm run verify`, a hard one is a flag away).
+// The console-error count is the exception: any error fails.
+export function metricsOf(r) {
+  if (!r?.cold) return null;
+  const sc = r.scenarios || {};
+  const runs = ['overview', 'clerigosHold', 'orbitRibeira', 'cinema'].map((k) => sc[k]).filter(Boolean);
+  const max = (f) => (runs.length ? Math.max(...runs.map(f)) : null);
+  const m = r.cold.marks || {};
+  return {
+    transferKB: r.cold.transferKB,
+    firstFrameMs: m.firstFrame ?? null,
+    interactiveMs: m.interactive ?? null,
+    readyMs: m.ready ?? null,
+    warmReadyMs: r.warm?.marks?.ready ?? null,
+    p95FrameMs: max((x) => x.frameMs.p95),
+    tris: max((x) => Math.round(x.tris.mean)),
+    calls: max((x) => Math.round(x.calls.mean)),
+    gpuMB: sc.gpuMemory?.gl?.peakMB ?? null,
+    longTaskMs: r.cold.longTasksToReady?.totalMs ?? null,
+    jsHeapMB: r.cold.jsHeapRetainedMB ?? null,
+    consoleErrors: (r.errors || []).length,
+  };
+}
+function checkBudgets(results) {
+  const file = join(ROOT, 'perf/budgets.json');
+  if (!existsSync(file)) {
+    log('no perf/budgets.json: nothing to check');
+    return 0;
+  }
+  const budgets = JSON.parse(readFileSync(file, 'utf8')).profiles || {};
+  let misses = 0;
+  let errors = 0;
+  for (const [name, r] of Object.entries(results)) {
+    const got = metricsOf(r);
+    const want = budgets[name];
+    if (!got) {
+      console.log(`WARN  ${name}: no result (${r?.error || r?.note || 'unknown'})`);
+      misses++;
+      continue;
+    }
+    if (got.consoleErrors) {
+      console.log(`FAIL  ${name}: ${got.consoleErrors} console error(s): ${(r.errors || []).slice(0, 3).join(' | ')}`);
+      errors++;
+    }
+    if (!want) continue;
+    for (const [k, limit] of Object.entries(want)) {
+      if (k.startsWith('_') || got[k] == null) continue;
+      if (got[k] > limit) {
+        console.log(`WARN  ${name}: ${k} ${got[k]} > budget ${limit}`);
+        misses++;
+      }
+    }
+  }
+  console.log(misses || errors ? `perf: ${misses} budget miss(es), ${errors} error(s)` : 'perf: within budget');
+  return errors || (flag('strict') && misses) ? 1 : 0;
+}
+
 // ------------------------------------------------------------------ server
 // The bench serves dist/ itself (brotli like Vercel) unless something already
 // answers on the URL. It never shares a port with `vite preview`, so
@@ -650,8 +718,13 @@ async function run() {
     writeFileSync(OUT, JSON.stringify({ at: new Date().toISOString(), url: URL_BASE, results }, null, 2));
   }
   log('wrote', OUT);
+  if (flag('check')) process.exitCode = checkBudgets(results);
 }
-main().then(() => process.exit(0)).catch((e) => {
+main().then(() => process.exit(process.exitCode || 0)).catch((e) => {
+  if (/playwright-core not found/.test(String(e?.message))) {
+    console.log('SKIP  perf bench: playwright-core not found (set PLAYWRIGHT_CORE)');
+    process.exit(77);
+  }
   console.error(e);
   process.exit(1);
 });
