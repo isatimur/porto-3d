@@ -59,6 +59,27 @@ node scripts/smoke-console.mjs  # headless dist load: fails on console/GL errors
 and console). Green is the baseline: 70 detailed landmark builders, no massing
 fallback.
 
+## Performance
+
+Device classes drive the defaults (`src/perf-classes.js`), the governor moves
+inside a class (`src/governor.js`), `?perf=1` or Shift+P shows the numbers.
+Detail: `perf/ARCHITECTURE.md`, `perf/BASELINE.md`, `perf/DEVICE-CHECKLIST.md`.
+`npm run perf` (reduced bench, soft gate in verify), `node scripts/perf-stress.mjs`,
+`node scripts/pack-buildings.mjs` after a new `buildings.json`,
+`node scripts/optimize-images.mjs` after new photos.
+
+| Class | Overview tris | Calls | GPU MB | p95 target | Shadow | DPR cap |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| XL Ultra | 2.4 M | 400 | 900 | 18 ms | 4096 | 2 |
+| L High | 1.8 M | 320 | 600 | 20 ms | 2048 | 1.75 |
+| M Medium | 1.2 M | 220 | 380 | 24 ms | 1024 | 1.5 |
+| S Low | 0.8 M | 160 | 250 | 36 ms | 1024 | 1.25 |
+| P Potato | 0.4 M | 100 | 150 | 80 ms | none | 1 |
+
+Load: first meaningful frame < 3 s desktop (4.1 s measured), ready < 10 s
+(6.5 s). Live JS heap after load <= 240 MB. Data files are versioned by hash
+(`?v=`): never fetch `data/` without `assetUrl`.
+
 ## Data Pipeline
 
 Resumable, idempotent, raw replies cached in `data/.cache/` (gitignored).

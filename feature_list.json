@@ -334,6 +334,62 @@
         "live https://porto-3d.vercel.app Luis I and Arrabida place shots read, console clean"
       ],
       "notes": "Not done: pedestrians on Luis I decks unverified; hero triangle floor 15k not met for four bridges; no new GTFS-timed CP schedule; before/after pairs only partly captured."
+    },
+    {
+      "id": "porto-018",
+      "priority": 18,
+      "area": "performance",
+      "title": "Device classes, capability detection, governor v2, quality menu, perf overlay",
+      "user_visible_behavior": "The app picks Ultra, High, Medium, Low or Potato from the GPU name, memory, cores, screen and display cadence; a menu entry (Image > Quality) and ?quality= override it; ?perf=1 or Shift+P shows fps, p95, class, pressure, GPU and JS memory and exports a JSON of the session. A closed loop on p95 frame time cuts resolution first, then shadows, effects, counts and close-range geometry, and gives them back when there is headroom.",
+      "status": "passing",
+      "verification": [
+        "node scripts/smoke-perf.mjs (class table, ladder, governor on a synthetic load schedule; part of npm run verify)",
+        "node scripts/perf-stress.mjs (class switching, context loss, freeze, ?quality=, reduced motion, offline, 300 s soak)",
+        "npm run verify"
+      ],
+      "evidence": [
+        "perf/BASELINE.md before/after table for five device profiles; laptop-igpu dropped frames 12.6 % -> 0, phone-low 54 % -> 0.3 %",
+        "soak 300 s: JS heap 190-195 MB (1.6 %), GL memory 628-667 MB (3 %), no console errors",
+        "WEBGL_lose_context: loss seen, restore, map redraws (screenshot read)"
+      ],
+      "notes": "Class table values for real GPUs are educated, not measured on those chips: perf/DEVICE-CHECKLIST.md lists what to test. Potato (software GL) is not usable: 2-4 s per frame."
+    },
+    {
+      "id": "porto-019",
+      "priority": 19,
+      "area": "performance",
+      "title": "Loading: streamed roads and buildings, packed buildings, versioned immutable data, late chunks",
+      "user_visible_behavior": "The first frame no longer waits for the 9 MB building list; returning visitors make no request for unchanged data; life, seasons, MS ring and quays load after the first frame.",
+      "status": "passing",
+      "verification": ["node scripts/pack-buildings.mjs --check (verify)", "node scripts/perf-bench.mjs --profiles phone-high", "npm run verify"],
+      "evidence": [
+        "phone-high Slow 4G: first frame 17.7 -> 9.7 s, first meaningful 33.0 -> 20.8 s, ready 37.7 -> 25.0 s; phone-low Fast 3G ready 49.7 -> 34.0 s",
+        "transfer at ready 2.9 MB -> 2.2 MB; buildings 1.43 MB brotli -> 0.585 MB; warm reload 2.1 MB -> 6 KB",
+        "critical JS 547 -> 475 KB gzip"
+      ],
+      "notes": "Not done: critical JS 300 KB gzip (needs lazy landmark models), font subsetting, vercel brotli of the new .gz is by design not needed. Confirm the immutable header on the deployed ?v= URLs."
+    },
+    {
+      "id": "porto-020",
+      "priority": 20,
+      "area": "performance",
+      "title": "Memory: 713 MB of retained JS heap freed, lazy post targets, GL accounting",
+      "user_visible_behavior": "Same picture, a quarter of the JS heap; light classes allocate no post targets and no roofs-only tile copy.",
+      "status": "passing",
+      "verification": ["perf bench jsHeapMB after a full GC", "node scripts/perf-stress.mjs --only soak"],
+      "evidence": ["live JS heap after GC 713 -> 191 MB on all profiles", "laptop profile GPU allocation 658 -> 359 MB (class M)"],
+      "notes": "Not done: lazy landmark models (124 MB), quantised vertex attributes (GPU buffers 262 MB desktop, 273 MB phones)."
+    },
+    {
+      "id": "porto-021",
+      "priority": 21,
+      "area": "performance",
+      "title": "Perf harness and CI: bench, profiles, budgets, WebP photos",
+      "user_visible_behavior": "npm run perf measures a reduced device matrix against perf/budgets.json (soft gate in verify); photos load as WebP (hero 255 KB instead of 600 KB, thumbnails 53 KB).",
+      "status": "passing",
+      "verification": ["npm run perf", "npm run verify (14 checks)"],
+      "evidence": ["perf/BASELINE.md, perf/results.json", "node scripts/perf-bench.mjs --bytes: 127 MB shipped before, 165 MB with WebP copies"],
+      "notes": "The bench runs on one machine; see perf/profiles.json for what is emulated."
     }
   ]
 }

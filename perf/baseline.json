@@ -1,0 +1,2866 @@
+{
+  "at": "2026-10-09T14:57:55.626Z",
+  "url": "http://localhost:5192/",
+  "results": {
+    "desktop-gpu": {
+      "profile": "desktop-gpu",
+      "label": "Desktop with a discrete or Apple-silicon GPU",
+      "real": [
+        "gpu",
+        "cpu",
+        "network"
+      ],
+      "emulated": [],
+      "startedAt": "2026-10-09T14:35:31.728Z",
+      "readyReached": true,
+      "cold": {
+        "marks": {
+          "city": 326,
+          "models": 327,
+          "start": 327,
+          "data": 443,
+          "atmosphere": 551,
+          "ground": 677,
+          "base": 799,
+          "firstFrame": 975,
+          "fits": 1988,
+          "pads": 2132,
+          "landmarks": 2360,
+          "roads": 3320,
+          "buildings": 4535,
+          "built": 4857,
+          "ui": 4936,
+          "preFrame": 4941,
+          "interactive": 5110,
+          "introWait": 6624,
+          "nature": 7270,
+          "quays": 7347,
+          "ms": 7368,
+          "life": 7523,
+          "ready": 7559
+        },
+        "firstContentfulPaint": 388,
+        "domContentLoaded": 263,
+        "longTasksToReady": {
+          "count": 24,
+          "totalMs": 5418,
+          "tbtMs": 4218,
+          "maxMs": 1214
+        },
+        "tier": {
+          "tier": "high",
+          "reason": "default",
+          "weak": false,
+          "dprCap": 2,
+          "mobile": false,
+          "reducedMotion": false
+        },
+        "wallMs": 7817,
+        "heapMB": 1297,
+        "requests": 26,
+        "fromCache": 0,
+        "transferKB": 2881,
+        "byType": {
+          "html": {
+            "requests": 1,
+            "bytes": 6170
+          },
+          "css": {
+            "requests": 1,
+            "bytes": 11582
+          },
+          "js": {
+            "requests": 5,
+            "bytes": 517236
+          },
+          "other": {
+            "requests": 7,
+            "bytes": 202997
+          },
+          "data": {
+            "requests": 12,
+            "bytes": 2212367
+          }
+        },
+        "top": [
+          {
+            "url": "/data/buildings.json",
+            "kb": 1431,
+            "enc": "br"
+          },
+          {
+            "url": "/static/index-CkrsNiA7.js",
+            "kb": 364,
+            "enc": "br"
+          },
+          {
+            "url": "/data/roads.json",
+            "kb": 360,
+            "enc": "br"
+          },
+          {
+            "url": "/s/robotoflex/v30/NaNeepOXO_NexZs0b5QrzlOHb8wCikXpYqmZsWI-__OGbt8jZktqc2V3Zs0KvDLdBP8SBZtOs2IifRuUZQMsPJtUsR4DEK6cULNeUx9XgTnH37Ha_FIAp4Fm0PP1hw45DntW2x0wZGzhPmr1YNMYKYn9_1IQXGwJAiUJVUMdN5YUW4O8HtSoXjC79QRyaLshNDUf9-EmF8tqHbE.woff2",
+            "kb": 192,
+            "enc": "identity"
+          },
+          {
+            "url": "/data/nature.json",
+            "kb": 131,
+            "enc": "br"
+          },
+          {
+            "url": "/data/landmarks.json",
+            "kb": 94,
+            "enc": "br"
+          },
+          {
+            "url": "/static/BufferGeometryUtils-DYU0xwh4.js",
+            "kb": 64,
+            "enc": "br"
+          },
+          {
+            "url": "/static/en.porto-CEuBCQzH.js",
+            "kb": 63,
+            "enc": "br"
+          }
+        ],
+        "bytesAtReadyKB": 2881,
+        "after10sKB": 3518,
+        "jsHeapRetainedMB": 713,
+        "failedRequests": [],
+        "afterScenariosKB": 10028
+      },
+      "scenarios": {
+        "overview": {
+          "frames": 600,
+          "durationMs": 10016,
+          "frameMs": {
+            "n": 600,
+            "mean": 16.67,
+            "p50": 16.7,
+            "p95": 16.7,
+            "p99": 16.8,
+            "max": 16.8,
+            "droppedPct": 0
+          },
+          "calls": {
+            "n": 600,
+            "mean": 237.69,
+            "p50": 238,
+            "p95": 238,
+            "p99": 238,
+            "max": 238,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 600,
+            "mean": 1970814.17,
+            "p50": 1973928,
+            "p95": 1974402,
+            "p99": 1974402,
+            "max": 1974402,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 1.29,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "mainThread": {
+            "taskMsPerFrame": 2.9,
+            "scriptMsPerFrame": 2.63,
+            "layoutStyleMsPerFrame": 0.05,
+            "busyPct": 17.4
+          },
+          "heapMB": 1297
+        },
+        "gpuMemory": {
+          "geometryMB": 422.4,
+          "instanceMB": 7.6,
+          "textureMB": 8.9,
+          "renderTargetsMB": 197.8,
+          "shadowMB": 64,
+          "totalMB": 700.6,
+          "geometries": 415,
+          "textures": 45,
+          "textureObjects": 16,
+          "geometryByLayerMB": {
+            "buildings": 182.4,
+            "landmarks": 124.1,
+            "roads": 66.6,
+            "tiles": 21.1,
+            "ground": 11.2,
+            "buildings-ms": 10.3,
+            "nature": 3.1,
+            "quays": 2.1,
+            "life": 1.1,
+            "rain": 0.2,
+            "leaves": 0.1,
+            "snow": 0.1
+          },
+          "gl": {
+            "buffersMB": 262,
+            "texturesMB": 392.6,
+            "renderbuffersMB": 3.4,
+            "totalMB": 658,
+            "peakMB": 658,
+            "buffers": 2187,
+            "textures": 45
+          }
+        },
+        "flyClerigos": {
+          "frames": 337,
+          "durationMs": 6007,
+          "frameMs": {
+            "n": 337,
+            "mean": 17.8,
+            "p50": 16.7,
+            "p95": 16.8,
+            "p99": 33.4,
+            "max": 116.7,
+            "droppedPct": 4.45
+          },
+          "calls": {
+            "n": 337,
+            "mean": 247.68,
+            "p50": 248,
+            "p95": 299,
+            "p99": 326,
+            "max": 330,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 337,
+            "mean": 2712598.8,
+            "p50": 2316744,
+            "p95": 4351464,
+            "p99": 4527210,
+            "max": 4584929,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 4.42,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 2,
+            "totalMs": 202,
+            "maxMs": 129
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "landed": true,
+          "mainThread": {
+            "taskMsPerFrame": 8.29,
+            "scriptMsPerFrame": 6.46,
+            "layoutStyleMsPerFrame": 1.11,
+            "busyPct": 46.5
+          },
+          "heapMB": 1297
+        },
+        "clerigosHold": {
+          "frames": 180,
+          "durationMs": 3011,
+          "frameMs": {
+            "n": 180,
+            "mean": 16.67,
+            "p50": 16.7,
+            "p95": 16.8,
+            "p99": 16.8,
+            "max": 16.8,
+            "droppedPct": 0
+          },
+          "calls": {
+            "n": 180,
+            "mean": 264.37,
+            "p50": 264,
+            "p95": 266,
+            "p99": 266,
+            "max": 266,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 180,
+            "mean": 3272123.18,
+            "p50": 3272081,
+            "p95": 3272491,
+            "p99": 3272491,
+            "max": 3272491,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 1.67,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "mainThread": {
+            "taskMsPerFrame": 3.29,
+            "scriptMsPerFrame": 3.08,
+            "layoutStyleMsPerFrame": 0.02,
+            "busyPct": 19.7
+          },
+          "heapMB": 1297
+        },
+        "clerigosMemory": {
+          "geometryMB": 428.1,
+          "instanceMB": 7.6,
+          "textureMB": 8.9,
+          "renderTargetsMB": 197.8,
+          "shadowMB": 64,
+          "totalMB": 706.3,
+          "geometries": 503,
+          "textures": 47,
+          "textureObjects": 16,
+          "geometryByLayerMB": {
+            "buildings": 182.4,
+            "landmarks": 122.6,
+            "roads": 66.6,
+            "tiles": 25.7,
+            "ground": 15.5,
+            "buildings-ms": 8.5,
+            "nature": 3.1,
+            "quays": 2.1,
+            "life": 1.1,
+            "rain": 0.2,
+            "leaves": 0.1,
+            "snow": 0.1
+          },
+          "gl": {
+            "buffersMB": 401.5,
+            "texturesMB": 395.5,
+            "renderbuffersMB": 3.4,
+            "totalMB": 800.4,
+            "peakMB": 805.3,
+            "buffers": 2646,
+            "textures": 47
+          }
+        },
+        "orbitRibeira": {
+          "frames": 600,
+          "durationMs": 10004,
+          "frameMs": {
+            "n": 600,
+            "mean": 16.67,
+            "p50": 16.7,
+            "p95": 16.8,
+            "p99": 16.8,
+            "max": 16.8,
+            "droppedPct": 0
+          },
+          "calls": {
+            "n": 600,
+            "mean": 264.43,
+            "p50": 265,
+            "p95": 270,
+            "p99": 271,
+            "max": 272,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 600,
+            "mean": 3488991.4,
+            "p50": 3532591,
+            "p95": 3623657,
+            "p99": 3648950,
+            "max": 3649098,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 1.7,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "mainThread": {
+            "taskMsPerFrame": 4.55,
+            "scriptMsPerFrame": 3.09,
+            "layoutStyleMsPerFrame": 0.83,
+            "busyPct": 27.3
+          },
+          "heapMB": 1297
+        },
+        "cinema": {
+          "frames": 1200,
+          "durationMs": 20012,
+          "frameMs": {
+            "n": 1200,
+            "mean": 16.67,
+            "p50": 16.7,
+            "p95": 16.7,
+            "p99": 16.8,
+            "max": 16.8,
+            "droppedPct": 0
+          },
+          "calls": {
+            "n": 1200,
+            "mean": 243.25,
+            "p50": 224,
+            "p95": 319,
+            "p99": 349,
+            "max": 357,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 1200,
+            "mean": 3203804.44,
+            "p50": 3102388,
+            "p95": 4410213,
+            "p99": 4627514,
+            "max": 4688633,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 1.68,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "mainThread": {
+            "taskMsPerFrame": 4.89,
+            "scriptMsPerFrame": 3.4,
+            "layoutStyleMsPerFrame": 0.91,
+            "busyPct": 29.3
+          },
+          "heapMB": 1297,
+          "active": true
+        },
+        "final": {
+          "governor": {
+            "level": 0,
+            "dpr": 2,
+            "shadow": 4096,
+            "radiusK": 1,
+            "post": 0
+          },
+          "frameMs": 16.6,
+          "heapMB": 1297,
+          "tier": {
+            "tier": "high",
+            "reason": "default",
+            "weak": false,
+            "dprCap": 2,
+            "mobile": false,
+            "reducedMotion": false
+          }
+        }
+      },
+      "warm": {
+        "readyReached": true,
+        "marks": {
+          "city": 113,
+          "models": 113,
+          "start": 114,
+          "data": 208,
+          "atmosphere": 306,
+          "ground": 432,
+          "base": 542,
+          "firstFrame": 671,
+          "fits": 1624,
+          "pads": 1760,
+          "landmarks": 1983,
+          "roads": 2917,
+          "buildings": 4164,
+          "built": 4514,
+          "ui": 4597,
+          "preFrame": 4607,
+          "interactive": 4745,
+          "introWait": 4745,
+          "nature": 5508,
+          "quays": 5582,
+          "ms": 5622,
+          "life": 5805,
+          "ready": 5820
+        },
+        "firstContentfulPaint": 108,
+        "domContentLoaded": 95,
+        "longTasksToReady": {
+          "count": 24,
+          "totalMs": 5368,
+          "tbtMs": 4168,
+          "maxMs": 1246
+        },
+        "tier": {
+          "tier": "high",
+          "reason": "default",
+          "weak": false,
+          "dprCap": 2,
+          "mobile": false,
+          "reducedMotion": false
+        },
+        "wallMs": 6038,
+        "heapMB": 1297,
+        "requests": 26,
+        "fromCache": 1,
+        "transferKB": 2162,
+        "byType": {
+          "other": {
+            "requests": 7,
+            "bytes": 4143
+          },
+          "js": {
+            "requests": 5,
+            "bytes": 0
+          },
+          "css": {
+            "requests": 1,
+            "bytes": 0
+          },
+          "html": {
+            "requests": 1,
+            "bytes": 6170
+          },
+          "data": {
+            "requests": 12,
+            "bytes": 2203578
+          }
+        },
+        "top": [
+          {
+            "url": "/data/buildings.json",
+            "kb": 1431,
+            "enc": "br"
+          },
+          {
+            "url": "/data/roads.json",
+            "kb": 360,
+            "enc": "br"
+          },
+          {
+            "url": "/data/nature.json",
+            "kb": 131,
+            "enc": "br"
+          },
+          {
+            "url": "/data/landmarks.json",
+            "kb": 94,
+            "enc": "br"
+          },
+          {
+            "url": "/data/terrain.json",
+            "kb": 60,
+            "enc": "br"
+          },
+          {
+            "url": "/data/footprints.json",
+            "kb": 35,
+            "enc": "br"
+          },
+          {
+            "url": "/data/routes.json",
+            "kb": 19,
+            "enc": "br"
+          },
+          {
+            "url": "/data/dimensions.json",
+            "kb": 13,
+            "enc": "br"
+          }
+        ]
+      },
+      "errors": []
+    },
+    "laptop-igpu": {
+      "profile": "laptop-igpu",
+      "label": "Thin laptop with an integrated GPU (about 3x slower GPU, 2x slower CPU)",
+      "real": [
+        "network"
+      ],
+      "emulated": [
+        "cpu (throttle)",
+        "gpu (competing OffscreenCanvas load on the same GPU)"
+      ],
+      "startedAt": "2026-10-09T14:37:02.604Z",
+      "readyReached": true,
+      "cold": {
+        "marks": {
+          "city": 421,
+          "models": 421,
+          "start": 423,
+          "data": 620,
+          "atmosphere": 783,
+          "ground": 1036,
+          "base": 1271,
+          "firstFrame": 1488,
+          "fits": 3587,
+          "pads": 3869,
+          "landmarks": 4315,
+          "roads": 6185,
+          "buildings": 8532,
+          "built": 9193,
+          "ui": 9381,
+          "preFrame": 9398,
+          "interactive": 9647,
+          "introWait": 11153,
+          "nature": 12453,
+          "quays": 12632,
+          "ms": 12686,
+          "life": 13059,
+          "ready": 13070
+        },
+        "firstContentfulPaint": 468,
+        "domContentLoaded": 286,
+        "longTasksToReady": {
+          "count": 37,
+          "totalMs": 10890,
+          "tbtMs": 9040,
+          "maxMs": 2346
+        },
+        "tier": {
+          "tier": "high",
+          "reason": "default",
+          "weak": false,
+          "dprCap": 2,
+          "mobile": false,
+          "reducedMotion": false
+        },
+        "wallMs": 13559,
+        "heapMB": 1545,
+        "requests": 27,
+        "fromCache": 0,
+        "transferKB": 2949,
+        "byType": {
+          "css": {
+            "requests": 1,
+            "bytes": 11582
+          },
+          "html": {
+            "requests": 1,
+            "bytes": 6170
+          },
+          "js": {
+            "requests": 5,
+            "bytes": 517236
+          },
+          "other": {
+            "requests": 6,
+            "bytes": 202183
+          },
+          "data": {
+            "requests": 14,
+            "bytes": 2282983
+          }
+        },
+        "top": [
+          {
+            "url": "/data/buildings.json",
+            "kb": 1431,
+            "enc": "br"
+          },
+          {
+            "url": "/static/index-CkrsNiA7.js",
+            "kb": 364,
+            "enc": "br"
+          },
+          {
+            "url": "/data/roads.json",
+            "kb": 360,
+            "enc": "br"
+          },
+          {
+            "url": "/s/robotoflex/v30/NaNeepOXO_NexZs0b5QrzlOHb8wCikXpYqmZsWI-__OGbt8jZktqc2V3Zs0KvDLdBP8SBZtOs2IifRuUZQMsPJtUsR4DEK6cULNeUx9XgTnH37Ha_FIAp4Fm0PP1hw45DntW2x0wZGzhPmr1YNMYKYn9_1IQXGwJAiUJVUMdN5YUW4O8HtSoXjC79QRyaLshNDUf9-EmF8tqHbE.woff2",
+            "kb": 192,
+            "enc": "identity"
+          },
+          {
+            "url": "/data/nature.json",
+            "kb": 131,
+            "enc": "br"
+          },
+          {
+            "url": "/data/landmarks.json",
+            "kb": 94,
+            "enc": "br"
+          },
+          {
+            "url": "/static/BufferGeometryUtils-DYU0xwh4.js",
+            "kb": 64,
+            "enc": "br"
+          },
+          {
+            "url": "/data/buildings-ms.json",
+            "kb": 63,
+            "enc": "br"
+          }
+        ],
+        "bytesAtReadyKB": 2949,
+        "after10sKB": 3487,
+        "jsHeapRetainedMB": 715,
+        "failedRequests": [],
+        "afterScenariosKB": 9715
+      },
+      "scenarios": {
+        "overview": {
+          "frames": 533,
+          "durationMs": 10015,
+          "frameMs": {
+            "n": 533,
+            "mean": 18.76,
+            "p50": 16.7,
+            "p95": 33.3,
+            "p99": 33.4,
+            "max": 33.4,
+            "droppedPct": 12.57
+          },
+          "calls": {
+            "n": 533,
+            "mean": 237.5,
+            "p50": 238,
+            "p95": 238,
+            "p99": 238,
+            "max": 238,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 533,
+            "mean": 1971283.81,
+            "p50": 1973932,
+            "p95": 1974406,
+            "p99": 1974406,
+            "max": 1974406,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 2.98,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "mainThread": {
+            "taskMsPerFrame": 6.78,
+            "scriptMsPerFrame": 6.07,
+            "layoutStyleMsPerFrame": 0.13,
+            "busyPct": 36.1
+          },
+          "heapMB": 1545
+        },
+        "gpuMemory": {
+          "geometryMB": 422.4,
+          "instanceMB": 7.6,
+          "textureMB": 8.9,
+          "renderTargetsMB": 197.8,
+          "shadowMB": 64,
+          "totalMB": 700.6,
+          "geometries": 415,
+          "textures": 45,
+          "textureObjects": 16,
+          "geometryByLayerMB": {
+            "buildings": 182.4,
+            "landmarks": 124.1,
+            "roads": 66.6,
+            "tiles": 21.1,
+            "ground": 11.2,
+            "buildings-ms": 10.3,
+            "nature": 3.1,
+            "quays": 2.1,
+            "life": 1.1,
+            "rain": 0.2,
+            "leaves": 0.1,
+            "snow": 0.1
+          },
+          "gl": {
+            "buffersMB": 262,
+            "texturesMB": 392.6,
+            "renderbuffersMB": 3.4,
+            "totalMB": 658,
+            "peakMB": 658,
+            "buffers": 2187,
+            "textures": 45
+          }
+        },
+        "flyClerigos": {
+          "frames": 268,
+          "durationMs": 6049,
+          "frameMs": {
+            "n": 268,
+            "mean": 22.45,
+            "p50": 16.7,
+            "p95": 33.4,
+            "p99": 83.4,
+            "max": 166.6,
+            "droppedPct": 22.39
+          },
+          "calls": {
+            "n": 268,
+            "mean": 240.14,
+            "p50": 248,
+            "p95": 264,
+            "p99": 272,
+            "max": 282,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 268,
+            "mean": 2722136.02,
+            "p50": 2349674,
+            "p95": 4181999,
+            "p99": 4317032,
+            "max": 4420774,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 8.07,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 9,
+            "totalMs": 819,
+            "maxMs": 161
+          },
+          "governorMax": 1,
+          "governorEnd": 0,
+          "landed": true,
+          "mainThread": {
+            "taskMsPerFrame": 17.42,
+            "scriptMsPerFrame": 13.31,
+            "layoutStyleMsPerFrame": 2.6,
+            "busyPct": 77
+          },
+          "heapMB": 1545
+        },
+        "clerigosHold": {
+          "frames": 181,
+          "durationMs": 3024,
+          "frameMs": {
+            "n": 181,
+            "mean": 16.67,
+            "p50": 16.7,
+            "p95": 16.7,
+            "p99": 16.8,
+            "max": 16.8,
+            "droppedPct": 0
+          },
+          "calls": {
+            "n": 181,
+            "mean": 256.43,
+            "p50": 256,
+            "p95": 258,
+            "p99": 258,
+            "max": 258,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 181,
+            "mean": 3219543.65,
+            "p50": 3219501,
+            "p95": 3219839,
+            "p99": 3219839,
+            "max": 3219839,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 3.89,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "mainThread": {
+            "taskMsPerFrame": 8.18,
+            "scriptMsPerFrame": 7.21,
+            "layoutStyleMsPerFrame": 0.04,
+            "busyPct": 48.9
+          },
+          "heapMB": 1545
+        },
+        "clerigosMemory": {
+          "geometryMB": 419.8,
+          "instanceMB": 7.6,
+          "textureMB": 8.9,
+          "renderTargetsMB": 197.8,
+          "shadowMB": 64,
+          "totalMB": 698,
+          "geometries": 490,
+          "textures": 47,
+          "textureObjects": 16,
+          "geometryByLayerMB": {
+            "buildings": 182.4,
+            "landmarks": 122.6,
+            "roads": 66.6,
+            "tiles": 17.5,
+            "ground": 15.5,
+            "buildings-ms": 8.5,
+            "nature": 3.1,
+            "quays": 2.1,
+            "life": 1.1,
+            "rain": 0.2,
+            "leaves": 0.1,
+            "snow": 0.1
+          },
+          "gl": {
+            "buffersMB": 393.5,
+            "texturesMB": 395.5,
+            "renderbuffersMB": 3.4,
+            "totalMB": 792.3,
+            "peakMB": 792.3,
+            "buffers": 2566,
+            "textures": 47
+          }
+        },
+        "orbitRibeira": {
+          "frames": 601,
+          "durationMs": 10025,
+          "frameMs": {
+            "n": 601,
+            "mean": 16.67,
+            "p50": 16.7,
+            "p95": 16.8,
+            "p99": 16.8,
+            "max": 16.8,
+            "droppedPct": 0
+          },
+          "calls": {
+            "n": 601,
+            "mean": 259.3,
+            "p50": 261,
+            "p95": 265,
+            "p99": 266,
+            "max": 266,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 601,
+            "mean": 3436143.68,
+            "p50": 3480974,
+            "p95": 3570835,
+            "p99": 3582399,
+            "max": 3588736,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 4.38,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "mainThread": {
+            "taskMsPerFrame": 11.2,
+            "scriptMsPerFrame": 7.76,
+            "layoutStyleMsPerFrame": 2.01,
+            "busyPct": 67.1
+          },
+          "heapMB": 1545
+        },
+        "cinema": {
+          "frames": 1167,
+          "durationMs": 20025,
+          "frameMs": {
+            "n": 1167,
+            "mean": 17.15,
+            "p50": 16.7,
+            "p95": 16.8,
+            "p99": 33.4,
+            "max": 50,
+            "droppedPct": 2.83
+          },
+          "calls": {
+            "n": 1167,
+            "mean": 237.33,
+            "p50": 219,
+            "p95": 308,
+            "p99": 326,
+            "max": 331,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 1167,
+            "mean": 3197661.92,
+            "p50": 3124184,
+            "p95": 4370340,
+            "p99": 4609947,
+            "max": 4660430,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 4.42,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "mainThread": {
+            "taskMsPerFrame": 11.71,
+            "scriptMsPerFrame": 8.57,
+            "layoutStyleMsPerFrame": 2.06,
+            "busyPct": 68.2
+          },
+          "heapMB": 1545,
+          "active": true
+        },
+        "final": {
+          "governor": {
+            "level": 0,
+            "dpr": 2,
+            "shadow": 4096,
+            "radiusK": 1,
+            "post": 0
+          },
+          "frameMs": 17.7,
+          "heapMB": 1545,
+          "tier": {
+            "tier": "high",
+            "reason": "default",
+            "weak": false,
+            "dprCap": 2,
+            "mobile": false,
+            "reducedMotion": false
+          }
+        }
+      },
+      "warm": {
+        "readyReached": true,
+        "marks": {
+          "city": 294,
+          "models": 295,
+          "start": 297,
+          "data": 489,
+          "atmosphere": 646,
+          "ground": 895,
+          "base": 1218,
+          "firstFrame": 1382,
+          "fits": 3585,
+          "pads": 3869,
+          "landmarks": 4322,
+          "roads": 6162,
+          "buildings": 8718,
+          "built": 9352,
+          "ui": 9520,
+          "preFrame": 9532,
+          "interactive": 9733,
+          "introWait": 9733,
+          "nature": 11081,
+          "quays": 11280,
+          "ms": 11337,
+          "life": 11607,
+          "ready": 11619
+        },
+        "firstContentfulPaint": 280,
+        "domContentLoaded": 254,
+        "longTasksToReady": {
+          "count": 42,
+          "totalMs": 11139,
+          "tbtMs": 9039,
+          "maxMs": 2550
+        },
+        "tier": {
+          "tier": "high",
+          "reason": "default",
+          "weak": false,
+          "dprCap": 2,
+          "mobile": false,
+          "reducedMotion": false
+        },
+        "wallMs": 11671,
+        "heapMB": 1545,
+        "requests": 26,
+        "fromCache": 1,
+        "transferKB": 2162,
+        "byType": {
+          "other": {
+            "requests": 7,
+            "bytes": 4143
+          },
+          "js": {
+            "requests": 5,
+            "bytes": 0
+          },
+          "css": {
+            "requests": 1,
+            "bytes": 0
+          },
+          "html": {
+            "requests": 1,
+            "bytes": 6170
+          },
+          "data": {
+            "requests": 12,
+            "bytes": 2203578
+          }
+        },
+        "top": [
+          {
+            "url": "/data/buildings.json",
+            "kb": 1431,
+            "enc": "br"
+          },
+          {
+            "url": "/data/roads.json",
+            "kb": 360,
+            "enc": "br"
+          },
+          {
+            "url": "/data/nature.json",
+            "kb": 131,
+            "enc": "br"
+          },
+          {
+            "url": "/data/landmarks.json",
+            "kb": 94,
+            "enc": "br"
+          },
+          {
+            "url": "/data/terrain.json",
+            "kb": 60,
+            "enc": "br"
+          },
+          {
+            "url": "/data/footprints.json",
+            "kb": 35,
+            "enc": "br"
+          },
+          {
+            "url": "/data/routes.json",
+            "kb": 19,
+            "enc": "br"
+          },
+          {
+            "url": "/data/dimensions.json",
+            "kb": 13,
+            "enc": "br"
+          }
+        ]
+      },
+      "errors": []
+    },
+    "phone-high": {
+      "profile": "phone-high",
+      "label": "Recent flagship phone, Slow 4G",
+      "real": [
+        "viewport",
+        "dpr",
+        "network",
+        "touch"
+      ],
+      "emulated": [
+        "cpu (throttle)",
+        "gpu (not throttled: the Apple GPU is far faster than a phone GPU)"
+      ],
+      "startedAt": "2026-10-09T14:38:45.082Z",
+      "readyReached": true,
+      "cold": {
+        "marks": {
+          "city": 4427,
+          "models": 4428,
+          "start": 4431,
+          "data": 16165,
+          "atmosphere": 16468,
+          "ground": 16984,
+          "base": 17443,
+          "firstFrame": 17704,
+          "fits": 22052,
+          "pads": 22628,
+          "landmarks": 23524,
+          "roads": 27049,
+          "buildings": 31406,
+          "built": 32610,
+          "ui": 32957,
+          "preFrame": 33006,
+          "interactive": 33050,
+          "introWait": 35477,
+          "nature": 36858,
+          "quays": 37140,
+          "ms": 37182,
+          "life": 37727,
+          "ready": 37738
+        },
+        "firstContentfulPaint": 828,
+        "domContentLoaded": 4250,
+        "longTasksToReady": {
+          "count": 54,
+          "totalMs": 19213,
+          "tbtMs": 16513,
+          "maxMs": 4356
+        },
+        "tier": {
+          "tier": "low",
+          "reason": "phone",
+          "weak": false,
+          "dprCap": 1.5,
+          "mobile": true,
+          "reducedMotion": false
+        },
+        "wallMs": 38182,
+        "heapMB": 1220.7,
+        "requests": 27,
+        "fromCache": 0,
+        "transferKB": 3518,
+        "byType": {
+          "html": {
+            "requests": 1,
+            "bytes": 6170
+          },
+          "css": {
+            "requests": 1,
+            "bytes": 11582
+          },
+          "other": {
+            "requests": 7,
+            "bytes": 306755
+          },
+          "js": {
+            "requests": 5,
+            "bytes": 517236
+          },
+          "data": {
+            "requests": 12,
+            "bytes": 2212367
+          },
+          "image": {
+            "requests": 1,
+            "bytes": 548804
+          }
+        },
+        "top": [
+          {
+            "url": "/data/buildings.json",
+            "kb": 1431,
+            "enc": "br"
+          },
+          {
+            "url": "/assets/img/foz-sao-joao-baptista.jpg",
+            "kb": 536,
+            "enc": "identity"
+          },
+          {
+            "url": "/static/index-CkrsNiA7.js",
+            "kb": 364,
+            "enc": "br"
+          },
+          {
+            "url": "/data/roads.json",
+            "kb": 360,
+            "enc": "br"
+          },
+          {
+            "url": "/s/robotoflex/v30/NaNeepOXO_NexZs0b5QrzlOHb8wCikXpYqmZsWI-__OGbt8jZktqc2V3Zs0KvDLdBP8SBZtOs2IifRuUZQMsPJtUsR4DEK6cULNeUx9XgTnH37Ha_FIAp4Fm0PP1hw45DntW2x0wZGzhPmr1YNMYKYn9_1IQXGwJAiUJVUMdN5YUW4O8HtSoXjC79QRyaLshNDUf9-EmF8tqHbE.woff2",
+            "kb": 192,
+            "enc": "identity"
+          },
+          {
+            "url": "/data/nature.json",
+            "kb": 131,
+            "enc": "br"
+          },
+          {
+            "url": "/s/robotoflex/v30/NaNeepOXO_NexZs0b5QrzlOHb8wCikXpYqmZsWI-__OGbt8jZktqc2V3Zs0KvDLdBP8SBZtOs2IifRuUZQMsPJtUsR4DEK6cULNeUx9XgTnH37Ha_FIAp4Fm0PP1hw45DntW2x0wZGzhPmr1YNMYKYn9_1IQXGwJAiUJVUMdN5YUW4O8HtSoXjC79QRyaLshNDUf9-UmF8tqHbFvug.woff2",
+            "kb": 102,
+            "enc": "identity"
+          },
+          {
+            "url": "/data/landmarks.json",
+            "kb": 94,
+            "enc": "br"
+          }
+        ],
+        "bytesAtReadyKB": 3518,
+        "after10sKB": 3830,
+        "jsHeapRetainedMB": 695,
+        "failedRequests": [],
+        "afterScenariosKB": 9915
+      },
+      "scenarios": {
+        "overview": {
+          "frames": 600,
+          "durationMs": 10015,
+          "frameMs": {
+            "n": 600,
+            "mean": 16.67,
+            "p50": 16.7,
+            "p95": 16.7,
+            "p99": 16.8,
+            "max": 16.8,
+            "droppedPct": 0
+          },
+          "calls": {
+            "n": 600,
+            "mean": 105.54,
+            "p50": 106,
+            "p95": 106,
+            "p99": 106,
+            "max": 106,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 600,
+            "mean": 931455.82,
+            "p50": 931528,
+            "p95": 931528,
+            "p99": 931528,
+            "max": 931528,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 4.25,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "mainThread": {
+            "taskMsPerFrame": 8.27,
+            "scriptMsPerFrame": 7.47,
+            "layoutStyleMsPerFrame": 0.06,
+            "busyPct": 49.5
+          },
+          "heapMB": 1220.7
+        },
+        "gpuMemory": {
+          "geometryMB": 392.1,
+          "instanceMB": 1.5,
+          "textureMB": 8.9,
+          "renderTargetsMB": 5.7,
+          "shadowMB": 4,
+          "totalMB": 412.2,
+          "geometries": 342,
+          "textures": 18,
+          "textureObjects": 16,
+          "geometryByLayerMB": {
+            "buildings": 176,
+            "landmarks": 123.8,
+            "roads": 65.2,
+            "ground": 10.1,
+            "buildings-ms": 7.7,
+            "tiles": 4.5,
+            "quays": 2.1,
+            "nature": 1.5,
+            "life": 1,
+            "rain": 0.1,
+            "sky": 0.1,
+            "snow": 0
+          },
+          "gl": {
+            "buffersMB": 273.2,
+            "texturesMB": 36.8,
+            "renderbuffersMB": 3.1,
+            "totalMB": 313.1,
+            "peakMB": 320.4,
+            "buffers": 1777,
+            "textures": 18
+          }
+        },
+        "flyClerigos": {
+          "frames": 320,
+          "durationMs": 6008,
+          "frameMs": {
+            "n": 320,
+            "mean": 18.75,
+            "p50": 16.7,
+            "p95": 33.3,
+            "p99": 66.7,
+            "max": 100,
+            "droppedPct": 7.19
+          },
+          "calls": {
+            "n": 320,
+            "mean": 117.74,
+            "p50": 106,
+            "p95": 148,
+            "p99": 159,
+            "max": 161,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 320,
+            "mean": 1596548.52,
+            "p50": 1750543,
+            "p95": 2474967,
+            "p99": 2995005,
+            "max": 3041285,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 5.93,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 6,
+            "totalMs": 430,
+            "maxMs": 107
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "landed": true,
+          "mainThread": {
+            "taskMsPerFrame": 17.5,
+            "scriptMsPerFrame": 10.72,
+            "layoutStyleMsPerFrame": 3.94,
+            "busyPct": 93
+          },
+          "heapMB": 1220.7
+        },
+        "clerigosHold": {
+          "frames": 180,
+          "durationMs": 3010,
+          "frameMs": {
+            "n": 180,
+            "mean": 16.67,
+            "p50": 16.7,
+            "p95": 16.7,
+            "p99": 16.8,
+            "max": 16.8,
+            "droppedPct": 0
+          },
+          "calls": {
+            "n": 180,
+            "mean": 144,
+            "p50": 144,
+            "p95": 144,
+            "p99": 144,
+            "max": 144,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 180,
+            "mean": 2216940,
+            "p50": 2216940,
+            "p95": 2216940,
+            "p99": 2216940,
+            "max": 2216940,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 5.17,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "mainThread": {
+            "taskMsPerFrame": 9.55,
+            "scriptMsPerFrame": 8.53,
+            "layoutStyleMsPerFrame": 0.04,
+            "busyPct": 56.8
+          },
+          "heapMB": 1220.7
+        },
+        "clerigosMemory": {
+          "geometryMB": 394.3,
+          "instanceMB": 1.5,
+          "textureMB": 8.9,
+          "renderTargetsMB": 5.7,
+          "shadowMB": 4,
+          "totalMB": 414.3,
+          "geometries": 393,
+          "textures": 25,
+          "textureObjects": 16,
+          "geometryByLayerMB": {
+            "buildings": 176,
+            "landmarks": 122.9,
+            "roads": 65.2,
+            "ground": 15.5,
+            "buildings-ms": 7.7,
+            "quays": 2.1,
+            "tiles": 2.1,
+            "nature": 1.5,
+            "life": 1,
+            "rain": 0.1,
+            "sky": 0.1,
+            "snow": 0
+          },
+          "gl": {
+            "buffersMB": 351.3,
+            "texturesMB": 40,
+            "renderbuffersMB": 3.1,
+            "totalMB": 394.3,
+            "peakMB": 394.3,
+            "buffers": 2065,
+            "textures": 25
+          }
+        },
+        "orbitRibeira": {
+          "frames": 599,
+          "durationMs": 10015,
+          "frameMs": {
+            "n": 599,
+            "mean": 16.69,
+            "p50": 16.7,
+            "p95": 16.8,
+            "p99": 16.8,
+            "max": 33.3,
+            "droppedPct": 0.17
+          },
+          "calls": {
+            "n": 599,
+            "mean": 152.59,
+            "p50": 151,
+            "p95": 164,
+            "p99": 165,
+            "max": 166,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 599,
+            "mean": 2430952.98,
+            "p50": 2413039,
+            "p95": 2533240,
+            "p99": 2537952,
+            "max": 2542441,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 5.53,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "mainThread": {
+            "taskMsPerFrame": 15.05,
+            "scriptMsPerFrame": 9.18,
+            "layoutStyleMsPerFrame": 3.41,
+            "busyPct": 89.9
+          },
+          "heapMB": 1220.7
+        },
+        "cinema": {
+          "frames": 1200,
+          "durationMs": 20025,
+          "frameMs": {
+            "n": 1200,
+            "mean": 16.68,
+            "p50": 16.7,
+            "p95": 16.8,
+            "p99": 16.8,
+            "max": 33.3,
+            "droppedPct": 0.08
+          },
+          "calls": {
+            "n": 1200,
+            "mean": 135.97,
+            "p50": 131,
+            "p95": 163,
+            "p99": 178,
+            "max": 182,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 1200,
+            "mean": 2332799.95,
+            "p50": 2336706,
+            "p95": 3069566,
+            "p99": 3178591,
+            "max": 3193934,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 5,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "mainThread": {
+            "taskMsPerFrame": 14.41,
+            "scriptMsPerFrame": 8.64,
+            "layoutStyleMsPerFrame": 3.81,
+            "busyPct": 86.3
+          },
+          "heapMB": 1220.7,
+          "active": true
+        },
+        "final": {
+          "governor": {
+            "level": 0,
+            "dpr": 1.5,
+            "shadow": 1024,
+            "radiusK": 1,
+            "post": 0
+          },
+          "frameMs": 16.8,
+          "heapMB": 1220.7,
+          "tier": {
+            "tier": "low",
+            "reason": "phone",
+            "weak": false,
+            "dprCap": 1.5,
+            "mobile": true,
+            "reducedMotion": false
+          }
+        }
+      },
+      "warm": {
+        "readyReached": true,
+        "marks": {
+          "city": 594,
+          "models": 595,
+          "start": 597,
+          "data": 11991,
+          "atmosphere": 12277,
+          "ground": 12724,
+          "base": 13173,
+          "firstFrame": 13401,
+          "fits": 17685,
+          "pads": 18247,
+          "landmarks": 19138,
+          "roads": 22627,
+          "buildings": 26832,
+          "built": 28007,
+          "ui": 28338,
+          "preFrame": 28380,
+          "interactive": 28412,
+          "introWait": 28412,
+          "nature": 29762,
+          "quays": 30015,
+          "ms": 30051,
+          "life": 30554,
+          "ready": 30566
+        },
+        "firstContentfulPaint": 464,
+        "domContentLoaded": 415,
+        "longTasksToReady": {
+          "count": 55,
+          "totalMs": 18764,
+          "tbtMs": 16014,
+          "maxMs": 4203
+        },
+        "tier": {
+          "tier": "low",
+          "reason": "phone",
+          "weak": false,
+          "dprCap": 1.5,
+          "mobile": true,
+          "reducedMotion": false
+        },
+        "wallMs": 31003,
+        "heapMB": 1220.7,
+        "requests": 29,
+        "fromCache": 3,
+        "transferKB": 2162,
+        "byType": {
+          "other": {
+            "requests": 8,
+            "bytes": 4143
+          },
+          "js": {
+            "requests": 5,
+            "bytes": 0
+          },
+          "css": {
+            "requests": 1,
+            "bytes": 0
+          },
+          "html": {
+            "requests": 1,
+            "bytes": 6170
+          },
+          "data": {
+            "requests": 14,
+            "bytes": 2203578
+          }
+        },
+        "top": [
+          {
+            "url": "/data/buildings.json",
+            "kb": 1431,
+            "enc": "br"
+          },
+          {
+            "url": "/data/roads.json",
+            "kb": 360,
+            "enc": "br"
+          },
+          {
+            "url": "/data/nature.json",
+            "kb": 131,
+            "enc": "br"
+          },
+          {
+            "url": "/data/landmarks.json",
+            "kb": 94,
+            "enc": "br"
+          },
+          {
+            "url": "/data/terrain.json",
+            "kb": 60,
+            "enc": "br"
+          },
+          {
+            "url": "/data/footprints.json",
+            "kb": 35,
+            "enc": "br"
+          },
+          {
+            "url": "/data/routes.json",
+            "kb": 19,
+            "enc": "br"
+          },
+          {
+            "url": "/data/dimensions.json",
+            "kb": 13,
+            "enc": "br"
+          }
+        ]
+      },
+      "errors": []
+    },
+    "phone-low": {
+      "profile": "phone-low",
+      "label": "Budget Android phone, Fast 3G, 2 GB",
+      "real": [
+        "viewport",
+        "dpr",
+        "network",
+        "touch"
+      ],
+      "emulated": [
+        "cpu (throttle)",
+        "gpu (competing load)",
+        "deviceMemory and hardwareConcurrency (reported values only)"
+      ],
+      "startedAt": "2026-10-09T14:41:11.527Z",
+      "readyReached": true,
+      "cold": {
+        "marks": {
+          "city": 5757,
+          "models": 5758,
+          "start": 5763,
+          "data": 18000,
+          "atmosphere": 18461,
+          "ground": 19237,
+          "base": 19926,
+          "firstFrame": 20310,
+          "fits": 27261,
+          "pads": 28132,
+          "landmarks": 29480,
+          "roads": 34894,
+          "buildings": 41782,
+          "built": 43650,
+          "ui": 44169,
+          "preFrame": 44238,
+          "interactive": 44303,
+          "introWait": 46155,
+          "nature": 48249,
+          "quays": 48735,
+          "ms": 48814,
+          "life": 49634,
+          "ready": 49656
+        },
+        "firstContentfulPaint": 1740,
+        "domContentLoaded": 5165,
+        "longTasksToReady": {
+          "count": 73,
+          "totalMs": 29967,
+          "tbtMs": 26317,
+          "maxMs": 6886
+        },
+        "tier": {
+          "tier": "low",
+          "reason": "phone",
+          "weak": true,
+          "dprCap": 1.25,
+          "mobile": true,
+          "reducedMotion": false
+        },
+        "wallMs": 50087,
+        "heapMB": 1220.7,
+        "requests": 24,
+        "fromCache": 0,
+        "transferKB": 2977,
+        "byType": {
+          "html": {
+            "requests": 1,
+            "bytes": 6170
+          },
+          "css": {
+            "requests": 1,
+            "bytes": 11582
+          },
+          "other": {
+            "requests": 6,
+            "bytes": 306572
+          },
+          "js": {
+            "requests": 4,
+            "bytes": 511435
+          },
+          "data": {
+            "requests": 12,
+            "bytes": 2212367
+          }
+        },
+        "top": [
+          {
+            "url": "/data/buildings.json",
+            "kb": 1431,
+            "enc": "br"
+          },
+          {
+            "url": "/static/index-CkrsNiA7.js",
+            "kb": 364,
+            "enc": "br"
+          },
+          {
+            "url": "/data/roads.json",
+            "kb": 360,
+            "enc": "br"
+          },
+          {
+            "url": "/s/robotoflex/v30/NaNeepOXO_NexZs0b5QrzlOHb8wCikXpYqmZsWI-__OGbt8jZktqc2V3Zs0KvDLdBP8SBZtOs2IifRuUZQMsPJtUsR4DEK6cULNeUx9XgTnH37Ha_FIAp4Fm0PP1hw45DntW2x0wZGzhPmr1YNMYKYn9_1IQXGwJAiUJVUMdN5YUW4O8HtSoXjC79QRyaLshNDUf9-EmF8tqHbE.woff2",
+            "kb": 192,
+            "enc": "identity"
+          },
+          {
+            "url": "/data/nature.json",
+            "kb": 131,
+            "enc": "br"
+          },
+          {
+            "url": "/s/robotoflex/v30/NaNeepOXO_NexZs0b5QrzlOHb8wCikXpYqmZsWI-__OGbt8jZktqc2V3Zs0KvDLdBP8SBZtOs2IifRuUZQMsPJtUsR4DEK6cULNeUx9XgTnH37Ha_FIAp4Fm0PP1hw45DntW2x0wZGzhPmr1YNMYKYn9_1IQXGwJAiUJVUMdN5YUW4O8HtSoXjC79QRyaLshNDUf9-UmF8tqHbFvug.woff2",
+            "kb": 102,
+            "enc": "identity"
+          },
+          {
+            "url": "/data/landmarks.json",
+            "kb": 94,
+            "enc": "br"
+          },
+          {
+            "url": "/static/BufferGeometryUtils-DYU0xwh4.js",
+            "kb": 64,
+            "enc": "br"
+          }
+        ],
+        "bytesAtReadyKB": 2977,
+        "after10sKB": 4321,
+        "jsHeapRetainedMB": 695,
+        "failedRequests": [],
+        "afterScenariosKB": 11186
+      },
+      "scenarios": {
+        "overview": {
+          "frames": 601,
+          "durationMs": 10029,
+          "frameMs": {
+            "n": 601,
+            "mean": 16.67,
+            "p50": 16.7,
+            "p95": 16.7,
+            "p99": 16.8,
+            "max": 16.8,
+            "droppedPct": 0
+          },
+          "calls": {
+            "n": 601,
+            "mean": 107.63,
+            "p50": 108,
+            "p95": 108,
+            "p99": 108,
+            "max": 108,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 601,
+            "mean": 962264.06,
+            "p50": 962307,
+            "p95": 962343,
+            "p99": 962343,
+            "max": 962343,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 6.94,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "mainThread": {
+            "taskMsPerFrame": 13.66,
+            "scriptMsPerFrame": 12.37,
+            "layoutStyleMsPerFrame": 0.08,
+            "busyPct": 81.7
+          },
+          "heapMB": 1220.7
+        },
+        "gpuMemory": {
+          "geometryMB": 391.4,
+          "instanceMB": 1.5,
+          "textureMB": 8.9,
+          "renderTargetsMB": 3.2,
+          "shadowMB": 4,
+          "totalMB": 409,
+          "geometries": 330,
+          "textures": 18,
+          "textureObjects": 16,
+          "geometryByLayerMB": {
+            "buildings": 176,
+            "landmarks": 123.8,
+            "roads": 65.2,
+            "ground": 10.1,
+            "buildings-ms": 7.7,
+            "tiles": 3.8,
+            "quays": 2.1,
+            "nature": 1.5,
+            "life": 1,
+            "rain": 0.1,
+            "sky": 0.1,
+            "snow": 0
+          },
+          "gl": {
+            "buffersMB": 266.8,
+            "texturesMB": 36.8,
+            "renderbuffersMB": 3.1,
+            "totalMB": 306.7,
+            "peakMB": 313.7,
+            "buffers": 1722,
+            "textures": 18
+          }
+        },
+        "flyClerigos": {
+          "frames": 194,
+          "durationMs": 6016,
+          "frameMs": {
+            "n": 194,
+            "mean": 30.93,
+            "p50": 33.3,
+            "p95": 66.7,
+            "p99": 133.4,
+            "max": 183.3,
+            "droppedPct": 57.22
+          },
+          "calls": {
+            "n": 194,
+            "mean": 118.03,
+            "p50": 108,
+            "p95": 144,
+            "p99": 163,
+            "max": 164,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 194,
+            "mean": 1530024.78,
+            "p50": 1037874,
+            "p95": 2342357,
+            "p99": 3020650,
+            "max": 3030256,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 10.29,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 17,
+            "totalMs": 1382,
+            "maxMs": 170
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "landed": true,
+          "mainThread": {
+            "taskMsPerFrame": 30.88,
+            "scriptMsPerFrame": 19.99,
+            "layoutStyleMsPerFrame": 6.6,
+            "busyPct": 99.1
+          },
+          "heapMB": 1220.7
+        },
+        "clerigosHold": {
+          "frames": 177,
+          "durationMs": 3035,
+          "frameMs": {
+            "n": 177,
+            "mean": 17.04,
+            "p50": 16.7,
+            "p95": 16.7,
+            "p99": 33.4,
+            "max": 33.4,
+            "droppedPct": 2.26
+          },
+          "calls": {
+            "n": 177,
+            "mean": 144,
+            "p50": 144,
+            "p95": 144,
+            "p99": 144,
+            "max": 144,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 177,
+            "mean": 2216546.15,
+            "p50": 2216552,
+            "p95": 2216552,
+            "p99": 2216552,
+            "max": 2216552,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 8.69,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "mainThread": {
+            "taskMsPerFrame": 16.26,
+            "scriptMsPerFrame": 14.67,
+            "layoutStyleMsPerFrame": 0.07,
+            "busyPct": 94.6
+          },
+          "heapMB": 1220.7
+        },
+        "clerigosMemory": {
+          "geometryMB": 391.9,
+          "instanceMB": 1.5,
+          "textureMB": 8.9,
+          "renderTargetsMB": 3.2,
+          "shadowMB": 4,
+          "totalMB": 409.5,
+          "geometries": 380,
+          "textures": 25,
+          "textureObjects": 16,
+          "geometryByLayerMB": {
+            "buildings": 176,
+            "landmarks": 120.5,
+            "roads": 65.2,
+            "ground": 15.5,
+            "buildings-ms": 7.7,
+            "quays": 2.1,
+            "tiles": 2.1,
+            "nature": 1.5,
+            "life": 1,
+            "rain": 0.1,
+            "sky": 0.1,
+            "snow": 0
+          },
+          "gl": {
+            "buffersMB": 346.2,
+            "texturesMB": 40,
+            "renderbuffersMB": 3.1,
+            "totalMB": 389.2,
+            "peakMB": 389.2,
+            "buffers": 2000,
+            "textures": 25
+          }
+        },
+        "orbitRibeira": {
+          "frames": 389,
+          "durationMs": 10036,
+          "frameMs": {
+            "n": 389,
+            "mean": 25.79,
+            "p50": 33.3,
+            "p95": 33.4,
+            "p99": 33.4,
+            "max": 66.6,
+            "droppedPct": 53.98
+          },
+          "calls": {
+            "n": 389,
+            "mean": 152.45,
+            "p50": 151,
+            "p95": 164,
+            "p99": 165,
+            "max": 166,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 389,
+            "mean": 2425352.82,
+            "p50": 2410310,
+            "p95": 2512992,
+            "p99": 2521031,
+            "max": 2526960,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 9.41,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 1,
+            "totalMs": 50,
+            "maxMs": 50
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "mainThread": {
+            "taskMsPerFrame": 25.55,
+            "scriptMsPerFrame": 16.13,
+            "layoutStyleMsPerFrame": 5.31,
+            "busyPct": 98.6
+          },
+          "heapMB": 1220.7
+        },
+        "cinema": {
+          "frames": 824,
+          "durationMs": 20036,
+          "frameMs": {
+            "n": 824,
+            "mean": 24.31,
+            "p50": 16.7,
+            "p95": 33.4,
+            "p99": 33.5,
+            "max": 99.9,
+            "droppedPct": 43.81
+          },
+          "calls": {
+            "n": 824,
+            "mean": 136.08,
+            "p50": 133,
+            "p95": 160,
+            "p99": 178,
+            "max": 182,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 824,
+            "mean": 2323905.87,
+            "p50": 2330912,
+            "p95": 2569324,
+            "p99": 3119417,
+            "max": 3141931,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 8.4,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 7,
+            "totalMs": 480,
+            "maxMs": 92
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "mainThread": {
+            "taskMsPerFrame": 24.24,
+            "scriptMsPerFrame": 15.12,
+            "layoutStyleMsPerFrame": 6.04,
+            "busyPct": 99.5
+          },
+          "heapMB": 1220.7,
+          "active": true
+        },
+        "final": {
+          "governor": {
+            "level": 0,
+            "dpr": 1.25,
+            "shadow": 1024,
+            "radiusK": 1,
+            "post": 0
+          },
+          "frameMs": 20.4,
+          "heapMB": 1220.7,
+          "tier": {
+            "tier": "low",
+            "reason": "phone",
+            "weak": true,
+            "dprCap": 1.25,
+            "mobile": true,
+            "reducedMotion": false
+          }
+        }
+      },
+      "warm": {
+        "readyReached": true,
+        "marks": {
+          "city": 1550,
+          "models": 1552,
+          "start": 1556,
+          "data": 13460,
+          "atmosphere": 13890,
+          "ground": 14646,
+          "base": 15344,
+          "firstFrame": 15692,
+          "fits": 22563,
+          "pads": 23458,
+          "landmarks": 24825,
+          "roads": 30236,
+          "buildings": 36694,
+          "built": 38596,
+          "ui": 39121,
+          "preFrame": 39184,
+          "interactive": 39243,
+          "introWait": 39243,
+          "nature": 41369,
+          "quays": 41804,
+          "ms": 41899,
+          "life": 42781,
+          "ready": 42808
+        },
+        "firstContentfulPaint": 1020,
+        "domContentLoaded": 960,
+        "longTasksToReady": {
+          "count": 75,
+          "totalMs": 29683,
+          "tbtMs": 25933,
+          "maxMs": 6457
+        },
+        "tier": {
+          "tier": "low",
+          "reason": "phone",
+          "weak": true,
+          "dprCap": 1.25,
+          "mobile": true,
+          "reducedMotion": false
+        },
+        "wallMs": 43175,
+        "heapMB": 1220.7,
+        "requests": 29,
+        "fromCache": 3,
+        "transferKB": 2162,
+        "byType": {
+          "other": {
+            "requests": 8,
+            "bytes": 4143
+          },
+          "js": {
+            "requests": 5,
+            "bytes": 0
+          },
+          "css": {
+            "requests": 1,
+            "bytes": 0
+          },
+          "html": {
+            "requests": 1,
+            "bytes": 6170
+          },
+          "data": {
+            "requests": 14,
+            "bytes": 2203578
+          }
+        },
+        "top": [
+          {
+            "url": "/data/buildings.json",
+            "kb": 1431,
+            "enc": "br"
+          },
+          {
+            "url": "/data/roads.json",
+            "kb": 360,
+            "enc": "br"
+          },
+          {
+            "url": "/data/nature.json",
+            "kb": 131,
+            "enc": "br"
+          },
+          {
+            "url": "/data/landmarks.json",
+            "kb": 94,
+            "enc": "br"
+          },
+          {
+            "url": "/data/terrain.json",
+            "kb": 60,
+            "enc": "br"
+          },
+          {
+            "url": "/data/footprints.json",
+            "kb": 35,
+            "enc": "br"
+          },
+          {
+            "url": "/data/routes.json",
+            "kb": 19,
+            "enc": "br"
+          },
+          {
+            "url": "/data/dimensions.json",
+            "kb": 13,
+            "enc": "br"
+          }
+        ]
+      },
+      "errors": []
+    },
+    "potato": {
+      "profile": "potato",
+      "label": "Software rendering (SwiftShader), 1280x720, CPU 4x",
+      "real": [
+        "gpu (software rasteriser, no hardware)",
+        "network"
+      ],
+      "emulated": [
+        "cpu (throttle on the main thread only: SwiftShader rasterises in the GPU process, which the throttle does not touch)"
+      ],
+      "startedAt": "2026-10-09T14:44:02.685Z",
+      "readyReached": true,
+      "cold": {
+        "marks": {
+          "city": 587,
+          "models": 589,
+          "start": 592,
+          "data": 1073,
+          "atmosphere": 3676,
+          "ground": 4172,
+          "base": 4635,
+          "firstFrame": 6678,
+          "fits": 24897,
+          "pads": 25471,
+          "landmarks": 27355,
+          "roads": 31839,
+          "buildings": 40149,
+          "built": 46227,
+          "ui": 46571,
+          "preFrame": 49684,
+          "interactive": 50322,
+          "introWait": 61762,
+          "nature": 64843,
+          "quays": 71614,
+          "ms": 73746,
+          "life": 83950,
+          "ready": 85626
+        },
+        "firstContentfulPaint": 3372,
+        "domContentLoaded": 324,
+        "longTasksToReady": {
+          "count": 60,
+          "totalMs": 57097,
+          "tbtMs": 54097,
+          "maxMs": 8308
+        },
+        "tier": {
+          "tier": "high",
+          "reason": "default",
+          "weak": false,
+          "dprCap": 2,
+          "mobile": false,
+          "reducedMotion": false
+        },
+        "wallMs": 90846,
+        "heapMB": 1220.7,
+        "requests": 25,
+        "fromCache": 0,
+        "transferKB": 2881,
+        "byType": {
+          "css": {
+            "requests": 1,
+            "bytes": 11582
+          },
+          "js": {
+            "requests": 5,
+            "bytes": 517236
+          },
+          "html": {
+            "requests": 1,
+            "bytes": 6170
+          },
+          "other": {
+            "requests": 6,
+            "bytes": 202814
+          },
+          "data": {
+            "requests": 12,
+            "bytes": 2212367
+          }
+        },
+        "top": [
+          {
+            "url": "/data/buildings.json",
+            "kb": 1431,
+            "enc": "br"
+          },
+          {
+            "url": "/static/index-CkrsNiA7.js",
+            "kb": 364,
+            "enc": "br"
+          },
+          {
+            "url": "/data/roads.json",
+            "kb": 360,
+            "enc": "br"
+          },
+          {
+            "url": "/s/robotoflex/v30/NaNeepOXO_NexZs0b5QrzlOHb8wCikXpYqmZsWI-__OGbt8jZktqc2V3Zs0KvDLdBP8SBZtOs2IifRuUZQMsPJtUsR4DEK6cULNeUx9XgTnH37Ha_FIAp4Fm0PP1hw45DntW2x0wZGzhPmr1YNMYKYn9_1IQXGwJAiUJVUMdN5YUW4O8HtSoXjC79QRyaLshNDUf9-EmF8tqHbE.woff2",
+            "kb": 192,
+            "enc": "identity"
+          },
+          {
+            "url": "/data/nature.json",
+            "kb": 131,
+            "enc": "br"
+          },
+          {
+            "url": "/data/landmarks.json",
+            "kb": 94,
+            "enc": "br"
+          },
+          {
+            "url": "/static/BufferGeometryUtils-DYU0xwh4.js",
+            "kb": 64,
+            "enc": "br"
+          },
+          {
+            "url": "/static/en.porto-CEuBCQzH.js",
+            "kb": 63,
+            "enc": "br"
+          }
+        ],
+        "bytesAtReadyKB": 2881,
+        "after10sKB": 3123,
+        "jsHeapRetainedMB": 702,
+        "failedRequests": [],
+        "afterScenariosKB": 8496
+      },
+      "scenarios": {
+        "overview": {
+          "frames": 30,
+          "durationMs": 86872,
+          "frameMs": {
+            "n": 30,
+            "mean": 2795.44,
+            "p50": 2833.3,
+            "p95": 5749.7,
+            "p99": 7149.7,
+            "max": 7149.7,
+            "droppedPct": 96.67
+          },
+          "calls": {
+            "n": 30,
+            "mean": 194.6,
+            "p50": 196,
+            "p95": 200,
+            "p99": 222,
+            "max": 222,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 30,
+            "mean": 1927609.53,
+            "p50": 1938504,
+            "p95": 1947146,
+            "p99": 1951192,
+            "max": 1951192,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 1666.75,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 17,
+            "totalMs": 49513,
+            "maxMs": 7148
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "mainThread": {
+            "taskMsPerFrame": 1702.21,
+            "scriptMsPerFrame": 1692.09,
+            "layoutStyleMsPerFrame": 2.63,
+            "busyPct": 58.8
+          },
+          "heapMB": 1220.7
+        },
+        "gpuMemory": {
+          "geometryMB": 409.2,
+          "instanceMB": 7.6,
+          "textureMB": 8.9,
+          "renderTargetsMB": 7,
+          "shadowMB": 16,
+          "totalMB": 448.7,
+          "geometries": 368,
+          "textures": 45,
+          "textureObjects": 16,
+          "geometryByLayerMB": {
+            "buildings": 182.4,
+            "landmarks": 124.1,
+            "roads": 66.6,
+            "tiles": 18.2,
+            "ground": 11.2,
+            "nature": 3.1,
+            "quays": 2.1,
+            "life": 1.1,
+            "rain": 0.2,
+            "leaves": 0.1,
+            "snow": 0.1,
+            "sky": 0.1
+          },
+          "gl": {
+            "buffersMB": 255,
+            "texturesMB": 104.2,
+            "renderbuffersMB": 3.4,
+            "totalMB": 362.6,
+            "peakMB": 456.7,
+            "buffers": 1903,
+            "textures": 45
+          }
+        },
+        "flyClerigos": {
+          "frames": 17,
+          "durationMs": 65249,
+          "frameMs": {
+            "n": 17,
+            "mean": 3632.21,
+            "p50": 3999.8,
+            "p95": 5833.2,
+            "p99": 5833.2,
+            "max": 5833.2,
+            "droppedPct": 94.12
+          },
+          "calls": {
+            "n": 17,
+            "mean": 193.65,
+            "p50": 203,
+            "p95": 232,
+            "p99": 232,
+            "max": 232,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 17,
+            "mean": 2251079.18,
+            "p50": 2032537,
+            "p95": 4414375,
+            "p99": 4414375,
+            "max": 4414375,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 2597.52,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 10,
+            "totalMs": 36535,
+            "maxMs": 5828
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "landed": false,
+          "mainThread": {
+            "taskMsPerFrame": 2805.4,
+            "scriptMsPerFrame": 2792.93,
+            "layoutStyleMsPerFrame": 5.86,
+            "busyPct": 70
+          },
+          "heapMB": 1220.7
+        },
+        "clerigosHold": {
+          "frames": 30,
+          "durationMs": 122965,
+          "frameMs": {
+            "n": 30,
+            "mean": 4098.17,
+            "p50": 4283.2,
+            "p95": 5283,
+            "p99": 7299.7,
+            "max": 7299.7,
+            "droppedPct": 100
+          },
+          "calls": {
+            "n": 30,
+            "mean": 232.87,
+            "p50": 229,
+            "p95": 267,
+            "p99": 267,
+            "max": 267,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 30,
+            "mean": 3172132.73,
+            "p50": 3214531,
+            "p95": 3241267,
+            "p99": 3241411,
+            "max": 3241411,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 507.28,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 6,
+            "totalMs": 15332,
+            "maxMs": 7296
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "mainThread": {
+            "taskMsPerFrame": 538.9,
+            "scriptMsPerFrame": 533.71,
+            "layoutStyleMsPerFrame": 1.97,
+            "busyPct": 13.1
+          },
+          "heapMB": 1220.7
+        },
+        "clerigosMemory": {
+          "geometryMB": 413.8,
+          "instanceMB": 7.6,
+          "textureMB": 8.9,
+          "renderTargetsMB": 7,
+          "shadowMB": 16,
+          "totalMB": 453.3,
+          "geometries": 419,
+          "textures": 47,
+          "textureObjects": 16,
+          "geometryByLayerMB": {
+            "buildings": 182.4,
+            "landmarks": 117.4,
+            "roads": 66.6,
+            "tiles": 25.2,
+            "ground": 15.5,
+            "nature": 3.1,
+            "quays": 2.1,
+            "life": 1.1,
+            "rain": 0.2,
+            "leaves": 0.1,
+            "snow": 0.1,
+            "sky": 0.1
+          },
+          "gl": {
+            "buffersMB": 375.4,
+            "texturesMB": 107.1,
+            "renderbuffersMB": 3.4,
+            "totalMB": 485.9,
+            "peakMB": 494.9,
+            "buffers": 2144,
+            "textures": 47
+          }
+        },
+        "orbitRibeira": {
+          "frames": 30,
+          "durationMs": 128090,
+          "frameMs": {
+            "n": 30,
+            "mean": 4097.06,
+            "p50": 4099.8,
+            "p95": 6866.4,
+            "p99": 9099.6,
+            "max": 9099.6,
+            "droppedPct": 100
+          },
+          "calls": {
+            "n": 30,
+            "mean": 229.37,
+            "p50": 230,
+            "p95": 247,
+            "p99": 277,
+            "max": 277,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 30,
+            "mean": 3391156.2,
+            "p50": 3351368,
+            "p95": 3629237,
+            "p99": 3650192,
+            "max": 3650192,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 2788.01,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 24,
+            "totalMs": 80180,
+            "maxMs": 9089
+          },
+          "governorMax": 0,
+          "governorEnd": 0,
+          "mainThread": {
+            "taskMsPerFrame": 2819.23,
+            "scriptMsPerFrame": 2808.03,
+            "layoutStyleMsPerFrame": 6.3,
+            "busyPct": 66
+          },
+          "heapMB": 1220.7
+        },
+        "cinema": {
+          "frames": 30,
+          "durationMs": 88714,
+          "frameMs": {
+            "n": 30,
+            "mean": 2940.99,
+            "p50": 2816.5,
+            "p95": 5899.7,
+            "p99": 9899.7,
+            "max": 9899.7,
+            "droppedPct": 100
+          },
+          "calls": {
+            "n": 30,
+            "mean": 180,
+            "p50": 174,
+            "p95": 217,
+            "p99": 235,
+            "max": 235,
+            "droppedPct": 100
+          },
+          "tris": {
+            "n": 30,
+            "mean": 2921392.27,
+            "p50": 3054808,
+            "p95": 3458279,
+            "p99": 4308143,
+            "max": 4308143,
+            "droppedPct": 100
+          },
+          "renderCpuMsPerFrame": 921.04,
+          "gpuMsPerFrame": null,
+          "longTasks": {
+            "count": 10,
+            "totalMs": 27835,
+            "maxMs": 4317
+          },
+          "governorMax": 1,
+          "governorEnd": 1,
+          "mainThread": {
+            "taskMsPerFrame": 952.41,
+            "scriptMsPerFrame": 937.01,
+            "layoutStyleMsPerFrame": 6.51,
+            "busyPct": 32.2
+          },
+          "heapMB": 1220.7,
+          "active": true
+        },
+        "final": {
+          "governor": {
+            "level": 1,
+            "dpr": 1.64,
+            "shadow": 2048,
+            "radiusK": 0.8,
+            "post": 1
+          },
+          "frameMs": 4163.6,
+          "heapMB": 1220.7,
+          "tier": {
+            "tier": "high",
+            "reason": "default",
+            "weak": false,
+            "dprCap": 2,
+            "mobile": false,
+            "reducedMotion": false
+          }
+        }
+      },
+      "warm": {
+        "readyReached": true,
+        "marks": {
+          "city": 13350,
+          "models": 13352,
+          "start": 13354,
+          "data": 13768,
+          "atmosphere": 14045,
+          "ground": 14547,
+          "base": 15044,
+          "firstFrame": 16278,
+          "fits": 28156,
+          "pads": 28723,
+          "landmarks": 30101,
+          "roads": 34808,
+          "buildings": 43714,
+          "built": 54782,
+          "ui": 55170,
+          "preFrame": 62946,
+          "interactive": 62980,
+          "introWait": 62980,
+          "nature": 64710,
+          "quays": 65175,
+          "ms": 65477,
+          "life": 66383,
+          "ready": 78968
+        },
+        "firstContentfulPaint": 13340,
+        "domContentLoaded": 13261,
+        "longTasksToReady": {
+          "count": 55,
+          "totalMs": 65168,
+          "tbtMs": 62418,
+          "maxMs": 13040
+        },
+        "tier": {
+          "tier": "low",
+          "reason": "probe",
+          "weak": true,
+          "dprCap": 1.25,
+          "mobile": false,
+          "reducedMotion": false
+        },
+        "wallMs": 81189,
+        "heapMB": 1220.7,
+        "requests": 26,
+        "fromCache": 1,
+        "transferKB": 2162,
+        "byType": {
+          "other": {
+            "requests": 7,
+            "bytes": 4143
+          },
+          "js": {
+            "requests": 5,
+            "bytes": 0
+          },
+          "css": {
+            "requests": 1,
+            "bytes": 0
+          },
+          "html": {
+            "requests": 1,
+            "bytes": 6170
+          },
+          "data": {
+            "requests": 12,
+            "bytes": 2203578
+          }
+        },
+        "top": [
+          {
+            "url": "/data/buildings.json",
+            "kb": 1431,
+            "enc": "br"
+          },
+          {
+            "url": "/data/roads.json",
+            "kb": 360,
+            "enc": "br"
+          },
+          {
+            "url": "/data/nature.json",
+            "kb": 131,
+            "enc": "br"
+          },
+          {
+            "url": "/data/landmarks.json",
+            "kb": 94,
+            "enc": "br"
+          },
+          {
+            "url": "/data/terrain.json",
+            "kb": 60,
+            "enc": "br"
+          },
+          {
+            "url": "/data/footprints.json",
+            "kb": 35,
+            "enc": "br"
+          },
+          {
+            "url": "/data/routes.json",
+            "kb": 19,
+            "enc": "br"
+          },
+          {
+            "url": "/data/dimensions.json",
+            "kb": 13,
+            "enc": "br"
+          }
+        ]
+      },
+      "errors": []
+    }
+  }
+}

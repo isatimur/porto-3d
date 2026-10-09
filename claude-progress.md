@@ -22,6 +22,15 @@ updates it automatically.
 
 ## Session Log
 
+### Session 008 — performance for every device class
+
+- Goal: a measured, device-class-aware performance architecture (features porto-018 to 021).
+- Done: bench harness (`scripts/perf-bench.mjs`, five profiles in `perf/profiles.json`), baseline and after tables (`perf/BASELINE.md`), design (`perf/ARCHITECTURE.md`), classes + detection + governor v2 + menu + overlay, streamed roads/buildings, packed buildings, versioned immutable data, late chunks, 713 -> 191 MB JS heap, WebP photos, stress tests, budgets and a soft gate in verify.
+- Headline numbers: phone-high first meaningful frame 33.0 -> 20.8 s, ready 37.7 -> 25.0 s; phone-low ready 49.7 -> 34.0 s; desktop ready 7.6 -> 6.5 s; transfer 2.9 -> 2.2 MB; warm reload 2.1 MB -> 6 KB.
+- Not done (expected gain in `perf/ARCHITECTURE.md`): lazy landmark models, core build in a worker, quantised vertex attributes, font subsetting, a lite scene for software GL (Potato still 2-4 s a frame).
+- Real-device testing: `perf/DEVICE-CHECKLIST.md`.
+- Verify: `npm run verify` 14/14 (build, data, geo, dimensions, fit, traffic, models, packed buildings, smoke perf, smoke life, trams, rail, console, perf budgets soft).
+
 ### Session 007 — the Douro bridges
 
 - Date: 2026-10-07
