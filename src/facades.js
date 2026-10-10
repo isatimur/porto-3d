@@ -680,6 +680,8 @@ vBW = (modelMatrix * vec4(transformed, 1.0)).xyz;
 export const FACADE_FRAG_PARS = /* glsl */ `
 uniform float uNight;
 uniform sampler2D uGrime;
+uniform sampler2D uRoofTex; // optional art-pack tile photo (src/art-pack.js); 1x1 white until it loads
+uniform vec2 uRoofK; // x strength 0..1 (0: procedural tiles only), y 1 / mean luminance of the map
 varying vec4 vWall;
 varying vec3 vBW;
 float bHash(vec2 p) {
@@ -1191,7 +1193,16 @@ else if (bNear > 0.0) {
     float barrel = 0.5 + 0.5 * cos(6.2831 * ftile);
     float sd = vWall.w - 2.0 * floor(vWall.w * 0.5);
     float mott = 0.9 + 0.2 * bHash(floor(vec2(along, across)) + sd * 31.0);
-    diffuseColor.rgb *= mix(1.0, (1.0 - 0.34 * lap - 0.18 * (1.0 - barrel)) * mott, k);
+    float tileMul = (1.0 - 0.34 * lap - 0.18 * (1.0 - barrel)) * mott;
+    if (uRoofK.x > 0.0) {
+      // the art-pack canal tiles: its luminance (relative to the map mean)
+      // replaces the drawn tiles; the roof keeps its own hue. 8 covers by 7
+      // courses per image.
+      vec3 rt = texture2D(uRoofTex, vec2(across / 8.0, along / 7.0)).rgb;
+      float rl = clamp(dot(rt, vec3(0.3, 0.55, 0.15)) * uRoofK.y, 0.4, 1.7);
+      tileMul = mix(tileMul, mix(1.0, rl, 0.7) * 1.2 * (0.97 + 0.06 * (mott - 0.9) * 5.0), uRoofK.x);
+    }
+    diffuseColor.rgb *= mix(1.0, tileMul, k);
     // aWall.z carries 0 at the eave .. 1 at the ridge: a shadowed eave, a
     // lighter ridge cap and a distinct ridge line
     float hN = clamp(vWall.z, 0.0, 1.0);

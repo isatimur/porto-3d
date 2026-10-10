@@ -2029,6 +2029,8 @@ async function start() {
     marks.setIdleGate(() => !rig.flying && (debug.frameMs ?? 0) < 22, performance.now() + 2500);
     mark('ready');
     debug.ready = true;
+    // optional art-pack textures (roof tiles, calçada), after ready and off on P and S
+    import('./art-pack.js').then((m) => m.startArtPack({ cls: perf.cls, renderer })).then((r) => (debug.artPack = r)).catch(() => {});
     // from here the governor judges frames (after a 2.5 s warm-up for the
     // shader compiles and tile bursts the last builds just caused)
     perf.marks = () => debug.timing;

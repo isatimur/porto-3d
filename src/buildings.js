@@ -42,7 +42,12 @@ export const BUILDING_UNIFORMS = {
   // 64 x 64 RGBA data map (src/textures.js), sampled by world position for
   // soiling, render grain and rain streaks on the ordinary facades
   uGrime: { value: null },
+  // the optional art-pack roof tiles (src/art-pack.js): off (x = 0) until the
+  // map is loaded after the scene is ready, on the M class and up
+  uRoofTex: { value: new THREE.DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1) },
+  uRoofK: { value: new THREE.Vector2(0, 1) },
 };
+BUILDING_UNIFORMS.uRoofTex.value.needsUpdate = true;
 
 // Ray-cast point in polygon; poly = [{x, z}].
 function inPoly(x, z, poly) {
