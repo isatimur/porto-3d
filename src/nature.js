@@ -783,6 +783,7 @@ export function buildNature(opts) {
   const OCC = opts.mobile ? 0.5 : 1;
   const ow = Math.ceil(W * OCC);
   const oh = Math.ceil(D * OCC);
+  const tOcc = performance.now();
   const occCv = document.createElement('canvas');
   occCv.width = ow;
   occCv.height = oh;
@@ -819,16 +820,23 @@ export function buildNature(opts) {
   strokeRoads(ROAD_M, '#f00');
   strokeRoads(CARRIAGE_M, '#fff');
   // buildings: a 4 m margin for the woods, 1.5 m for a pavement tree
-  for (const [style, width] of [['#f00', 2], ['#fff', 0.75]]) {
-    oc.strokeStyle = style;
-    oc.lineWidth = width;
-    for (const poly of opts.buildings || []) {
-      path(oc, [poly]);
-      if (style === '#fff') oc.fill();
-      oc.stroke();
+  // (in batches of 48: one huge path strokes very slowly, one call per
+  // building costs the most calls)
+  const blds = opts.buildings || [];
+  for (let b0 = 0; b0 < blds.length; b0 += 48) {
+    const bp = new Path2D();
+    for (let b = b0; b < Math.min(blds.length, b0 + 48); b++) {
+      blds[b].forEach((p, i) => (i ? bp.lineTo(p.x, p.z) : bp.moveTo(p.x, p.z)));
+      bp.closePath();
     }
+    oc.strokeStyle = '#f00';
+    oc.lineWidth = 2;
+    oc.stroke(bp);
+    oc.strokeStyle = '#fff';
+    oc.lineWidth = 0.75;
+    oc.fill(bp);
+    oc.stroke(bp);
   }
-  oc.strokeStyle = '#fff';
   // Landmarks: their OSM outlines, fitted plans and model boxes, with a
   // margin. A landmark that is a park or garden (most of its ground is
   // green in the land cover) keeps only its built core clear.
@@ -919,6 +927,7 @@ export function buildNature(opts) {
     oc.stroke();
   }
   let occ = oc.getImageData(0, 0, ow, oh).data;
+  stats.occMs = Math.round(performance.now() - tOcc);
   const inParkOutline = (x, z) => parkOutlines.some((o) => x > o.x0 && x < o.x1 && z > o.z0 && z < o.z1 && inRings(x, z, [o.poly]));
   const occAt = (x, z, ch) => {
     const i = Math.floor((x - rect.x0) * OCC);
@@ -1420,7 +1429,9 @@ export function buildNature(opts) {
   loadStreetTrees()
     .then((doc) => {
       if (!doc) return;
+      const t0 = performance.now();
       const res = plantStreetTrees({ doc, project, heightAt, roads: opts.roads, inside, blocked: blockedStreet, mobile: !!opts.mobile });
+      const plantMs = Math.round(performance.now() - t0);
       const r = lcg(20261010);
       let trees2 = 0;
       for (const t of res.trees) {
@@ -1451,14 +1462,25 @@ export function buildNature(opts) {
         N.list = N.list.filter((t) => !(t.pk && mapped(t.x, t.z)));
         replaced += before - N.list.length;
       }
-      stats.street = { ...res.stats, planted: trees2, hedgePieces: res.hedges.length, replaced };
-      if (res.walks.length) base.paintWalks?.(res.walks);
-      // the avenues drop their leaves too
-      const lf = buildLeafField(near.flatMap((N) => N.list).concat(street), rect, heightAt);
-      leafField.texture.image.data.set(lf.texture.image.data);
-      leafField.texture.needsUpdate = true;
-      lf.texture.dispose();
+      stats.street = { ...res.stats, planted: trees2, hedgePieces: res.hedges.length, replaced, plantMs };
+      stats.street.ms = Math.round(performance.now() - t0);
       lastCam.set(Infinity, 0, 0); // re-split at the next update
+      // the walks and the leaf field in a second, idle task (a phone gets
+      // two short tasks, not one long one)
+      const later = window.requestIdleCallback || ((f) => setTimeout(f, 60));
+      later(
+        () => {
+          const t1 = performance.now();
+          if (res.walks.length) base.paintWalks?.(res.walks);
+          // the avenues drop their leaves too
+          const lf = buildLeafField(near.flatMap((N) => N.list).concat(street), rect, heightAt);
+          leafField.texture.image.data.set(lf.texture.image.data);
+          leafField.texture.needsUpdate = true;
+          lf.texture.dispose();
+          stats.street.idleMs = Math.round(performance.now() - t1);
+        },
+        { timeout: 3000 },
+      );
     })
     .catch((e) => console.warn('[porto] street trees skipped', e?.message || e))
     .finally(() => {
