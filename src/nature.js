@@ -10,12 +10,19 @@
 //
 // Trees never stand on a street, a building, a landmark or water: those
 // are rasterised into an occupancy mask first and every candidate point is
-// tested against it.
+// tested against it. A landmark that is itself a park (Palácio de Cristal,
+// Parque da Cidade, Cordoaria...) keeps only its built core clear: the rest
+// of its garden is planted like any park.
+//
+// The street trees, avenue rows and hedges of OSM (src/street-trees.js,
+// data/trees.json) arrive a moment later and join the same instanced
+// meshes; they have their own, shorter mesh radius and far cut-off.
 import * as THREE from 'three';
 import { S } from './geo.js';
 import { FOG_UNIFORMS, WEATHER_UNIFORMS, CLOUD_GLSL, SEASON_GLSL } from './scene.js';
 import { createWater } from './water.js';
 import { CITY } from './city.js';
+import { loadStreetTrees, plantStreetTrees, HEDGE } from './street-trees.js';
 
 // ------------------------------------------------------------ tuning
 const LAND_PX = 0.5; // land-cover mask: pixels per world unit (8 m per pixel)
@@ -32,8 +39,9 @@ const HILL_BOOST = 6;
 // 3 shrub (laurel), 4 a patch of closed woodland canopy (seven crowns),
 // 5 cypress, 6 linden (avenue), 7 palm (Foz), 8 vine (Gaia terraces),
 // 9 willow (Douro bank), 10 poplar (Douro bank), 11 reed (water margin),
-// 12 jacaranda (gardens), 13 agapanthus (beds). `bloom` is the spring /
-// early-summer blossom tint the crown shader mixes in.
+// 12 jacaranda (gardens), 13 agapanthus (beds), 14 a clipped hedge block
+// (OSM hedges only, src/street-trees.js; never a billboard). `bloom` is the
+// spring / early-summer blossom tint the crown shader mixes in.
 const SPECIES = [
   { h: [14, 22], w: 0.95, tint: 0x334221, trunk: 0x5a4030, bloom: 0xd66f85 },
   { h: [20, 32], w: 0.7, tint: 0x4d5a3a, trunk: 0x8c806c, bloom: 0xd66f85 },
@@ -49,6 +57,7 @@ const SPECIES = [
   { h: [1.8, 3.6], w: 1.35, tint: 0x707c42, trunk: 0x6a6034, bloom: 0xd6b46f },
   { h: [8, 14], w: 1.15, tint: 0x4a5a2e, trunk: 0x5c5144, bloom: 0x8f7bd6 },
   { h: [2, 3.8], w: 1.6, tint: 0x46662f, trunk: 0x4a3e30, bloom: 0x8f9fd6 },
+  { h: [1.5, 2.1], w: 1, tint: 0x3d5a27, trunk: 0x3d5a27, bloom: 0x3d5a27 },
 ];
 // Seasons (src/seasons.js, WEATHER_UNIFORMS.seasonW), per species:
 //   pal:   crown colours, sRGB: spring, summer, autumn A, autumn B, winter
@@ -83,13 +92,17 @@ const SEASON_CROWNS = [
   { pal: [0x6f8f3e, 0x4e6a30, 0xb08a34, 0x7c5a26, 0x6a6152], share: 1, bare: 0.9, bloom: 1 },
   // agapanthus: low green clumps, blue-violet flower heads in early summer
   { pal: [0x4f7a34, 0x466a2c, 0x6e6a2c, 0x5a5228, 0x4a5230], share: 1, bare: 0.2, bloom: 1 },
+  // hedge (box, laurel, privet): evergreen, clipped
+  { pal: [0x46632b, 0x3d5a27, 0x3d5a27, 0x3b5626, 0x37502a], share: 0, bare: 0, bloom: 0 },
 ];
+// Vines (8) only where OSM maps a vineyard: the Gaia and Douro banks inside
+// the core have none, so no park, garden or orchard grows them.
 const MIX = {
   forest: [0.14, 0.12, 0.04, 0, 0.7, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   scrub: [0.04, 0.04, 0.12, 0.8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  park: [0.14, 0.02, 0.34, 0, 0.12, 0.06, 0.06, 0, 0.03, 0.1, 0.08, 0, 0.05, 0],
-  garden: [0.12, 0, 0.2, 0.12, 0, 0.06, 0.1, 0.12, 0.05, 0.04, 0.02, 0, 0.1, 0.07],
-  orchard: [0, 0, 0.45, 0.1, 0, 0, 0, 0, 0.45, 0, 0, 0, 0, 0],
+  park: [0.14, 0.02, 0.37, 0, 0.12, 0.06, 0.06, 0, 0, 0.1, 0.08, 0, 0.05, 0],
+  garden: [0.12, 0, 0.25, 0.12, 0, 0.06, 0.1, 0.12, 0, 0.04, 0.02, 0, 0.1, 0.07],
+  orchard: [0, 0, 0.8, 0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   vineyard: [0, 0, 0.2, 0.05, 0, 0, 0, 0, 0.65, 0, 0, 0, 0, 0.1],
   grass: [0.15, 0.05, 0.55, 0.05, 0, 0.05, 0, 0, 0, 0.05, 0.05, 0, 0.05, 0],
   farmland: [0.1, 0.1, 0.8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -122,8 +135,13 @@ const hash2 = (x, y) => {
 // choose uses the same clump-footprint factor, so the budget (and the tree
 // count, to a handful) is unchanged. `b` shifts the budget toward the
 // district so its species actually read there.
-//   Gaia bank and lodges: terraced vines, stone/maritime pine, cypress.
+//   Gaia bank and hills: the lodge gardens — stone pine, cypress, plane,
+//     a few palms and jacarandas — and eucalyptus up the hills (no vines:
+//     OSM maps no vineyard there).
 //   Serra do Pilar: pine and cypress on the sanctuary hill.
+//   Palácio de Cristal and Serralves: the old gardens — plane, lime,
+//     cypress and cedar at Cristal; oak, liquidambar, lime and pine at
+//     Serralves.
 //   Parque da Cidade: umbrella pines with oaks, cypress, lakeside willows
 //     and poplars.
 //   Foz: palms at the mouth, pines behind, agapanthus in the beds.
@@ -132,8 +150,11 @@ const hash2 = (x, y) => {
 //   Aliados / Cordoaria / São Lázaro / Passeio Alegre: the gardens and
 //     avenues — plane, linden, jacaranda accents, palms at the river mouth.
 const PORTO_REGIONS = [
-  { lat: 41.1375, lon: -8.614, r: 1600, b: 2.8, sp: [[8, 0.4], [0, 0.33], [5, 0.27]] },
+  { lat: 41.1375, lon: -8.614, r: 1600, b: 2.8, sp: [[0, 0.3], [5, 0.24], [2, 0.22], [1, 0.12], [7, 0.06], [12, 0.06]] },
   { lat: 41.1579, lon: -8.6291, r: 900, b: 1.6, sp: [[0, 0.6], [5, 0.4]] },
+  // Palácio de Cristal gardens and Serralves park
+  { lat: 41.1476, lon: -8.6262, r: 420, b: 3.2, sp: [[2, 0.36], [6, 0.2], [5, 0.2], [0, 0.12], [12, 0.06], [7, 0.06]] },
+  { lat: 41.1585, lon: -8.6605, r: 520, b: 2.4, sp: [[2, 0.5], [6, 0.16], [0, 0.16], [5, 0.1], [10, 0.08]] },
   { lat: 41.163, lon: -8.677, r: 2000, b: 2.8, sp: [[0, 0.42], [2, 0.2], [5, 0.13], [9, 0.15], [10, 0.1]] },
   { lat: 41.149, lon: -8.679, r: 1500, b: 4, sp: [[7, 0.5], [0, 0.35], [13, 0.15]] },
   // Matosinhos and Leça da Palmeira: pine and cypress on the dunes
@@ -366,6 +387,44 @@ function clumpGeometry(species) {
       const a = (i / 3) * Math.PI * 2 + 0.6;
       crown(geos, Math.cos(a) * 0.22, 0.66, Math.sin(a) * 0.22, 0.1, 0.13, r() * 1e6, white);
     }
+  } else if (species === 14) {
+    // clipped hedge: a unit block (1 x 1 x 1, base at 0) the instance
+    // stretches along its piece; no bottom face. One "crown" so it takes
+    // the season colour; darker toward the foot like the crowns.
+    const g = new THREE.BoxGeometry(1, 1, 1).toNonIndexed();
+    g.translate(0, 0.5, 0);
+    const p = g.attributes.position;
+    const nrm = g.attributes.normal;
+    const keep = [];
+    for (let t = 0; t < p.count; t += 3) if (nrm.getY(t) > -0.5) keep.push(t);
+    const n = keep.length * 3;
+    const pos = new Float32Array(n * 3);
+    const nor = new Float32Array(n * 3);
+    const col = new Float32Array(n * 3);
+    let o = 0;
+    for (const t of keep) {
+      for (let v = t; v < t + 3; v++, o++) {
+        pos.set([p.getX(v), p.getY(v), p.getZ(v)], o * 3);
+        // a soft, slightly upward normal: a leafy surface, not a wall
+        const nx = nrm.getX(v);
+        const ny = nrm.getY(v) + 0.35;
+        const nz = nrm.getZ(v);
+        const l = Math.hypot(nx, ny, nz) || 1;
+        nor.set([nx / l, ny / l, nz / l], o * 3);
+        const shade = 0.66 + 0.4 * p.getY(v);
+        col.set([shade, shade, shade], o * 3);
+      }
+    }
+    const h = new THREE.BufferGeometry();
+    h.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    h.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+    h.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    h.setAttribute('aCrown', new THREE.BufferAttribute(new Float32Array(n).fill(1), 1));
+    const ctr = new Float32Array(n * 4);
+    for (let i = 0; i < n; i++) ctr.set([0, 0.5, 0, 0.5], i * 4);
+    h.setAttribute('aCenter', new THREE.BufferAttribute(ctr, 4));
+    g.dispose();
+    geos.push(h);
   } else {
     // closed canopy: seven crowns of mixed height on a disc; the trunks
     // are hidden under it, two short ones show at the edge
@@ -627,6 +686,30 @@ export function buildNatureBase(opts) {
     for (let i = 0; i < px; i++) mask[i * 4 + 3] = Math.min(255, u[i] * 1.6);
     landcover.needsUpdate = true;
   };
+  // The gravel walks of the parks (src/street-trees.js): a pale line through
+  // the lawn, painted after the blur of the built-up channel so it stays
+  // sharp. The mask has 8 m pixels, so a walk reads from a distance only.
+  const paintWalks = (lines) => {
+    const Lw = layer();
+    Lw.ctx.strokeStyle = '#fff';
+    Lw.ctx.lineWidth = 1 / LAND_PX;
+    Lw.ctx.lineCap = 'round';
+    Lw.ctx.lineJoin = 'round';
+    for (const pts of lines) {
+      if (pts.length < 2) continue;
+      Lw.ctx.beginPath();
+      pts.forEach((p, i) => (i ? Lw.ctx.lineTo(p.x, p.z) : Lw.ctx.moveTo(p.x, p.z)));
+      Lw.ctx.stroke();
+    }
+    const w = rd(Lw);
+    for (let i = 0; i < px; i++) {
+      const v = w[i * 4 + 3]; // coverage (the canvas is transparent elsewhere)
+      if (!v || mask[i * 4 + 1] < 150) continue; // only through lawns
+      mask[i * 4 + 3] = Math.max(mask[i * 4 + 3], v * 0.8);
+      mask[i * 4 + 1] = Math.round(mask[i * 4 + 1] * (1 - (v / 255) * 0.75));
+    }
+    landcover.needsUpdate = true;
+  };
   // canvas rows run north to south, as do world z; no flip needed
   const landcover = new THREE.DataTexture(mask, lw, lh, THREE.RGBAFormat);
   landcover.flipY = false;
@@ -652,6 +735,7 @@ export function buildNatureBase(opts) {
       return water;
     },
     paintBuilt,
+    paintWalks,
     // the landmark pads change the ground under the banks after the first
     // build: make the water again on the final heights and swap it in
     rebuildWater(parent) {
@@ -677,7 +761,13 @@ export function buildNature(opts) {
     uTime: { value: 0 },
     uSunView: { value: new THREE.Vector3(0, 1, 0) },
     uSunColor: { value: new THREE.Color(1, 1, 1) },
+    // x, y: the world x, z direction the wind blows toward; z: its
+    // strength (1 is about 7 m/s)
+    uWind: { value: new THREE.Vector3(0.93, -0.37, 0.85) },
+    // how far autumn has gone on today's date (see fallProgress)
+    uTurn: { value: fallProgress() },
   };
+  stats.turn = [+uniforms.uTurn.value.x.toFixed(2), +uniforms.uTurn.value.y.toFixed(2)];
   const base = opts.base || buildNatureBase(opts);
   if (!base) return { group, stats, landcover: null, update() {}, uniforms, setStreamTrees() {} };
   const { rect, areas, landcover, landRect, water } = base;
@@ -702,41 +792,117 @@ export function buildNature(opts) {
   oc.strokeStyle = '#fff';
   oc.lineCap = 'round';
   oc.lineJoin = 'round';
-  // streets at their real width plus a verge
-  const ROAD_M = { primary: 8 + 8, secondary: 5 + 6, minor: 3 + 5, rail: 3 + 6, water: 10 };
-  for (const feat of opts.roads?.features || []) {
-    const wM = ROAD_M[feat.kind];
-    if (!wM || !Array.isArray(feat.pts) || feat.pts.length < 2) continue;
-    oc.lineWidth = wM * S;
-    oc.beginPath();
-    feat.pts.forEach((q, i) => {
-      const p = project(q[0], q[1]);
-      if (i) oc.lineTo(p.x, p.z);
-      else oc.moveTo(p.x, p.z);
-    });
-    oc.stroke();
+  // Two masks in one canvas: red is the woods' and parks' test (streets
+  // with a verge), green the street trees' (the carriageway alone: a
+  // pavement tree stands a metre from the kerb). Everything else is white.
+  const ROAD_M = { primary: 8 + 8, secondary: 5 + 6, minor: 3 + 5, rail: 3 + 6, water: 10, foot: 2 + 2 };
+  const CARRIAGE_M = { primary: 8, secondary: 6, minor: 4, rail: 4, water: 10, foot: 1.5 };
+  const strokeRoads = (widths, style) => {
+    oc.strokeStyle = style;
+    for (const feat of opts.roads?.features || []) {
+      const wM = widths[feat.kind];
+      if (!wM || !Array.isArray(feat.pts) || feat.pts.length < 2) continue;
+      // a pedestrian street or a footway is no carriageway: its mapped trees stand
+      if (widths === CARRIAGE_M && (feat.kind === 'foot' || feat.t?.hw === 'pedestrian')) continue;
+      // the real carriageway: OSM lanes where mapped
+      const lanes = feat.t?.ln || 0;
+      oc.lineWidth = Math.max(wM, widths === CARRIAGE_M ? lanes * 3.2 + 1 : wM) * S;
+      oc.beginPath();
+      feat.pts.forEach((q, i) => {
+        const p = project(q[0], q[1]);
+        if (i) oc.lineTo(p.x, p.z);
+        else oc.moveTo(p.x, p.z);
+      });
+      oc.stroke();
+    }
+  };
+  strokeRoads(ROAD_M, '#f00');
+  strokeRoads(CARRIAGE_M, '#fff');
+  // buildings: a 4 m margin for the woods, 1.5 m for a pavement tree
+  for (const [style, width] of [['#f00', 2], ['#fff', 0.75]]) {
+    oc.strokeStyle = style;
+    oc.lineWidth = width;
+    for (const poly of opts.buildings || []) {
+      path(oc, [poly]);
+      if (style === '#fff') oc.fill();
+      oc.stroke();
+    }
   }
-  oc.lineWidth = 2;
-  for (const poly of opts.buildings || []) {
-    path(oc, [poly]);
-    oc.fill();
-    oc.stroke();
-  }
-  // landmarks: their OSM outlines, fitted plans and model boxes, with a margin
+  oc.strokeStyle = '#fff';
+  // Landmarks: their OSM outlines, fitted plans and model boxes, with a
+  // margin. A landmark that is a park or garden (most of its ground is
+  // green in the land cover) keeps only its built core clear.
+  const lc = landcover.image.data;
+  const lw = landcover.image.width;
+  const lh = landcover.image.height;
+  // 1 green, 0 not, -1 off the land-cover map (not counted)
+  const greenAt = (x, z) => {
+    const i = Math.floor((x - landRect.x0) * (lw / landRect.w));
+    const j = Math.floor((z - landRect.z0) * (lh / landRect.d));
+    if (i < 0 || j < 0 || i >= lw || j >= lh) return -1;
+    const k = (j * lw + i) * 4;
+    return lc[k] > 100 || lc[k + 1] > 150 ? 1 : 0;
+  };
+  const GREEN_SITE = 300; // world units² (~0.5 ha)
+  const greenShare = (pts, test) => {
+    let x0 = Infinity;
+    let x1 = -Infinity;
+    let z0 = Infinity;
+    let z1 = -Infinity;
+    for (const p of pts) {
+      x0 = Math.min(x0, p.x);
+      x1 = Math.max(x1, p.x);
+      z0 = Math.min(z0, p.z);
+      z1 = Math.max(z1, p.z);
+    }
+    const st = Math.max(1, Math.sqrt(((x1 - x0) * (z1 - z0)) / 400));
+    let n = 0;
+    let g = 0;
+    for (let x = x0 + st / 2; x < x1; x += st) {
+      for (let z = z0 + st / 2; z < z1; z += st) {
+        if (!test(x, z)) continue;
+        const v = greenAt(x, z);
+        if (v < 0) continue;
+        n++;
+        g += v;
+      }
+    }
+    return n ? g / n : 0;
+  };
+  const parkSites = [];
+  // the park landmarks' outlines: past the edge of the core (Parque da
+  // Cidade reaches the sea) their ground is still open to trees
+  const parkOutlines = [];
   oc.lineWidth = 6;
   for (const poly of opts.avoid?.outlines || []) {
+    if (ringArea(poly) > GREEN_SITE && greenShare(poly, (x, z) => inRings(x, z, [poly])) > 0.55) {
+      parkSites.push({ kind: 'outline', at: [Math.round(poly[0].x), Math.round(poly[0].z)], area: Math.round(ringArea(poly)) });
+      const xs = poly.map((p) => p.x);
+      const zs = poly.map((p) => p.z);
+      parkOutlines.push({ poly, x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs) });
+      continue;
+    }
     path(oc, [poly]);
     oc.fill();
     oc.stroke();
   }
-  for (const r of opts.avoid?.plans || []) {
-    const hu = r.hu + 3;
-    const hv = r.hv + 3;
-    const corners = [[hu, hv], [-hu, hv], [-hu, -hv], [hu, -hv]].map(([a, c]) => ({ x: r.cx + a * r.ux - c * r.uz, z: r.cz + a * r.uz + c * r.ux }));
-    path(oc, [corners]);
+  // an oriented rectangle, or for a park site its core (the pavilion, the
+  // museum, the lawn the model lays out itself)
+  const fillRect = (cx, cz, ux, uz, hu, hv) => {
+    const corners = [[hu, hv], [-hu, hv], [-hu, -hv], [hu, -hv]].map(([a, c]) => ({ x: cx + a * ux - c * uz, z: cz + a * uz + c * ux }));
+    if (hu * hv * 4 > GREEN_SITE && greenShare(corners, (x, z) => inRings(x, z, [corners])) > 0.55) {
+      // at least 56 m, at most 120 m each way from the centre
+      hu = Math.min(hu, Math.max(14, Math.min(30, hu * 0.42)));
+      hv = Math.min(hv, Math.max(14, Math.min(30, hv * 0.42)));
+      parkSites.push({ kind: 'rect', at: [Math.round(cx), Math.round(cz)], core: [Math.round(hu / S), Math.round(hv / S)] });
+      const core = [[hu, hv], [-hu, hv], [-hu, -hv], [hu, -hv]].map(([a, c]) => ({ x: cx + a * ux - c * uz, z: cz + a * uz + c * ux }));
+      path(oc, [core]);
+    } else path(oc, [corners]);
     oc.fill();
-  }
-  for (const bx of opts.avoid?.boxes || []) oc.fillRect(bx.min.x - 3, bx.min.z - 3, bx.max.x - bx.min.x + 6, bx.max.z - bx.min.z + 6);
+  };
+  for (const r of opts.avoid?.plans || []) fillRect(r.cx, r.cz, r.ux, r.uz, r.hu + 3, r.hv + 3);
+  for (const bx of opts.avoid?.boxes || []) fillRect((bx.min.x + bx.max.x) / 2, (bx.min.z + bx.max.z) / 2, 1, 0, (bx.max.x - bx.min.x) / 2 + 3, (bx.max.z - bx.min.z) / 2 + 3);
+  stats.parkSites = parkSites;
   for (const a of areas) {
     if (a.k !== 'water') continue;
     path(oc, a.rings);
@@ -752,13 +918,16 @@ export function buildNature(opts) {
     });
     oc.stroke();
   }
-  const occ = oc.getImageData(0, 0, ow, oh).data;
-  const blocked = (x, z) => {
+  let occ = oc.getImageData(0, 0, ow, oh).data;
+  const inParkOutline = (x, z) => parkOutlines.some((o) => x > o.x0 && x < o.x1 && z > o.z0 && z < o.z1 && inRings(x, z, [o.poly]));
+  const occAt = (x, z, ch) => {
     const i = Math.floor((x - rect.x0) * OCC);
     const j = Math.floor((z - rect.zN) * OCC);
-    if (i < 0 || j < 0 || i >= ow || j >= oh) return true;
-    return occ[(j * ow + i) * 4] > 40;
+    if (i < 0 || j < 0 || i >= ow || j >= oh) return !inParkOutline(x, z);
+    return occ[(j * ow + i) * 4 + ch] > 40;
   };
+  const blocked = (x, z) => occAt(x, z, 0);
+  const blockedStreet = (x, z) => occAt(x, z, 1);
 
   // ---- scatter
   const hills = HILLS().map((h) => ({ ...project(h.lat, h.lon), r: h.r * S }));
@@ -795,6 +964,26 @@ export function buildNature(opts) {
   const rnd = lcg(20260928);
   const trees = []; // { x, y, z, h, rot, s, tint }
   const tint = new THREE.Color();
+  // the Douro's water level, for "up the hill" (Porto: the river at the Ribeira)
+  const river = project(41.1405, -8.612);
+  const riverY = heightAt(river.x, river.z);
+  // value noise at grove scale (~70 m): parks and gardens are planted in
+  // clumps with open lawns between, not as an even orchard
+  const groveNoise = (x, z) => {
+    const fx = x / 18;
+    const fz = z / 18;
+    const ix = Math.floor(fx);
+    const iz = Math.floor(fz);
+    const tx = fx - ix;
+    const tz = fz - iz;
+    const sx = tx * tx * (3 - 2 * tx);
+    const sz = tz * tz * (3 - 2 * tz);
+    const a = hash2(ix, iz);
+    const b = hash2(ix + 1, iz);
+    const c = hash2(ix, iz + 1);
+    const d = hash2(ix + 1, iz + 1);
+    return a + (b - a) * sx + (c - a) * sz + (a - b - c + d) * sx * sz;
+  };
   for (const a of cands) {
     const want = (budget * a.weight) / weightSum;
     let n = Math.floor(want) + (rnd() < want % 1 ? 1 : 0);
@@ -805,17 +994,21 @@ export function buildNature(opts) {
     const bx1 = Math.max(...xs);
     const bz0 = Math.min(...zs);
     const bz1 = Math.max(...zs);
-    // dart throwing with a minimum spacing: an even, natural scatter
-    const minD = Math.sqrt(a.area / n) * 0.62;
+    const planted = a.k === 'park' || a.k === 'garden';
+    // dart throwing with a minimum spacing: an even, natural scatter (in
+    // the parks closer, inside the groves)
+    const minD = Math.sqrt(a.area / n) * (planted ? 0.46 : 0.62);
     const cell = minD / Math.SQRT2;
     const grid = new Map();
     const key = (i, j) => i * 73856093 ^ j * 19349663;
     const mix = MIX[a.k];
-    let tries = n * 14;
+    let tries = n * (planted ? 22 : 14);
     while (n > 0 && tries-- > 0) {
       const x = bx0 + rnd() * (bx1 - bx0);
       const z = bz0 + rnd() * (bz1 - bz0);
       if (!inRings(x, z, a.rings)) continue;
+      // groves and lawns; small gardens (under ~0.3 ha) stay as they are
+      if (planted && a.area > 200 && rnd() > THREE.MathUtils.smoothstep(groveNoise(x, z), 0.3, 0.62)) continue;
       const gi = Math.floor(x / cell);
       const gj = Math.floor(z / cell);
       let close = false;
@@ -826,9 +1019,16 @@ export function buildNature(opts) {
         }
       }
       if (close) continue;
-      const s = regionSpecies(pickSpecies(mix, rnd()), x, z, regions);
+      let s = regionSpecies(pickSpecies(mix, rnd()), x, z, regions);
+      // eucalyptus takes over the woods up the hills (over ~70 m above the river)
+      if ((a.k === 'forest' || a.k === 'scrub') && s !== 3 && (heightAt(x, z) - riverY) / S > 70 && rnd() < 0.4) s = 1;
       const sp = SPECIES[s];
-      const hM = sp.h[0] + rnd() * (sp.h[1] - sp.h[0]);
+      let hM = sp.h[0] + rnd() * (sp.h[1] - sp.h[0]);
+      // parks and gardens of mixed ages: young trees, the odd old giant
+      if (planted) {
+        const age = rnd();
+        hM *= age < 0.2 ? 0.5 + rnd() * 0.2 : age > 0.92 ? 1.2 + rnd() * 0.15 : 0.85 + rnd() * 0.2;
+      }
       // the whole clump keeps clear, not only its centre
       const reach = hM * S * (s === 4 ? 0.62 : s === 3 ? 0.4 : s === 9 || s === 10 ? 0.3 : 0.25);
       if (blocked(x, z) || blocked(x + reach, z) || blocked(x - reach, z) || blocked(x, z + reach) || blocked(x, z - reach)) {
@@ -845,9 +1045,10 @@ export function buildNature(opts) {
         z,
         h: hM * S,
         s,
-        rot: rnd() * Math.PI * 2,
+        rot: s === 8 ? contourRot(x, z, rnd() * Math.PI * 2) : rnd() * Math.PI * 2,
         tint: [tint.r, tint.g, tint.b],
         phase: rnd() * 6.283,
+        pk: planted ? 1 : 0, // a park or garden tree: the mapped trees replace it
       });
       n--;
     }
@@ -1050,13 +1251,23 @@ export function buildNature(opts) {
   stats.trees = trees.length;
 
   // ---- tree meshes (near) and billboards (far)
+  // The OSM street trees and hedges (src/street-trees.js) arrive after the
+  // build and join these meshes. They are many and small, so they get their
+  // own LOD: meshes only within STREET_NEAR_K of the near radius and at most
+  // `streetNear` of them (the nearest), billboards out to STREET_FAR_K, then
+  // nothing; hedges are meshes within HEDGE_K and nothing beyond.
+  const STREET_NEAR = opts.mobile ? 180 : 380;
+  const HEDGE_NEAR = opts.mobile ? 500 : 1400;
+  const STREET_CAP = opts.mobile ? 9000 : 18000;
   const bySpecies = SPECIES.map(() => []);
   for (const t of trees) bySpecies[t.s].push(t);
   stats.species = bySpecies.map((list) => list.length);
   const near = bySpecies.map((list, s) => {
     const geo = clumpGeometry(s);
-    const cap = Math.max(1, list.length + STREAM);
-    const tintAttr = new THREE.InstancedBufferAttribute(new Float32Array(cap * 3), 3);
+    // the hedge blocks only ever hold hedges
+    const cap = s === 14 ? HEDGE_NEAR : Math.max(1, list.length + STREAM + STREET_NEAR);
+    // rgb: the tree's own tint; w: flags (1 evergreen, 2 a clipped hedge)
+    const tintAttr = new THREE.InstancedBufferAttribute(new Float32Array(cap * 4), 4);
     tintAttr.setUsage(THREE.DynamicDrawUsage);
     geo.setAttribute('aTint', tintAttr);
     const mat = treeMaterial(uniforms, s);
@@ -1071,7 +1282,7 @@ export function buildNature(opts) {
     mesh.receiveShadow = true;
     mesh.name = `trees-${s}`;
     group.add(mesh);
-    return { mesh, list, stream: [], tintAttr };
+    return { mesh, list, street: [], stream: [], tintAttr, cap };
   });
 
   const bbGeo = new THREE.InstancedBufferGeometry();
@@ -1079,7 +1290,7 @@ export function buildNature(opts) {
   bbGeo.index = quad.index;
   bbGeo.setAttribute('position', quad.attributes.position);
   bbGeo.setAttribute('uv', quad.attributes.uv);
-  const bbCap = trees.length + STREAM + 1;
+  const bbCap = trees.length + STREAM + STREET_CAP + 1;
   const bbInst = new THREE.InstancedBufferAttribute(new Float32Array(bbCap * 4), 4);
   const bbInfo = new THREE.InstancedBufferAttribute(new Float32Array(bbCap * 4), 4);
   const bbTint = new THREE.InstancedBufferAttribute(new Float32Array(bbCap * 3), 3);
@@ -1101,45 +1312,83 @@ export function buildNature(opts) {
   const _up = new THREE.Vector3(0, 1, 0);
   const lastCam = new THREE.Vector3(Infinity, 0, 0);
   let nearR = NEAR;
+  const STREET_NEAR_K = 0.38;
+  const STREET_FAR_K = 2;
+  const HEDGE_K = 0.38;
+  // the woods' and parks' own meshes end a little inside the near radius:
+  // the room pays for the street trees (the triangle budget is fixed)
+  const AREA_NEAR_K = 0.88;
+  const street = []; // every street tree (not the hedges), for the nearest-first cut
+  const streetD2 = new Float32Array(STREET_CAP);
+  // upload only the part of an instance buffer that is in use
+  const upload = (attr, n) => {
+    if (!n) return;
+    attr.clearUpdateRanges();
+    attr.addUpdateRange(0, n * attr.itemSize);
+    attr.needsUpdate = true;
+  };
   function partition(cam) {
     lastCam.copy(cam);
-    const r2 = nearR * nearR;
+    const r2 = (nearR * AREA_NEAR_K) ** 2;
+    // street trees: the nearest `streetNear` within STREET_NEAR_K are meshes;
+    // the budget follows the class's near radius (smaller on M and S)
+    const streetNear = Math.round(STREET_NEAR * Math.min(1, (nearR / 220) ** 2));
+    let rs2 = (nearR * STREET_NEAR_K) ** 2;
+    let n = 0;
+    for (const t of street) {
+      const dx = t.x - cam.x;
+      const dy = t.y - cam.y;
+      const dz = t.z - cam.z;
+      const d2 = dx * dx + dy * dy + dz * dz;
+      if (d2 < rs2) streetD2[n++] = d2;
+    }
+    if (n > streetNear) rs2 = streetD2.subarray(0, n).sort()[streetNear];
+    const rf2 = (nearR * STREET_FAR_K) ** 2;
+    const rh2 = (nearR * HEDGE_K) ** 2;
     let far = 0;
     let nearCount = 0;
+    let streetCount = 0;
     for (let s = 0; s < near.length; s++) {
       const N = near[s];
       let k = 0;
       const wr = SPECIES[s].w;
-      for (let ti = 0, nl = N.list.length, nt = nl + N.stream.length; ti < nt; ti++) {
-        const t = ti < nl ? N.list[ti] : N.stream[ti - nl];
+      const nl = N.list.length;
+      const ns = nl + N.street.length;
+      for (let ti = 0, nt = ns + N.stream.length; ti < nt; ti++) {
+        const t = ti < nl ? N.list[ti] : ti < ns ? N.street[ti - nl] : N.stream[ti - ns];
         const dx = t.x - cam.x;
         const dy = t.y - cam.y;
         const dz = t.z - cam.z;
-        if (dx * dx + dy * dy + dz * dz < r2) {
+        const d2 = dx * dx + dy * dy + dz * dz;
+        const st = t.st || 0;
+        const asMesh = st === 0 ? d2 < r2 : st === 1 ? d2 < rs2 : d2 < rh2;
+        if (asMesh && k < N.cap) {
           _p.set(t.x, t.y, t.z);
           _q.setFromAxisAngle(_up, t.rot);
-          _s.set(t.h, t.h, t.h);
+          _s.set(t.h * (t.sx || 1), t.h, t.h * (t.sz || 1));
           _m.compose(_p, _q, _s);
           N.mesh.setMatrixAt(k, _m);
-          N.tintAttr.setXYZ(k, t.tint[0], t.tint[1], t.tint[2]);
+          N.tintAttr.setXYZW(k, t.tint[0], t.tint[1], t.tint[2], t.f || 0);
           k++;
-        } else {
+          if (st) streetCount++;
+        } else if (st === 0 || (st === 1 && d2 < rf2)) {
           bbInst.setXYZW(far, t.x, t.y, t.z, t.h);
-          bbInfo.setXYZW(far, s, wr, t.phase, 0);
+          bbInfo.setXYZW(far, s, wr, t.phase, t.f || 0);
           bbTint.setXYZ(far, t.tint[0], t.tint[1], t.tint[2]);
           far++;
         }
       }
       N.mesh.count = k;
-      N.mesh.instanceMatrix.needsUpdate = true;
-      N.tintAttr.needsUpdate = true;
+      upload(N.mesh.instanceMatrix, k);
+      upload(N.tintAttr, k);
       nearCount += k;
     }
     bbGeo.instanceCount = far;
-    bbInst.needsUpdate = true;
-    bbInfo.needsUpdate = true;
-    bbTint.needsUpdate = true;
+    upload(bbInst, far);
+    upload(bbInfo, far);
+    upload(bbTint, far);
     stats.near = nearCount;
+    stats.nearStreet = streetCount;
     stats.far = far;
   }
 
@@ -1152,9 +1401,100 @@ export function buildNature(opts) {
   // ---- leaf field for the falling leaves and petals (src/leaves.js)
   const leafField = buildLeafField(trees, rect, heightAt);
 
+  // ---- street trees, avenue rows and hedges (src/street-trees.js): they
+  // arrive a moment after the build; the occupancy mask is kept until then
+  const tintFor = (t, r) => {
+    tint.set(t.f === HEDGE ? 0x3d5a27 : SPECIES[t.s].tint).multiplyScalar(0.8 + r() * 0.4);
+    tint.offsetHSL((r() - 0.5) * 0.03, 0, 0);
+    return [tint.r, tint.g, tint.b];
+  };
+  const inside = (x, z) => (x > rect.x0 && x < rect.x1 && z > rect.zN && z < rect.zS) || inParkOutline(x, z);
+  // a vine row's rotation along the contour of the slope it stands on
+  function contourRot(x, z, fallback) {
+    const gx = heightAt(x + 1, z) - heightAt(x - 1, z);
+    const gz = heightAt(x, z + 1) - heightAt(x, z - 1);
+    if (Math.hypot(gx, gz) < 0.02) return fallback; // flat: any way
+    return Math.atan2(-gx, -gz); // local x along (-gz, gx)
+  }
+  stats.street = null;
+  loadStreetTrees()
+    .then((doc) => {
+      if (!doc) return;
+      const res = plantStreetTrees({ doc, project, heightAt, roads: opts.roads, inside, blocked: blockedStreet, mobile: !!opts.mobile });
+      const r = lcg(20261010);
+      let trees2 = 0;
+      for (const t of res.trees) {
+        if (street.length >= STREET_CAP) break;
+        t.tint = tintFor(t, r);
+        near[t.s].street.push(t);
+        street.push(t);
+        trees2++;
+      }
+      for (const t of res.hedges) {
+        t.tint = tintFor(t, r);
+        near[t.s].street.push(t);
+      }
+      // where a park's trees are mapped, they replace the invented ones
+      // nearby (Parque da Cidade maps 1,500): no double planting
+      const MC = 6;
+      const mgrid = new Set();
+      for (const t of street) mgrid.add(`${Math.floor(t.x / MC)},${Math.floor(t.z / MC)}`);
+      const mapped = (x, z) => {
+        const i = Math.floor(x / MC);
+        const j = Math.floor(z / MC);
+        for (let di = -1; di <= 1; di++) for (let dj = -1; dj <= 1; dj++) if (mgrid.has(`${i + di},${j + dj}`)) return true;
+        return false;
+      };
+      let replaced = 0;
+      for (const N of near) {
+        const before = N.list.length;
+        N.list = N.list.filter((t) => !(t.pk && mapped(t.x, t.z)));
+        replaced += before - N.list.length;
+      }
+      stats.street = { ...res.stats, planted: trees2, hedgePieces: res.hedges.length, replaced };
+      if (res.walks.length) base.paintWalks?.(res.walks);
+      // the avenues drop their leaves too
+      const lf = buildLeafField(near.flatMap((N) => N.list).concat(street), rect, heightAt);
+      leafField.texture.image.data.set(lf.texture.image.data);
+      leafField.texture.needsUpdate = true;
+      lf.texture.dispose();
+      lastCam.set(Infinity, 0, 0); // re-split at the next update
+    })
+    .catch((e) => console.warn('[porto] street trees skipped', e?.message || e))
+    .finally(() => {
+      occ = null; // the occupancy mask is no longer needed
+      occCv.width = occCv.height = 0;
+    });
+
+  // ---- wind: read from the cloud drift (weather.js moves the cloud deck
+  // with the wind at six times its speed), so the trees lean with the
+  // weather's wind without a new hook; the default is the Atlantic breeze
+  const wind = { x: 0.93, z: -0.37, speed: 6 };
+  const cloud = WEATHER_UNIFORMS.cloudParams.value;
+  let lastCloud = null;
+  const updateWind = (dt) => {
+    if (dt > 0 && lastCloud) {
+      const period = 1 / (WEATHER_UNIFORMS.cloudShape.value.y || 1 / 2600);
+      const k = period / (6 * S * dt);
+      const vx = -(cloud.x - lastCloud.x) * k;
+      const vz = -(cloud.y - lastCloud.y) * k;
+      const sp = Math.hypot(vx, vz);
+      if (sp > 0.5 && sp < 40) {
+        const a = 1 - Math.exp(-dt * 0.8);
+        wind.x += (vx / sp - wind.x) * a;
+        wind.z += (vz / sp - wind.z) * a;
+        wind.speed += (sp - wind.speed) * a;
+      }
+    }
+    lastCloud = { x: cloud.x, y: cloud.y };
+    const l = Math.hypot(wind.x, wind.z) || 1;
+    uniforms.uWind.value.set(wind.x / l, wind.z / l, THREE.MathUtils.clamp(wind.speed / 7, 0.3, 2));
+  };
+
   const _sv = new THREE.Vector3();
   function update(dt, camera, light) {
     uniforms.uTime.value += dt;
+    updateWind(dt);
     water?.update(dt, light);
     if (light) {
       _sv.copy(light.dir).transformDirection(camera.matrixWorldInverse);
@@ -1202,7 +1542,8 @@ export function buildNature(opts) {
           if (!sp) continue;
           c.set(sp.tint).multiplyScalar(0.8 + arr[i + 7] * 0.4);
           c.offsetHSL((arr[i + 8] - 0.5) * 0.03, 0, 0);
-          near[s].stream.push({ x: arr[i], y: arr[i + 1], z: arr[i + 2], h: arr[i + 3], s, rot: arr[i + 5], phase: arr[i + 6], tint: [c.r, c.g, c.b] });
+          // vines: the row runs along the slope's contour, like a terrace
+          near[s].stream.push({ x: arr[i], y: arr[i + 1], z: arr[i + 2], h: arr[i + 3], s, rot: s === 8 ? contourRot(arr[i], arr[i + 2], arr[i + 5]) : arr[i + 5], phase: arr[i + 6], tint: [c.r, c.g, c.b] });
         }
       }
       stats.stream = n;
@@ -1231,7 +1572,7 @@ function buildLeafField(trees, rect, heightAt) {
     if (i < 0 || j < 0 || i >= w || j >= h) continue;
     const k = (j * w + i) * 4;
     const sc = SEASON_CROWNS[t.s];
-    dec[k] += sc.bare;
+    dec[k] += t.f ? 0 : sc.bare; // evergreen street trees keep their leaves
     blo[k] += sc.bloom;
     cnt[k] += 1;
     hgt[k] += t.h;
@@ -1297,6 +1638,21 @@ function blur(rgba, w, h, r) {
 }
 
 // ------------------------------------------------------------ materials
+// Autumn on today's date. Porto's trees turn late: the first planes and
+// limes in early October, the peak in the last week of November, bare by
+// the winter solstice. x: the share of the deciduous crowns that have
+// turned, y: how deep their colour is. Outside autumn (a visitor who picks
+// "autumn" in May) it is the peak.
+function fallProgress(d = new Date()) {
+  const y = d.getFullYear();
+  const start = new Date(y, 8, 23).getTime();
+  const peak = new Date(y, 10, 25).getTime();
+  const end = new Date(y, 11, 21).getTime();
+  const t = d.getTime();
+  const p = t < start || t >= end ? 1 : Math.min(1, (t - start) / (peak - start));
+  return new THREE.Vector2(0.3 + 0.7 * p, 0.62 + 0.38 * p);
+}
+
 // Per-species season uniforms: the palette in linear light and the shares
 // (see SEASON_CROWNS). One object per species, shared by the colour and
 // the shadow material.
@@ -1319,7 +1675,10 @@ const TREE_VERT_PARS = /* glsl */ `
 uniform float uTime;
 uniform vec4 seasonW;
 uniform vec3 uKind; // x palette share, y bare share, z bloom share
+uniform vec3 uWind; // xy the direction it blows toward (world xz), z strength
+uniform vec2 uTurn; // autumn on today's date: x share turned, y depth
 attribute vec4 aCenter;
+attribute vec4 aTint; // rgb the tree's tint, w flags: 1 evergreen, 2 hedge
 float tHash(vec2 p) {
   vec3 q = fract(vec3(p.xyx) * 0.1031);
   q += dot(q, q.yzx + 33.33);
@@ -1329,32 +1688,45 @@ float tHash(vec2 p) {
 const TREE_DEFORM = /* glsl */ `
 #ifdef USE_INSTANCING
   vec2 wp = instanceMatrix[3].xz;
+  mat3 tIM = mat3(instanceMatrix);
 #else
   vec2 wp = vec2(0.0);
+  mat3 tIM = mat3(1.0);
 #endif
 float tHI = tHash(wp * 0.37 + 0.11);
 float tHC = fract(tHI * 7.31 + aCenter.w * 3.17);
 float tCrown = step(0.0, aCenter.w);
-float tPal = tCrown * step(tHC, uKind.x);
-float tBare = tCrown * step(tHC, uKind.y);
+float tEver = step(0.5, aTint.w); // an evergreen street tree or a hedge
+float tStiff = step(1.5, aTint.w); // a clipped hedge does not sway
+float tPal = tCrown * step(tHC, uKind.x) * (1.0 - tEver);
+float tBare = tCrown * step(tHC, uKind.y) * (1.0 - tEver);
 // winter: bare crowns shrink to a twig mass; autumn thins them a little
-transformed = mix(transformed, aCenter.xyz, tBare * (seasonW.w * 0.5 + seasonW.z * 0.08));
-// wind: the crown sways, more toward the top; phase from the position
+transformed = mix(transformed, aCenter.xyz, tBare * (seasonW.w * 0.5 + seasonW.z * 0.08 * uTurn.x));
+// wind: the crown leans downwind and sways about it, more toward the top;
+// gusts roll across the city with the wind. The wind direction is taken
+// into the tree's own frame (its rotation; its scale is its height).
+float gust = 0.7 + 0.3 * sin(uTime * 0.41 - dot(wp, uWind.xy) * 0.012);
 float sway = sin(uTime * 1.3 + wp.x * 0.05 + wp.y * 0.07) + 0.4 * sin(uTime * 2.9 + wp.y * 0.11);
-float bend = position.y * position.y * 0.035;
-transformed.x += sway * bend;
-transformed.z += sway * bend * 0.6;
+float bend = position.y * position.y * 0.035 * uWind.z * (1.0 - tStiff);
+float tScale = max(length(tIM[1]), 1e-4);
+vec3 wAlong = transpose(tIM) * vec3(uWind.x, 0.0, uWind.y) / tScale;
+vec3 wAcross = transpose(tIM) * vec3(-uWind.y, 0.0, uWind.x) / tScale;
+transformed += (wAlong * (0.45 + 0.75 * sway) * gust + wAcross * 0.3 * sin(uTime * 3.1 + tHI * 6.283)) * bend;
 `;
 // Crown colour for the season, resolved from the authored palette every
 // frame (never from last frame's colour, so nothing drifts).
 const TREE_SEASON_COLOR = /* glsl */ `
 {
-  vec3 vary = aTint / max(uBase, vec3(1e-3)); // this tree's own variation
+  vec3 vary = aTint.rgb / max(uBase, vec3(1e-3)); // this tree's own variation
   vec3 cSum = uPal[1];
   vec3 ever = cSum * (seasonW.x * vec3(1.06, 1.1, 1.0) + vec3(seasonW.y) + seasonW.z * vec3(1.0, 0.97, 0.92) + seasonW.w * vec3(0.86, 0.88, 0.9));
   vec3 cFall = mix(uPal[2], uPal[3], fract(tHC * 5.3 + tHI));
   // one tree in six turns late: still half green
   cFall = mix(cFall, mix(cSum, uPal[2], 0.5), step(0.83, fract(tHI * 13.7)));
+  // today's date: only some crowns have turned so far, and not all the way;
+  // the rest keep a tired late-summer green
+  float turned = step(fract(tHI * 17.31 + 0.13), uTurn.x);
+  cFall = mix(cSum * vec3(1.04, 1.0, 0.84), cFall, turned * uTurn.y);
   vec3 own = seasonW.x * uPal[0] + seasonW.y * cSum + seasonW.z * cFall + seasonW.w * uPal[4];
   vec3 leaf = mix(ever, own, tPal) * vary;
   // spring blossom: whole trees, in specks over the crown
@@ -1379,7 +1751,7 @@ function treeMaterial(uniforms, s) {
     sh.vertexShader = sh.vertexShader
       .replace(
         '#include <common>',
-        `#include <common>\n${TREE_VERT_PARS}\nuniform vec3 uPal[5];\nuniform vec3 uBase;\nuniform vec3 uBloom;\nattribute float aCrown;\nattribute vec3 aTint;\nvarying float vCrown;\nvarying float vBack;\nvarying vec3 vTint;`,
+        `#include <common>\n${TREE_VERT_PARS}\nuniform vec3 uPal[5];\nuniform vec3 uBase;\nuniform vec3 uBloom;\nattribute float aCrown;\nvarying float vCrown;\nvarying float vBack;\nvarying vec3 vTint;`,
       )
       .replace('#include <begin_vertex>', `#include <begin_vertex>\nvCrown = aCrown;\n${TREE_DEFORM}\n${TREE_SEASON_COLOR}`);
     sh.fragmentShader = sh.fragmentShader
@@ -1406,6 +1778,8 @@ function treeDepthMaterial(uniforms, s) {
   const su = seasonUniforms(s);
   mat.onBeforeCompile = (sh) => {
     sh.uniforms.uTime = uniforms.uTime;
+    sh.uniforms.uWind = uniforms.uWind;
+    sh.uniforms.uTurn = uniforms.uTurn;
     sh.uniforms.uKind = su.uKind;
     sh.uniforms.seasonW = WEATHER_UNIFORMS.seasonW;
     sh.vertexShader = sh.vertexShader
@@ -1423,6 +1797,8 @@ function billboardMaterial(uniforms, atlas) {
       ...FOG_UNIFORMS,
       ...WEATHER_UNIFORMS,
       uTime: uniforms.uTime,
+      uWind: uniforms.uWind,
+      uTurn: uniforms.uTurn,
       tAtlas: { value: atlas },
       uSunDir: { value: new THREE.Vector3(0, 1, 0) },
       uSunColor: { value: new THREE.Color(1, 1, 1) },
@@ -1437,6 +1813,8 @@ function billboardMaterial(uniforms, atlas) {
       #include <common>
       #include <fog_pars_vertex>
       uniform float uTime;
+      uniform vec3 uWind;
+      uniform vec2 uTurn;
       uniform vec4 seasonW;
       uniform vec3 uBPal[${CELLS * 5}];
       uniform vec3 uBBase[${CELLS}];
@@ -1459,16 +1837,19 @@ function billboardMaterial(uniforms, atlas) {
         float h = bHash(aInst.xz * 0.37 + 0.11);
         float hc = fract(h * 7.31 + 1.7);
         vec3 k = uBKind[s];
-        float pal = step(hc, k.x);
+        float everF = step(0.5, aInfo.w); // an evergreen street tree
+        float pal = step(hc, k.x) * (1.0 - everF);
         vec3 cSum = uBPal[s * 5 + 1];
         vec3 ever = cSum * (seasonW.x * vec3(1.06, 1.1, 1.0) + vec3(seasonW.y) + seasonW.z * vec3(1.0, 0.97, 0.92) + seasonW.w * vec3(0.86, 0.88, 0.9));
         vec3 cFall = mix(uBPal[s * 5 + 2], uBPal[s * 5 + 3], fract(hc * 5.3 + h));
         cFall = mix(cFall, mix(cSum, uBPal[s * 5 + 2], 0.5), step(0.83, fract(h * 13.7)));
+        float turned = step(fract(h * 17.31 + 0.13), uTurn.x);
+        cFall = mix(cSum * vec3(1.04, 1.0, 0.84), cFall, turned * uTurn.y);
         vec3 own = seasonW.x * uBPal[s * 5] + seasonW.y * cSum + seasonW.z * cFall + seasonW.w * uBPal[s * 5 + 4];
         vec3 c = mix(ever, own, pal) * tint / max(base, vec3(1e-3));
         float bloom = step(h, k.z) * seasonW.x;
         c = mix(c, uBBloom[s], bloom * 0.45);
-        vBare = step(hc, k.y) * seasonW.w;
+        vBare = step(hc, k.y) * seasonW.w * (1.0 - everF);
         return c;
       }
       void main() {
@@ -1477,7 +1858,11 @@ function billboardMaterial(uniforms, atlas) {
         float w = h * aInfo.y * 1.15;
         vec3 toCam = cameraPosition - base;
         vec3 right = normalize(vec3(toCam.z, 0.0, -toCam.x) + vec3(1e-4, 0.0, 0.0));
-        float sway = sin(uTime * 1.3 + base.x * 0.05 + base.z * 0.07) * position.y * position.y * 0.03 * h;
+        // the same wind as the near meshes, seen across the view
+        float gust = 0.7 + 0.3 * sin(uTime * 0.41 - dot(base.xz, uWind.xy) * 0.012);
+        float osc = sin(uTime * 1.3 + base.x * 0.05 + base.z * 0.07);
+        float lean = dot(right.xz, uWind.xy) * (0.45 + 0.75 * osc) * gust + 0.3 * osc;
+        float sway = lean * uWind.z * position.y * position.y * 0.03 * h;
         vec3 p = base + right * (position.x * w + sway) + vec3(0.0, position.y * h, 0.0);
         vec4 mvPosition = viewMatrix * vec4(p, 1.0);
         gl_Position = projectionMatrix * mvPosition;
