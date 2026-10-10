@@ -410,6 +410,48 @@
         "0 of 64575 buildings and 1 of 54648 street points in the new sea; no landmark point inside it (felgueiras 6 m, castelo-queijo 41 m, praia-ingleses 35 m from the coast)"
       ],
       "notes": "Not done: the sea shader still reads the single-valued coast profile (water.js, owner C: the sea mesh carries aSeaDist, aSeaDepth, aMouth for it); the Douro estuary and the sea still meet at the closing line (colour blend is the shader's job); Leixoes docks are not water in OSM (only the outer harbour polygon and the marinas are filled); the grass of the ring terrain still runs to the apron edge (ground, owner D). Felgueiras mole and Leca lighthouse are left to their landmark models."
+    },
+    {
+      "id": "porto-w1c-001",
+      "priority": 23,
+      "area": "water, shadows, weather",
+      "title": "Wave 1C: how the water, the shadows and the fog look",
+      "user_visible_behavior": "Sea foam is lacy streaks along wave crests plus a thin shoreline foam line (no white speckle); the open sea no longer repeats a regular corrugation; the Atlantic is blue-green offshore and turquoise over the shelf; the Douro is calmer and olive-brown and mixes into the sea at the mouth with no hard border; glitter is a few glints, not confetti; the dotted hatch in the shadows next to a selected landmark is gone; valley fog keeps a 55 m view legible; rain leaves soft puddles on flat ground, not grey blocks on roofs and streets.",
+      "status": "passing",
+      "verification": [
+        "npm run build",
+        "Playwright shots on :5203 (before in /tmp/p3/cb/b-*.png, after a3..a8): felgueiras, praia-ingleses, passeio-alegre, ribeira, castelo-queijo, cadeia-relacao, teatro-nacional-sao-joao, casa-guerra-junqueiro (day and sunset), rain, fog, ?quality=low",
+        "rAF interval A/B against HEAD water.js (route-swapped), vsync off, place=felgueiras"
+      ],
+      "evidence": [
+        "shadow hatch: not shadow acne. Bias, normalBias, radius, shadow type (Basic) did not change it; closing the selection removed it. Cause: landmarks.js focus effect kept 1 pixel in 8 (4x2 screen-door) of a landmark standing between the camera and the selected one; its walls and pad read as dots over the neighbours' shadows. Fix: that occluder is dropped whole (src/landmarks.js, 4 lines)",
+        "water: wave Jacobian (crest < 0.52) times a lattice stretched along the swell crests (6 m across, 17 m along) gives broken strands; shoreline: swash line, surf band and migrating fronts from aSeaDist (coast profile fallback); river and sea blend through the sea mesh's aMouth; three slow noise fields warp the phase per wave",
+        "fog: valley density 0.035 to 0.016, near 400 m of the air thinner; puddle mask: two octaves, flat ground only (ground shader and shared patch use the same mask)",
+        "frame time: median rAF interval 3.2-3.8 ms new against 3.5-4.0 ms HEAD at felgueiras, 1440x900, vsync off (machine shared, noisy: other runs 5-10 ms for both)"
+      ],
+      "notes": "Not done: raindrop rings on the ground (only soft puddles); the fog at 55 m is still thick over the far city by design; the sea at praia-ingleses keeps a gentle parallel swell; headless GPU, no phone-sized sea shot (the phone viewport loaded over land). src/scene.js (fog and puddle hunks) and src/landmarks.js (the focus ghost) are edited in the working tree but were left uncommitted: both files also carry other agents' unfinished hunks."
+    },
+    {
+      "id": "porto-w1d-001",
+      "priority": 24,
+      "area": "terrain, ground, roads, buildings, boats",
+      "title": "Wave 1D: the land shape and what stands on it",
+      "user_visible_behavior": "The Douro slopes are no longer a bare grey-brown cliff with torn dark ribbons and rows of buildings over an edge: the ground is a 12 m surface with scrub on the mid slopes and banded granite only above 35 degrees, landmark pads no longer dig 20 to 60 m pits (the Palacio de Cristal cliff was a 61 m pad pit), roads follow a smoothed profile, buildings stand on a foundation or a terrace, rabelos float with their hulls above the water.",
+      "status": "passing",
+      "verification": [
+        "npm run build; npm run check:fit; npm run check:geo (checks terrain-fine.bin.gz against the lattice); npm run check:traffic; npm run check:fits",
+        "node scripts/pad-report.mjs (cut, fill, slope per landmark pad, each alone)",
+        "node /tmp/p3 probes: gprobe (triangles, ground stats), parity (worker rawAt against main rawAt, 200000 points)",
+        "before (porto-3d.vercel.app) and after (:5204) shots at the same poses: Palacio de Cristal / Miragaia slope, Ribeira, Cais de Gaia, Serra do Pilar, Sao Bento, Reitoria, Serralves, Jardim do Morro, Foz; day and sunset"
+      ],
+      "evidence": [
+        "data/terrain-notes.md: Terrarium z14 and the EU-DEM lattice are the same model (mean difference -0.1 m, RMS 2.5 m at 7300 nodes; mean error against the six reference heights 12.4 m against 12.0 m): the fine grid is for shape (the Ribeira slope profile 14, 10, 13.5, 13.7, 14.3, 4.9 m on the lattice against 15.2, 7.8, 4.2, 4.9, 1.8, 3.0 m), not for accuracy; the river band is pulled down 1.8 m inside the OSM water polygons so the water level is where it was; the datum is taken from the lattice only",
+        "terrain: 982 x 725 samples at 12 m, 214 KB gzip (budget 3 MB, loaded with terrain.json: under the 1 MB deferral limit); all consumers read terrain.heightAt / rawAt; the tile worker and model worker rebuild the same function from terrain.grid.fine: max |rawAt main - worker| = 0 over 200000 points",
+        "ground mesh: 2295 chunks, per-chunk stride 1 to 8, skirts on stride changes, lattice normals; 62 k ground triangles in the default overview (was about 230 k in the core alone); whole overview 1.87 to 1.97 M triangles; ground build 131 ms (138 ms before); ?quality=low overview 1.64 M, potato 125 k",
+        "pads: root cause of the cliff in the user's screenshot was the Palacio de Cristal pad: base = lowest point of the garden outline (-65.7 m), pad levels 417 x 438 m: 61.6 m of cut. Now: cut capped (buildings a third of their height, never under 3 m; gardens, streets, coast 6 m; stadium 10 m), faces no steeper than 1:1.8, base of the Palacio on the arena plateau (FIT_RULES). Worst cut 61.6 m -> 10.9 m",
+        "roads (commit 4d17d90), buildings (89beeda), boats (4ee34e2): see their commits"
+      ],
+      "notes": "Not done: retaining walls (faces are battered, not walled; a wall would float on a smooth face); pads are not hidden at a distance (they are the ground, not a mesh); the mobile (LITE, not potato) class still draws the same 1 M-vertex lattice (28 MB of buffers) with coarser strides, a coarser lattice for phones needs groundAxes passed to the tile worker; hill tops are 10 to 30 m low in the source (Serra do Pilar 70 m against about 100 m); the shadow proxy ridges lose a metre or two; the flat-shaded green footing planes at Serra do Pilar / Jardim do Morro come from the landmark models, not the ground; the art textures in art/textures are not plugged in (see the report)."
     }
   ]
 }

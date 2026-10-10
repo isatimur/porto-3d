@@ -22,6 +22,28 @@ updates it automatically.
 
 ## Session Log
 
+### Wave 1D — the land shape and what stands on it (feature porto-w1d-001)
+
+- Goal: end the bare cliff with torn ribbons and hanging rows on the Douro slopes.
+- Root cause of the cliff in the user's screenshot: not the DEM. The Palácio de Cristal landmark pad took the base from the lowest point of the garden outline (-65.7 m) and levelled 417 x 438 m: 61.6 m of cut, a pit whose wall was the grey cliff. Roads and OSM rows then followed the pit. 67 pads were measured (`node scripts/pad-report.mjs`): worst cut 61.6 m, now 10.9 m.
+- Terrain (`src/terrain.js`, `src/terrain-fine.js`, `scripts/fetch-terrain-fine.mjs`, `data/terrain-fine.bin.gz`, notes in `data/terrain-notes.md`): AWS Terrarium z14 resampled to 12 m over the core plus a 440 m margin, 214 KB gzip. It is the same model as the EU-DEM lattice (RMS 2.5 m, mean -0.1 m), so it adds shape, not accuracy; the datum comes from the lattice, the river band is pulled down inside the OSM water polygons so the water level does not move. One height function: `rawAt` and `heightAt` read the fine grid; workers rebuild it from `terrain.grid.fine` (parity 0 over 200000 points).
+- Ground mesh (`src/ground-mesh.js`, `src/scene.js` createGround and groundAxes): the lattice is the data's own 12 m grid in the core, one DEM cell in the ring; 32 x 32 cell chunks with a per-chunk stride 1 to 8 by distance, skirts where strides differ, normals and AO from the lattice, one dynamic index buffer. The shadow proxy is built on the lattice with a lowest-ground filter (no shade plates).
+- Slope material (scene.js ground shader): scrub on 20 to 35 degrees, banded granite and schist above 35 degrees, land cover only on the flats. Textures from `art/textures` (rock_granite_*, ground_schist_*) are not plugged in: copy them under `assets/`, load with `assetUrl`, and sample them in `GROUND_COLOR` where `rockCol` and `scrub` are built, with `vec2(W.x + W.z, W.y * 2.4)` as the UV on faces and `W.xz` on flats.
+- Pads (`src/terrain.js` addPad/heightAt, `src/fit.js` padFor and the Palácio rule): cut caps (buildings a third of their height, at least 3 m; gardens, streets and the coast 6 m; stadium 10 m), faces no steeper than 1:1.8 with a feather that widens with the step, Palácio base on the arena plateau.
+- Roads, quays, buildings, boats: done by sub-agents, commits 4d17d90 (roads), 89beeda (buildings), 4ee34e2 (boats).
+- Evidence: before and after shots at the same poses in `/tmp/p3` (`u0-cliff.png` live, `u1-cliff.png` now); `npm run build`, `check:fit`, `check:geo`, `check:traffic`, `check:fits` pass.
+- Not done: retaining walls, a coarser ground lattice for phones, pad hiding by distance (pads are the ground). The flat-shaded green footing planes at Serra do Pilar come from the landmark models.
+
+### Wave 1C — water look, shadows, fog (feature porto-w1c-001)
+
+- Goal: foam that reads as foam, no tiled sea, Atlantic and estuary colour, the shadow hatch, fog and rain.
+- Water (`src/water.js`, commit 41a6b9c): foam from the wave Jacobian and a lattice stretched along the crests; shoreline foam from `aSeaDist` (profile fallback when the attribute is absent); `aSeaDepth` and `aMouth` drive colour, shoaling and the river/sea blend; per-wave phase warp and group height from three km-scale noise fields (per-wave weights are the `uWaveWarp` uniform); detail octaves at unrelated scales, faded by pixel footprint; sparkle gated by footprint. New exports `setSeaShoreAttributes`, `setWaterMouth` (coast.js calls them). Lite classes (M, S, P) keep the single octave: warped lookup, footprint fade, shore foam and the new colours, no Gerstner.
+- Shadows: the "moire" is not in the shadow map. The landmark focus effect (`src/landmarks.js`) screen-doored 7 of 8 pixels of any model between the camera and the selected landmark. Now it drops that model whole. Bias, normalBias and radius are unchanged (probed: no effect).
+- Fog and rain (`src/scene.js`): valley fog density 0.016, thinner air near the lens; puddle mask is two octaves on flat ground only, in both the shared patch and the ground reflection.
+- Evidence: before/after shots in `/tmp/p3/cb/` (b-* before, a3-a8 after); `npm run build` passes; rAF A/B against HEAD water.js shows no loss (machine noisy).
+- Risk: `src/scene.js` and `src/landmarks.js` hold my edits but are not committed (other agents' hunks share the files). Commit them together with that work.
+- Not done: ground raindrop rings, a phone-sized sea shot, a sunset sea shot of the Foz with foam.
+
 ### Wave 1B — the real coast (feature porto-w1b-001)
 
 - Goal: the sea polygon from the real OSM coastline, the harbour structures. The old sea was 113 vertices from the easternmost coast point per 220 m latitude band.

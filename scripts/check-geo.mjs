@@ -140,6 +140,41 @@ if (ter) {
     else if (!Number.isFinite(v)) err(`terrain: ${k} = ${v} m, not finite`);
   }
   console.log(`Terrain: ${cols}x${rows} (${ter.row_order}), ${mn}-${mx} m, source ${ter.source}, samples`, got);
+
+  // ---- fine core terrain (data/terrain-fine.bin.gz, src/terrain-fine.js) ----
+  const finePath = P('terrain-fine.bin.gz');
+  if (existsSync(finePath)) {
+    const { gunzipSync } = await import('node:zlib');
+    const { unpackFine } = await import('../src/terrain-fine.js');
+    const F = unpackFine(gunzipSync(readFileSync(finePath)));
+    const gz = statSync(finePath).size;
+    const inBox = F.bbox.s <= CORE_BBOX.s && F.bbox.n >= CORE_BBOX.n && F.bbox.w <= CORE_BBOX.w && F.bbox.e >= CORE_BBOX.e;
+    if (!inBox) err(`terrain-fine: bbox does not cover the core bbox`);
+    if (!F.heights.every(Number.isFinite)) err('terrain-fine: non-finite heights');
+    if (gz > 3 * 1024 * 1024) err(`terrain-fine: ${gz} B gzip, budget 3 MB`);
+    // against the lattice: same model, so mean difference near 0 and RMS a few metres
+    const at = (lat, lon) => {
+      const fc = ((lon - F.bbox.w) / (F.bbox.e - F.bbox.w)) * (F.cols - 1);
+      const fr = ((lat - F.bbox.s) / (F.bbox.n - F.bbox.s)) * (F.rows - 1);
+      const c = Math.floor(fc), r = Math.floor(fr), tc = fc - c, tr = fr - r;
+      const h = (rr, cc) => F.heights[rr * F.cols + cc];
+      return (h(r, c) * (1 - tc) + h(r, c + 1) * tc) * (1 - tr) + (h(r + 1, c) * (1 - tc) + h(r + 1, c + 1) * tc) * tr;
+    };
+    let n = 0, s = 0, s2 = 0;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const lat = ter.bbox.s + ((ter.bbox.n - ter.bbox.s) * r) / (rows - 1);
+        const lon = ter.bbox.w + ((ter.bbox.e - ter.bbox.w) * c) / (cols - 1);
+        if (lat < CORE_BBOX.s || lat > CORE_BBOX.n || lon < CORE_BBOX.w || lon > CORE_BBOX.e) continue;
+        const d = at(lat, lon) - ter.heights[r * cols + c];
+        n++; s += d; s2 += d * d;
+      }
+    }
+    const mean = s / n, rms = Math.sqrt(s2 / n);
+    if (Math.abs(mean) > 1.5) err(`terrain-fine: mean difference to the lattice ${mean.toFixed(2)} m (datum drift)`);
+    if (rms > 6) err(`terrain-fine: RMS difference to the lattice ${rms.toFixed(2)} m`);
+    console.log(`Terrain fine: ${F.cols}x${F.rows} at ${F.step_m} m, ${F.min_m.toFixed(1)}-${F.max_m.toFixed(1)} m, ${(gz / 1024).toFixed(0)} KB gzip; vs lattice over ${n} nodes: mean ${mean.toFixed(2)} m, RMS ${rms.toFixed(2)} m`);
+  } else warn('terrain-fine.bin.gz missing: the ground falls back to the coarse lattice');
 }
 
 for (const w of warnings) console.log(`WARN  ${w}`);
