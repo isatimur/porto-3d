@@ -44,7 +44,7 @@ export const STYLE = {
 export const SURFACE = { primary: 0x5b5753, secondary: 0x66615a, minor: 0x777066, rail: 0x5f574e, water: 0x2a4652 };
 
 export const LIFT = 0.35; // line: world units (1.4 m) above the road surface
-export const RIBBON_LIFT = 0.12; // ribbon: 0.5 m
+export const RIBBON_LIFT = 0.08; // ribbon: 0.3 m (the ground path is already within 0.25 m of the terrain)
 export const MAX_SEG = 6; // subdivide longer segments so they follow the terrain
 
 const CONCRETE = 0xbab5ab;
@@ -99,7 +99,7 @@ function strip(T, net, i0, i1, off, h, lift, col, ext = h) {
     let dx = bx - ax;
     let dz = bz - az;
     const L = Math.hypot(dx, dz);
-    if (L < 1e-5) continue;
+    if (L < 0.012) continue; // under ~5 cm: no area, no direction
     dx /= L;
     dz /= L;
     const lx = dz; // left of travel (x east, z south)
@@ -497,6 +497,7 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
     bridgeGeometry(ST, pts, {
       halfW: (w.widthM / 2) * S,
       lift: RIBBON_LIFT,
+      groundAt: heightAt,
       col: arch ? granite : concrete,
       pierCol: arch ? granite : pier,
       style: arch ? 'arch' : 'beam',
@@ -528,7 +529,8 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
     for (let i = w.start; i < end; i++) {
       const la = Y[i] - G[i];
       const lb = Y[i + 1] - G[i + 1];
-      if (la < 0.3 * S && lb < 0.3 * S) continue;
+      // (a way on the ground floats up to 0.3 over it after the profile smoothing: no embankment for that)
+      if (la < 0.35 && lb < 0.35) continue;
       if (HID[i] || HID[i + 1]) continue;
       any = true;
       let dx = X[i + 1] - X[i];

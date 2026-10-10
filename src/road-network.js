@@ -185,6 +185,9 @@ function tri(T, a, b, c, col, n = [0, 1, 0]) {
 
 export const LANE_M = 3; // nominal lane width (m)
 const MAX_STEP = 3; // world units between points
+const PROFILE_CUT = 0.06; // a ground way may lie this far (0.25 m) under the ground
+const CROSS_FALL = 0.4; // steepest cross slope a ribbon follows (rise per unit across)
+const PROFILE_FILL = 0.3; // ... and this far (1.2 m) over it, before it counts as a ramp
 // tunnel=yes and its variants: a bored road/rail tunnel, drawn with a portal
 // facade in the hillside
 const ROAD_TUNNELS = new Set(['yes', 'avalanche_protector', 'flooded']);
@@ -374,7 +377,14 @@ function build(roads, project, heightAt) {
         C.push(0);
       } else {
         const L = Math.hypot(p.x - prev.x, p.z - prev.z);
-        const n = Math.max(1, Math.ceil(L / MAX_STEP));
+        // on a hillside (ground gradient over 25 %) the points sit twice as
+        // close: a ribbon quad then follows the ground's own triangles
+        const mx = (p.x + prev.x) / 2;
+        const mz = (p.z + prev.z) / 2;
+        const gx = heightAt(mx + 1, mz) - heightAt(mx - 1, mz);
+        const gz = heightAt(mx, mz + 1) - heightAt(mx, mz - 1);
+        const step = Math.hypot(gx, gz) > 0.5 ? MAX_STEP / 2 : MAX_STEP;
+        const n = Math.max(1, Math.ceil(L / step));
         for (let k = 1; k <= n; k++) {
           X.push(prev.x + ((p.x - prev.x) * k) / n);
           Z.push(prev.z + ((p.z - prev.z) * k) / n);
@@ -481,7 +491,7 @@ function build(roads, project, heightAt) {
       LX[i] = lx;
       LZ[i] = lz;
       const s = (heightAt(PX[i] + lx * d, PZ[i] + lz * d) - heightAt(PX[i] - lx * d, PZ[i] - lz * d)) / (2 * d);
-      SL[i] = Math.max(-0.6, Math.min(0.6, s));
+      SL[i] = Math.max(-0.8, Math.min(0.8, s));
     }
   }
 
@@ -496,6 +506,35 @@ function build(roads, project, heightAt) {
       if (j[k + 1] + 1 > nNodes) nNodes = j[k + 1] + 1;
     }
     if (w.jp.length >= 4 && w.jp[1] === w.jp.at(-1) && w.f.pts.length > 3) w.closed = true;
+  }
+  // ---- the way's own profile on the fine terrain: the ground sampled at the
+  // points is a 12 m lattice's noise, and ribbons drawn on it twist and tear
+  // on a side slope. Low-pass the centreline height and the cross slope along
+  // each way; junction points and way ends keep the raw ground, so the ways
+  // that meet there still meet. The result stays within CUT below / FILL above
+  // the ground (surfaceY below builds the edges from this one profile).
+  {
+    const pin = new Uint8Array(NP);
+    for (const w of ways) {
+      pin[w.start] = 1;
+      pin[w.start + w.n - 1] = 1;
+      for (let k = 0; k < w.jp.length; k += 2) pin[w.jp[k]] = 1;
+    }
+    const tmp = new Float32Array(NP);
+    for (const w of ways) {
+      const a = w.start;
+      const b = a + w.n - 1;
+      if (b - a < 2) continue;
+      for (let pass = 0; pass < 2; pass++) {
+        for (let i = a; i <= b; i++) tmp[i] = pin[i] ? Y[i] : (Y[i - 1] + 2 * Y[i] + Y[i + 1]) / 4;
+        for (let i = a; i <= b; i++) Y[i] = tmp[i];
+      }
+      for (let i = a; i <= b; i++) Y[i] = pin[i] ? G[i] : Math.min(G[i] + PROFILE_FILL, Math.max(G[i] - PROFILE_CUT, Y[i]));
+      for (let pass = 0; pass < 2; pass++) {
+        for (let i = a; i <= b; i++) tmp[i] = i === a || i === b ? SL[i] : (SL[i - 1] + 2 * SL[i] + SL[i + 1]) / 4;
+        for (let i = a; i <= b; i++) SL[i] = tmp[i];
+      }
+    }
   }
   const nodeWays = Array.from({ length: nNodes }, () => []);
   ways.forEach((w, wi) => {
@@ -905,7 +944,18 @@ function build(roads, project, heightAt) {
     // the mesh and the vehicles sit on one surface)
     surfaceY(i, left) {
       const g = heightAt(PX[i] + LX[i] * left, PZ[i] + LZ[i] * left);
-      return g > Y[i] ? g : Y[i];
+      // a deck, a ramp or a hood: level with the way, or the ground if higher
+      if (Y[i] - G[i] > PROFILE_FILL) return g > Y[i] ? g : Y[i];
+      // on the ground: the one centreline height plus a bounded cross fall, so
+      // the edges do not twist from point to point; kept within CUT below /
+      // FILL above the real ground at the edge
+      // (a real road is cut into the uphill side, where the ground then
+      // hides the edge cleanly, and built up on the downhill side)
+      const sl = SL[i] > CROSS_FALL ? CROSS_FALL : SL[i] < -CROSS_FALL ? -CROSS_FALL : SL[i];
+      const y = Y[i] + sl * left;
+      const lo = g - 0.25;
+      const hi = g + 0.6;
+      return y < lo ? lo : y > hi ? hi : y;
     },
     nNodes,
     nodeWays,

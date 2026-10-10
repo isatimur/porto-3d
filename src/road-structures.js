@@ -114,6 +114,20 @@ export function bridgeGeometry(T, pts, opts) {
     spans = { s0: pts[0].s, span, pier: Math.min(3 * M, span * 0.25) };
   }
   const deckAt = (i) => pts[i].y + lift;
+  // lowest ground under a footing (centre and the four corners; hu along the
+  // way, hv across), at most 12 m under the centre's ground and never above
+  // the structure it carries: the footing reaches down to it, so on a slope no
+  // gap opens under the downhill side
+  const groundAt = opts.groundAt;
+  function lowest(x, z, ux, uz, hu, hv, g0, top) {
+    if (!groundAt) return g0;
+    let low = g0;
+    for (const [a, b] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+      const h = groundAt(x + ux * hu * a - uz * hv * b, z + uz * hu * a + ux * hv * b);
+      if (h < low) low = h;
+    }
+    return Math.min(top, Math.max(low, g0 - 12 * M));
+  }
   // under-side height at point i (the bottom of the side wall)
   function bottom(i) {
     const p = pts[i];
@@ -203,7 +217,8 @@ export function bridgeGeometry(T, pts, opts) {
         }
         orientedBox(T, x, z, y - slab - 0.9 * M, y - slab, ux, uz, 0.8 * M, halfW * 0.85, pierCol);
       } else {
-        orientedBox(T, x, z, gr - 1 * M, y - slab, ux, uz, 0.7 * M, Math.min(halfW * 0.8, 2.8 * M), pierCol, { top: false });
+        const hv = Math.min(halfW * 0.8, 2.8 * M);
+        orientedBox(T, x, z, lowest(x, z, ux, uz, 0.7 * M, hv, gr, y - slab) - 1 * M, y - slab, ux, uz, 0.7 * M, hv, pierCol, { top: false });
       }
     }
     // abutments where a raised end meets the ground
@@ -217,7 +232,9 @@ export function bridgeGeometry(T, pts, opts) {
       const L = Math.hypot(ux, uz) || 1;
       ux /= L;
       uz /= L;
-      orientedBox(T, p.x + ux * 0.8 * M, p.z + uz * 0.8 * M, p.g - 1 * M, y - slab, ux, uz, 0.8 * M, halfW + parW, pierCol, { top: false });
+      const ax = p.x + ux * 0.8 * M;
+      const az = p.z + uz * 0.8 * M;
+      orientedBox(T, ax, az, lowest(ax, az, ux, uz, 0.8 * M, halfW + parW, p.g, y - slab) - 1 * M, y - slab, ux, uz, 0.8 * M, halfW + parW, pierCol, { top: false });
     }
   }
   return (T.idx.length - tris0) / 3;
