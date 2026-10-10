@@ -22,6 +22,15 @@ updates it automatically.
 
 ## Session Log
 
+### Session 009 — lazy landmark models and the lite scene (features porto-022, porto-023)
+
+- Goal: finish the two items left by session 008: build the 70 landmark models on demand, and give the Potato class its own cheap scene.
+- Lazy models: `scripts/bake-fits.mjs` writes `data/fits.json` (model-derived half of every fit + the builder rules; `npm run build` re-bakes when the input hash changes; `npm run check:fits` and verify check it against a live fit). `src/fit.js` takes `ctx.models` and `ctx.baked`; `src/model-worker.js` / `model-job.js` / `model-client.js` build one model at a time off the main thread; `src/models/groups/*.js` + `loader.js` are 10 builder chunks; `src/landmarks.js` holds the queue (selected, asked for, camera near, idle) and the per-class cap. `src/models.js` is the whole registry for node only. `?lazymodels=0` builds everything at boot (A/B).
+- Lite scene: `src/lite/` (atmosphere tint + gradient, ground, roads, city boxes, seasons), `perf.liteScene`, branches in `src/main.js` and `src/landmarks.js` (`LITE_SCENE`). Numbers and look: `perf/BASELINE.md` "Round 2", design: `perf/ARCHITECTURE.md`.
+- Evidence: see feature_list.json porto-022 / porto-023. Verify at the commit before the other session's wave commits plus mine: 15 passed, 0 failed (`/tmp/verify-mine.log`). At the current main, `smoke life` (commit 4ee34e2, rabelo hull) and `models` (commit f83d034, Palacio extent: one model out of the 4k..40k budget) fail for reasons outside this work; `fit cache`, `smoke console` (both passes) and the perf gate pass there.
+- Not done / honest limits: no frame over 50 ms on the 4x CPU flights (same before and after); V8 heap does not show the saving (off-heap arrays), GPU memory does; the lite scene on real software-GL machines and old phones is untested; WebGL 1 only browsers cannot run three r186; `perf-stress` soak: GL memory spread 5.0 % on Ultra and 14 % on Low (models upload as visited, far ones are freed and rebuilt).
+- A second session was committing to the same tree while this one ran (terrain-fine, rabelos, camera, pads). Measurement runs shared the machine with it; the numbers say where that mattered. This work lived in a git worktree (`perf-wt`) to stay apart from its uncommitted files.
+
 ### Wave 1D — the land shape and what stands on it (feature porto-w1d-001)
 
 - Goal: end the bare cliff with torn ribbons and hanging rows on the Douro slopes.

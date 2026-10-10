@@ -67,6 +67,11 @@ Detail: `perf/ARCHITECTURE.md`, `perf/BASELINE.md`, `perf/DEVICE-CHECKLIST.md`.
 `npm run perf` (reduced bench, soft gate in verify), `node scripts/perf-stress.mjs`,
 `node scripts/pack-buildings.mjs` after a new `buildings.json`,
 `node scripts/optimize-images.mjs` after new photos.
+`node scripts/bake-fits.mjs` after a change to a landmark builder, `fit.js`, terrain, footprints or
+dimensions (`npm run build` re-bakes `data/fits.json` when its input hash changes; `npm run check:fits`
+compares it with a live fit). The 70 landmark models are built lazily in a worker (`src/model-worker.js`,
+`src/landmarks.js`); a new builder joins a group in `src/models/groups/` and `loader.js`. Class P runs the lite
+scene (`src/lite/`, `?scene=lite` forces it): keep anything the full scene adds out of it.
 
 | Class | Overview tris | Calls | GPU MB | p95 target | Shadow | DPR cap |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |

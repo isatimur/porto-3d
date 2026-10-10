@@ -519,6 +519,49 @@
         "points: palacio-cristal 839 m, aliados 112 m, caves-gaia 85 m, cordoaria 19 m moved; no landmark point inside a water polygon except the bridges and cais-gaia"
       ],
       "notes": "Not fixed: stepped dark strips at sao-bento and the grey triangle at santa-clara are terrain/landcover, not the builders; the four box towers beside Congregados are OSM buildings; cais-gaia point is in the river polygon (pier 18 m away)."
+    },
+    {
+      "id": "porto-022",
+      "priority": 28,
+      "area": "performance",
+      "title": "Lazy landmark models: baked fit cache, model worker, builder chunks, queue with per-class cap",
+      "user_visible_behavior": "Same city, same models; the 70 detailed models are built in a worker when the camera nears, a landmark is selected or filmed, instead of all at boot. The first meaningful frame comes 18 to 23 % earlier on throttled devices and 115 to 130 MB less GPU memory is used.",
+      "status": "passing",
+      "verification": [
+        "node scripts/bake-fits.mjs --check (npm run check:fits, in verify as 'fit cache'): input hash, cache = live fit to 1e-6, a fit from the cache equals the live fit, never-shrink equal, one builder group per landmark",
+        "node /tmp/p3/ab-shots.mjs (overview + 4 close-ups, before/after) and lodStats equal",
+        "node /tmp/p3/flights.mjs / ab-flights.sh (rAF deltas over 10 flights)",
+        "node scripts/perf-stress.mjs --only soak [--query '&quality=low']"
+      ],
+      "evidence": [
+        "first meaningful frame: phone-low 33.1 -> 26.0 s, phone-high 21.9 -> 17.6, laptop 7.9 -> 6.0, desktop 4.4 -> 3.6; ready barely moves (38.3 -> 37.9 phone-low)",
+        "GPU allocation 672 -> 543 MB desktop, 328 -> 214 MB phone-low; CPU-side vertex arrays 124 -> 61 MB (Ultra at the overview), 44 MB (Low); V8 heap figure unchanged (typed arrays are off-heap)",
+        "critical app chunk 299.5 -> 237.5 KB gzip; 10 builder chunks 5 to 56 KB raw + the worker",
+        "flights over 10 landmarks, 4x CPU, class Low, 3 interleaved rounds: frames > 50 ms 8, 6, 10 before and 8, 7, 7 after (not worse, goal of zero not met); Ultra 3, 2 before and 3, 2 after",
+        "soak 300 s Ultra: heap 191-196 MB (2.6 %), all 70 models built at the end, none failed, mismatch 0; GL memory spread 5.0 % (the models upload as they are visited); soak Low: heap 0.5 %, GL 359-409 MB (14 %: far models are freed and rebuilt, 455 builds, 403 freed in 300 s)",
+        "screenshots read: overview, Ribeira-side Clerigos and Luis I pairs show the same models and placement; only live weather differs"
+      ],
+      "notes": "Not met: no frame over 50 ms when approaching a landmark on 4x CPU (tile integration, the clustered copy, first upload remain; same before and after). The worker is a module worker (Safari 15+); without it the job runs on the main thread. Real devices: perf/DEVICE-CHECKLIST.md. Low class thrashes a little when the working set is larger than modelsKeep (14)."
+    },
+    {
+      "id": "porto-023",
+      "priority": 29,
+      "area": "performance",
+      "title": "Lite scene for the Potato class (software GL, very old phones)",
+      "user_visible_behavior": "On software rendering the map runs at 22 to 36 frames a second (was one frame in 2 to 4 s) with flat colours: coarse ground with land cover, flat sea, road ribbons, box buildings with terracotta roofs, coloured landmark boxes (the top 12 get a flat-shaded model when selected), a gradient sky, colour-only time of day and seasons. UI, search, routes, cinema and panels are unchanged.",
+      "status": "passing",
+      "verification": [
+        "node scripts/perf-bench.mjs --profiles potato (SwiftShader 1280x720, CPU 4x); budgets in perf/budgets.json (meanFrameMs 125, tris 200000)",
+        "node scripts/perf-bench.mjs --profiles phone-low --url 'http://localhost:5192/?quality=potato'",
+        "npm run verify: 'smoke console' now runs a second pass under ?quality=potato (lite scene started, a landmark selected and built, triangles <= 200000, geometry audit, no console errors)",
+        "node scripts/perf-stress.mjs (?quality=potato loads without errors, no shadow pass, no effects)"
+      ],
+      "evidence": [
+        "potato profile: ready 58.1 -> 5.0 s, first meaningful 30.7 -> 5.0 s, mean frame of the slowest path 2742 -> 45 ms (p95 6133 -> 67 ms), triangles 0.88 M -> 0.126 M (worst path 0.154 M), calls 159 -> 9, GPU 349 -> 6.4 MB, JS heap 178 -> 18 MB, long tasks 43.2 -> 2.1 s",
+        "phone-low emulation with ?quality=potato: ready 38.3 -> 13.7 s, 60 fps (p95 16.8 ms), 0.125 M triangles",
+        "screenshots read: overview, Ribeira, Clerigos, Dragao, Luis I (the park box found there is now hidden)"
+      ],
+      "notes": "Honest limits: emulation only (Apple GPU raster for phone-low, SwiftShader on an M1 for potato); a WebGL 1 only browser cannot run three r186 at all, so it gets the 'needs WebGL 2' message, not the lite scene; weather states, people, vehicles, trees, the streamed ring and street markings are not in the lite scene; the governor cannot switch scenes at run time (the next visit starts lite through the learned class); the lite scene is not the default for class Low (needs real-device numbers)."
     }
   ]
 }
