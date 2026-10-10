@@ -11,9 +11,9 @@ export const TIMES = ['morning', 'day', 'sunset', 'night'];
 // sRGB hex. top / mid / horizon: the gradient; tint: what the world is
 // multiplied with (a warm light at the edges of the day, a blue dark at night).
 const PRESETS = {
-  morning: { top: 0x46699c, mid: 0xb3c0d4, hor: 0xe3d5c6, tint: [1.0, 0.9, 0.8], night: 0, az: 100, el: 10 },
+  morning: { top: 0x46699c, mid: 0xb3c0d4, hor: 0xe3d5c6, tint: [1.0, 0.94, 0.86], night: 0, az: 100, el: 10 },
   day: { top: 0x3f7cc9, mid: 0x9bc2ea, hor: 0xdbe8f2, tint: [1.0, 1.0, 1.0], night: 0, az: 165, el: 50 },
-  sunset: { top: 0x2f3f7a, mid: 0xd98a66, hor: 0xf4c48c, tint: [1.0, 0.76, 0.58], night: 0, az: 262, el: 6 },
+  sunset: { top: 0x2f3f7a, mid: 0xd98a66, hor: 0xf4c48c, tint: [1.0, 0.84, 0.7], night: 0, az: 262, el: 6 },
   night: { top: 0x050914, mid: 0x0c1830, hor: 0x1b2a48, tint: [0.2, 0.26, 0.42], night: 1, az: 0, el: -20 },
 };
 // colour-only seasons: the ground and the trees' tint

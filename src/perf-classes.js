@@ -28,8 +28,8 @@ export const CLASSES = {
     tileScale: 1, // tiles.js setBudgetScale: streamed tile radius and budget
     landmarkNearM: 2200, // landmarks.js setNearRadiusM: full-detail radius
     modelsKeep: 70, // landmarks.js setModelBudget: detailed models kept built (the rest are freed, farthest first)
-    modelsAhead: 1.35, // build a model when the camera is within this x its full-detail radius
-    modelsIdle: 20, // build this many (in list order) in idle time after the first full frame
+    modelsAhead: 1.2, // build a model when the camera is within this x its full-detail radius
+    modelsIdle: 8, // build this many (in list order) in idle time after the first full frame
     natureNearM: 220, // nature.js setNearRadius
     trees: 5000, // buildNature budget (tree clumps)
     cars: 600, // life.js carMax
@@ -54,8 +54,8 @@ export const CLASSES = {
     tileScale: 0.85,
     landmarkNearM: 1800,
     modelsKeep: 70,
-    modelsAhead: 1.35,
-    modelsIdle: 12,
+    modelsAhead: 1.2,
+    modelsIdle: 6,
     natureNearM: 190,
     trees: 3500,
     cars: 400,
@@ -80,7 +80,7 @@ export const CLASSES = {
     tileScale: 1, // the phone tile budget (tiles.js `mobile`) is the Medium baseline
     landmarkNearM: 1400,
     modelsKeep: 24,
-    modelsAhead: 1.5,
+    modelsAhead: 1.3,
     modelsIdle: 0,
     natureNearM: 160,
     trees: 1200,
@@ -106,7 +106,7 @@ export const CLASSES = {
     tileScale: 0.8,
     landmarkNearM: 1100,
     modelsKeep: 14,
-    modelsAhead: 1.6,
+    modelsAhead: 1.25,
     modelsIdle: 0,
     natureNearM: 130,
     trees: 800,
@@ -133,7 +133,7 @@ export const CLASSES = {
     tileScale: 0.55,
     landmarkNearM: 700,
     modelsKeep: 8,
-    modelsAhead: 1.6,
+    modelsAhead: 1.25,
     modelsIdle: 0,
     natureNearM: 90,
     trees: 300,

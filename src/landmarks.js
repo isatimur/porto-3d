@@ -726,6 +726,8 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
         it.box.getSize(_msz);
         const areaM2 = (_msz.x / S) * (_msz.z / S);
         wide = _msz.y / S < 14 && areaM2 > 6000;
+        // lite scene: a park or garden is never a box (the green ground and the pin say it)
+        if (LITE_SCENE && it.data.category === 'park') wide = true;
         if (areaM2 > 12000) {
           const k = Math.max(0.35, Math.sqrt(12000 / areaM2));
           _msz.x *= k;
@@ -1101,11 +1103,15 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
     get models() {
       let built = 0;
       let failed = 0;
+      let bytes = 0; // the CPU-side vertex arrays the built models hold (not counted in the V8 heap figure)
       for (const it of items) {
-        if (it.built) built++;
+        if (it.built) {
+          built++;
+          for (const g of [it.fit.geometry, it.fit.glass]) if (g) for (const a of Object.values(g.attributes)) bytes += a.array.byteLength;
+        }
         if (it.failed) failed++;
       }
-      return { lazy, built, failed, total: items.length, pending: lm.pending, inflight: lm.inflight?.data.id ?? null, queued: lm.done.length, keep: lm.keep, ahead: lm.ahead, ...lm.stats };
+      return { lazy, built, failed, cpuMB: +(bytes / 1048576).toFixed(1), total: items.length, pending: lm.pending, inflight: lm.inflight?.data.id ?? null, queued: lm.done.length, keep: lm.keep, ahead: lm.ahead, ...lm.stats };
     },
     isBuilt: (index) => !!items[index]?.built,
     ensureBuilt,
