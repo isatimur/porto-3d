@@ -21,7 +21,12 @@
 //   - people (people.js) on the walk lanes built here: the pedestrian streets,
 //     the sidewalks and paths across the squares, cut wherever they meet a
 //     carriageway with cars, a building or a landmark;
-//   - the POI signs (pois.js) on the facades.
+//   - the POI signs (pois.js) on the facades;
+//   - the street kit (street-kit.js; it reads data/stops.json and the quay
+//     lines of quays.json, nothing else): posts under the roads.js lamp glows,
+//     lanterns, benches, bollards, bus shelters at the GTFS stops, parked
+//     cars, café terraces and awnings, in one merged draw, and a small crowd
+//     on the quays and around the landmarks.
 //
 // Built from life.js once streetscape.json and pois.json have arrived;
 // updated every frame on the shared clock. Light mode (lite): fewer and
@@ -35,6 +40,7 @@ import { RIBBON_LIFT, SIDEWALK_R, WALKED, sidewalkM, lampSites, lampGlow, LAMP_H
 import { loadPois, createPoiSigns, isOpenAtHour, guessOpen } from './pois.js';
 import { createPeople, pedestrianDemand } from './people.js';
 import { buildPortoStreetLife } from './porto-streetscape.js';
+import { createStreetKit } from './street-kit.js';
 
 // ------------------------------------------------------------ calçada
 // The pavement material moved to calcada.js (roads.js needs it at boot; this
@@ -429,6 +435,17 @@ export function createStreetscape(ctx) {
   } catch (e) {
     console.warn('[porto] porto street life failed', e);
   }
+  // the street kit: lamp posts, benches, bollards, bus stops, parked cars,
+  // terraces and awnings in one merged draw, and the quay / landmark crowd
+  // (street-kit.js)
+  let kit = null;
+  try {
+    kit = createStreetKit(ctx);
+    group.add(kit.object);
+    stats.kit = kit.stats;
+  } catch (e) {
+    console.warn('[porto] street kit failed', e);
+  }
   // the data-driven level needs streetscape.json; a city that ships none (see
   // "data_absent" in its config) keeps only its own street life, no request
   const dataLevel = hasData('streetscape.json')
@@ -456,10 +473,14 @@ export function createStreetscape(ctx) {
       // once the data-driven level is up its own people carry the streets,
       // so the promenade crowd steps aside
       porto?.update(dt, frustum, view, { suppressPeople: !!built });
+      kit?.update(dt, frustum, view);
       built?.update(dt, frustum, view);
     },
     get built() {
       return built;
+    },
+    get kit() {
+      return kit;
     },
   };
 }

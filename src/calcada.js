@@ -8,9 +8,14 @@ import { S } from './geo.js';
 import { createCalcadaTextures, createWetDryTexture } from './textures.js';
 import { WEATHER_UNIFORMS } from './scene.js';
 
-// pattern ids (aPat.x): 0 none (the vertex colour)
+// pattern ids (aPat.x): 0 none (the vertex colour). A sidewalk strip carries
+// which edge is the kerb: sidewalk + KERB_SIDE (kerb at the -y edge) or
+// sidewalk - KERB_SIDE (kerb at +y); the basalt band runs along that edge.
 export const CALCADA = { waves: 1, net: 2, sidewalk: 3, street: 4 };
-const WAVE_NAMES = /Pra[çc]a da Rep[úu]blica|Avenida Central|Largo do Pa[çc]o|Rossio|Pra[çc]a do Munic[íi]pio/i;
+export const KERB_SIDE = 0.25;
+// the squares and streets paved in the wave ("mar largo") pattern: Braga's,
+// and Porto's Baixa (Santa Catarina, the Liberdade and Batalha squares)
+const WAVE_NAMES = /Pra[çc]a da Rep[úu]blica|Avenida Central|Largo do Pa[çc]o|Rossio|Pra[çc]a do Munic[íi]pio|Rua de Santa Catarina|Pra[çc]a da Liberdade|Pra[çc]a da Batalha|Largo dos L[óo]ios/i;
 const SQUARE_NAMES = /^(Largo|Pra[çc]a|Praceta|Campo|Terreiro|Rossio|Adro|Avenida|Alameda)\b/i;
 // the pattern of a street or square by its OSM name; kind 'square' for areas
 export function calcadaPatternOf(name = '', kind = 'street') {
@@ -54,6 +59,12 @@ vec3 calCalcada(vec2 p, vec3 pat) {
     float e = pat.z - abs(pat.y); // metres from the edge
     float band = 1.0 - smoothstep(0.4 - px, 0.4 + px, e);
     col = mix(col, bas, band * 0.92);
+  } else if (k > 2.6 && abs(k - 3.0) > 0.1) {
+    // a sidewalk: a narrow basalt edging along the kerb (Porto's pavements),
+    // fading out where it would be thinner than a pixel
+    float e = pat.z + sign(k - 3.0) * pat.y; // metres from the kerb edge
+    float band = 1.0 - smoothstep(0.3 - px, 0.3 + px, e);
+    col = mix(col, bas, band * 0.85 * (1.0 - smoothstep(0.25, 0.6, px)));
   }
   return col;
 }`;

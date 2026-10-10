@@ -28,7 +28,7 @@ import { S } from './geo.js';
 import { buildNetwork, surfaceOf } from './road-network.js';
 import { bridgeGeometry, portalGeometry, quad as embankmentQuad } from './road-structures.js';
 import { language } from './i18n.js';
-import { calcadaMaterial, calcadaPatternOf, CALCADA } from './calcada.js';
+import { calcadaMaterial, calcadaPatternOf, CALCADA, KERB_SIDE } from './calcada.js';
 
 // Order is draw order (later draws on top). metres: fallback width; px: the
 // line's CSS pixel width (the floor); surface: ribbon tone of the colour.
@@ -630,7 +630,8 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
     const half = (w.widthM / 2) * S;
     const sw = sidewalkM(w.hw) * S;
     for (const sgn of [1, -1]) {
-      SW.cur = CALCADA.sidewalk;
+      // the kerb is the strip's inner edge: -y on the left side, +y on the right
+      SW.cur = CALCADA.sidewalk + sgn * KERB_SIDE;
       strip(SW, net, w.start, w.start + w.n - 1, sgn * (half + sw / 2 + 0.15 * S), sw / 2, RIBBON_LIFT + 0.02, swc, 0);
       SW.cur = 0;
       strip(SW, net, w.start, w.start + w.n - 1, sgn * (half + 0.08 * S), 0.12 * S, RIBBON_LIFT + 0.03, kerb, 0);
@@ -850,6 +851,53 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
       }
     }
     counts.zebraCrossings = zebraN;
+
+    // ...and a passadeira on the approaches of the urban junctions (three or
+    // more carriageways meet): just clear of the crossing street, across the
+    // whole approach. Not on setts (the old town's cobbles carry no paint),
+    // not on the roundabout rings, not on the fast roads.
+    const JUNCTION_CAP = lite ? 260 : 900;
+    let junctionZ = 0;
+    for (let n = 0; n < net.nNodes && junctionZ < JUNCTION_CAP; n++) {
+      const nw = net.nodeWays[n];
+      if (nw.length < 6) continue;
+      const px = X[nw[1]];
+      const pz = Z[nw[1]];
+      if (px * px + pz * pz > SIDEWALK_R * SIDEWALK_R) continue;
+      // the carriageways here, and the widest of them
+      let maxHalf = 0;
+      let nCar = 0;
+      for (let k = 0; k < nw.length; k += 2) {
+        const w = net.ways[nw[k]];
+        if (!w.car || w.tunnel || w.bridge || w.kind === 'rail') continue;
+        nCar++;
+        maxHalf = Math.max(maxHalf, (w.widthM / 2) * S);
+      }
+      if (nCar < 3) continue;
+      for (let k = 0; k < nw.length && junctionZ < JUNCTION_CAP; k += 2) {
+        const w = net.ways[nw[k]];
+        const pi = nw[k + 1];
+        if (!w.car || w.tunnel || w.bridge || w.kind === 'rail' || w.t.jn || SETT.has(w.t.sf)) continue;
+        if (w.hw === 'motorway' || w.hw === 'trunk' || /^(motorway|trunk)_link$/.test(w.hw)) continue;
+        const half = (w.widthM / 2) * S;
+        const depth = 2.6 * S;
+        for (const step of [1, -1]) {
+          const f = approachFrame(net, w, pi, step, maxHalf + 1.2 * S + depth / 2);
+          if (!f) continue;
+          const kk = `${Math.floor(f.p.x / CELL)}:${Math.floor(f.p.z / CELL)}`;
+          if (seen.has(kk)) continue;
+          seen.add(kk);
+          const period = 1.0 * S;
+          const bars = Math.max(1, Math.floor((2 * half - 0.4 * S) / period));
+          for (let q = 0; q < bars; q++) {
+            const t = -half + 0.2 * S + (q + 0.5) * period;
+            paintQuad(MT, f.p, f.d, f.l, -depth / 2, depth / 2, t - 0.25 * S, t + 0.25 * S, f.y, MARK_LIFT, mk);
+          }
+          junctionZ++;
+        }
+      }
+    }
+    counts.junctionCrossings = junctionZ;
   }
 
   const detailMeshes = [];
@@ -1155,10 +1203,11 @@ function legendToggle(onChange) {
 // pedestrian streets with the same glow (lampGlow).
 const LAMP_M = 34;
 export const LAMP_HEIGHT_M = 7;
-// [x, y, z, ...] world: the glow points, LAMP_HEIGHT_M over the surface
-export function lampSites(net) {
-  const pos = [];
-  const { X, Z, Y, C, HID } = net;
+// Every lamp of the main streets: fn(x, y, z, nx, nz, onDeck) with (x, z) the
+// lamp, y the street surface under it and (nx, nz) the unit direction from
+// the lamp to the street's centre line.
+function eachLamp(net, fn) {
+  const { X, Z, Y, G, C, HID } = net;
   for (const w of net.ways) {
     if ((w.kind !== 'primary' && w.kind !== 'secondary') || w.tunnel) continue;
     const half = (w.widthM / 2 + 1.2) * S;
@@ -1176,13 +1225,30 @@ export function lampSites(net) {
         const uz = (Z[i + 1] - Z[i]) / L;
         const x = X[i] + ux * (s - C[i]) - uz * half * side;
         const z = Z[i] + uz * (s - C[i]) + ux * half * side;
-        pos.push(x, Y[i] + (Y[i + 1] - Y[i]) * u + LAMP_HEIGHT_M * S, z);
+        const y = Y[i] + (Y[i + 1] - Y[i]) * u;
+        const g = G ? G[i] + (G[i + 1] - G[i]) * u : y;
+        fn(x, y, z, uz * side, -ux * side, y - g > 2 * S);
       }
       side = -side;
       s += step;
     }
   }
+}
+// [x, y, z, ...] world: the glow points, LAMP_HEIGHT_M over the surface
+export function lampSites(net) {
+  const pos = [];
+  eachLamp(net, (x, y, z) => pos.push(x, y + LAMP_HEIGHT_M * S, z));
   return pos;
+}
+// [x, y, z, yaw, ...] world: a post under every glow of lampSites, standing on
+// the street surface, its +z (the arm) toward the street. Decks are left out
+// (a bridge's parapet lamps belong to its model).
+export function lampPosts(net) {
+  const out = [];
+  eachLamp(net, (x, y, z, nx, nz, deck) => {
+    if (!deck) out.push(x, y, z, Math.atan2(nx, nz));
+  });
+  return out;
 }
 function streetLamps(net) {
   return lampGlow(lampSites(net));

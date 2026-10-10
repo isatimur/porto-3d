@@ -408,16 +408,85 @@ function boardTexture(number, colour) {
   return tex;
 }
 
+// The overhead line of the tram streets: a wire over the track centre at
+// WIRE_M, carried by a pole and its bracket arm at least every POLE_M (more
+// often on a curve, so the straight wire spans stay over the track). A pole
+// stands on the right of the track, or on the left where a building stands
+// on the right; where both sides are built up the span is wall-hung (no
+// pole). Returns [{ kind: 'pole' | 'arm' | 'wire', a: {x, y, z}, b: {x, y, z} }].
+const WIRE_M = 5.8;
+const POLE_M = 30;
+const POLE_OFF_M = 2.6; // pole from the track centre
+function catenaryOf(lines, solidAt) {
+  const out = [];
+  for (const L of lines) {
+    const n = L.xs.length;
+    if (n < 3) continue;
+    const st = [0];
+    let since = 0;
+    let turn = 0;
+    for (let i = 1; i < n - 1; i++) {
+      const ax = L.xs[i] - L.xs[i - 1];
+      const az = L.zs[i] - L.zs[i - 1];
+      const bx = L.xs[i + 1] - L.xs[i];
+      const bz = L.zs[i + 1] - L.zs[i];
+      since += Math.hypot(ax, az);
+      turn += Math.abs(Math.atan2(ax * bz - az * bx, ax * bx + az * bz));
+      if (since >= POLE_M * S || (turn > 0.2 && since >= 8 * S)) {
+        st.push(i);
+        since = 0;
+        turn = 0;
+      }
+    }
+    st.push(n - 1);
+    const wy = (i) => L.ys[i] + WIRE_M * S;
+    for (let k = 0; k < st.length; k++) {
+      const i = st[k];
+      const a = Math.max(0, i - 1);
+      const b = Math.min(n - 1, i + 1);
+      const dx = L.xs[b] - L.xs[a];
+      const dz = L.zs[b] - L.zs[a];
+      const len = Math.hypot(dx, dz) || 1;
+      const nx = dz / len;
+      const nz = -dx / len;
+      const x = L.xs[i];
+      const z = L.zs[i];
+      for (const sd of [1, -1]) {
+        const px = x + nx * POLE_OFF_M * S * sd;
+        const pz = z + nz * POLE_OFF_M * S * sd;
+        if (solidAt?.(px, pz)) continue;
+        out.push({ kind: 'pole', a: { x: px, y: L.ys[i] - 0.3 * S, z: pz }, b: { x: px, y: L.ys[i] + (WIRE_M + 0.9) * S, z: pz } });
+        out.push({ kind: 'arm', a: { x: px, y: wy(i) + 0.35 * S, z: pz }, b: { x, y: wy(i) + 0.35 * S, z } });
+        break;
+      }
+      if (k > 0) {
+        const j = st[k - 1];
+        out.push({ kind: 'wire', a: { x: L.xs[j], y: wy(j), z: L.zs[j] }, b: { x, y: wy(i), z } });
+      }
+    }
+  }
+  return out;
+}
+const CATENARY_LOOK = {
+  // instance colour x the rail material colour (0x585a5e)
+  pole: { w: 0.2, color: new THREE.Color(0.62, 0.78, 0.66) },
+  arm: { w: 0.09, color: new THREE.Color(0.5, 0.6, 0.55) },
+  wire: { w: 0.05, color: new THREE.Color(0.32, 0.32, 0.32) },
+};
+
 // Rails: two thin steel strips per line, following the polyline at ground
 // height (nothing here reads roads.json), so a tram street reads as a tram
 // street before a car appears. One static InstancedMesh, a box per segment,
-// two per line at the 1435 mm gauge.
-function buildRails(lines, cfg) {
+// two per line at the 1435 mm gauge. The overhead line (catenaryOf) rides in
+// the same mesh after the rails: poles, arms and wires, drawn close up only
+// (setNear), so it costs no draw of its own.
+function buildRails(lines, cfg, solidAt) {
   const gauge = (cfg?.rail_gauge_m ?? 1.435) * S;
   const RW = (cfg?.rail_width_m ?? 0.07) * S;
   const RH = (cfg?.rail_height_m ?? 0.045) * S;
   let count = 0;
   for (const L of lines) count += (L.xs.length - 1) * 2;
+  const cat = catenaryOf(lines, solidAt);
   const geo = new THREE.BoxGeometry(1, 1, 1);
   const mat = new THREE.MeshStandardMaterial({
     color: 0x585a5e,
@@ -427,7 +496,7 @@ function buildRails(lines, cfg) {
     polygonOffsetFactor: -1,
     polygonOffsetUnits: -1,
   });
-  const rails = new THREE.InstancedMesh(geo, mat, count);
+  const rails = new THREE.InstancedMesh(geo, mat, count + cat.length);
   rails.name = 'tram-rails';
   rails.castShadow = false;
   rails.receiveShadow = true;
@@ -457,16 +526,99 @@ function buildRails(lines, cfg) {
       for (const sgn of [-1, 1]) {
         p.set((ax + bx) * 0.5 + nx * gauge * 0.5 * sgn, y0 + RH * 0.5 + 0.02, (az + bz) * 0.5 + nz * gauge * 0.5 * sgn);
         m.compose(p, q, sc);
+        rails.setColorAt(k, CATENARY_WHITE);
         rails.setMatrixAt(k++, m);
       }
     }
   }
-  rails.count = k;
+  const railCount = k;
+  // the overhead line: a box stretched from a to b
+  const dir = new THREE.Vector3();
+  const up = new THREE.Vector3(0, 0, 1);
+  const cats = { pole: 0, arm: 0, wire: 0 };
+  for (const c of cat) {
+    const look = CATENARY_LOOK[c.kind];
+    dir.set(c.b.x - c.a.x, c.b.y - c.a.y, c.b.z - c.a.z);
+    const len = dir.length();
+    if (!(len > 1e-4)) continue;
+    q.setFromUnitVectors(up, dir.multiplyScalar(1 / len));
+    p.set((c.a.x + c.b.x) / 2, (c.a.y + c.b.y) / 2, (c.a.z + c.b.z) / 2);
+    sc.set(look.w * S, look.w * S, len);
+    m.compose(p, q, sc);
+    rails.setColorAt(k, look.color);
+    rails.setMatrixAt(k++, m);
+    cats[c.kind]++;
+  }
+  const total = k;
+  rails.count = total;
   rails.instanceMatrix.needsUpdate = true;
+  if (rails.instanceColor) rails.instanceColor.needsUpdate = true;
+  rails.userData.railCount = railCount;
+  rails.userData.catenary = cats;
+  // the overhead line only close up: a wire is far thinner than a pixel from
+  // the overview (and its triangles stay out of it)
+  rails.userData.setNear = (near) => {
+    rails.count = near ? total : railCount;
+  };
   return rails;
 }
+const CATENARY_WHITE = new THREE.Color(1, 1, 1);
 
-export function buildTrams({ project, heightAt, mobile, lite }) {
+// building footprints ({x, z} rings) in a grid: inside(x, z); only the ones
+// whose first corner lies within `near` of a point of `pts` ([x, z, ...])
+function footprintTest(polys, pts, near) {
+  if (!polys?.length || !pts.length) return null;
+  const CELL = 8;
+  const key = (gx, gz) => (gx + 32768) * 65536 + (gz + 32768);
+  const hot = new Set();
+  const r = Math.ceil(near / CELL);
+  for (let i = 0; i < pts.length; i += 2) {
+    const gx = Math.floor(pts[i] / CELL);
+    const gz = Math.floor(pts[i + 1] / CELL);
+    for (let a = -r; a <= r; a++) for (let b = -r; b <= r; b++) hot.add(key(gx + a, gz + b));
+  }
+  const grid = new Map();
+  for (const poly of polys) {
+    if (!poly || poly.length < 3 || !hot.has(key(Math.floor(poly[0].x / CELL), Math.floor(poly[0].z / CELL)))) continue;
+    let x0 = Infinity;
+    let x1 = -Infinity;
+    let z0 = Infinity;
+    let z1 = -Infinity;
+    for (const p of poly) {
+      x0 = Math.min(x0, p.x);
+      x1 = Math.max(x1, p.x);
+      z0 = Math.min(z0, p.z);
+      z1 = Math.max(z1, p.z);
+    }
+    const rec = { poly, x0, x1, z0, z1 };
+    for (let gx = Math.floor(x0 / CELL); gx <= Math.floor(x1 / CELL); gx++) {
+      for (let gz = Math.floor(z0 / CELL); gz <= Math.floor(z1 / CELL); gz++) {
+        const k = key(gx, gz);
+        let c = grid.get(k);
+        if (!c) grid.set(k, (c = []));
+        c.push(rec);
+      }
+    }
+  }
+  return (x, z) => {
+    const c = grid.get(key(Math.floor(x / CELL), Math.floor(z / CELL)));
+    if (!c) return false;
+    for (const b of c) {
+      if (x < b.x0 || x > b.x1 || z < b.z0 || z > b.z1) continue;
+      let inside = false;
+      const poly = b.poly;
+      for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        const p = poly[i];
+        const o = poly[j];
+        if (p.z > z !== o.z > z && x < ((o.x - p.x) * (z - p.z)) / (o.z - p.z) + p.x) inside = !inside;
+      }
+      if (inside) return true;
+    }
+    return false;
+  };
+}
+
+export function buildTrams({ project, heightAt, mobile, lite, footprints = null }) {
   const cfg = LIFE?.trams;
   // routes: either a bare [[lat, lon], ...] polyline (older data) or
   // { id, name, colour, points } (the real STCP lines in data/life.json)
@@ -509,8 +661,10 @@ export function buildTrams({ project, heightAt, mobile, lite }) {
   group.name = 'trams';
 
   // rails first: they never move, one static InstancedMesh follows every
-  // line at ground height (no roads.json)
-  const rails = buildRails(lines, cfg);
+  // line at ground height (no roads.json); the overhead line rides along
+  const linePts = [];
+  for (const L of lines) for (let i = 0; i < L.xs.length; i += 4) linePts.push(L.xs[i], L.zs[i]);
+  const rails = buildRails(lines, cfg, footprintTest(footprints, linePts, 12));
   group.add(rails);
 
   const bodyGeo = tramGeometry();
@@ -582,8 +736,17 @@ export function buildTrams({ project, heightAt, mobile, lite }) {
     return at;
   }
   let time = -DWELL * 0.4; // first view: a tram already under way
-  function update(dt, camera) {
+  // camDist: the orbit distance (life.js); the overhead line shows within
+  // CATENARY_NEAR of it (undefined: always, as in the smoke test)
+  const CATENARY_NEAR = 420;
+  let near = null;
+  function update(dt, camera, camDist) {
     time += dt;
+    const wantNear = !(camDist > CATENARY_NEAR);
+    if (wantNear !== near) {
+      near = wantNear;
+      rails.userData.setNear(near);
+    }
     // the destination boards light at night (LIFE_UNIFORMS is updated by
     // createLife just before this runs)
     const night = LIFE_UNIFORMS.uLifeNight.value;
@@ -613,7 +776,8 @@ export function buildTrams({ project, heightAt, mobile, lite }) {
       routes: lines.length,
       perRoute,
       km: +(lines.reduce((s, L) => s + L.total, 0) / S / 1000).toFixed(1),
-      railSegments: rails.count,
+      railSegments: rails.userData.railCount,
+      catenary: rails.userData.catenary,
     },
   };
 }
@@ -2700,7 +2864,7 @@ export function createLife(ctx) {
   );
 
   const funicular = safe('funicular', () => buildFunicular({ project, heightAt, items }));
-  const trams = safe('trams', () => buildTrams({ project, heightAt, mobile, lite }));
+  const trams = safe('trams', () => buildTrams({ project, heightAt, mobile, lite, footprints: ctx.footprints }));
   const trains = safe('trains', () => buildTrains({ project, heightAt, items, mobile, lite }));
   const cablecar = safe('cablecar', () => buildCableCar({ project, heightAt, mobile, lite }));
   const boats = safe('boats', () => buildBoats({ project, heightAt, mobile, lite, camera }));
@@ -2784,7 +2948,7 @@ export function createLife(ctx) {
     view.rain = weather.rainK;
     model?.update();
     funicular?.update(adt, camera);
-    trams?.update(adt, camera);
+    trams?.update(adt, camera, camDist);
     trains?.update(adt, camera);
     cablecar?.update(adt, camera);
     boats?.update(adt, camera, frustum, view);
