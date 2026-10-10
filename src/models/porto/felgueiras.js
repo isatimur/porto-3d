@@ -1,144 +1,214 @@
-// Farolim de Felgueiras (Foz do Douro) — the 1886 hexagonal granite
-// lighthouse (~10 m) at the tip of the Felgueiras mole, where the Douro meets
-// the Atlantic. The footprint is the long breakwater, so the mole itself is
-// drawn as a low granite quay with the small tower, white with granite bands,
-// a glass lantern and a red copper dome, plus ocean and rocks.
-import { Kit, PALETTE, MAT, PROFILES, corniceProfile } from '../kit.js';
-import { edges, obb, offset, bbox, rect } from '../geom.js';
+// Farolim de Felgueiras (Foz do Douro): the 1886 hexagonal granite lighthouse
+// (10 m) at the sea end of the Molhe de Felgueiras.
+//
+// Sources (all in data/dimensions.json):
+//  - plan: OSM way 446589339 "Molhe de Felgueiras" (236 x 16 m, closed
+//    outline). The mole is drawn as that outline itself, nothing outside it.
+//  - light: OSM node 1675107645 "Farolim de Felgueiras" (41.146734, -8.677299),
+//    pt.wikipedia 41 08 48.32 N, 8 40 38.2 W, Wikidata Q10280208 (height 10 m).
+//  - tower: granite ashlar, red gallery rail, red lantern, red dome (pt.wikipedia,
+//    photos in assets/img/felgueiras*.jpg); a small white barrel-vaulted
+//    house with a red door stands against its foot.
+//  - height: pt.wikipedia gives a focal height of 17 m above sea level on a 10 m
+//    tower, so the crown at the head is about 6-7 m over the water; at the
+//    shore end it is lower (estimate 4 m, from the photos). The crown therefore
+//    rises along the mole from the root to the head.
+//  - light: Fl R 5 s, 9 nm, automated 1979, switched off 2009 (only the fog
+//    signal runs): the lamp is dark.
+//
+// Datum. The fit puts y = 0 on the lowest DEM point under the outline
+// (about 0 m a.s.l.); the water plane of the sea is 1.04 m a.s.l. (world
+// y -22.5), so the water is WATER m above the model's zero. The mole stands
+// on a footing sunk well below it, so a small datum shift never opens a gap.
+import { MAT } from '../kit.js';
+import { offset, obb } from '../geom.js';
+
+const WATER = 1.1; // water plane above the model zero (m)
+const ROOT_FREEBOARD = 4.0; // crown over the water at the shore end (m)
+const HEAD_FREEBOARD = 6.0; // crown over the water at the head (m)
+const FOOT = -8; // footing depth under the model zero (m)
+const RED = 0xa9291f;
+const SLABS = 16;
+
+// Sutherland-Hodgman clip of a polygon to u0 <= x <= u1.
+function clipU(poly, u0, u1) {
+  const clip = (pts, inside, cut) => {
+    const out = [];
+    for (let i = 0; i < pts.length; i++) {
+      const a = pts[i];
+      const b = pts[(i + 1) % pts.length];
+      const ia = inside(a);
+      const ib = inside(b);
+      if (ia) out.push(a);
+      if (ia !== ib) out.push(cut(a, b));
+    }
+    return out;
+  };
+  const at = (u) => (a, b) => {
+    const t = (u - a[0]) / (b[0] - a[0]);
+    return [u, a[1] + (b[1] - a[1]) * t];
+  };
+  let r = clip(poly, (p) => p[0] >= u0, at(u0));
+  if (r.length) r = clip(r, (p) => p[0] <= u1, at(u1));
+  return r;
+}
 
 function builder(k, site) {
-  const o = site?.footprint?.outline;
-  const bb = o && o.length >= 3 ? obb(o) : { L: 130, W: 11, cx: 0, cz: 0, a: 0 };
-  const L = Math.max(50, Math.min(220, bb.L));
-  const W = Math.max(6, Math.min(20, bb.W));
+  const fp = site?.footprint;
+  const o = fp?.outline;
+  const ok = o && o.length >= 3;
+  const bb = ok ? obb(o) : { L: 236, W: 16, cx: 0, cz: 0, a: 0 };
+  const c = Math.cos(bb.a);
+  const s = Math.sin(bb.a);
+  // site -> mole frame (u along the mole, v across it)
+  const toUV = ([x, z]) => [(x - bb.cx) * c - (z - bb.cz) * s, (x - bb.cx) * s + (z - bb.cz) * c];
+  const poly = ok ? o.map(toUV) : [[-118, -8], [118, -8], [118, 8], [-118, 8]];
+  const us = poly.map((p) => p[0]);
+  const uMin = Math.min(...us);
+  const uMax = Math.max(...us);
+
+  // the light: OSM node, else the end of the mole
+  const lightPart = fp?.part?.(/Farolim/);
+  const tp = lightPart?.pts?.[0] ? toUV(lightPart.pts[0]) : [uMin + 8, 0];
+  const headDir = tp[0] >= (uMin + uMax) / 2 ? 1 : -1; // which end of u is the head
+  const uHead = headDir > 0 ? uMax : uMin;
+
+  // Sea side of the mole: the side that faces the open sea (north-west). The
+  // local +z of the site points to compass bearing frontDeg; the mole frame is
+  // turned by bb.a, so world = u * (c, -s) + v * (s, c) in site axes.
+  const f = ((fp?.frontDeg ?? 62) * Math.PI) / 180;
+  const ex = [-Math.cos(f), -Math.sin(f)]; // site +x in world (east, south)
+  const ez = [Math.sin(f), -Math.cos(f)]; // site +z in world
+  const vWorld = [s * ex[0] + c * ez[0], s * ex[1] + c * ez[1]];
+  const sv = vWorld[0] * -1 + vWorld[1] * -1 >= 0 ? 1 : -1; // +v is toward NW?
+
+  const crownAtSlab = (i) => WATER + ROOT_FREEBOARD + ((HEAD_FREEBOARD - ROOT_FREEBOARD) * (i + 0.5)) / SLABS;
+  // slab index counted from the root end
+  const slabOf = (u) => {
+    const t = headDir > 0 ? (u - uMin) / (uMax - uMin) : (uMax - u) / (uMax - uMin);
+    return Math.max(0, Math.min(SLABS - 1, Math.floor(t * SLABS)));
+  };
+  const crownAt = (u) => crownAtSlab(slabOf(u));
 
   k.push({ x: bb.cx, z: bb.cz, ry: bb.a });
   k.begin('main');
 
-  // ocean around the mole
-  k.prism(rect(0, 0, L + 90, W + 110), -1.4, 0.5, 'water', { emit: 0.06 });
+  // ---- the mole: granite ashlar on the OSM outline, crown rising to the head
+  const inner = offset(poly, -0.35);
+  for (let i = 0; i < SLABS; i++) {
+    const ta = i / SLABS;
+    const tb = (i + 1) / SLABS;
+    const [ua, ub] = headDir > 0 ? [uMin + (uMax - uMin) * ta, uMin + (uMax - uMin) * tb] : [uMax - (uMax - uMin) * tb, uMax - (uMax - uMin) * ta];
+    const crown = crownAtSlab(i);
+    const body = clipU(poly, ua - (i === 0 ? 1 : 0.0), ub + (i === SLABS - 1 ? 1 : 0.0));
+    if (body.length >= 3) k.prism(body, FOOT, crown - FOOT, 'graniteDark');
+    const top = clipU(inner, ua, ub);
+    if (top.length >= 3) k.prism(top, crown - 0.02, 0.12, 'granite');
+  }
 
-  // breakwater mole: battered granite quay, low and long
-  k.frustum(L, W + 3, L - 4, W, 1.5, 'graniteDark', 0, -0.9, 0);
-  k.prism(rect(0, 0, L - 3, W), 0.5, 0.35, 'graniteWarm');
-  k.prism(rect(0, -W / 2 + 0.4, L, 1.2), 0.2, 0.6, 'granite');
-  k.prism(rect(0, W / 2 - 0.4, L, 1.2), 0.2, 0.6, 'granite');
-  // rocky toe scattered along both water sides
-  for (let i = 0; i < 22; i++) {
-    const rx = -L / 2 + (L * (i + 0.5)) / 22;
-    k.ico(0.9 + (i % 3) * 0.45, 0, 'graniteDark', rx, -0.25, W / 2 + 1.0 + (i % 2) * 0.9, { jitter: 0.35, sy: 0.6 });
-    if (i % 2 === 0) k.ico(1.15, 0, 'graniteDark', rx, -0.45, -W / 2 - 1.1, { jitter: 0.3, sy: 0.55 });
+  // ---- parapet: a granite wall on the sea side and round the head (photos);
+  // on the sheltered side only a low red iron rail near the head.
+  const ring = offset(poly, -0.55);
+  const n = ring.length;
+  for (let i = 0; i < n; i++) {
+    const a = ring[i];
+    const b = ring[(i + 1) % n];
+    const mu = (a[0] + b[0]) / 2;
+    const mv = (a[1] + b[1]) / 2;
+    const seaSide = mv * sv > 0;
+    const nearHead = Math.abs(uHead - mu) < 9;
+    if (!(seaSide || nearHead)) continue;
+    const y0 = crownAt(mu) + 0.1;
+    k.wallLine(a, b, 1.25, 0.8, 'graniteGrey', y0, { ext: 0.25 });
+    k.wallLine(a, b, 0.16, 1.0, 'granite', y0 + 1.25, { ext: 0.25 });
   }
-  // quay railing along both edges of the mole
-  const np = Math.max(12, Math.round(L / 2.2));
-  for (const s of [-1, 1]) {
-    for (let i = 0; i < np; i++) k.box(0.1, 0.95, 0.1, 'iron', -L / 2 + (L * (i + 0.5)) / np, 0.85, s * (W / 2 - 0.25));
-    k.box(L, 0.08, 0.08, 'iron', 0, 1.8, s * (W / 2 - 0.25));
-    k.box(L, 0.05, 0.05, 'iron', 0, 1.4, s * (W / 2 - 0.25));
+  // low red rail along the sheltered edge, last 40 m before the head
+  for (let i = 0; i < n; i++) {
+    const a = ring[i];
+    const b = ring[(i + 1) % n];
+    const mu = (a[0] + b[0]) / 2;
+    const mv = (a[1] + b[1]) / 2;
+    if (mv * sv > 0 || Math.abs(uHead - mu) > 40 || Math.abs(uHead - mu) < 9) continue;
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    if (len < 2) continue;
+    const y0 = crownAt(mu) + 0.1;
+    const np = Math.max(1, Math.round(len / 2.4));
+    let prev = null;
+    for (let j = 0; j <= np; j++) {
+      const p = [a[0] + ((b[0] - a[0]) * j) / np, a[1] + ((b[1] - a[1]) * j) / np];
+      k.box(0.07, 1.0, 0.07, RED, p[0], y0, p[1], { mat: MAT.metal });
+      if (prev) {
+        k.segment([prev[0], y0 + 0.95, prev[1]], [p[0], y0 + 0.95, p[1]], 0.05, 0.05, RED, { mat: MAT.metal });
+        k.segment([prev[0], y0 + 0.5, prev[1]], [p[0], y0 + 0.5, p[1]], 0.04, 0.04, RED, { mat: MAT.metal });
+      }
+      prev = p;
+    }
   }
-  // setts kerb lining both edges of the mole crown
-  const nk = Math.max(12, Math.round(L / 1.8));
-  for (const s of [-1, 1]) {
-    for (let i = 0; i < nk; i++) k.box(1.45, 0.22, 0.42, 'graniteWarm', -L / 2 + (L * (i + 0.5)) / nk, 0.85, s * (W / 2 - 0.35));
-  }
-  // mooring bollards along the sheltered side
-  for (let i = 0; i < 8; i++) k.cyl(0.22, 0.32, 0.7, 8, 'iron', -L / 2 + 9 + (i * (L - 18)) / 7, 1.0, -W / 2 + 1.1);
   k.end('main');
 
-  // -------------------------------------------------------- the lighthouse
-  // The light, not the mole, is the landmark's height: the 'height' group
-  // lets fit.js measure it (rule.heightRel) instead of the low breakwater.
+  // ---- the lighthouse: 10 m hexagonal granite tower on the mole head
+  const [tx, tz] = tp;
+  const y0 = crownAt(tx) + 0.1;
   k.begin('height');
   k.begin('tower');
-  const tx = L / 2 - 4.5;
-  const y0 = 0.85;              // mole crown
-  // hexagonal plinth
-  k.cyl(3.0, 3.4, 0.7, 6, 'granite', tx, y0, 0);
-  // hexagonal shaft, white with granite rings
-  k.cyl(1.55, 2.05, 5.2, 6, 'white', tx, y0 + 0.7, 0);
-  for (let i = 0; i < 3; i++) k.cyl(1.98 - i * 0.16, 2.05 - i * 0.16, 0.28, 6, 'graniteWarm', tx, y0 + 0.9 + i * 1.6, 0);
-  // door and slit windows
-  k.box(0.9, 1.9, 0.3, 'wood', tx, y0 + 0.7, 1.9);
-  for (let i = 0; i < 3; i++) k.box(0.4, 0.9, 0.3, 'glass', tx, y0 + 2.4 + i * 0.9, 1.75 - i * 0.05, { emit: 0.15 });
-  // service ladder up the shaft
-  for (let i = 0; i < 7; i++) k.box(0.55, 0.08, 0.08, 'iron', tx - 1.85, y0 + 1.5 + i * 0.6, 0);
-  k.box(0.08, 4.6, 0.08, 'iron', tx - 2.12, y0 + 1.5, 0);
-  k.box(0.08, 4.6, 0.08, 'iron', tx - 1.6, y0 + 1.5, 0);
-  const ty = y0 + 0.7 + 5.2;
-  // gallery: red platform, railing posts and rail
-  k.cyl(2.5, 2.5, 0.3, 12, 'rust', tx, ty, 0);
-  for (let i = 0; i < 10; i++) {
-    const a = (i / 10) * Math.PI * 2;
-    k.box(0.1, 0.7, 0.1, 'rust', tx + Math.cos(a) * 2.25, ty + 0.3, Math.sin(a) * 2.25);
+  // shaft: 6.3 m, tapering (10 m to the top of the dome and vane in all)
+  const shaftH = 6.3;
+  k.cyl(1.3, 1.7, shaftH, 6, 'graniteGrey', tx, y0, tz);
+  for (const y of [2.0, 4.3]) {
+    const r = 1.7 - (0.4 * y) / shaftH;
+    for (const sgn of [-1, 1]) {
+      const wx = tx + sgn * (r * 0.866 + 0.02);
+      k.box(0.12, 1.05, 0.7, RED, wx, y0 + y, tz, { mat: MAT.smooth });
+      k.box(0.14, 0.78, 0.46, 'glass', wx, y0 + y + 0.14, tz);
+    }
   }
-  k.cyl(2.28, 2.28, 0.08, 12, 'rust', tx, ty + 0.95, 0, { open: true });
-  // lantern room: mullioned glass drum under the dome
-  k.cyl(1.45, 1.5, 1.35, 12, 'glass', tx, ty + 0.3, 0, { emit: 0.5 });
+  // corbelled cornice and the gallery
+  k.cyl(1.75, 1.35, 0.5, 6, 'granite', tx, y0 + shaftH, tz);
+  const gy = y0 + shaftH + 0.5;
+  k.cyl(1.85, 1.85, 0.15, 12, 'granite', tx, gy, tz);
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2;
+    k.box(0.06, 1.0, 0.06, RED, tx + Math.cos(a) * 1.78, gy + 0.15, tz + Math.sin(a) * 1.78, { mat: MAT.metal });
+  }
+  k.cyl(1.8, 1.8, 0.05, 12, RED, tx, gy + 1.1, tz, { open: true, mat: MAT.metal });
+  k.cyl(1.8, 1.8, 0.05, 12, RED, tx, gy + 0.6, tz, { open: true, mat: MAT.metal });
+  // lantern: red base, glazed drum (lamp dark since 2009), red dome, vane
+  k.cyl(1.0, 1.05, 0.85, 12, RED, tx, gy + 0.15, tz, { mat: MAT.smooth });
+  k.cyl(0.92, 0.95, 0.85, 12, 'glass', tx, gy + 1.0, tz);
   for (let i = 0; i < 6; i++) {
     const a = (i / 6) * Math.PI * 2 + 0.26;
-    k.box(0.12, 1.35, 0.12, 'iron', tx + Math.cos(a) * 1.34, ty + 0.3, Math.sin(a) * 1.34);
+    k.box(0.08, 0.85, 0.08, RED, tx + Math.cos(a) * 0.93, gy + 1.0, tz + Math.sin(a) * 0.93, { mat: MAT.metal });
   }
-  // the lamp
-  k.sphere(0.55, 'window', tx, ty + 0.95, 0, { seg: 10, rings: 6, emit: 0.95 });
-  // red copper dome + finial
-  k.cyl(1.55, 1.5, 0.25, 12, 'rust', tx, ty + 1.65, 0);
-  k.dome(1.5, 'rust', tx, ty + 1.9, 0, { seg: 14, rings: 6 });
-  k.cyl(0.08, 0.08, 0.6, 5, 'iron', tx, ty + 3.35, 0);
-  k.sphere(0.16, 'gold', tx, ty + 3.95, 0, { seg: 6, rings: 4, emit: 0.5 });
+  k.cyl(1.05, 1.0, 0.1, 12, RED, tx, gy + 1.85, tz, { mat: MAT.smooth });
+  k.dome(1.0, RED, tx, gy + 1.95, tz, { seg: 14, rings: 6, mat: MAT.smooth });
+  k.cyl(0.04, 0.04, 0.55, 5, 'iron', tx, gy + 2.85, tz);
+  k.box(0.55, 0.05, 0.05, 'iron', tx, gy + 3.15, tz);
   k.end('tower');
   k.end('height');
 
-  // keeper's house on the mole
-  k.begin('house');
-  const hx = tx - 12;
-  k.box(6, 3.0, 4.5, 'white', hx, y0, -1.2);
-  k.push({ x: hx, z: -1.2 });
-  k.hipRoof(6.2, 4.7, 1.6, 'terracotta', 0, y0 + 3.0, 0, { over: 0.4 });
-  k.pop();
-  k.box(0.9, 1.9, 0.25, 'wood', hx, y0, 1.05);
-  for (const s of [-1, 1]) k.box(0.8, 0.9, 0.25, 'glass', hx + s * 1.8, y0 + 1.4, 1.05, { emit: 0.2 });
-  // old fog-signal hut
-  k.box(2.6, 2.4, 2.6, 'white', hx + 6.5, y0, 1.4);
-  k.cone(1.8, 1.3, 4, 'rust', hx + 6.5, y0 + 2.4, 1.4);
-  // foam lines breaking along the mole
-  for (let i = 0; i < 12; i++) k.box(3.2, 0.06, 0.5, 'white', -L / 2 + (L * (i + 0.5)) / 12, -1.05, W / 2 + 3.2 + (i % 2) * 1.6, { emit: 0.25 });
-
-  // ---------------------------------------------------------- detail pass
-  k.begin('works');
-  // winch house with a mooring drum, and a small hand crane on the mole tip
-  const wx = tx - 20;
-  k.box(4.2, 3.0, 3.6, 'wood', wx, y0, 0);
-  k.push({ x: wx, z: 0 });
-  k.gableRoof(4.4, 3.8, 1.2, 'rust', 0, y0 + 3.0, 0, { over: 0.35 });
-  k.pop();
-  k.box(0.9, 1.8, 0.25, 'wood', wx, y0, 1.82);
-  k.cyl(1.5, 1.5, 0.5, 12, 'wood', wx, y0 + 0.4, -1.95, { rx: Math.PI / 2 });
-  k.cyl(0.35, 0.35, 0.6, 8, 'iron', wx, y0 + 0.4, -1.95, { rx: Math.PI / 2 });
-  // hand crane: mast, jib and pulley block
-  const cxr = tx - 30;
-  k.cyl(0.28, 0.38, 6.5, 8, 'iron', cxr, y0, -0.4);
-  k.segment([cxr, y0 + 6.3, -0.4], [cxr + 5.5, y0 + 4.6, -0.4], 0.22, 0.22, 'iron');
-  k.cyl(0.5, 0.5, 0.22, 10, 'iron', cxr + 5.5, y0 + 4.6, -0.4, { rx: Math.PI / 2 });
-  k.cyl(0.08, 0.08, 4.4, 5, 'iron', cxr + 5.5, y0 + 2.4, -0.4);
-  k.box(0.7, 0.7, 0.7, 'bronze', cxr + 5.5, y0 + 0.2, -0.4);
-  // fog bell on a timber frame near the house
-  const bx2 = tx - 8;
-  k.box(0.18, 3.2, 0.18, 'wood', bx2 - 0.8, y0, 2.4);
-  k.box(0.18, 3.2, 0.18, 'wood', bx2 + 0.8, y0, 2.4);
-  k.box(2.0, 0.18, 0.18, 'wood', bx2, y0 + 3.2, 2.4);
-  k.lathe([[0, 0], [0.5, 0], [0.46, 0.12], [0.34, 0.5], [0.3, 0.86], [0.12, 1], [0, 1]], 8, 'bronze', bx2, y0 + 2.2, 2.4, { sr: 1.1, sh: 1.1, smooth: true });
-  // stone steps down the sheltered face to the water, with a rope rail
-  for (let i = 0; i < 6; i++) k.box(2.2, 0.3, 0.9, 'graniteWarm', L / 2 - 18, 0.5 - i * 0.3, -W / 2 - 0.5 - i * 0.85);
-  for (let i = 0; i < 4; i++) k.box(0.08, 1.0, 0.08, 'iron', L / 2 - 18 - 0.9, 1.4 - i * 0.3, -W / 2 - 0.6 - i * 1.3);
-  // extra tetrapod blocks along the exposed side
-  for (let i = 0; i < 8; i++) {
-    const rx = -L / 2 + (L * (i + 0.5)) / 8;
-    k.box(1.6, 1.0, 1.6, 'graniteDark', rx, -1.1, -W / 2 - 2.2, { ry: (i % 3) * 0.4, rz: 0.2 });
-  }
-  k.end('works');
-  k.end('house');
+  // ---- the white barrel-vaulted keeper's shed against the foot of the tower,
+  // red door toward the sheltered side (photos)
+  k.begin('shed');
+  const hu = tx - headDir * 2.8;
+  const hv = tz - sv * 2.2;
+  const hy = crownAt(hu) + 0.1;
+  const innerDir = -sv;
+  k.box(3.2, 1.6, 4.0, 'white', hu, hy, hv);
+  k.cyl(1.6, 1.6, 4.0, 14, 'white', hu, hy + 1.6 - 2.0, hv, { rx: Math.PI / 2 });
+  k.box(0.9, 1.9, 0.12, RED, hu, hy, hv + innerDir * 2.02, { mat: MAT.smooth });
+  k.end('shed');
   k.pop();
 }
 builder.metric = true;
-builder.rule = { note: 'Farolim de Felgueiras: ~10 m hexagonal tower on the breakwater mole at the Douro mouth' };
+builder.rule = {
+  note: 'Farolim de Felgueiras: 10 m hexagonal granite tower on the Molhe de Felgueiras (OSM way 446589339), crown 4-6 m over the water',
+  // The model stands on the mole outline itself: that is the OSM extent it must match.
+  extent: { part: /Molhe/ },
+  heightRel: true,
+  // The mole stands in the sea: no ground pad (it would paint a slab on the water).
+  pad: 'none',
+  // The camera frames the head of the mole with the tower, not all 236 m of it.
+  frame: { x0: -30, x1: 30, z0: -135, z1: -45, y0: 0 },
+  deviationNote: 'none: the model is the OSM mole outline plus the 10 m light mapped as a node on it',
+};
 export default { felgueiras: builder };

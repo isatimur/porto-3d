@@ -719,21 +719,23 @@
   },
   "felgueiras": {
     "footprint_m": {
-      "length": 236.5,
-      "width": 15.8,
+      "length": 236.2,
+      "width": 16.9,
       "matches_osm": true,
-      "note": "OSM way 446589339 is the Molhe de Felgueiras breakwater; the 10 m light is mapped only as a node."
+      "note": "OSM way 446589339 (Molhe de Felgueiras), 236.2 x 16.9 m in the site frame; the model is that outline itself. The 10 m light is mapped as node n1675107645 on its head."
     },
     "height_m": {
       "total": 10,
       "light": 10,
-      "breakwater": 3
+      "breakwater": 6,
+      "breakwater_root": 4,
+      "breakwater_head": 6
     },
     "elements": {},
     "facade_faces": "NE",
     "facade_azimuth_deg": 62,
     "facade_axis_rel": "breakwater axis (bearing ~62); a lighthouse has no facade",
-    "facade_note": "Granite breakwater with the small Farolim de Felgueiras light at its head.",
+    "facade_note": "Granite breakwater with the Farolim de Felgueiras at its head: exposed granite tower, red gallery rail, lantern and dome, white barrel-vaulted keeper shed with a red door.",
     "sources": [
       {
         "paths": [
@@ -741,9 +743,9 @@
           "footprint_m.width",
           "facade_azimuth_deg"
         ],
-        "source": "estimate",
-        "fact": "OSM outline geometry and orientation",
-        "reasoning": "OSM way 446589339 is the Molhe de Felgueiras breakwater; the 10 m light is mapped only as a node. Facade azimuth from the building axis and known street orientation."
+        "url": "https://www.openstreetmap.org/way/446589339",
+        "fact": "Molhe de Felgueiras outline",
+        "value": "closed way, 23 vertices, 236.2 x 16.9 m in the site frame; the model is drawn on this outline (no extent box)"
       },
       {
         "paths": [
@@ -756,11 +758,21 @@
       },
       {
         "paths": [
-          "height_m.breakwater"
+          "height_m.total"
+        ],
+        "url": "https://pt.wikipedia.org/wiki/Farolim_de_Felgueiras",
+        "fact": "hexagonal tower of exposed granite, 10 m high, red gallery rail and lantern, attached white building; built 1886, automated 1979, deactivated 2009",
+        "value": "Fl R 5 s, 9 nm, focal height 17 m above sea level; 41 08 48.32 N, 8 40 38.2 W (OSM node 1675107645 at 41.146734, -8.677299)"
+      },
+      {
+        "paths": [
+          "height_m.breakwater",
+          "height_m.breakwater_root",
+          "height_m.breakwater_head"
         ],
         "source": "estimate",
-        "fact": "breakwater",
-        "reasoning": "Breakwater deck about 3 m above the water (estimate)."
+        "fact": "crown above the water",
+        "reasoning": "pt.wikipedia gives a focal height of 17 m on a 10 m tower, which puts the crown at the head about 6-7 m over sea level; the shore end is lower (about 4 m, from the photos assets/img/felgueiras*.jpg). The model rises from 4 m at the root to 6 m at the head."
       }
     ],
     "confidence": "high"
