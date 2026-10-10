@@ -190,7 +190,8 @@ if (ONLY.includes('offline')) {
 }
 
 if (ONLY.includes('soak')) {
-  const { ctx, page, errors } = await open();
+  // --query '&quality=low' soaks another class (the Low class frees far models)
+  const { ctx, page, errors } = await open(opt('query', ''));
   const cdp = await ctx.newCDPSession(page);
   await page.evaluate(() => {
     const P = window.__porto;
@@ -218,11 +219,12 @@ if (ONLY.includes('soak')) {
     await cdp.send('HeapProfiler.enable');
     await cdp.send('HeapProfiler.collectGarbage');
     const heap = Math.round((await cdp.send('Runtime.getHeapUsage')).usedSize / 1048576);
-    const s = await page.evaluate(() => ({ gl: window.__porto.perfSystem.glMemory().totalMB, geo: window.__porto.renderer.info.memory.geometries, tex: window.__porto.renderer.info.memory.textures, cls: window.__porto.perfSystem.cls, p: window.__porto.perfSystem.knobs.pressure }));
+    const s = await page.evaluate(() => ({ gl: window.__porto.perfSystem.glMemory().totalMB, geo: window.__porto.renderer.info.memory.geometries, tex: window.__porto.renderer.info.memory.textures, cls: window.__porto.perfSystem.cls, p: window.__porto.perfSystem.knobs.pressure, m: window.__porto.landmarkModels?.() ?? {} }));
     samples.push({ t: Math.round((Date.now() - t0) / 1000), heap, ...s });
   }
   await page.evaluate(() => { window.__soak.stop = true; });
-  console.log(samples.map((s) => `${s.t}s heap ${s.heap} MB, gl ${s.gl} MB, geometries ${s.geo}, textures ${s.tex}, ${s.cls}/${s.p}`).join('\n'));
+  console.log(samples.map((s) => `${s.t}s heap ${s.heap} MB, gl ${s.gl} MB, geometries ${s.geo}, textures ${s.tex}, ${s.cls}/${s.p}, models built ${s.m.built} freed ${s.m.freed} cpu ${s.m.cpuMB} MB failed ${s.m.failed} mismatch ${s.m.mismatch}`).join('\n'));
+  check('soak: no landmark model failed or differed from the baked fit', samples.every((s) => !s.m.failed && !s.m.mismatch), JSON.stringify(samples.at(-1)?.m ?? {}));
   const tail = samples.slice(Math.floor(samples.length / 3)); // after the streaming warm-up
   const grow = (k) => (Math.max(...tail.map((s) => s[k])) - Math.min(...tail.map((s) => s[k]))) / Math.max(1, Math.min(...tail.map((s) => s[k])));
   check('soak: JS heap flat within 5 % after warm-up', grow('heap') <= 0.05, `${(grow('heap') * 100).toFixed(1)} %`);

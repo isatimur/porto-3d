@@ -41,8 +41,46 @@ Reading it honestly:
 - **Memory**: live JS heap 713 to 191 MB on every profile (the closure retention fix); GPU allocation 658 to 359 MB on the laptop profile (class M: no post targets, a 1024 shadow map), unchanged on desktop-gpu by design.
 - **laptop-igpu**: from 12.6 % dropped frames to none, because the GPU name now lands the profile in class M. That also means it renders without the effects stack and with a 1024 shadow map: a visual trade the user can undo in the menu (Quality > High or Ultra).
 - **phone-low**: dropped frames 54 % to 0.3 % in steady paths, p95 33.4 to 16.8 ms; the flight still has a 50 ms p95 (tile integration at 6x CPU).
-- **potato** is still not usable: 2 to 4 s a frame. SwiftShader is bound by triangle count even at half resolution (0.88 M triangles after the potato cuts; it would need about 0.2 M). The governor now reaches the floor in seconds instead of minutes, and the app does not crash or log errors, but "8 fps on software GL" needs a dedicated lite scene (see ARCHITECTURE.md, not done).
+- **potato** was not usable in this round: 2 to 4 s a frame. SwiftShader is bound by triangle count even at half resolution (0.88 M triangles after the potato cuts). The next round built the lite scene (below): 27 to 45 ms a frame.
 - **desktop-gpu** is unchanged in frames, triangles and GPU memory by design; it loads 15 % faster and holds a quarter of the heap. Screenshots at three views (overview, Ribeira, Clerigos; `scripts/perf-shots.mjs <dist> <prefix>`, two runs per build) sit inside the run-to-run noise: PSNR 33.5 to 38.7 dB between two runs of the same old build (film grain, waves, clouds, live weather text), 33.2 to 38.7 dB between old and new build. I read the pairs; the only visible difference is the live weather line in the info box.
+
+## Round 2: lazy landmark models and the lite scene
+
+Same machine and harness. "Before" is the build of the first round (`/tmp/dist-before`, bench run again the same day, raw `/tmp/perf/before-4.json`), "after" the lazy-model build (commit `3571646` and its follow-ups; raw `/tmp/perf/after-full.json`). The machine was shared with another session during these runs (browser processes, builds), so frame statistics wobble by one or two vsyncs; where a number is inside that wobble, the text says so. Seconds unless noted.
+
+### Lazy landmark models
+
+| Profile | | First frame | First meaningful | Ready | Transfer KB | GPU MB | Long tasks s | Warm ready |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| desktop-gpu | before | 0.98 | 4.4 | 6.7 | 2063 | 672 | 4.6 | 5.1 |
+| | after | 0.97 | 3.6 | 6.7 | 2102 | 543 | 4.2 | 5.6 |
+| laptop-igpu | before | 1.45 | 7.9 | 11.7 | 2164 | 371 | 8.1 | 10.7 |
+| | after | 1.48 | 6.0 | 12.1 | 2102 | 242 | 6.5 | 8.8 |
+| phone-high | before | 10.0 | 21.9 | 27.1 | 2203 | 335 | 16.2 | 16.9 |
+| | after | 9.9 | 17.6 | 24.7 | 2243 | 214 | 11.4 | 13.9 |
+| phone-low | before | 12.4 | 33.1 | 38.3 | 2237 | 328 | 26.1 | 29.6 |
+| | after | 12.0 | 26.0 | 37.9 | 2285 | 214 | 19.5 | 21.4 |
+
+- **First meaningful frame** (the city built, controls live) is 18 to 23 % earlier on every profile with a throttled CPU (phone-low 33.1 to 26.0, phone-high 21.9 to 17.6, laptop 7.9 to 6.0, desktop 4.4 to 3.6); main-thread long tasks until ready fall by a quarter to a third (phone-low 26.1 to 19.5 s). The fits no longer build 774 k triangles of models (fit 0.95 s on the desktop, an estimated 5 to 6 s at 6x CPU).
+- **Ready** moves little (6.7 to 6.7, 38.3 to 37.9): it waits for the deferred layers, which this change does not touch. The first frame did not move either (it never waited for the models).
+- **GPU memory** falls by 115 to 130 MB on every profile: models not near the camera are never uploaded (672 to 543 MB desktop, 328 to 214 MB phone-low).
+- **CPU-side vertex arrays held by the landmark meshes** (measured in the page, `scripts` helper `cpumb`): 124 MB (all 70 models, before) to 61 MB (XL, 32 models built 8 s after ready at the overview) and 44 MB (class Low, 23 built). **JS heap after GC did not change** (191 to 190 MB, 187 to 184 MB): typed-array storage is off the V8 heap, so the figure the bench reports cannot show this gain. A whole-process RSS comparison was too noisy to resolve it (the same build varied between 640 and 1137 MB between runs); I do not claim an RSS number.
+- **Transfer** is 40 to 80 KB higher or the same (the model worker, the group chunks the first builds fetch, `fits.json` 56 KB) and the critical app chunk is 299.5 KB gzip against 237.5 KB (-21 %). The 60 KB difference is the 70 builders leaving the critical path; they sit in 10 chunks of 5 to 56 KB raw each plus the worker.
+- **Frames and flights**: the steady paths are unchanged (p95 16.7 to 16.8 on desktop, laptop and phones; the Ribeira orbit and the cinema on phone-low have fewer dropped frames, 12.6 to 0.7 % and 22 to 2.9 %, but the 'before' run of that day was noisy). Frame times while flying to 10 landmarks in turn (`/tmp/p3/flights.mjs`, rAF deltas, 3 interleaved before/after rounds, 4x CPU, class Low): frames over 50 ms 8, 6, 10 before and 8, 7, 7 after; worst frame 133 to 1400 ms before, 150 to 167 ms after. At 1x CPU, class Ultra, 2 rounds: 3, 2 before and 3, 2 after (the worst, 170 to 180 ms, is the first selection of the session in both). **The "no frame over 50 ms when approaching a landmark" goal is not met on the 4x CPU emulation, before or after**: the remaining hitches are the tile integration, the vertex-clustered copy of a model (built on the main thread, one a frame) and the first GPU upload, none of which this change moves. It does not make flights worse: the build itself is in a worker and wrapping a finished model costs 0.2 to 1.2 ms (`maxWrapMs`).
+- **Screenshots** (overview and four close-ups: Ribeira, Clerigos, Luis I, Dragao; two runs per build, `/tmp/p3/ab-shots.mjs`): the counts of landmarks drawn full, clustered and as boxes (`lodStats`) are equal between the builds in every view, and I read the pairs for the overview, Clerigos and Luis I: the models, their placement and the city are the same; the differences are the live weather (clear against overcast sky, the info box text, a bus). PSNR between two runs of the *same* build was 13 to 27 dB that day because of the weather and clouds, so PSNR is not a usable test here; a pixel comparison needs a fixed weather and time.
+
+### Lite scene (Potato)
+
+| Profile | | First frame | First meaningful | Ready | Transfer KB | p95 ms (worst path) | Mean ms (worst path) | Tris overview / worst | Calls overview / worst | GPU MB | JS heap MB | Long tasks s | Warm ready |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| potato (SwiftShader 1280x720, CPU 4x) | before (full scene) | 6.1 | 30.7 | 58.1 | 2063 | 6133 | 2742 | 0.88 M / 2.02 M | 159 / 159 | 349 | 178 | 43.2 | 55.1 |
+| | after (lite scene) | 4.0 | 5.0 | 5.0 | 2188 | 67 | 45 | 0.126 M / 0.154 M | 9 / 68 | 6.4 | 18 | 2.1 | 2.0 |
+| phone-low emulation, `?quality=potato` | full scene (class S) | 12.4 | 33.1 | 38.3 | 2237 | 83 | 28 | 1.15 M | 100 | 328 | 187 | 26.1 | 29.6 |
+| | lite scene | 10.9 | 13.6 | 13.7 | 2063 | 16.8 | 19.2 | 0.125 M / 0.153 M | 8 / 57 | 6.4 | 18 | 2.2 | n/a |
+
+- On SwiftShader the lite scene runs at 22 to 36 frames a second (mean 27.6 to 45 ms over the five paths, p95 33 to 67 ms; the first flight has one 450 ms frame: the first model build). The target was 8 fps and 0.2 M triangles: met with a margin of 3x and 1.3x. Ready falls from 58 s to 5 s. On the phone-low emulation (CPU 6x, Fast 3G, a fast GPU) it holds 60 fps (p95 16.8 ms; the slowest path has 3.8 % dropped frames).
+- A bench run while another session loaded the machine showed the Ribeira orbit at 301 ms mean once (p95 1.1 s); the repeat, with no other browser running, gave 36 ms. I report the repeat and say so here.
+- The look: flat colours, terracotta roofs, grey stone, green land cover from the OSM land-cover mask, coarse relief with baked shading, water as a plane, 70 gold pins and labels, the top 12 landmarks as flat-shaded models when selected (Dragao: bowl, tiers, masts), the rest as coloured boxes, bridges as thin decks. Screenshots were read for the overview, Ribeira, Clerigos, Dragao (and Luis I, which exposed a park box that now stays hidden). What emulation cannot prove: how a real software-GL machine or a Mali-400 phone behaves (memory, the model worker on old Safari), and whether the flat look is acceptable to users; both are in `perf/DEVICE-CHECKLIST.md`.
 
 ## Where the frame time goes
 
