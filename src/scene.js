@@ -1392,63 +1392,100 @@ const GROUND_REFLECT = /* glsl */ `
 // In the view it writes neither colour nor depth (three.js tests shadow
 // casters against the view camera's layers, so a layer cannot hide it).
 // The proxy is built on the ground lattice (the mesh's own heights, gm.H),
-// every 4th line inside the 12 m core (48 m) and every line in the ring, and
-// each node is the LOWEST ground within one proxy step around it: the surface
-// between nodes can then never rise above the real ground, so a concave cliff
-// foot or a quay is not shadowed by its own proxy (blocky plates of shade on
-// the slopes at a low sun). Ridges lose a metre or two of height in the shade
-// they cast; that is the price.
+// about every 60 m (every 5th line in the 12 m core, every line in the ring),
+// and each node is the LOWEST ground within half a proxy step around it, less
+// 1.8 m: the surface between nodes then stays under the real ground, so a
+// concave cliff foot or a quay is not shadowed by its own proxy (blocky plates
+// of shade on the slopes at a low sun). Ridges lose a metre or two in the shade
+// they cast; that is the price. It is cut into tiles of 24 x 24 nodes, each its
+// own mesh with its own bounds, so the shadow pass (and the view pass, where it
+// writes nothing) draws only the tiles inside the frustum: the whole proxy is
+// 100 k triangles, a few tens of thousands are drawn.
 function shadowProxy(gm) {
-  const { xs, zs, nx, nz, H } = gm;
+  const { xs, zs, nx, H } = gm;
   const pick = (a, minStep) => {
     const out = [0];
     for (let i = 1; i < a.length - 1; i++) if (a[i] - a[out[out.length - 1]] >= minStep) out.push(i);
     out.push(a.length - 1);
     return out;
   };
-  const ix = pick(xs, 46 / 4);
-  const iz = pick(zs, 46 / 4);
+  const ix = pick(xs, 15);
+  const iz = pick(zs, 15);
   const px = ix.length;
   const pz = iz.length;
   const pos = new Float32Array(px * pz * 3);
+  const attr = new THREE.BufferAttribute(pos, 3);
   const refresh = () => {
     for (let b = 0; b < pz; b++) {
       for (let a = 0; a < px; a++) {
-        const i0 = a > 0 ? ix[a - 1] : ix[a];
-        const i1 = a < px - 1 ? ix[a + 1] : ix[a];
-        const j0 = b > 0 ? iz[b - 1] : iz[b];
-        const j1 = b < pz - 1 ? iz[b + 1] : iz[b];
+        // half a step to each side, in lattice lines
+        const i0 = a > 0 ? (ix[a - 1] + ix[a]) >> 1 : ix[a];
+        const i1 = a < px - 1 ? (ix[a + 1] + ix[a]) >> 1 : ix[a];
+        const j0 = b > 0 ? (iz[b - 1] + iz[b]) >> 1 : iz[b];
+        const j1 = b < pz - 1 ? (iz[b + 1] + iz[b]) >> 1 : iz[b];
         let lo = Infinity;
         for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) if (H[j * nx + i] < lo) lo = H[j * nx + i];
         const k = (b * px + a) * 3;
         pos[k] = xs[ix[a]];
-        pos[k + 1] = lo - 0.3;
+        pos[k + 1] = lo - 0.45;
         pos[k + 2] = zs[iz[b]];
       }
     }
+    attr.needsUpdate = true;
   };
   refresh();
-  const idx = [];
-  for (let b = 0; b < pz - 1; b++) {
-    for (let a = 0; a < px - 1; a++) {
-      const v = b * px + a;
-      idx.push(v, v + px, v + 1, v + 1, v + px, v + px + 1);
+  const mat = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false, depthTest: false, fog: false });
+  const group = new THREE.Group();
+  group.name = 'ground-shadow';
+  const T = 24;
+  const tiles = [];
+  for (let b0 = 0; b0 < pz - 1; b0 += T) {
+    for (let a0 = 0; a0 < px - 1; a0 += T) {
+      const a1 = Math.min(px - 1, a0 + T);
+      const b1 = Math.min(pz - 1, b0 + T);
+      const idx = [];
+      for (let b = b0; b < b1; b++) {
+        for (let a = a0; a < a1; a++) {
+          const v = b * px + a;
+          idx.push(v, v + px, v + 1, v + 1, v + px, v + px + 1);
+        }
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', attr); // one shared vertex buffer
+      g.setIndex(idx);
+      const m = new THREE.Mesh(g, mat);
+      m.castShadow = true;
+      m.renderOrder = -20;
+      m.userData.range = [a0, a1, b0, b1];
+      group.add(m);
+      tiles.push(m);
     }
   }
-  const g = new THREE.BufferGeometry();
-  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  g.setIndex(idx);
-  g.computeBoundingSphere();
-  const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false, depthTest: false, fog: false }));
-  m.name = 'ground-shadow';
-  m.castShadow = true;
-  m.renderOrder = -20;
-  m.userData.refresh = () => {
-    refresh();
-    g.attributes.position.needsUpdate = true;
-    g.computeBoundingSphere();
+  const bounds = () => {
+    for (const m of tiles) {
+      const [a0, a1, b0, b1] = m.userData.range;
+      let lo = Infinity;
+      let hi = -Infinity;
+      for (let b = b0; b <= b1; b++) {
+        for (let a = a0; a <= a1; a++) {
+          const y = pos[(b * px + a) * 3 + 1];
+          if (y < lo) lo = y;
+          if (y > hi) hi = y;
+        }
+      }
+      const g = m.geometry;
+      g.boundingSphere = new THREE.Sphere(
+        new THREE.Vector3((xs[ix[a0]] + xs[ix[a1]]) / 2, (lo + hi) / 2, (zs[iz[b0]] + zs[iz[b1]]) / 2),
+        Math.hypot((xs[ix[a1]] - xs[ix[a0]]) / 2, (zs[iz[b1]] - zs[iz[b0]]) / 2, (hi - lo) / 2) + 1,
+      );
+    }
   };
-  return m;
+  bounds();
+  group.userData.refresh = () => {
+    refresh();
+    bounds();
+  };
+  return group;
 }
 
 // Ground mesh on the real terrain: a rectilinear grid, 4 x 4 quads per DEM
