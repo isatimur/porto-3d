@@ -345,6 +345,7 @@ async function start() {
   }
   ground.userData.applyPads();
   // the pads build up 2.5 m at most: a retaining wall under the edge of any pad that stands higher
+  // (folded flat until the landmark's model shows a floor there: onModel below)
   const padWalls = buildPadWalls(terrain, { S: proj.S });
   if (padWalls) {
     scene.add(padWalls);
@@ -370,6 +371,8 @@ async function start() {
     massing: true,
     lazy: lazyModels,
     client: modelClient,
+    // a pad wall stands only under the model's own floor: it waits for the model
+    onModel: padWalls ? (id, mesh) => padWalls.userData.reveal(id, mesh) : undefined,
     ...(LITE_SCENE ? { liteScene: true, atmosphere, modelAllowed: (it) => topIds.has(it.data.id) } : {}),
   });
   // (the lite scene builds a detailed model only for a selected or filmed landmark, keeps 3)

@@ -7,10 +7,23 @@
 // This draws the missing face: a stone wall along the pad's edge, from the
 // plane down to the ground at the edge, wherever that is more than 2 m. All
 // walls are one mesh, one draw call, a few hundred triangles per pad.
+//
+// A wall only stands where the model has a floor at the pad's edge. The pad is
+// the model's box, and a garden or a square does not fill its box: the
+// Palacio box is the plateau, and its south-west corner, 20 m above the slope,
+// holds no lawn. A wall there was a free-standing blade, a long dark wedge
+// over the garden. So every wall starts folded flat (top = foot) and stands up
+// when the landmark's model is built (reveal, called by src/landmarks.js): a
+// segment stands if the model has level ground near the plane within 2.5
+// world units inside it. No model, no floor, no wall.
 import * as THREE from 'three';
 
 const STEP_U = 2; // world units between samples along an edge (8 m)
 const MIN_WALL_M = 2;
+const CELL_U = 1; // floor mask cell, world units (4 m)
+const FLOOR_TOL_U = 0.75; // a floor lies within 3 m of the pad plane
+const FLOOR_NY = 0.6; // and faces up (slope under about 53 degrees)
+const REACH_U = [0.5, 1.5, 2.5]; // how far inside the wall a floor is looked for
 
 export function buildPadWalls(terrain, { S = 0.25 } = {}) {
   const { pads, heightAt } = terrain;
@@ -20,8 +33,10 @@ export function buildPadWalls(terrain, { S = 0.25 } = {}) {
   const idx = [];
   const minH = MIN_WALL_M * S;
   let walls = 0;
+  const byPad = new Map(); // landmark id -> { p, segs: [{ s, pts: [[x, z] x 3], nx, nz }], shown }
   for (const p of pads) {
     if (p.yAt || p.fillMax === undefined || !Number.isFinite(p.y)) continue; // only plain level pads
+    const rec = { p, segs: [], shown: false };
     // the four edges, walked counter-clockwise: [from (u, v), to (u, v), outward (u, v)]
     const edges = [
       [[-p.hu, -p.hv], [p.hu, -p.hv], [0, -1]],
@@ -56,25 +71,127 @@ export function buildPadWalls(terrain, { S = 0.25 } = {}) {
             col.push(0.3 * m, 0.285 * m, 0.26 * m, 0.5 * m, 0.48 * m, 0.44 * m);
           }
           idx.push(base, base + 2, base + 1, base + 1, base + 2, base + 3);
+          rec.segs.push({ s: walls, pts: [[prev.x, prev.z], [(prev.x + cur.x) / 2, (prev.z + cur.z) / 2], [cur.x, cur.z]], nx, nz });
           walls++;
         }
         prev = cur;
       }
     }
+    if (rec.segs.length && p.id != null) byPad.set(p.id, rec);
   }
   if (!walls) return null;
   const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  const posAttr = new THREE.Float32BufferAttribute(pos, 3);
+  geo.setAttribute('position', posAttr);
   geo.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
   geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
   geo.setIndex(idx);
-  geo.computeBoundingSphere();
+  geo.computeBoundingSphere(); // with the walls standing: the sphere holds them once revealed
+  // fold every wall flat: its top vertices (1 and 3 of each segment) down to the foot
+  const P = posAttr.array;
+  const tops = new Float32Array(walls * 2);
+  for (let s = 0; s < walls; s++) {
+    for (let k = 0; k < 2; k++) {
+      const vt = (s * 4 + 1 + 2 * k) * 3 + 1;
+      tops[s * 2 + k] = P[vt];
+      P[vt] = P[vt - 3];
+    }
+  }
   const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95, metalness: 0, side: THREE.DoubleSide });
   mat.name = 'pad-walls';
   const mesh = new THREE.Mesh(geo, mat);
   mesh.name = 'pad-walls';
   mesh.castShadow = true;
   mesh.receiveShadow = true;
-  mesh.userData.stats = { segments: walls, tris: idx.length / 3 };
+  const stats = { segments: walls, tris: idx.length / 3, standing: 0, pads: {} };
+  mesh.userData.stats = stats;
+
+  // The landmark `id` has its model: stand up the walls that hold its floor.
+  // model: the landmark's main mesh (world matrix current or computable).
+  mesh.userData.reveal = (id, model) => {
+    const rec = byPad.get(id);
+    if (!rec || rec.shown || !model) return 0;
+    rec.shown = true;
+    const t0 = performance.now();
+    const mask = floorMask(rec.p, model);
+    let up = 0;
+    for (const sg of rec.segs) {
+      if (!mask.near(sg)) continue;
+      for (let k = 0; k < 2; k++) P[(sg.s * 4 + 1 + 2 * k) * 3 + 1] = tops[sg.s * 2 + k];
+      up++;
+    }
+    if (up) posAttr.needsUpdate = true;
+    stats.standing += up;
+    stats.pads[id] = { walls: rec.segs.length, standing: up, ms: +(performance.now() - t0).toFixed(1) };
+    return up;
+  };
   return mesh;
+}
+
+// The model's level floor near the pad plane, as a grid of CELL_U cells in the
+// pad's own (u, v) frame. near(seg): is there floor just inside the segment?
+function floorMask(p, model) {
+  const nu = Math.max(1, Math.ceil((2 * p.hu) / CELL_U));
+  const nv = Math.max(1, Math.ceil((2 * p.hv) / CELL_U));
+  const cells = new Uint8Array(nu * nv);
+  const toU = (x, z) => (x - p.cx) * p.ux + (z - p.cz) * p.uz;
+  const toV = (x, z) => -(x - p.cx) * p.uz + (z - p.cz) * p.ux;
+  const mark = (u, v) => {
+    const i = Math.floor((u + p.hu) / CELL_U);
+    const j = Math.floor((v + p.hv) / CELL_U);
+    if (i >= 0 && j >= 0 && i < nu && j < nv) cells[j * nu + i] = 1;
+  };
+  model.updateWorldMatrix(true, false);
+  const m = model.matrixWorld.elements;
+  const geo = model.geometry;
+  const src = geo?.attributes?.position;
+  if (src) {
+    const count = src.count;
+    const w = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      const x = src.getX(i), y = src.getY(i), z = src.getZ(i);
+      w[i * 3] = m[0] * x + m[4] * y + m[8] * z + m[12];
+      w[i * 3 + 1] = m[1] * x + m[5] * y + m[9] * z + m[13];
+      w[i * 3 + 2] = m[2] * x + m[6] * y + m[10] * z + m[14];
+    }
+    const index = geo.index?.array;
+    const tris = index ? index.length / 3 : count / 3;
+    for (let t = 0; t < tris; t++) {
+      const a = (index ? index[t * 3] : t * 3) * 3;
+      const b = (index ? index[t * 3 + 1] : t * 3 + 1) * 3;
+      const c = (index ? index[t * 3 + 2] : t * 3 + 2) * 3;
+      if (Math.abs(w[a + 1] - p.y) > FLOOR_TOL_U || Math.abs(w[b + 1] - p.y) > FLOOR_TOL_U || Math.abs(w[c + 1] - p.y) > FLOOR_TOL_U) continue;
+      // facing up (either winding)
+      const e1x = w[b] - w[a], e1y = w[b + 1] - w[a + 1], e1z = w[b + 2] - w[a + 2];
+      const e2x = w[c] - w[a], e2y = w[c + 1] - w[a + 1], e2z = w[c + 2] - w[a + 2];
+      const cx = e1y * e2z - e1z * e2y, cy = e1z * e2x - e1x * e2z, cz = e1x * e2y - e1y * e2x;
+      const cl = Math.hypot(cx, cy, cz);
+      if (cl === 0 || Math.abs(cy) < FLOOR_NY * cl) continue;
+      // rasterise by sampling the triangle at half a cell
+      const ua = toU(w[a], w[a + 2]), va = toV(w[a], w[a + 2]);
+      const ub = toU(w[b], w[b + 2]), vb = toV(w[b], w[b + 2]);
+      const uc = toU(w[c], w[c + 2]), vc = toV(w[c], w[c + 2]);
+      const edge = Math.max(Math.hypot(ub - ua, vb - va), Math.hypot(uc - ua, vc - va), Math.hypot(uc - ub, vc - vb));
+      const n = Math.min(256, Math.max(1, Math.ceil(edge / (CELL_U * 0.5))));
+      for (let i = 0; i <= n; i++) {
+        for (let j = 0; j <= n - i; j++) {
+          const s = i / n, r = j / n;
+          mark(ua + (ub - ua) * s + (uc - ua) * r, va + (vb - va) * s + (vc - va) * r);
+        }
+      }
+    }
+  }
+  return {
+    near(sg) {
+      for (const [x, z] of sg.pts) {
+        for (const d of REACH_U) {
+          const px = x - sg.nx * d, pz = z - sg.nz * d;
+          const i = Math.floor((toU(px, pz) + p.hu) / CELL_U);
+          const j = Math.floor((toV(px, pz) + p.hv) / CELL_U);
+          if (i >= 0 && j >= 0 && i < nu && j < nv && cells[j * nu + i]) return true;
+        }
+      }
+      return false;
+    },
+  };
 }

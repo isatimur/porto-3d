@@ -545,6 +545,9 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
     }
   }
   for (const it of items) if (it.built) attachParts(it);
+  // opts.onModel(id, mesh): a landmark's detailed model exists (the pad walls,
+  // src/pad-walls.js, stand only under its floor); lazy models report in wrapModel
+  if (opts.onModel) for (const it of items) if (it.built) opts.onModel(it.data.id, it.meshes[0]);
 
   // Pose of one landmark at its real size: box, centre, sphere, top.
   const pivotY = (it) => it.fit.pivot.y || it.base;
@@ -860,6 +863,7 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
     });
     attachParts(it);
     it.built = true;
+    opts.onModel?.(it.data.id, it.meshes[0]);
     lm.stats.built++;
     const ms = performance.now() - t0;
     lm.stats.wrapMs += ms;

@@ -650,7 +650,7 @@ export function padFor(fit) {
   const p = fit.padPlan;
   const opt = typeof fit.rule.pad === 'object' && fit.rule.pad ? fit.rule.pad : {};
   const fall = p.fall ?? THREE.MathUtils.clamp(Math.max(p.hu, p.hv) * 0.25, 5, 16);
-  const pad = { cx: p.cx, cz: p.cz, ux: p.ux, uz: p.uz, hu: p.hu, hv: p.hv, fall, y: fit.base };
+  const pad = { id: fit.id, cx: p.cx, cz: p.cz, ux: p.ux, uz: p.uz, hu: p.hu, hv: p.hv, fall, y: fit.base };
   // The pad is only as big as the model needs (padPlan: the model box plus 2 m).
   // A building (a church, a station, a museum) takes at most a third of its own
   // height in cut (never under 3 m): on a slope it stands partly in the hill, as
