@@ -199,6 +199,23 @@ async function start() {
   // light mode: only the landmarks cast shadows; the hill-shadow proxy goes
   const groundShadow = ground.getObjectByName('ground-shadow');
   if (LITE && groundShadow) groundShadow.visible = false;
+  // The proxy writes neither colour nor depth in the view, but three.js still
+  // drew each of its tiles there (one draw call each). It stays hidden and is
+  // shown only while the shadow map renders: three.js projects the view list
+  // before the shadow pass and the shadow pass reads `visible` on its own walk.
+  else if (groundShadow) {
+    groundShadow.visible = false;
+    const shadowMap = renderer.shadowMap;
+    const renderShadows = shadowMap.render;
+    shadowMap.render = function (...args) {
+      groundShadow.visible = true;
+      try {
+        return renderShadows.apply(this, args);
+      } finally {
+        groundShadow.visible = false;
+      }
+    };
+  }
   mark('ground');
   // beyond the DEM rectangle the land fades into the haze
   Object.assign(FOG_UNIFORMS.fogRect.value, { x: terrain.bounds.x0, y: terrain.bounds.zN, z: terrain.bounds.x1, w: terrain.bounds.zS });

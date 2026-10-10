@@ -1408,10 +1408,13 @@ const GROUND_REFLECT = /* glsl */ `
 // 1.8 m: the surface between nodes then stays under the real ground, so a
 // concave cliff foot or a quay is not shadowed by its own proxy (blocky plates
 // of shade on the slopes at a low sun). Ridges lose a metre or two in the shade
-// they cast; that is the price. It is cut into tiles of 24 x 24 nodes, each its
-// own mesh with its own bounds, so the shadow pass (and the view pass, where it
-// writes nothing) draws only the tiles inside the frustum: the whole proxy is
-// 100 k triangles, a few tens of thousands are drawn.
+// they cast; that is the price. It is cut into tiles of 72 x 72 nodes (about
+// 20 tiles), each its own mesh with its own bounds, so the shadow pass draws only
+// the tiles inside the light's frustum: the whole proxy is 190 k triangles. The
+// tiles were 24 x 24 (180 tiles, 120 shadow draw calls at the overview); the
+// triangles are the same, only the culling is coarser. main.js shows the proxy
+// to the shadow pass only: in the view it wrote nothing but still cost a draw
+// call per tile.
 function shadowProxy(gm) {
   const { xs, zs, nx, H } = gm;
   const pick = (a, minStep) => {
@@ -1448,7 +1451,7 @@ function shadowProxy(gm) {
   const mat = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false, depthTest: false, fog: false });
   const group = new THREE.Group();
   group.name = 'ground-shadow';
-  const T = 24;
+  const T = 72;
   const tiles = [];
   for (let b0 = 0; b0 < pz - 1; b0 += T) {
     for (let a0 = 0; a0 < px - 1; a0 += T) {

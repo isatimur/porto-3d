@@ -17,7 +17,7 @@ import { assetUrl } from './data.js';
 
 const STEP_M = 5; // sample spacing along a line
 const BOLLARD_M = 30;
-const CELL_M = 1000;
+const CELL_M = 3000; // one merged mesh per cell: 34 k triangles in all, few draw calls
 const WALL_MIN_M = 2.4; // wall height above the water, from the ground behind
 const WALL_MAX_M = 5;
 const BELOW_M = 1.2; // the wall runs this far under the water line

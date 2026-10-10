@@ -19,7 +19,7 @@
 //              Felgueiras and Leca belong to their landmark models: skipped.
 //
 // Everything stands on the level of the sea mesh (seaState().y). One merged mesh
-// per ~1 km cell and one material, so the draw calls stay low.
+// per ~3 km cell and one material, so the draw calls stay low.
 import * as THREE from 'three';
 import { dataPath, hasData } from './city.js';
 import { assetUrl } from './data.js';
@@ -318,8 +318,10 @@ export function buildHarbour(ctx) {
   const proj = (ll) => ll.map(([lat, lon]) => project(lat, lon));
   const stats = { apronSamples: 0, apron: 0, mounds: 0, rocks: 0, quays: 0, piers: 0, lights: 0, armour: 0, tris: { apron: 0, mounds: 0, piers: 0, lights: 0, armour: 0 } };
 
-  // geometry cells (~1 km), one merged mesh each
-  const CELL = M(1000);
+  // geometry cells (~3 km), one merged mesh each: the whole layer is about
+  // 50 k triangles, so a draw call per 1 km cell (58 of them, 37 at the
+  // overview) cost more than the culling saved
+  const CELL = M(3000);
   const cells = new Map();
   const bufAt = (x, z) => {
     const k = `${Math.floor(x / CELL)}_${Math.floor(z / CELL)}`;

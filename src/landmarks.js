@@ -411,7 +411,9 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
       points.push(o);
     }
 
-    // the OSM outline, draped on the (padded) ground
+    // the OSM outline, draped on the (padded) ground: line-segment positions
+    // only; the outlines of all the near landmarks draw as one line set
+    // (syncOutlines), not one draw call each
     let outline = null;
     const poly = outlines[index];
     if (poly && poly.length > 2) {
@@ -428,20 +430,7 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
           arr.push(x0, heightAt(x0, z0) + OUTLINE_LIFT, z0, x1, heightAt(x1, z1) + OUTLINE_LIFT, z1);
         }
       }
-      if (LITE_SCENE) {
-        // a plain 1 px line set: no triangles, no line shader
-        const lg = new THREE.BufferGeometry();
-        lg.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3));
-        outline = new THREE.LineSegments(lg, outlineMat);
-      } else {
-        const lg = new LineSegmentsGeometry();
-        lg.setPositions(arr);
-        outline = new LineSegments2(lg, outlineMat);
-      }
-      outline.name = `outline-${l.id}`;
-      outline.renderOrder = 6;
-      outline.frustumCulled = false;
-      group.add(outline);
+      outline = Float32Array.from(arr);
     }
 
     const spec = fit.spec || {};
@@ -481,6 +470,47 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
       sphere: new THREE.Sphere(),
     };
   });
+
+  // The gold outlines of the landmarks drawn near (applyVisibility sets
+  // it.outlineOn), merged into one line set: one draw call instead of one per
+  // landmark (about 50 in the Ribeira). Rebuilt only when that set changes.
+  const outlineSet = LITE_SCENE ? new THREE.LineSegments(new THREE.BufferGeometry(), outlineMat) : new LineSegments2(new LineSegmentsGeometry(), outlineMat);
+  outlineSet.name = 'outlines';
+  outlineSet.renderOrder = 6;
+  outlineSet.frustumCulled = false;
+  outlineSet.visible = false;
+  group.add(outlineSet);
+  let outlineKey = '';
+  function syncOutlines() {
+    let key = '';
+    let n = 0;
+    for (const it of items) {
+      if (!it.outline || !it.outlineOn) continue;
+      key += `${it.index},`;
+      n += it.outline.length;
+    }
+    if (key === outlineKey) return;
+    outlineKey = key;
+    outlineSet.geometry.dispose();
+    const arr = new Float32Array(n);
+    let o = 0;
+    for (const it of items) {
+      if (!it.outline || !it.outlineOn) continue;
+      arr.set(it.outline, o);
+      o += it.outline.length;
+    }
+    let g;
+    if (LITE_SCENE) {
+      // a plain 1 px line set: no triangles, no line shader
+      g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+    } else {
+      g = new LineSegmentsGeometry();
+      if (n) g.setPositions(arr);
+    }
+    outlineSet.geometry = g;
+    outlineSet.visible = n > 0;
+  }
 
   // The glass and the moving parts of a built model (own meshes next to /
   // under the stone mesh, so the category filter and the distance LOD treat
@@ -713,7 +743,7 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
       const full = near && it.built;
       for (const m of it.meshes) m.visible = full;
       for (const mv of it.movers) mv.visible = full;
-      if (it.outline) it.outline.visible = near;
+      it.outlineOn = near;
       it.label.visible = it.catOn;
       if (!massing) continue;
       // Parks, gardens and beaches are low and wide (Parque da Cidade
@@ -755,6 +785,7 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
       massing.setMatrixAt(it.index, _m);
     }
     if (massing) massing.instanceMatrix.needsUpdate = true;
+    syncOutlines();
   }
   applyVisibility();
 
