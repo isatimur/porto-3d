@@ -194,9 +194,10 @@ if (brgOther && uFocusK > 0.5) {
   float brgT = dot(brgP, brgD) / (brgL * brgL);
   float brgR = length(brgP - brgD * brgT);
   if (brgT > 0.0 && brgT < 1.0 - uFocusR / brgL * 0.5 && brgR < brgS.w + uFocusR * 0.9) {
-    // keep one pixel in eight: a faint ghost of the occluder
-    vec2 brgC = mod(floor(gl_FragCoord.xy), vec2(4.0, 2.0));
-    if (brgC.x + brgC.y > 0.5) discard;
+    // drop the occluder whole. A 1-in-8 pixel ghost read as a dotted hatch
+    // over the shadows and walls of the neighbouring landmarks (the audit's
+    // "shadow moire" at cadeia-relacao, teatro and casa-guerra-junqueiro)
+    discard;
   }
 }`,
       )

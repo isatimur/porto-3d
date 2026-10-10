@@ -252,18 +252,22 @@ if (cloudShape.z > 0.001) {
   float brgWet = cloudShape.z * smoothstep(0.5, 0.9, brgWN.y);
   // low-frequency puddle patches: the ground that stays wet longest, more of
   // them the heavier the rain (cloudShape.w)
-  float brgPudN = texture2D(tCloud, vFogWorld.xz * 0.043).b;
-  float brgPud = brgWet * smoothstep(0.56, 0.7, brgPudN) * smoothstep(0.15, 0.7, cloudShape.w + 0.15);
+  // two octaves at unrelated scales, a wide soft edge, and flat ground only:
+  // the single 23 m lookup with a tight threshold painted blocky grey slabs,
+  // and roofs (also up-facing) caught the patches as well
+  float brgPudN = texture2D(tCloud, vFogWorld.xz * 0.043).b * 0.62 + texture2D(tCloud, vFogWorld.xz * 0.117 + 0.29).b * 0.38;
+  float brgFlat = smoothstep(0.93, 0.985, brgWN.y);
+  float brgPud = brgWet * brgFlat * smoothstep(0.5, 0.74, brgPudN) * smoothstep(0.15, 0.7, cloudShape.w + 0.15);
   // calçada and asphalt read dark and glossy when wet
   float brgDark = clamp(0.34 * brgWet + 0.22 * brgPud, 0.0, 0.62);
   material.diffuseContribution *= 1.0 - brgDark;
   material.diffuseColor *= 1.0 - brgDark;
   material.roughness = mix(material.roughness, 0.3, brgWet * 0.72);
-  material.roughness = mix(material.roughness, 0.07, brgPud);
+  material.roughness = mix(material.roughness, 0.14, brgPud);
   // a little extra specular energy, so the shared sky IBL reads as a wet sheen
   material.specularColor = mix(material.specularColor, vec3(0.2), brgWet * 0.65);
   // puddles mirror the sky/horizon colour (fogColor is the horizon sky)
-  totalEmissiveRadiance += fogColor * brgPud * (0.04 + 0.1 * (1.0 - lookParams.x));
+  totalEmissiveRadiance += fogColor * brgPud * (0.025 + 0.05 * (1.0 - lookParams.x));
   // night: the warm city light (windows, shop signs, lamps) smears across
   // the wet stone, strongest in the puddles; a faint cool sky glint on the
   // crispest puddles keeps the reflection from reading as a flat stain
@@ -329,7 +333,10 @@ if (cloudShape.z > 0.001) {
     #else
       float fDens = 1.0 / max( fogFar, 1.0 );
     #endif
-    float fTau = fDens * fDist * fMean;
+    // the first few hundred metres in front of the lens stay clearer (half the
+    // density at 30 m, full at 400 m): a close-up of the ground is not veiled
+    // by the air between the camera and the street
+    float fTau = fDens * fDist * fMean * ( 0.5 + 0.5 * smoothstep( 8.0, 100.0, fDist ) );
     // seen from the overview height the whole city is one long ray: cap the
     // air's optical depth so the Douro and the roofs stay readable (the map
     // edge ramp below is not affected). Heights are world units (4 per m).
@@ -626,9 +633,12 @@ function applyWeather(s, w) {
   // (y 92) stand out above it. Pale.
   const f = w.fog;
   s.density *= 1 + 1.5 * w.haze;
-  s.density += (0.035 - s.density) * f;
+  // 0.016, not 0.035: at 55 m over the roofs the denser layer turned the whole
+  // frame to a flat white. This one keeps the near streets and the quay edges
+  // readable while the far city still sinks into it.
+  s.density += (0.016 - s.density) * f;
   s.falloff += (0.055 - s.falloff) * f;
-  toGrey(s.haze, 0.7 * f, 1.12);
+  toGrey(s.haze, 0.7 * f, 1.04);
   toGrey(s.mid, 0.35 * f, 1.05);
   s.scatterK *= 1 - 0.4 * f;
   return s;
@@ -1370,17 +1380,18 @@ const GROUND_REFLECT = /* glsl */ `
   vec3 rR = normalize( ( vec4( reflect( - rV, normal ), 0.0 ) * viewMatrix ).xyz );
   float rUp = smoothstep( 0.5, 0.92, rN.y );
   float rWet = cloudShape.z * rUp;
-  float rPudN = texture2D( tCloud, vFogWorld.xz * 0.043 ).b;
-  float rPud = rWet * smoothstep( 0.56, 0.7, rPudN ) * smoothstep( 0.15, 0.7, cloudShape.w + 0.15 );
+  // the same mask as the shared wet patch above (two octaves, flat ground)
+  float rPudN = texture2D( tCloud, vFogWorld.xz * 0.043 ).b * 0.62 + texture2D( tCloud, vFogWorld.xz * 0.117 + 0.29 ).b * 0.38;
+  float rPud = rWet * smoothstep( 0.93, 0.985, rN.y ) * smoothstep( 0.5, 0.74, rPudN ) * smoothstep( 0.15, 0.7, cloudShape.w + 0.15 );
   float rK = clamp( rWet * 0.30 + rPud * 0.85, 0.0, 1.0 );
   if ( rK > 0.001 ) {
     float rFres = 0.04 + 0.96 * pow( 1.0 - max( dot( normal, rV ), 0.0 ), 5.0 );
     vec3 rCol = min( textureCube( uSkyCube, rR ).rgb, vec3( 4.0 ) );
     // cancel the flat sky-smear the shared patch added (same mask), then add
     // the directional reflection and a vertical low-sun streak on the stone
-    totalEmissiveRadiance -= fogColor * rPud * ( 0.04 + 0.1 * ( 1.0 - lookParams.x ) );
+    totalEmissiveRadiance -= fogColor * rPud * ( 0.025 + 0.05 * ( 1.0 - lookParams.x ) );
     totalEmissiveRadiance += rCol * rFres * rK;
-    totalEmissiveRadiance += rCol * rPud * 0.10;
+    totalEmissiveRadiance += rCol * rPud * 0.07;
   }
 }
 #endif
