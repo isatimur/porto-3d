@@ -82,6 +82,11 @@ if (!result) {
 // a camera stub: update() only needs position.distanceToSquared()
 const cam = { position: { distanceToSquared: () => 0 } };
 
+// the boats wait for the water mesh to give the real waterline (they look for
+// it every 20th frame and fall back to a guess after 600 frames, hidden until
+// then); this headless test has no water mesh, so run past the fallback first
+for (let f = 0; f < 640; f++) result.update(1 / 30, cam, null);
+
 // ---- advance a few seconds and check each boat is finite and moving
 const samples = [];
 for (let f = 0; f < 300; f++) {
@@ -98,7 +103,10 @@ for (let f = 0; f < 300; f++) {
   }
 }
 if (samples.length > 1) {
-  const moved = Math.hypot(samples[1].x - samples[0].x, samples[2].x - samples[1].x);
+  // distance on the ground plane between the samples: the first boat may run
+  // along z (the old check read x only and failed for a boat on a north-south reach)
+  const ground = (a, b) => Math.hypot(b.x - a.x, b.z - a.z);
+  const moved = ground(samples[0], samples[1]) + ground(samples[1], samples[2]);
   if (moved < 0.01) fail('the first boat did not move along its path');
 }
 

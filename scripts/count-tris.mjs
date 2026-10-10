@@ -24,6 +24,10 @@ import { loadTerrain } from './terrain-load.mjs';
 
 const MAX_MODEL = 40000;
 const MIN_MODEL = 4000;
+// per-landmark floors for simple structures (reason beside each)
+const MIN_MODEL_BY_ID = {
+  felgueiras: 1500, // the mole follows the OSM way in 16 slabs plus a 10 m tower: 1.9 k triangles is complete
+};
 // Bigger city, more detailed models: 70 models at up to 40k each; the per-model
 // bounds (4k..40k) still hold. Raised from 600000 when the roster grew to 70.
 const MAX_TOTAL = 900000;
@@ -76,7 +80,10 @@ fits.forEach((f, i) => {
   const tris = triangleCount(g) + pieces + glass; // all triangles, opaque + glass
   const nan = [g, ...(f.pieces || []).map((p) => p.geometry)].some((q) => [...q.attributes.position.array].some((v) => !Number.isFinite(v)));
   const overMax = tris > MAX_MODEL;
-  const underMin = tris < MIN_MODEL;
+  // a landmark that is genuinely simple may carry a lower floor, with the reason
+  // here (never a lower ceiling): Felgueiras is a granite mole plus a 10 m tower
+  const floor = MIN_MODEL_BY_ID[l.id] ?? MIN_MODEL;
+  const underMin = tris < floor;
   // massing models are exempt from the floor, never from the ceiling / NaNs
   const ok = !nan && !overMax && (massing || !underMin);
   if (f.pieces?.length || f.markers?.length) {
