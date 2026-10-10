@@ -110,17 +110,258 @@ export const lastPlan = { plan: null, style: 0 };
 // roofOnly: the very far LOD (beyond ~6 km, a house is a few pixels): the
 // flat roof at the same height and colour, without the walls (2 triangles
 // for a box instead of 10).
-export function extrudeBuilding(T, pts, h, k, areaM2, seedIndex, heightAt, roofOnly = false, attrs = null, detailLevel = 0) {
+// ------------------------------------------------------------ slopes
+// A footprint on a hillside (the Douro gorge walls: 60-100 m over < 200 m)
+// used to be placed at one level from its VERTEX heights only (the old
+// gmin / gmax): where the ground dips between the corners (a gully under a
+// long wall, a bench below the cliff edge) the wall base hung in the air.
+// The rule, applied to every path (core tiles, MS footprints, streamed
+// tiles all call extrudeBuilding with their own ground function):
+//   L, Hi   the lowest / highest ground under the footprint: its corners,
+//           points every 6 m along the edges, and a ~6 m grid inside (the
+//           ground lattice is 12 m, so this finds every dip of the mesh)
+//   base    L - SKIRT: the wall (the one quad per edge, no extra triangles)
+//           reaches the lowest ground, plain wall below the window rows
+//   floor   F = min(L + 12 m, max(L, Hi + 0.5 u - h)): the window rows start
+//           here. On a drop smaller than the building (the usual case) F = L.
+//           On a drop larger than h the floor rises so the building keeps
+//           its h of windows over a plain plinth, and the plinth never
+//           exceeds 12 m; beyond that the walls get taller (windowed) as
+//           before, unless the block is big, see below
+//   top     max(F + h, Hi + 0.5 u): never under the highest ground
+//   flat    when L is within 0.3 m of the lowest corner, L = that corner:
+//           flat ground gives the geometry it always had
+//   terrace a big block (> 900 m2 or > 40 m) on a drop of > 8 m (> 20 m)
+//           is cut across the slope into 2 (3) bands, each with its own
+//           floor and roof; each band is as deep as the rule above allows
+const CAP = 3; // 12 m: the tallest plain plinth (world units)
+const DEAD = 0.075; // 0.3 m: a smaller dip is not worth a skirt
+const STEP = 1.5; // 6 m between ground samples
+export const slopeStats = { skirted: 0, raised: 0, terraced: 0, bands: 0, dips: 0, worst: { dip: 0, x: 0, z: 0 }, steepest: { drop: 0, x: 0, z: 0 } };
+const SX = [];
+const SZ = [];
+const SY = [];
+let profPts = null;
+let profGround = null;
+let profVal = null;
+
+function groundProfile(pts, ground) {
+  if (profPts === pts && profGround === ground) return profVal;
+  SX.length = SZ.length = SY.length = 0;
+  let gmin = Infinity;
+  let gmax = -Infinity;
+  let x0 = Infinity;
+  let x1 = -Infinity;
+  let z0 = Infinity;
+  let z1 = -Infinity;
+  const n = pts.length;
+  for (let i = 0; i < n; i++) {
+    const p = pts[i];
+    const y = ground(p.x, p.z);
+    SX.push(p.x);
+    SZ.push(p.z);
+    SY.push(y);
+    if (y < gmin) gmin = y;
+    if (y > gmax) gmax = y;
+    if (p.x < x0) x0 = p.x;
+    if (p.x > x1) x1 = p.x;
+    if (p.z < z0) z0 = p.z;
+    if (p.z > z1) z1 = p.z;
+  }
+  // a small flat footprint has nothing between its corners worth a lookup
+  if (x1 - x0 > 3 || z1 - z0 > 3 || gmax - gmin > DEAD) {
+    for (let i = 0; i < n; i++) {
+      const a = pts[i];
+      const b = pts[(i + 1) % n];
+      const m = Math.ceil(Math.hypot(b.x - a.x, b.z - a.z) / STEP);
+      for (let j = 1; j < m; j++) {
+        const x = a.x + ((b.x - a.x) * j) / m;
+        const z = a.z + ((b.z - a.z) * j) / m;
+        SX.push(x);
+        SZ.push(z);
+        SY.push(ground(x, z));
+      }
+    }
+    const st = Math.max(STEP, Math.sqrt(((x1 - x0) * (z1 - z0)) / 150));
+    for (let x = x0 + st / 2; x < x1; x += st) {
+      for (let z = z0 + st / 2; z < z1; z += st) {
+        if (!inPoly(x, z, pts)) continue;
+        SX.push(x);
+        SZ.push(z);
+        SY.push(ground(x, z));
+      }
+    }
+  }
+  let lo = Infinity;
+  let hi = -Infinity;
+  for (let i = 0; i < SY.length; i++) {
+    if (SY[i] < lo) lo = SY[i];
+    if (SY[i] > hi) hi = SY[i];
+  }
+  // buildings whose old base (the lowest corner) hung more than 1 m over the ground
+  if (gmin - lo > 0.25) {
+    slopeStats.dips++;
+    if (gmin - lo > slopeStats.worst.dip) slopeStats.worst = { dip: gmin - lo, x: (x0 + x1) / 2, z: (z0 + z1) / 2 };
+  }
+  // flat within 0.3 m: the corner level, exactly as before
+  if (gmin - lo < DEAD) lo = gmin;
+  // the fall line (unit vector uphill) by a least-squares plane, for the terraces
+  let gx = 0;
+  let gz = 0;
+  if (hi - lo > 2) {
+    const m = SY.length;
+    let mx = 0;
+    let mz = 0;
+    let my = 0;
+    for (let i = 0; i < m; i++) {
+      mx += SX[i];
+      mz += SZ[i];
+      my += SY[i];
+    }
+    mx /= m;
+    mz /= m;
+    my /= m;
+    let sxx = 0;
+    let szz = 0;
+    let sxz = 0;
+    let sxy = 0;
+    let szy = 0;
+    for (let i = 0; i < m; i++) {
+      const dx = SX[i] - mx;
+      const dz = SZ[i] - mz;
+      const dy = SY[i] - my;
+      sxx += dx * dx;
+      szz += dz * dz;
+      sxz += dx * dz;
+      sxy += dx * dy;
+      szy += dz * dy;
+    }
+    const det = sxx * szz - sxz * sxz;
+    if (Math.abs(det) > 1e-9) {
+      const ax = (sxy * szz - szy * sxz) / det;
+      const az = (szy * sxx - sxy * sxz) / det;
+      const l = Math.hypot(ax, az);
+      if (l > 1e-6) {
+        gx = ax / l;
+        gz = az / l;
+      }
+    }
+  }
+  profPts = pts;
+  profGround = ground;
+  profVal = { gmin, gmax, lo, hi, gx, gz, x0, x1, z0, z1 };
+  return profVal;
+}
+
+// floor level: see the rule above (h in world units)
+function floorOf(lo, hi, h) {
+  return Math.min(lo + CAP, Math.max(lo, hi + 0.5 - h));
+}
+
+// Sutherland-Hodgman against s >= s0 (keep = 1) or s <= s0 (keep = -1), the
+// s axis being the fall line; the polygon keeps its winding
+function clipS(poly, gx, gz, s0, keep) {
+  const out = [];
+  const n = poly.length;
+  for (let i = 0; i < n; i++) {
+    const a = poly[i];
+    const b = poly[(i + 1) % n];
+    const da = keep * (a.x * gx + a.z * gz - s0);
+    const db = keep * (b.x * gx + b.z * gz - s0);
+    if (da >= 0) out.push({ x: a.x, z: a.z });
+    if (da >= 0 !== db >= 0) {
+      const t = da / (da - db);
+      out.push({ x: a.x + (b.x - a.x) * t, z: a.z + (b.z - a.z) * t });
+    }
+  }
+  // drop repeated points
+  return out.filter((p, i) => {
+    const q = out[(i + 1) % out.length];
+    return Math.hypot(q.x - p.x, q.z - p.z) > 1e-4;
+  });
+}
+function area2Of(p) {
+  let a = 0;
+  for (let i = 0; i < p.length; i++) {
+    const A = p[i];
+    const B = p[(i + 1) % p.length];
+    a += A.x * B.z - B.x * A.z;
+  }
+  return a;
+}
+// convex hull area (monotone chain), to refuse the half-plane cut on a
+// footprint with deep notches: those would need a real polygon clipper
+function hullArea2(pts) {
+  const P = pts.map((p) => [p.x, p.z]).sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const H = [];
+  for (const p of P) {
+    while (H.length >= 2 && cr(H[H.length - 2], H[H.length - 1], p) <= 0) H.pop();
+    H.push(p);
+  }
+  const lowN = H.length + 1;
+  for (let i = P.length - 2; i >= 0; i--) {
+    while (H.length >= lowN && cr(H[H.length - 2], H[H.length - 1], P[i]) <= 0) H.pop();
+    H.push(P[i]);
+  }
+  H.pop();
+  let a = 0;
+  for (let i = 0; i < H.length; i++) {
+    const A = H[i];
+    const B = H[(i + 1) % H.length];
+    a += A[0] * B[1] - B[0] * A[1];
+  }
+  return Math.abs(a);
+}
+
+// The bands of a big block on a steep slope, or null. Bands run across the
+// fall line, equal in depth, each at least 12 m deep and 40 m2.
+function terraceBands(pts, prof, areaM2) {
+  const drop = prof.hi - prof.lo;
+  if (drop < 2 || !(prof.gx || prof.gz)) return null;
+  const { gx, gz } = prof;
+  let s0 = Infinity;
+  let s1 = -Infinity;
+  for (const p of pts) {
+    const s = p.x * gx + p.z * gz;
+    if (s < s0) s0 = s;
+    if (s > s1) s1 = s;
+  }
+  const big = areaM2 > 900 || Math.max(prof.x1 - prof.x0, prof.z1 - prof.z0) > 10;
+  if (!big) return null;
+  const levels = Math.min(drop > 5 ? 3 : 2, Math.floor((s1 - s0) / 3));
+  if (levels < 2) return null;
+  const a2 = Math.abs(area2Of(pts));
+  if (hullArea2(pts) > a2 * 1.12) return null;
+  const bands = [];
+  let sum = 0;
+  for (let b = 0; b < levels; b++) {
+    let q = pts;
+    if (b > 0) q = clipS(q, gx, gz, s0 + ((s1 - s0) * b) / levels, 1);
+    if (b < levels - 1) q = clipS(q, gx, gz, s0 + ((s1 - s0) * (b + 1)) / levels, -1);
+    if (q.length < 3) return null;
+    const a = Math.abs(area2Of(q));
+    if (a / 2 / (S * S) < 40) return null;
+    sum += a;
+    bands.push(q);
+  }
+  // the pieces must tile the footprint
+  if (Math.abs(sum - a2) > 0.015 * a2) return null;
+  return bands;
+}
+
+// ov (internal): the colours of the whole footprint, set when this call is
+// one band of a terraced block
+export function extrudeBuilding(T, pts, h, k, areaM2, seedIndex, heightAt, roofOnly = false, attrs = null, detailLevel = 0, ov = null) {
   const n = pts.length;
   // building:levels (where tagged): OSM storeys x the 3.3 m grid the facade
   // shader draws, so the roofline and the number of window rows agree with
   // the tag rather than the often-rounder `height`
   if (attrs?.lv > 0) h = attrs.lv * 3.3;
-  const gs = pts.map((p) => heightAt(p.x, p.z));
-  const gmin = Math.min(...gs);
-  const gmax = Math.max(...gs);
-  const base = gmin - SKIRT;
-  const top = Math.max(gmin + h * S, gmax + 0.5);
+  const prof = groundProfile(pts, heightAt);
+  const gmin = floorOf(prof.lo, prof.hi, h * S); // the floor: the window rows start here
+  const base = prof.lo - SKIRT;
+  const top = Math.max(gmin + h * S, prof.hi + 0.5);
   // metres, for the window grid
   const hM = (top - gmin) / S;
   const footM = (gmin - base) / S;
@@ -132,7 +373,24 @@ export function extrudeBuilding(T, pts, h, k, areaM2, seedIndex, heightAt, roofO
   }
   cx /= n;
   cz /= n;
-  const { wc, rc, win: seed, style, h2 } = buildingColors(seedIndex, k, areaM2, cx, cz, hM, attrs, gmin / S);
+  const colors = ov || buildingColors(seedIndex, k, areaM2, cx, cz, hM, attrs, gmin / S);
+  if (prof.lo < prof.gmin - 1e-6 || prof.hi > prof.gmax + 1e-6 || gmin > prof.lo + 1e-6) slopeStats.skirted++;
+  if (gmin > prof.lo + 1e-6) slopeStats.raised++;
+  if (!ov && !attrs?.far) {
+    const bands = terraceBands(pts, prof, areaM2);
+    if (bands) {
+      slopeStats.terraced++;
+      slopeStats.bands += bands.length;
+      if (prof.hi - prof.lo > slopeStats.steepest.drop) slopeStats.steepest = { drop: prof.hi - prof.lo, x: cx, z: cz };
+      // one style and colour for the block, no shop fronts (their edge
+      // indices belong to the whole outline)
+      const bAttrs = attrs ? { ...attrs, sf: null } : null;
+      let t = 0;
+      for (const q of bands) t = Math.max(t, extrudeBuilding(T, q, h, k, areaM2, seedIndex, heightAt, roofOnly, bAttrs, detailLevel, colors));
+      return t;
+    }
+  }
+  const { wc, rc, win: seed, style, h2 } = colors;
 
   if (!roofOnly) {
     const plan = attrs?.far ? FLAT : roofPlan(pts, areaM2, k, hM, style, top, attrs, h2, hash(seedIndex + 104729));
@@ -714,6 +972,9 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
     if (!t) tiles.set(key, (t = { key, pos: [], nor: [], col: [], wall: [], detail: { pos: [], nor: [], col: [], wall: [], idx: [] }, idx: [], near: [], farCap: [], roofs: { pos: [], nor: [], col: [], wall: [], idx: [] } }));
     return t;
   };
+  slopeStats.skirted = slopeStats.raised = slopeStats.terraced = slopeStats.bands = slopeStats.dips = 0;
+  slopeStats.worst = { dip: 0, x: 0, z: 0 };
+  slopeStats.steepest = { drop: 0, x: 0, z: 0 };
   for (const it of keep) {
     const T = tileOf(it);
     extrudeBuilding(T, it.pts, it.h, it.k, it.areaM2, it.seed, heightAt, false, it.attrs, it.detailLevel || 0);
@@ -722,6 +983,9 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
     if (!WIN_LITE) extrudeBuilding(T.roofs, it.pts, it.h, it.k, it.areaM2, it.seed, heightAt, true, it.attrs);
     stats.built++;
   }
+  // slopes: buildings whose skirt reaches below their corners / whose floor
+  // rose / that were cut into terraces (counted over the near and roofs calls)
+  stats.slope = { ...slopeStats };
 
   const material = createBuildingMaterial({ reveal: true });
   for (const T of tiles.values()) {
