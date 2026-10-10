@@ -1391,26 +1391,48 @@ const GROUND_REFLECT = /* glsl */ `
 // a little below the ground so it never shadows the surface it follows.
 // In the view it writes neither colour nor depth (three.js tests shadow
 // casters against the view camera's layers, so a layer cannot hide it).
-function shadowProxy(terrain) {
-  const { heightAt, bounds: b } = terrain;
-  const nx = b.cols;
-  const nz = b.rows;
-  const pos = new Float32Array(nx * nz * 3);
-  for (let j = 0; j < nz; j++) {
-    for (let i = 0; i < nx; i++) {
-      const x = b.x0 + ((b.x1 - b.x0) * i) / (nx - 1);
-      const z = b.zN + ((b.zS - b.zN) * j) / (nz - 1);
-      const k = (j * nx + i) * 3;
-      pos[k] = x;
-      pos[k + 1] = heightAt(x, z) - 0.6;
-      pos[k + 2] = z;
+// The proxy is built on the ground lattice (the mesh's own heights, gm.H),
+// every 4th line inside the 12 m core (48 m) and every line in the ring, and
+// each node is the LOWEST ground within one proxy step around it: the surface
+// between nodes can then never rise above the real ground, so a concave cliff
+// foot or a quay is not shadowed by its own proxy (blocky plates of shade on
+// the slopes at a low sun). Ridges lose a metre or two of height in the shade
+// they cast; that is the price.
+function shadowProxy(gm) {
+  const { xs, zs, nx, nz, H } = gm;
+  const pick = (a, minStep) => {
+    const out = [0];
+    for (let i = 1; i < a.length - 1; i++) if (a[i] - a[out[out.length - 1]] >= minStep) out.push(i);
+    out.push(a.length - 1);
+    return out;
+  };
+  const ix = pick(xs, 46 / 4);
+  const iz = pick(zs, 46 / 4);
+  const px = ix.length;
+  const pz = iz.length;
+  const pos = new Float32Array(px * pz * 3);
+  const refresh = () => {
+    for (let b = 0; b < pz; b++) {
+      for (let a = 0; a < px; a++) {
+        const i0 = a > 0 ? ix[a - 1] : ix[a];
+        const i1 = a < px - 1 ? ix[a + 1] : ix[a];
+        const j0 = b > 0 ? iz[b - 1] : iz[b];
+        const j1 = b < pz - 1 ? iz[b + 1] : iz[b];
+        let lo = Infinity;
+        for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) if (H[j * nx + i] < lo) lo = H[j * nx + i];
+        const k = (b * px + a) * 3;
+        pos[k] = xs[ix[a]];
+        pos[k + 1] = lo - 0.3;
+        pos[k + 2] = zs[iz[b]];
+      }
     }
-  }
+  };
+  refresh();
   const idx = [];
-  for (let j = 0; j < nz - 1; j++) {
-    for (let i = 0; i < nx - 1; i++) {
-      const a = j * nx + i;
-      idx.push(a, a + nx, a + 1, a + 1, a + nx, a + nx + 1);
+  for (let b = 0; b < pz - 1; b++) {
+    for (let a = 0; a < px - 1; a++) {
+      const v = b * px + a;
+      idx.push(v, v + px, v + 1, v + 1, v + px, v + px + 1);
     }
   }
   const g = new THREE.BufferGeometry();
@@ -1421,6 +1443,11 @@ function shadowProxy(terrain) {
   m.name = 'ground-shadow';
   m.castShadow = true;
   m.renderOrder = -20;
+  m.userData.refresh = () => {
+    refresh();
+    g.attributes.position.needsUpdate = true;
+    g.computeBoundingSphere();
+  };
   return m;
 }
 
@@ -1479,7 +1506,7 @@ export function createGround(terrain, { lite = false } = {}) {
   mesh.receiveShadow = true;
   mesh.castShadow = false; // the proxy below casts the hill shadows
   mesh.name = 'ground';
-  const proxy = shadowProxy(terrain);
+  const proxy = shadowProxy(gm);
   mesh.add(proxy);
   // Progressive start (main.js): the ground is first built on the raw DEM,
   // before the landmark fits exist. Once their pads are in the terrain,
@@ -1504,11 +1531,7 @@ export function createGround(terrain, { lite = false } = {}) {
   mesh.userData.applyPads = (pads = terrain.pads) => {
     if (!pads.length) return 0;
     const n = gm.patch(pads);
-    // the shadow proxy follows (one node per DEM cell)
-    const pp = proxy.geometry.attributes.position;
-    for (let k = 0; k < pp.count; k++) pp.setY(k, heightAt(pp.getX(k), pp.getZ(k)) - 0.6);
-    pp.needsUpdate = true;
-    proxy.geometry.computeBoundingSphere();
+    proxy.userData.refresh(); // the shadow proxy follows
     return n;
   };
   mesh.userData.setLandcover = (tex, rect) => {

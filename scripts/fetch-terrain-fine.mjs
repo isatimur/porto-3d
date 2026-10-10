@@ -172,6 +172,23 @@ const cols = Math.round((bbox.e - bbox.w) / dLon) + 1;
 const rows = Math.round((bbox.n - bbox.s) / dLat) + 1;
 const heights = new Float32Array(cols * rows);
 for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) heights[r * cols + c] = terrarium(bbox.s + r * dLat, bbox.w + c * dLon);
+// The source is a 25 to 30 m model: bilinear over it leaves straight creases
+// (visible as flat plates on a lit slope). Two 3 x 3 box passes (sigma about
+// one cell, 12 m) take them out and keep every landform wider than 40 m.
+{
+  const pass = (src) => {
+    const out = new Float32Array(src.length);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        let s = 0;
+        for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) s += src[Math.min(rows - 1, Math.max(0, r + dr)) * cols + Math.min(cols - 1, Math.max(0, c + dc))];
+        out[r * cols + c] = s / 9;
+      }
+    }
+    return out;
+  };
+  heights.set(pass(pass(heights)));
+}
 // Datum match. Terrarium holds the Douro at 2.5 to 3 m where the EU-DEM lattice
 // (and so the water level every module reads, the bridge decks and the quays)
 // holds it at 1 m. Inside the OSM water polygons (data/nature.json, k = water)
