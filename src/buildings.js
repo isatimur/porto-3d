@@ -11,7 +11,7 @@
 import * as THREE from 'three';
 import { S } from './geo.js';
 import { createFacadeDetailTexture } from './textures.js';
-import { setFacadeConfig, facadeStyle, wallBase, roofBase, roofPlan, extrudeRoofed, minRect, centreDist, STYLE, HIST_M, RING_M, FACADE_VERT_PARS, FACADE_VERT, FACADE_FRAG_PARS, FACADE_FRAG } from './facades.js';
+import { setFacadeConfig, facadeStyle, wallBase, roofBase, roofPlan, extrudeRoofed, minRect, centreDist, STYLE, HIST_M, RING_M, OLD_M, OUTER_M, FACADE_VERT_PARS, FACADE_VERT, FACADE_FRAG_PARS, FACADE_FRAG } from './facades.js';
 
 const TILE_M = 1000; // 1 km: about 60 draw calls for the city, not 230
 const MAX_TRIS = 1_500_000;
@@ -87,13 +87,20 @@ export function buildingColors(seed, k, areaM2, x = 0, z = 0, hM = 7, a = null, 
   const church = k === 'church';
   const style = church ? STYLE.LEGACY : facadeStyle(x, z, k, areaM2, hM, a, h1, groundM);
   const shed = k === 'industrial' || style === STYLE.IND || style === STYLE.MODERN || (k === 'commercial' && areaM2 > 300) || areaM2 > 1600;
-  const wb = church ? CHURCH_WALL : wallBase(style, h4, a, x, z);
+  const wb = church ? CHURCH_WALL : wallBase(style, h4, a, x, z, h1);
   const wk = tint * WALL_DIM;
-  const rb = roofBase(shed, h2, a);
   const rk = 0.92 + h1 * 0.16;
+  // both roof colours: extrudeBuilding picks by the roof the plan gives (a
+  // flat roof is never tiled, a pitched one never gravel); rc is the guess
+  // from the kind and size, for callers without a plan
+  const rbP = roofBase(false, h2, a, x, z);
+  const rbF = roofBase(true, h2, a, x, z);
+  const rb = shed ? rbF : rbP;
   return {
     wc: [wb[0] * wk, wb[1] * wk, wb[2] * wk],
     rc: [rb[0] * rk, rb[1] * rk, rb[2] * rk],
+    rcP: [rbP[0] * rk, rbP[1] * rk, rbP[2] * rk],
+    rcF: [rbF[0] * rk, rbF[1] * rk, rbF[2] * rk],
     win: church ? -1 : style * 2 + Math.min(h1, 0.999),
     style,
     h1,
@@ -395,10 +402,18 @@ export function extrudeBuilding(T, pts, h, k, areaM2, seedIndex, heightAt, roofO
       return t;
     }
   }
-  const { wc, rc, win: seed, style, h2 } = colors;
+  const { wc, win: seed, style, h2 } = colors;
+  let rc = colors.rc;
+  // outside the centre and the riverfront (OLD_M) the roof colour follows
+  // the roof the plan gives: a pitched roof is always tiled, a flat one with
+  // rooftop boxes is gravel or bitumen; other flat roofs keep the guess (a
+  // small house's flat roof in tile colour reads as the tiled roof it has)
+  const byPlan = colors.rcP && !attrs?.far && centreDist(cx, cz) > OLD_M;
+  const planColour = (plan) => (plan.planes.length ? colors.rcP : plan.clutter ? colors.rcF : colors.rc);
 
   if (!roofOnly) {
     const plan = attrs?.far ? FLAT : roofPlan(pts, areaM2, k, hM, style, top, attrs, h2, hash(seedIndex + 104729));
+    if (byPlan) rc = planColour(plan);
     // roof:height (m): scale the roof planes about the eave line so the rise
     // above the walls matches the tag, when the pipeline provides it
     if (plan.planes.length && attrs?.rh > 0) {
@@ -411,7 +426,7 @@ export function extrudeBuilding(T, pts, h, k, areaM2, seedIndex, heightAt, roofO
     lastPlan.plan = plan; // tests (count the roof kinds)
     lastPlan.style = style;
     const sf = attrs?.sf;
-    extrudeRoofed(T, pts, plan, { base, gmin, top, footM, hM, wc, rc, w: seed, seed: seedIndex, shop: sf && sf.size ? (i) => sf.has(i) : null });
+    extrudeRoofed(T, pts, plan, { base, gmin, top, footM, hM, wc, rc, rcFlat: byPlan ? colors.rc : null, w: seed, seed: seedIndex, shop: sf && sf.size ? (i) => sf.has(i) : null });
     // near detail: only when the caller selected this building and the tile
     // carries the detail block (core tiles; the streamed worker does not, so
     // its near/far cost stays exactly as it was)
@@ -421,7 +436,8 @@ export function extrudeBuilding(T, pts, h, k, areaM2, seedIndex, heightAt, roofO
     return top;
   }
 
-  // roof-only: the flat roof
+  // roof-only: the flat roof, in the colour of the roof the near tiers draw
+  if (byPlan) rc = planColour(roofPlan(pts, areaM2, k, hM, style, top, attrs, h2, hash(seedIndex + 104729)));
   contour.length = 0;
   for (const p of pts) contour.push(new THREE.Vector2(p.x, p.z));
   const faces = THREE.ShapeUtils.triangulateShape(contour, []);
@@ -834,6 +850,25 @@ export function attrsOf(b, pts, reversed) {
   return a;
 }
 
+// The height of an untagged building outside the centre. fetch-buildings
+// gives every footprint without height or building:levels the same 7 m (four
+// in five buildings), so a whole district had one roofline with a single row
+// of upper windows. There: 2 to 4 storeys of 3.2 m (one more on a large
+// block), the mean drifting per 500 m cell, so streets differ and
+// neighbours step up and down. Tagged heights, the centre and the riverfront
+// (OLD_M), the far ring and small outbuildings keep their value.
+export function storeysOf(b, cx, cz, areaM2, seed) {
+  if (b.h !== 7 || (b.k !== 'other' && b.k !== 'residential')) return b.h;
+  const d = centreDist(cx, cz);
+  if (!(d > OLD_M && d <= OUTER_M) || areaM2 < 50) return b.h;
+  const cell = 500 * S;
+  const mean = hash((Math.floor(cx / cell) * 92821) ^ (Math.floor(cz / cell) * 68917));
+  let lv = Math.floor(2 + 0.9 * mean + 1.5 * hash(seed + 5557));
+  if (areaM2 < 90) lv = Math.min(lv, 3);
+  else if (areaM2 > 400) lv += 1;
+  return Math.max(2, Math.min(5, lv)) * 3.2;
+}
+
 // masks: { outlines: [[{x,z}]], plans: [{cx,cz,ux,uz,hu,hv}] } in world units
 export function buildBuildings(data, project, heightAt, masks = { outlines: [], plans: [] }) {
   const group = new THREE.Group();
@@ -877,6 +912,7 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
       stats.degenerate++;
       continue;
     }
+    const skyH = skyRects.length + 4; // its height, set below once the storeys are known
     {
       // the skyline grid (tour.js createSkyline) wants every building's box
       // and height; keeping five floats each lets the 9 MB list go
@@ -918,10 +954,12 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
     }
     if (area2 < 0) pts.reverse(); // positive area: (dz, -dx) is the outward normal
     const areaM2 = Math.abs(area2) / 2 / (S * S);
+    const h = storeysOf(b, cx, cz, areaM2, bi);
+    skyRects[skyH] = h;
     const n = pts.length;
     const t = 2 * n + (n - 2);
     tris += t;
-    items.push({ pts, cx, cz, h: b.h, k: b.k, areaM2, far: Math.hypot(cx, cz) / S > FAR_M, tris: t, seed: bi, attrs: attrsOf(b, pts, area2 < 0) });
+    items.push({ pts, cx, cz, h, k: b.k, areaM2, far: Math.hypot(cx, cz) / S > FAR_M, tris: t, seed: bi, attrs: attrsOf(b, pts, area2 < 0) });
   }
 
   let keep = items;
@@ -939,13 +977,21 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
   // light classes (phones, old laptops) get half the near-detail budget
   const DETAIL_FACADE_TRI = WIN_LITE ? 75000 : 150000;
   const DETAIL_ROOF_TRI = WIN_LITE ? 50000 : 100000;
+  // the outer fabric (Foz, Boavista, Campanha, the Gaia hills): eaves and a
+  // chimney on a hashed share of the houses, spread over every district
+  // rather than nearest the centre first; none on the light classes
+  const DETAIL_OUTER_TRI = WIN_LITE ? 0 : 100000;
   {
     const facade = [];
     const roof = [];
+    const outer = [];
     for (const it of keep) {
       if (it.far || it.k === 'church') continue;
       const d = centreDist(it.cx, it.cz);
-      if (d > RING_M) continue;
+      if (d > RING_M) {
+        if (d <= OUTER_M && it.areaM2 >= 40 && it.areaM2 <= 700 && it.h <= 14) outer.push(it);
+        continue;
+      }
       const st = facadeStyle(it.cx, it.cz, it.k, it.areaM2, it.h, it.attrs, hash(it.seed), heightAt(it.cx, it.cz) / S);
       if (d <= HIST_M && (st === STYLE.HIST || st === STYLE.AZUL || st === STYLE.ARCADE) && it.areaM2 >= 40 && it.areaM2 <= 1400 && it.h >= 5) facade.push(it);
       else roof.push(it);
@@ -966,7 +1012,15 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
       usedR += est;
       it.detailLevel = 1;
     }
-    stats.detail = { facade: facade.filter((it) => it.detailLevel === 2).length, roof: keep.filter((it) => it.detailLevel === 1).length, budgetTri: used + usedR };
+    outer.sort((p, q) => hash(p.seed + 2718) - hash(q.seed + 2718));
+    let usedO = 0;
+    for (const it of outer) {
+      const est = Math.min(50, 20 + it.areaM2 * 0.12);
+      if (usedO + est > DETAIL_OUTER_TRI) break;
+      usedO += est;
+      it.detailLevel = 1;
+    }
+    stats.detail = { facade: facade.filter((it) => it.detailLevel === 2).length, roof: keep.filter((it) => it.detailLevel === 1).length, budgetTri: used + usedR + usedO };
   }
 
   // --- pass 2: geometry per tile

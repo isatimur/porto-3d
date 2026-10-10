@@ -49,11 +49,21 @@ export const getFacadeConfig = () => ({ centre: CFG.has ? { x: CFG.cx, z: CFG.cz
 
 export const HIST_M = 900;
 export const RING_M = 2200;
+// the outer fabric that gets parapets, lift cores and roof detail: the OSM
+// core (Foz, Boavista, Campanha, the Gaia hills), not the far ring
+export const OUTER_M = 6500;
 // Ribeira / Douro waterfront: ground this far below the centre, this close
 // to it, reads as the old riverfront and gets arcaded ground floors.
 export const OLD_M = 1300;
 export const OLD_DROP_M = 45;
-export const STYLE = { LEGACY: 0, HIST: 1, AZUL: 2, RING: 3, MODERN: 4, HOUSE: 5, IND: 6, ARCADE: 7 };
+// TILE: a house outside the historic centre with a tiled front (Porto's
+// green, blue, mustard and white-and-blue azulejo fronts in Bonfim,
+// Campanha and Gaia); drawn as RING otherwise
+export const STYLE = { LEGACY: 0, HIST: 1, AZUL: 2, RING: 3, MODERN: 4, HOUSE: 5, IND: 6, ARCADE: 7, TILE: 8 };
+// a MODERN building is a residential block (punched windows, balconies)
+// rather than an office (ribbon glazing) when this is true. The shader
+// derives the same from the seed: fract(bSd * 7.31) >= 0.45
+export const modernHome = (h1) => (h1 * 7.31) % 1 >= 0.45;
 
 // metres from the historic centre (Infinity without one)
 export function centreDist(x, z) {
@@ -93,10 +103,44 @@ const PAL = {
   [STYLE.IND]: L([0xaaa9a4, 0xa0a6aa, 0xb7b0a0, 0x929a9e]),
   [STYLE.LEGACY]: L([0xcfc2aa, 0xd8d0c0, 0xb9ad99, 0xc9ae86, 0xcdb7a6, 0xa89f92]),
 };
+// Outside the historic centre a 1 km tile picks one of these moods, then
+// each building one colour from it: white and cream stay the majority, the
+// rest gives a street its colour. 0 Bonfim / Campanha burgher houses
+// (ochre, rose, grey-blue, sage), 1 Foz (pale, granite grey, pale yellow),
+// 2 Gaia (salmon, ochre, pink, pale green)
+const MOODS = [
+  L([0xece6da, 0xe6dcc6, 0xdcaa5c, 0xd6a090, 0xa9bccb, 0xbcc6a4, 0xcfa64e, 0xe9e3d6, 0xd49c84, 0xe2d2b0]),
+  L([0xf0ece4, 0xebe5d6, 0xd8d6d0, 0xeedc9e, 0xc9d6de, 0xb0aca2, 0xe9e1cf, 0xf2ead8, 0xd9c8a8]),
+  L([0xece6da, 0xe4d3b4, 0xe0a385, 0xd8ae62, 0xe2b4b0, 0xc5d1b0, 0xe8e0d0, 0xd9b48e, 0xb7c7d0]),
+];
+// The mood of the 1 km tile around x, z (world): by the district where the
+// geography is clear (Porto's centre is the origin of the facade zones: Foz
+// and Nevogilde lie west, past 3.8 km; Gaia south of the Douro, which runs
+// about 1.2 km south of the centre and bends north-west toward the mouth;
+// Campanha and Bonfim east), three tiles in four; otherwise any mood.
+function districtMood(x, z) {
+  const t = tileHash(x, z, 61);
+  const xm = (x - CFG.cx) / S;
+  const zm = (z - CFG.cz) / S;
+  const want = xm < -3800 ? 1 : zm > 1200 + Math.min(0, xm + 1500) * 0.35 ? 2 : xm > 800 ? 0 : -1;
+  if (want >= 0 && tileHash(x, z, 67) < 0.75) return want;
+  return Math.floor(t * MOODS.length) % MOODS.length;
+}
+// tiled fronts: white-and-blue, green, cobalt, mustard, burgundy, aqua, cream
+// (the shader draws the tiles; this is their mean colour at a distance)
+const TILES = L([0xc9d0dc, 0x5a8f72, 0x4a6fa8, 0xc7a043, 0xa0574a, 0x7fb0a8, 0xe0d6bc, 0x6f9f88, 0xd3d8de]);
+// residential blocks of the 1960s-90s: ceramic mosaic and paint in pastels
+const MODERN_HOME = L([0xe8dcc4, 0xd9c3a5, 0xc9d3d6, 0xe3c0a8, 0xd4d9c2, 0xb9a48c, 0xf0ece2, 0xcfb08a, 0xd8cfc0]);
 const MATERIAL = { stone: 0xb0a898, brick: 0xa45c42, concrete: 0xbcb9b1, glass: 0x71889a, wood: 0x8c6c4c, metal: 0x9ca2a6 };
 // terracotta, new and weathered
 const TERRACOTTA = L([0xb4623f, 0xa85a3c, 0x9e5238, 0xbc6c48, 0x914d37, 0xab6649, 0xc1734e, 0x9a5a44]);
+// outside the centre: older, darker and browner tiles mixed in, and the
+// odd newer roof in a redder or a grey-brown tile
+const TERRA_OLD = L([0x8a4e3a, 0x7d4a3c, 0x94604a, 0x86574a, 0x9a5a46, 0x8e4a3c, 0x6e5048]);
 const FLAT_ROOF = L([0x7d786f, 0x8f8a80, 0x6f6c66]);
+// flat roofs outside the centre: gravel, grey and dark bitumen membranes,
+// pale coated concrete
+const FLAT_OUT = L([0xa39d90, 0x86837c, 0x5d5a55, 0x9a8f7f, 0xb4b0a6, 0x7c8076, 0x6c6863]);
 const CLUTTER = hexLinear(0xa5a39d);
 
 // ------------------------------------------------------------ style
@@ -118,39 +162,64 @@ export function facadeStyle(x, z, k, areaM2, hM, a, h1, groundM = null) {
     return h1 < 0.15 && m !== 'stone' && !a?.wc ? STYLE.AZUL : STYLE.HIST;
   }
   if (m === 'concrete') return STYLE.MODERN;
+  // a tiled front on some of the plain houses: 4 to 14 % of them, the share
+  // drifting per 1 km tile so some streets have many and some few
+  const tiled = !a?.wc && !m && hM <= 16 && areaM2 <= 450 && k !== 'commercial' && k !== 'public' && (h1 * 13.7) % 1 < 0.04 + 0.1 * tileHash(x, z, 53);
   if (d <= RING_M) {
     if (hM >= 17 || ((k === 'commercial' || k === 'public') && areaM2 > 1500)) return STYLE.MODERN;
-    return STYLE.RING;
+    return tiled ? STYLE.TILE : STYLE.RING;
   }
   if (hM >= 14) return STYLE.MODERN;
-  if (areaM2 <= 300) return STYLE.HOUSE;
-  return k === 'commercial' || k === 'public' ? STYLE.MODERN : STYLE.RING;
+  if (areaM2 <= 300) return tiled ? STYLE.TILE : STYLE.HOUSE;
+  return k === 'commercial' || k === 'public' ? STYLE.MODERN : tiled ? STYLE.TILE : STYLE.RING;
 }
 
 // wall rgb (linear, before dimming) for a style, a seed and the tags.
 // x, z (world) pick a per-tile palette drift so a block reads as one
 // palette with subtle building-to-building colour and value variation.
-export function wallBase(style, h1, a, x = 0, z = 0) {
+// hs: the building's seed hash (buildingColors h1), which picks a MODERN
+// block's kind the same way the shader does
+export function wallBase(style, h1, a, x = 0, z = 0, hs = h1) {
   if (a?.wc) {
     const c = hexLinear(a.wc);
     if (c) return c;
   }
   if (a?.m && MATERIAL[a.m]) return hexLinear(MATERIAL[a.m]);
-  const p = PAL[style] || PAL[STYLE.LEGACY];
+  let p = PAL[style] || PAL[STYLE.LEGACY];
+  if (style === STYLE.TILE) p = TILES;
+  else if (style === STYLE.MODERN && modernHome(hs)) p = MODERN_HOME;
+  else if ((style === STYLE.RING || style === STYLE.HOUSE) && centreDist(x, z) > HIST_M) p = MOODS[districtMood(x, z)];
   const t = tileHash(x, z, 11);
   const c = p[Math.floor(((h1 * 0.72 + t * 0.28) % 1) * p.length) % p.length];
   const v = 0.94 + 0.12 * (0.5 * tileHash(x, z, 23) + 0.5 * h1);
   const warm = (tileHash(x, z, 37) - 0.5) * 0.05;
   return [c[0] * v * (1 + warm), c[1] * v, c[2] * v * (1 - warm)];
 }
-export function roofBase(flat, h2, a) {
+// x, z (world): outside the centre and the riverfront a roof is picked from wider
+// palettes (aged tiles, gravel and bitumen), with a per-tile drift toward
+// redder or browner tiles so a hillside is not one flat orange
+export function roofBase(flat, h2, a, x = null, z = null) {
   if (a?.rc) {
     const c = hexLinear(a.rc);
     // OSM roof colours are often loud (#E96B39): pull them toward the tile
     if (c) return [c[0] * 0.8, c[1] * 0.8, c[2] * 0.8];
   }
-  const p = flat ? FLAT_ROOF : TERRACOTTA;
-  return p[Math.floor(h2 * p.length) % p.length];
+  // (the centre and the riverfront keep their roofs: within OLD_M)
+  if (x == null || centreDist(x, z) <= OLD_M) {
+    const p = flat ? FLAT_ROOF : TERRACOTTA;
+    return p[Math.floor(h2 * p.length) % p.length];
+  }
+  const h = (h2 * 9.17) % 1;
+  if (flat) {
+    const c = FLAT_OUT[Math.floor(((h * 0.7 + tileHash(x, z, 83) * 0.3) % 1) * FLAT_OUT.length) % FLAT_OUT.length];
+    return c;
+  }
+  // a share of old roofs that drifts per tile (18 to 45 %)
+  const old = h < 0.18 + 0.27 * tileHash(x, z, 89);
+  const p = old ? TERRA_OLD : TERRACOTTA;
+  const c = p[Math.floor(h2 * p.length) % p.length];
+  const red = (tileHash(x, z, 97) - 0.5) * 0.12;
+  return [c[0] * (1 + red * 0.3), c[1] * (1 - red), c[2] * (1 - red * 0.6)];
 }
 
 // ------------------------------------------------------------ OSM tags
@@ -260,7 +329,13 @@ export function roofPlan(pts, areaM2, k, hM, style, top, a, h2, h3) {
   if (!shape) {
     if (shed || k === 'church') shape = 'flat';
     else if (hist) shape = areaM2 <= 1600 && (regular || (fill >= 0.5 && n <= 24)) ? 'auto' : 'flat';
-    else if (style === STYLE.RING) shape = areaM2 <= 700 && regular && hM <= 20 ? 'auto' : 'flat';
+    // ring and outer blocks: most regular ones up to 1400 m2 carry a hip or
+    // a gable (Porto's tiled roofs), the rest stay flat
+    else if (style === STYLE.RING || style === STYLE.TILE) {
+      const core = k !== 'ms';
+      const size = areaM2 <= 700 || (core && (h3 * 7.7) % 1 < 0.7 && (areaM2 <= 1400 || (areaM2 <= 2500 && hM <= 14)));
+      shape = size && regular && hM <= 20 ? 'auto' : 'flat';
+    }
     else if (style === STYLE.MODERN) shape = areaM2 <= 300 && hM <= 14 && regular ? 'auto' : 'flat';
     else shape = areaM2 <= 300 && hM <= 14 && regular ? 'auto' : 'flat';
   }
@@ -273,11 +348,17 @@ export function roofPlan(pts, areaM2, k, hM, style, top, a, h2, h3) {
       cx += p.x;
       cz += p.z;
     }
-    const close = centreDist(cx / n, cz / n) <= RING_M;
-    const parapet = close && !shed && areaM2 >= 120 && hM >= 5;
+    const dc = centreDist(cx / n, cz / n);
+    const close = dc <= RING_M;
+    // further out (the OSM core, not the far ML ring): a parapet and a lift
+    // core on the apartment blocks and offices (simple outlines only: the
+    // parapet's inner face costs two triangles an edge)
+    const block = !close && style === STYLE.MODERN && k !== 'ms' && dc <= OUTER_M && areaM2 >= 250 && n <= 12;
+    const parapet = (close && !shed && areaM2 >= 120 && hM >= 5) || block;
     const p = flat(parapet);
     // rooftop clutter: machine rooms and vents on some larger flat roofs
     if (close && !CFG.lite && !shed && areaM2 >= 150 && h3 < 0.5) p.clutter = areaM2 > 600 ? 3 : areaM2 > 300 ? 2 : 1;
+    else if (block && !CFG.lite && h3 < 0.7) p.clutter = areaM2 > 600 ? 2 : 1;
     if (close && !CFG.lite && shed && areaM2 >= 400 && h3 < 0.3) p.clutter = 2;
     return p;
   }
@@ -446,12 +527,16 @@ function polyArea2(p) {
 // rc, w (aWall.w), shop(i) -> bool }.
 const contour = [];
 export function extrudeRoofed(T, pts, plan, g) {
-  const { base, gmin, top, footM, hM, wc, rc, w } = g;
+  const { base, gmin, top, footM, hM, wc, w } = g;
+  let rc = g.rc;
   const n = pts.length;
   // the pitched facets first: a clip that fails on an odd outline (the
-  // facets do not cover it) falls back to a flat roof
+  // facets do not cover it) falls back to a flat roof (in the flat colour)
   const facets = plan.planes.length ? roofFacets(plan, pts) : null;
-  if (facets === null && plan.planes.length) plan = FLAT_FALLBACK;
+  if (facets === null && plan.planes.length) {
+    plan = FLAT_FALLBACK;
+    if (g.rcFlat) rc = g.rcFlat;
+  }
   const planes = plan.planes;
   const wallTo = plan.parapet ? top + PARAPET_M * S : top;
   let run = 0;
@@ -493,7 +578,9 @@ export function extrudeRoofed(T, pts, plan, g) {
         T.col.push(wc[0] * pf, wc[1] * pf, wc[2] * pf);
         T.wall.push(0, -1, 0, w);
       }
-      T.idx.push(u, u + 1, u + 2, u, u + 2, u + 3);
+      // in the near block where the tile has one (core tiles): beyond the
+      // near range a 0.8 m parapet's inner face is under a pixel
+      (T.near || T.idx).push(u, u + 1, u + 2, u, u + 2, u + 3);
     }
     run += LM;
   }
@@ -617,6 +704,8 @@ const frac = (v) => v - Math.floor(v);
 function clutter(T, pts, y, count, w, seed) {
   const R = minRect(pts);
   if (!R) return;
+  // near block only (core tiles), like the parapets' inner faces
+  const IDX = T.near || T.idx;
   const { ux, uz } = R;
   const at = (u, v) => ({ x: u * ux - v * uz, z: u * uz + v * ux });
   let r = frac(Math.sin(seed * 12.9898 + 4.1) * 43758.5453);
@@ -647,7 +736,7 @@ function clutter(T, pts, y, count, w, seed) {
         T.col.push(col[0] * 0.85, col[1] * 0.85, col[2] * 0.85);
         T.wall.push(0, -1, 0, w);
       }
-      T.idx.push(v0, v0 + 2, v0 + 1, v0, v0 + 3, v0 + 2);
+      IDX.push(v0, v0 + 2, v0 + 1, v0, v0 + 3, v0 + 2);
     }
     const v0 = T.pos.length / 3;
     for (const p of cs) {
@@ -658,8 +747,8 @@ function clutter(T, pts, y, count, w, seed) {
     }
     // same orientation test as the roofs
     const up = (cs[1].z - cs[0].z) * (cs[2].x - cs[0].x) - (cs[1].x - cs[0].x) * (cs[2].z - cs[0].z);
-    if (up >= 0) T.idx.push(v0, v0 + 1, v0 + 2, v0, v0 + 2, v0 + 3);
-    else T.idx.push(v0, v0 + 2, v0 + 1, v0, v0 + 3, v0 + 2);
+    if (up >= 0) IDX.push(v0, v0 + 1, v0 + 2, v0, v0 + 2, v0 + 3);
+    else IDX.push(v0, v0 + 2, v0 + 1, v0, v0 + 3, v0 + 2);
   }
 }
 
@@ -800,6 +889,15 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
   float bX = vWall.x;
   float bAo = 0.62 + 0.38 * clamp(bY / max(bH, 3.0), 0.0, 1.0);
   bool bHist = (bSt > 0.5 && bSt < 2.5) || bSt == 7.0;
+  // ring fronts: plaster (3) or tiled (8); a MODERN block is a residential
+  // one (punched windows, balconies) or an office (ribbon glazing)
+  bool bRing = bSt == 3.0 || bSt == 8.0;
+  bool bHome = bSt == 4.0 && fract(bSd * 7.31) >= 0.45;
+  bool bOffice = bSt == 4.0 && !bHome;
+  // the window kind of a plain front, one per building: tall French
+  // windows (< 0.35), the usual sash (< 0.75) or wide 20th-century ones
+  float bWv = bHash(vec2(bSd * 733.0, 13.0));
+  bool bFrench = bRing && bWv < 0.35;
 #ifndef BRG_WIN_LITE
   // world-plan facade detail: broad soiling (R), fine render grain (G) and
   // vertical rain streaks (B) that vary across the wall, not up it
@@ -814,9 +912,13 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
   vec4 wr = vec4(0.27, 0.28, 0.73, 0.8);
   float litK = 0.3;
   if (bHist) { cw = 2.5 + 0.7 * bSd; fh = 3.3; g0 = 4.0; wr = vec4(0.31, 0.1, 0.69, 0.84); litK = 0.34; }
-  else if (bSt == 3.0) { cw = 3.0 + 0.5 * bSd; fh = 3.1; g0 = 3.6; wr = vec4(0.3, 0.22, 0.7, 0.8); }
+  else if (bFrench) { cw = 2.7 + 0.5 * bSd; fh = 3.2; g0 = 3.6; wr = vec4(0.33, 0.06, 0.67, 0.84); litK = 0.32; }
+  else if (bRing && bWv < 0.75) { cw = 3.0 + 0.5 * bSd; fh = 3.1; g0 = 3.6; wr = vec4(0.3, 0.22, 0.7, 0.8); }
+  else if (bRing) { cw = 3.6 + 0.6 * bSd; fh = 3.0; g0 = 3.4; wr = vec4(0.2, 0.26, 0.8, 0.78); }
+  else if (bHome) { cw = 2.6 + 0.7 * fract(bSd * 3.1); fh = 2.9; g0 = 3.4; wr = vec4(0.2, 0.3, 0.8, 0.86); litK = 0.3; }
   else if (bSt == 4.0) { cw = 1.6; fh = 3.0; g0 = 3.6; wr = vec4(0.0, 0.32, 1.0, 0.9); litK = 0.26; }
-  else if (bSt == 5.0) { cw = 3.8 + 1.0 * bSd; fh = 2.9; g0 = 0.3; wr = vec4(0.35, 0.3, 0.65, 0.78); litK = 0.28; }
+  else if (bSt == 5.0 && bWv < 0.5) { cw = 3.8 + 1.0 * bSd; fh = 2.9; g0 = 0.3; wr = vec4(0.35, 0.3, 0.65, 0.78); litK = 0.28; }
+  else if (bSt == 5.0) { cw = 2.9 + 0.6 * bSd; fh = 2.9; g0 = 0.3; wr = vec4(0.28, 0.24, 0.72, 0.8); litK = 0.28; }
   else if (bSt == 6.0) { cw = 6.0; fh = 1.0; g0 = max(bH - 2.0, 0.4); wr = vec4(0.1, 0.0, 0.9, 0.75); litK = 0.1; }
   vec2 cell = vec2(bX / cw, (bY - g0) / fh);
   vec2 id = floor(cell);
@@ -868,6 +970,20 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
     col = mix(col, bAzulejoMotif(vec2(bX, bY), vec3(0.62, 0.63, 0.62) * 0.8, ink, motif, bNear), 0.85 * bNear);
     roughnessFactor = mix(roughnessFactor, 0.45, 0.5 * bNear);
   }
+  // tiled fronts outside the centre (style 8): the wall colour is the tile's
+  // mean; pale fronts carry an inked motif (blue, or ochre), coloured relief
+  // tiles a darker pattern in their own colour. Above the granite plinth.
+  if (bSt == 8.0 && bY > 0.9 && bNear > 0.0) {
+    float tl = dot(col, vec3(0.3, 0.59, 0.11));
+    bool pale = tl > 0.3;
+    vec3 ink = pale ? (fract(bSd * 5.7) < 0.75 ? vec3(0.03, 0.09, 0.36) : vec3(0.42, 0.26, 0.05)) : col * 0.45;
+    vec3 ground = pale ? clamp((col - 0.28 * ink) / 0.72, 0.0, 1.0) : col * 1.12;
+    float motif = floor(bHash(vec2(bSd * 91.0, 7.0)) * 4.0);
+    // the pattern only where it resolves; the mean colour beyond
+    float tk = (1.0 - smoothstep(0.16, 0.42, fwidth(bX / 0.15))) * bNear;
+    col = mix(col, bAzulejoMotif(vec2(bX, bY), ground, ink, motif, bNear), tk);
+    roughnessFactor = mix(roughnessFactor, 0.42, 0.6 * bNear);
+  }
 #endif
 
   // ---- ground floor and plinth
@@ -905,7 +1021,7 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
       col *= 1.0 - 0.2 * bBand(bY, 0.0, 0.18, fwidth(bY)) * bNear;
     } else {
     if (bHist) col = B_GRANITE * (0.92 + 0.16 * bSd) * bAo;
-    else if (bSt == 3.0 && bY < 0.9) col = B_GRANITE * bAo;
+    else if (bRing && bY < 0.9) col = B_GRANITE * bAo;
     else if (bSt == 4.0) col *= 0.82;
     // shop fronts on the main streets, doors elsewhere
     float bay = bX / 3.3;
@@ -959,7 +1075,7 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
     #ifndef BRG_WIN_LITE
     if (bNear > 0.0) {
       if (bHist) col = mix(col, bAshlar(col, vec2(bX, bY), 0.4, bNear), 1.0 - glassK);
-      else if (bSt == 3.0 && bY < 0.9) col = bAshlar(col, vec2(bX, bY), 0.34, bNear);
+      else if (bRing && bY < 0.9) col = bAshlar(col, vec2(bX, bY), 0.34, bNear);
     }
     #endif
   }
@@ -968,7 +1084,7 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
   if (inside > 0.0 && bY >= g0) {
     float hw = bHash(id + vec2(bSd * 211.0, bSd * 97.0));
     float hw2 = bHash(id.yx + vec2(bSd * 353.0, bSd * 137.0));
-    vec3 glass = bSt == 4.0 ? vec3(0.045, 0.06, 0.075) : B_GLASS;
+    vec3 glass = bOffice ? vec3(0.045, 0.06, 0.075) : B_GLASS;
     float gk = win * aa;
     // window type: guillotine sash (<0.6), round-arched (0.6..0.85), plain
     // casement (>=0.85); shopfronts are drawn on the ground floor
@@ -984,7 +1100,9 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
       archSpring = wr.w - archRad;
       archCxm = (wr.x + wr.z) * 0.5;
       float fits = step(wr.y + 0.05, archSpring);
-      float isArch = fits * step(0.6, hw2) * step(hw2, 0.85);
+      // historic fronts mix arched heads window by window; a plain front
+      // has them on every window or (mostly) none
+      float isArch = fits * (bHist ? step(0.6, hw2) * step(hw2, 0.85) : step(fract(bSd * 41.7), 0.12));
       archK = isArch;
       float dxa = abs(f.x - archCxm);
       float dya = f.y - archSpring;
@@ -1019,13 +1137,29 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
         col = mix(col, B_STONE * 1.1, ring * sk);
       }
     } else if (bNear > 0.0 && bSt != 6.0) {
-      // painted surround; a roller-shutter box over the window
+      // painted surround in a per-building colour (white, brown aluminium,
+      // green); then roller blinds in a box over the window, each down to its
+      // own depth, or painted louvred shutters open beside it
+      float fv = fract(bSd * 11.3);
+      vec3 frameC = fv < 0.55 ? B_FRAME : fv < 0.82 ? vec3(0.06, 0.04, 0.03) : vec3(0.03, 0.07, 0.045);
       float fr = bRect(f, vec4(wr.x - 0.04, wr.y - 0.03, wr.z + 0.04, wr.w + 0.03)) * inside - win;
-      col = mix(col, bSt == 4.0 ? col * 0.8 : B_FRAME, fr * bNearK);
-      if (bSt != 4.0) {
+      col = mix(col, bOffice ? col * 0.8 : frameC, fr * bNearK);
+      float sv = fract(bSd * 17.9);
+      if (!bOffice && (sv < 0.6 || bSt == 4.0 || bWv >= 0.75)) {
         float box = bRect(f, vec4(wr.x, wr.w - 0.12, wr.z, wr.w)) * inside * (1.0 - archK);
+        float depth = (wr.w - wr.y - 0.12) * clamp(fract(hw * 3.7) * 1.4 - 0.4, 0.0, 1.0);
+        float blind = bRect(f, vec4(wr.x, wr.w - 0.12 - depth, wr.z, wr.w - 0.12)) * inside * (1.0 - archK);
+        vec3 blindC = fv < 0.55 ? vec3(0.40, 0.39, 0.36) : fv < 0.82 ? vec3(0.13, 0.085, 0.05) : vec3(0.28, 0.30, 0.28);
         col = mix(col, vec3(0.22, 0.22, 0.21), box * bNearK);
-        gk *= 1.0 - box * bNear;
+        col = mix(col, blindC * (0.86 + 0.14 * step(0.5, fract(bY / 0.07))), blind * bNearK);
+        gk *= 1.0 - (box + blind) * bNear;
+      } else if (!bOffice) {
+        vec3 wood = sv < 0.72 ? vec3(0.03, 0.075, 0.04) : sv < 0.84 ? vec3(0.09, 0.04, 0.018) : sv < 0.93 ? vec3(0.12, 0.03, 0.025) : vec3(0.10, 0.14, 0.18);
+        float slat = 0.75 + 0.25 * smoothstep(0.3, 0.7, fract(bY / 0.09));
+        float closed = step(0.82, hw) * (1.0 - archK);
+        float sh = (bRect(f, vec4(wr.x - 0.16, wr.y, wr.x - 0.01, wr.w)) + bRect(f, vec4(wr.z + 0.01, wr.y, wr.z + 0.16, wr.w))) * inside * (1.0 - closed) * (1.0 - archK);
+        col = mix(col, wood * mix(1.0, slat, bNear), clamp(sh + win * closed, 0.0, 1.0) * bNearK);
+        gk *= 1.0 - closed * bNear;
       } else {
         // mullions
         float mu = 1.0 - smoothstep(0.0, 0.04 + fwidth(cell.x), min(f.x, 1.0 - f.x));
@@ -1077,7 +1211,7 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
       glassLit = mix(glassLit, glassLit * 0.35 + refl, (0.10 + 0.55 * fres) * bNear);
       float streak = smoothstep(0.7, 1.0, sin(5.0 * f.x + 3.0 * f.y + hw * 7.0));
       glassLit += vec3(0.10, 0.115, 0.13) * streak * bNear * (1.0 - smoothstep(0.0, 0.6, up - 0.4));
-      float ordWin = (bSt == 4.0 || bSt == 6.0) ? 0.0 : 1.0;
+      float ordWin = (bOffice || bSt == 6.0) ? 0.0 : 1.0;
       float curt = step(hw, 0.42) * (1.0 - archK) * ordWin;
       float dTop = wr.w - f.y;
       float hemDepth = (wr.w - wr.y) * (0.35 + 0.45 * fract(hw2 * 7.0));
@@ -1098,9 +1232,12 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
     #ifndef BRG_WIN_LITE
     // wrought-iron balconies: the first floor of most centre houses, some
     // others, with the railing's shadow cast down the wall
-    if (bHist && bNear > 0.0) {
+    // (and on the French windows of ring fronts: most first floors, a few
+    // upper ones)
+    if ((bHist || bFrench) && bNear > 0.0) {
       float yb = bY - g0 - id.y * fh;
-      float hasB = id.y < 0.5 ? step(bSd, 0.8) : step(bHash(vec2(id.y, bSd * 17.0)), 0.22);
+      float hasB = bHist ? (id.y < 0.5 ? step(bSd, 0.8) : step(bHash(vec2(id.y, bSd * 17.0)), 0.22))
+                         : (id.y < 0.5 ? step(fract(bSd * 23.1), 0.6) : step(bHash(vec2(id.y, bSd * 17.0)), 0.3));
       float span = step(wr.x - 0.12, f.x) * step(f.x, wr.z + 0.12) * inside * hasB;
       float bw = fwidth(yb);
       float slab = bBand(yb, 0.0, 0.14, bw);
@@ -1113,12 +1250,37 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
       col = mix(col, B_STONE * 0.9, slab * span * bNear);
       col = mix(col, B_IRON, clamp(rail + bars * 0.85, 0.0, 1.0) * bk);
     }
+    // residential blocks: balconies along the floor line, a concrete slab
+    // with its shadow on the wall below and a painted parapet or an iron
+    // rail; on every bay, on two bays in three, or none
+    if (bHome && bNear > 0.0) {
+      float bm = fract(bSd * 29.3);
+      float yb = bY - g0 - id.y * fh;
+      float span = inside * (bm < 0.5 ? 1.0 : bm < 0.8 ? step(mod(id.x, 3.0), 1.5) : 0.0);
+      float bw = fwidth(yb);
+      float slab = bBand(yb, 0.0, 0.16, bw);
+      float para = bBand(yb, 0.16, 1.05, bw);
+      float under = bBand(yb, fh - 0.55, fh, bw) * step(id.y + 1.5, (bH - g0) / fh);
+      col *= 1.0 - 0.32 * under * span * bNear;
+      col = mix(col, diffuseColor.rgb * 1.12 + vec3(0.02), slab * span * bNear);
+      if (fract(bSd * 53.0) < 0.55) {
+        // solid parapet in a lighter tone of the wall
+        col = mix(col, diffuseColor.rgb * 1.05, para * span * bNear);
+      } else {
+        float rail = bBand(yb, 0.98, 1.05, bw);
+        float bars = para * (1.0 - smoothstep(0.12, 0.3, abs(fract(bX / 0.12) - 0.5) * 2.0 - 0.5));
+        float bk = span * bNear * (1.0 - smoothstep(0.2, 0.5, fwidth(bX / 0.12)));
+        col = mix(col, B_IRON * 2.0, clamp(rail + bars * 0.7, 0.0, 1.0) * bk);
+        col = mix(col, B_IRON * 2.0, rail * span * bNear * (1.0 - bk));
+      }
+    }
     #endif
   }
 
-  // ---- cornice and string course (up close)
+  // ---- cornice and string course (up close); an eave shadow on houses
   #ifndef BRG_WIN_LITE
-  if (bNear > 0.0 && (bHist || bSt == 3.0)) {
+  if (bNear > 0.0 && bSt == 5.0) col *= 1.0 - 0.28 * bBand(bY, bH - 0.45, bH + 0.01, fwidth(bY)) * bNear;
+  if (bNear > 0.0 && (bHist || bRing)) {
     float yw = fwidth(bY);
     float cor = bBand(bY, bH - 0.38, bH + 0.01, yw);
     float shadow = bBand(bY, bH - 0.55, bH - 0.38, yw);
@@ -1129,7 +1291,7 @@ if (vWall.y >= 0.0 && vWall.w >= 0.0) {
   #endif
 
   // the far grid: darken by the window share, fading in as the grid fades out
-  col *= 1.0 - 0.3 * bFar * (1.0 - aa) * step(bSt, 5.5);
+  col *= 1.0 - 0.3 * bFar * (1.0 - aa) * max(step(bSt, 5.5), step(7.5, bSt));
 #ifndef BRG_WIN_LITE
   // soiling: broad neighbourhood grime plus rain streaks, stronger low on
   // the wall, so plaster never reads as a flat untextured plane
@@ -1179,7 +1341,17 @@ else if (bNear > 0.0) {
   // roofs: Portuguese canal tiles — rows lapping down the slope, convex
   // covers across it, a shaded eave and a capped ridge
   vec3 nW = (vec4(normal, 0.0) * viewMatrix).xyz;
-  if (nW.y > 0.3 && nW.y < 0.985) {
+  if (nW.y >= 0.985) {
+    // flat roofs: gravel or membrane grain and broad ponding stains, so a
+    // big roof is not one flat grey
+    vec4 fg = texture2D(uGrime, vBW.xz * 0.12);
+    float st = texture2D(uGrime, vBW.xz * 0.06 + vec2(0.5)).r;
+    diffuseColor.rgb *= mix(1.0, (0.93 + 0.12 * fg.g) * (1.07 - 0.18 * st), bNear);
+  } else if (nW.y > 0.3) {
+    // weathering that reads before the tiles do: soot and lichen patches a
+    // few metres across, varying from roof to roof
+    float wth = texture2D(uGrime, vBW.xz * 0.12 + vec2(fract(vWall.w * 0.37), 0.0)).r;
+    diffuseColor.rgb *= mix(1.0, 0.88 + 0.22 * wth, bNear);
     vec2 dir = normalize(nW.xz);
     float mU = 4.0; // metres per world unit
     float along = dot(vBW.xz, dir) * mU / 0.36;       // course index down-slope
