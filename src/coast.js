@@ -35,6 +35,7 @@ const SHELF_M = 40; // metres: the depth the shelf reaches offshore
 const MOUTH_M = 450; // metres: width of the estuary / sea transition
 const OCEAN_AREA = 1.0e6; // world units²: same threshold as water.js
 const LIFT = 0.14; // world units above the ground level of the open sea
+const SNAP = 1.0; // world units (4 m): an estuary edge this close to the coast shares it
 
 // ------------------------------------------------------------ geometry helpers
 // flat polygon: [x0, z0, x1, z1, ...]
@@ -156,6 +157,73 @@ export function distanceField(lines, { open = false } = {}) {
   return segIndex(lines, null, open).dist;
 }
 
+// The estuary (the riverbank relation) and the sea (the coastline) are
+// separate OSM ways. Their common closing line across the Douro mouth differs
+// by up to 1.5 m, so the ground showed through a hairline between the two
+// meshes. conformRing() moves the vertices of a ring that lie within `tol` of
+// the sea ring onto it (onto a sea vertex when one is that close) and threads
+// the sea vertices that lie along its edges into them: the two meshes then
+// share one edge. Returns a new array of {x, z}; the input stays as it is.
+export function conformRing(points, seaRing, tol = SNAP) {
+  const n = seaRing.length;
+  const nearest = (x, z) => {
+    let best = tol;
+    let hit = null;
+    for (const v of seaRing) {
+      const d = Math.hypot(v.x - x, v.z - z);
+      if (d < best) {
+        best = d;
+        hit = { x: v.x, z: v.z };
+      }
+    }
+    if (hit) return hit;
+    best = tol;
+    for (let i = 0, j = n - 1; i < n; j = i++) {
+      const a = seaRing[j];
+      const b = seaRing[i];
+      if (Math.min(a.x, b.x) - tol > x || Math.max(a.x, b.x) + tol < x || Math.min(a.z, b.z) - tol > z || Math.max(a.z, b.z) + tol < z) continue;
+      const dx = b.x - a.x;
+      const dz = b.z - a.z;
+      const t = Math.max(0, Math.min(1, ((x - a.x) * dx + (z - a.z) * dz) / (dx * dx + dz * dz || 1e-9)));
+      const px = a.x + dx * t;
+      const pz = a.z + dz * t;
+      const d = Math.hypot(px - x, pz - z);
+      if (d < best) {
+        best = d;
+        hit = { x: px, z: pz };
+      }
+    }
+    return hit;
+  };
+  const snapped = points.map((p) => nearest(p.x, p.z) || { x: p.x, z: p.z });
+  const out = [];
+  const push = (p) => {
+    const l = out[out.length - 1];
+    if (!l || Math.hypot(l.x - p.x, l.z - p.z) > 1e-4) out.push(p);
+  };
+  for (let i = 0; i < snapped.length; i++) {
+    const p = snapped[i];
+    const q = snapped[(i + 1) % snapped.length];
+    push(p);
+    const dx = q.x - p.x;
+    const dz = q.z - p.z;
+    const l2 = dx * dx + dz * dz;
+    if (l2 < 1e-8) continue;
+    const ins = [];
+    for (const v of seaRing) {
+      if (Math.min(p.x, q.x) - tol > v.x || Math.max(p.x, q.x) + tol < v.x || Math.min(p.z, q.z) - tol > v.z || Math.max(p.z, q.z) + tol < v.z) continue;
+      const t = ((v.x - p.x) * dx + (v.z - p.z) * dz) / l2;
+      if (t <= 0 || t >= 1) continue;
+      if (Math.hypot(p.x + dx * t - v.x, p.z + dz * t - v.z) >= tol) continue;
+      ins.push({ t, x: v.x, z: v.z });
+    }
+    ins.sort((a, b) => a.t - b.t);
+    for (const v of ins) push({ x: v.x, z: v.z });
+  }
+  while (out.length > 1 && Math.hypot(out[0].x - out[out.length - 1].x, out[0].z - out[out.length - 1].z) <= 1e-4) out.pop();
+  return out;
+}
+
 // The sea the last buildSea() made: its level and its polygon, for the harbour
 // layer (structures stand on this level and need to know which side is water).
 let seaNow = null;
@@ -215,6 +283,8 @@ export function buildSea({ areas, heightAt }) {
     area: ocean,
     triangles: lat.idx.length / 3,
     stats,
+    // an estuary ring that shares the sea's edge at the mouth (conformRing)
+    conform: (points) => conformRing(points, ring),
     // the mesh shares the water material (one program, one draw state) and
     // follows the water mesh: the dispose hook frees it with the parent
     attach(parent, hooks) {
@@ -249,6 +319,12 @@ function buildLattice(ring, estuaries) {
   const onFrame = (a, b) => (Math.abs(a.x - x0) < eps && Math.abs(b.x - x0) < eps) || (Math.abs(a.x - x1) < eps && Math.abs(b.x - x1) < eps) || (Math.abs(a.z - z0) < eps && Math.abs(b.z - z0) < eps) || (Math.abs(a.z - z1) < eps && Math.abs(b.z - z1) < eps);
   const coastIdx = segIndex([ring], onFrame);
   const estIdx = estuaries.length ? segIndex(estuaries) : null;
+  // The shore distance of the attributes leaves out the closing line across
+  // the estuary mouth: that edge is water on both sides. As shore it laid wet
+  // sand, a foam line and shoaling along the river's edge (a pale seam at the
+  // Douro mouth). The lattice itself is still cut and refined by the full ring.
+  const nearEst = (x, z) => estIdx.dist(x, z, SNAP) < SNAP;
+  const shoreIdx = estIdx ? segIndex([ring], (a, b) => onFrame(a, b) || (nearEst(a.x, a.z) && nearEst(b.x, b.z) && nearEst((a.x + b.x) / 2, (a.z + b.z) / 2))) : coastIdx;
   const flat = new Float64Array(ring.length * 2);
   ring.forEach((p, i) => {
     flat[i * 2] = p.x;
@@ -265,13 +341,13 @@ function buildLattice(ring, estuaries) {
   const far = [];
   const vmap = new Map();
   const attr = (x, z) => {
-    const d = coastIdx.dist(x, z, COAST_CAP);
+    const d = shoreIdx.dist(x, z, COAST_CAP);
     coast.push(d);
     depth.push((0.2 + SHELF_M * (1 - Math.exp(-(d / S) / DEPTH_M))) * S);
     const m = estIdx ? estIdx.dist(x, z, (MOUTH_M * S) * 1.0) : MOUTH_M * S;
     const t = Math.min(1, m / (MOUTH_M * S));
     mouth.push(1 - t * t * (3 - 2 * t));
-    if (d > 30 && far.length < 800 && (xz.length / 2) % 7 === 0) far.push(x, z);
+    if (coastIdx.dist(x, z, 31) > 30 && far.length < 800 && (xz.length / 2) % 7 === 0) far.push(x, z);
   };
   const vert = (x, z) => {
     const k = `${Math.round(x * 16)}_${Math.round(z * 16)}`;

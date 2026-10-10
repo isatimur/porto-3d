@@ -647,8 +647,11 @@ wFoamK = 0.0;
     // whitecaps only where the crest is sharpest (Jacobian well under 1) and
     // high; wind and spray raise them, shoaling swell brings them in
     float crest = smoothstep(0.52, 0.2, wJ) * smoothstep(-0.01, 0.1, wH);
-    float windK = clamp(0.1 + 0.9 * uWSpray + 0.7 * shoalK, 0.0, 1.0);
-    foamSea = crest * strands * windK * (kOc * 0.9 + (1.0 - kIn) * (1.0 - kOc) * 0.3);
+    // the sea takes the estuary's whitecaps at the mouth (wSeaK 0 there): the
+    // estuary has no shore distance, so its shoalK reads 1
+    float windShoal = uWSeaAttr > 0.5 ? mix(1.0, shoalK, wSeaK) : shoalK;
+    float windK = clamp(0.1 + 0.9 * uWSpray + 0.7 * windShoal, 0.0, 1.0);
+    foamSea = crest * strands * windK * (1.0 - kIn) * mix(0.3, 0.9, wSeaK);
   }
   #endif
   // (c) the shoreline: a swash line that runs up and back, a thin surf band,
@@ -819,20 +822,83 @@ export function createWater({ data, areas, project, heightAt }) {
   // Porto the Rio da Vila under Rua Mouzinho da Silveira showed as a water
   // strip up the middle of a paved street (cities/<id>.json culverted_streams)
   const culverted = new Set(CITY.culverted_streams || []);
+  // Open water (the sea, the tidal Douro) is drawn by its own polygon below.
+  // OSM also maps the Douro as a 12 m centre line down to its mouth: as a
+  // ribbon it lay on top of the estuary as a dark strip with bank lace (the
+  // Felgueiras view). A ribbon stops at the bank of open water.
+  const openRings = [];
+  for (const a of areas) {
+    if (a.k !== 'water' || !a.open) continue;
+    openRings.push(
+      a.rings.map((r) => {
+        let x0 = Infinity;
+        let x1 = -Infinity;
+        let z0 = Infinity;
+        let z1 = -Infinity;
+        for (const p of r) {
+          if (p.x < x0) x0 = p.x;
+          if (p.x > x1) x1 = p.x;
+          if (p.z < z0) z0 = p.z;
+          if (p.z > z1) z1 = p.z;
+        }
+        return { r, x0, x1, z0, z1 };
+      }),
+    );
+  }
+  const inRing = (R, x, z) => {
+    if (x < R.x0 || x > R.x1 || z < R.z0 || z > R.z1) return false;
+    let ins = false;
+    const r = R.r;
+    for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
+      const a = r[i];
+      const b = r[j];
+      if (a.z > z !== b.z > z && x < ((b.x - a.x) * (z - a.z)) / (b.z - a.z) + a.x) ins = !ins;
+    }
+    return ins;
+  };
+  const inOpenWater = (x, z) => openRings.some(([outer, ...holes]) => inRing(outer, x, z) && !holes.some((h) => inRing(h, x, z)));
+  // the bank between a point on land (o) and one in open water (w)
+  const bankPoint = (o, w) => {
+    let a = o;
+    let b = w;
+    for (let k = 0; k < 10; k++) {
+      const m = { x: (a.x + b.x) / 2, z: (a.z + b.z) / 2 };
+      if (inOpenWater(m.x, m.z)) b = m;
+      else a = m;
+    }
+    return a;
+  };
   for (const l of data.lines || []) {
     if (!Array.isArray(l.p) || l.p.length < 2) continue;
     if (l.n && culverted.has(l.n)) continue;
     const half = ((l.w || 3) * S) / 2;
-    const pts = [];
+    const line = [];
     let prev = null;
     for (const q of l.p) {
       const c = project(q[0], q[1]);
       if (prev) {
         const n = Math.max(1, Math.ceil(Math.hypot(c.x - prev.x, c.z - prev.z) / MAX_SEG));
-        for (let i = 1; i <= n; i++) pts.push({ x: prev.x + ((c.x - prev.x) * i) / n, z: prev.z + ((c.z - prev.z) * i) / n });
-      } else pts.push(c);
+        for (let i = 1; i <= n; i++) line.push({ x: prev.x + ((c.x - prev.x) * i) / n, z: prev.z + ((c.z - prev.z) * i) / n });
+      } else line.push(c);
       prev = c;
     }
+    // the runs of the line on land, each cut at the bank
+    const runs = [];
+    let run = [];
+    for (let i = 0; i < line.length; i++) {
+      if (!inOpenWater(line[i].x, line[i].z)) {
+        if (!run.length && i > 0) run.push(bankPoint(line[i], line[i - 1]));
+        run.push(line[i]);
+      } else if (run.length) {
+        run.push(bankPoint(line[i - 1], line[i]));
+        runs.push(run);
+        run = [];
+      }
+    }
+    if (run.length) runs.push(run);
+    for (const pts of runs) if (pts.length >= 2) ribbon(pts, half);
+  }
+  function ribbon(pts, half) {
     const base = pos.length / 3;
     for (let i = 0; i < pts.length; i++) {
       const a = pts[Math.max(0, i - 1)];
@@ -861,15 +927,34 @@ export function createWater({ data, areas, project, heightAt }) {
   for (const a of areas) {
     if (a.k !== 'water') continue;
     if (sea && a === sea.area) continue; // the sea mesh below replaces it
-    const outer = a.rings[0].map((p) => new THREE.Vector2(p.x, p.z));
     const holes = a.rings.slice(1).map((r) => r.map((p) => new THREE.Vector2(p.x, p.z)));
-    if (THREE.ShapeUtils.isClockWise(outer)) outer.reverse();
     for (const h of holes) if (!THREE.ShapeUtils.isClockWise(h)) h.reverse();
+    const shape = (ring) => {
+      const outer = ring.map((p) => new THREE.Vector2(p.x, p.z));
+      if (THREE.ShapeUtils.isClockWise(outer)) outer.reverse();
+      return { outer, faces: THREE.ShapeUtils.triangulateShape(outer, holes) };
+    };
+    // an estuary takes the sea's edge where the two meet (coast.js
+    // conformRing). The source ring stays the fallback: when the area moves
+    // by more than a sliver or the triangulation fails.
+    const ringArea = (r) => Math.abs(THREE.ShapeUtils.area(r.map((p) => new THREE.Vector2(p.x, p.z))));
+    let ring = a.rings[0];
+    if (sea && a.open) {
+      const fit = sea.conform(ring);
+      const src = ringArea(ring);
+      if (fit.length >= 3 && Math.abs(ringArea(fit) - src) <= src * 0.002 + 50) ring = fit;
+    }
+    let outer;
     let faces;
     try {
-      faces = THREE.ShapeUtils.triangulateShape(outer, holes);
+      ({ outer, faces } = shape(ring));
     } catch {
-      continue;
+      if (ring === a.rings[0]) continue;
+      try {
+        ({ outer, faces } = shape(a.rings[0]));
+      } catch {
+        continue;
+      }
     }
     const all = outer.concat(...holes);
     const rings = [outer, ...holes];
