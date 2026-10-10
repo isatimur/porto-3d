@@ -176,6 +176,12 @@ export const FIT_RULES = {
   'palacio-cristal': {
     extent: { box: { x0: -214.1, x1: 220.1, z0: -219.2, z1: 193.9 } },
     fitTo: true,
+    // The garden outline falls 88 m from the plateau to the river: the lowest
+    // point is no base. The arena stands on the plateau, so the base is the
+    // ground under it. The garden terrace is levelled over the model box with a
+    // cut of at most 6 m (pad cut cap); where the slope falls away it is built
+    // out on a fill with faces no steeper than 1 : 1.8, like the real terraces.
+    base: { part: /Rosa Mota/, stat: 'mean' },
     deviationNote: 'model is the gardens + the ~30 m domed arena + the Douro mirador/water; the outline is the garden boundary',
   },
 };
