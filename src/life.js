@@ -1083,9 +1083,64 @@ export function buildCableCar({ project, heightAt, mobile, lite }) {
 //
 // The water surface is draped on the terrain (water.js, which reads
 // heightAt), and the open river is kind 1 ("tidal": not a ribbon), so its
-// mesh rides at heightAt + LIFT * 0.7. Boats are placed on the same level and
-// let the hull sit below the waterline.
+// mesh rides at riverLevel + LIFT * 0.7, and its long triangles interpolate
+// between those vertices. heightAt + LIFT * 0.7 is only the first guess (the
+// bed, up to 3 m under the mesh): once the water mesh is in the scene the boats
+// read their level from its triangles and ride at the waterline.
 const WATER_LIFT = 0.196; // world units (0.78 m); water.js LIFT * 0.7
+
+// The height of a water mesh at (x, z): a grid over the triangles inside the
+// box, so a path sample costs a few point-in-triangle tests. NaN off the mesh.
+function waterSampler(mesh, bx0, bz0, bx1, bz1) {
+  const P = mesh.geometry.attributes.position.array;
+  const I = mesh.geometry.index?.array;
+  const CELL = 12;
+  const nx = Math.max(1, Math.ceil((bx1 - bx0) / CELL));
+  const nz = Math.max(1, Math.ceil((bz1 - bz0) / CELL));
+  const cells = new Array(nx * nz);
+  const nt = I ? I.length / 3 : P.length / 9;
+  const tri = new Uint32Array(nt * 3);
+  for (let t = 0; t < nt; t++) {
+    const a = (I ? I[t * 3] : t * 3) * 3;
+    const b = (I ? I[t * 3 + 1] : t * 3 + 1) * 3;
+    const c = (I ? I[t * 3 + 2] : t * 3 + 2) * 3;
+    tri[t * 3] = a;
+    tri[t * 3 + 1] = b;
+    tri[t * 3 + 2] = c;
+    const x0 = Math.min(P[a], P[b], P[c]);
+    const x1 = Math.max(P[a], P[b], P[c]);
+    const z0 = Math.min(P[a + 2], P[b + 2], P[c + 2]);
+    const z1 = Math.max(P[a + 2], P[b + 2], P[c + 2]);
+    if (x1 < bx0 || x0 > bx1 || z1 < bz0 || z0 > bz1) continue;
+    const i0 = THREE.MathUtils.clamp(Math.floor((x0 - bx0) / CELL), 0, nx - 1);
+    const i1 = THREE.MathUtils.clamp(Math.floor((x1 - bx0) / CELL), 0, nx - 1);
+    const j0 = THREE.MathUtils.clamp(Math.floor((z0 - bz0) / CELL), 0, nz - 1);
+    const j1 = THREE.MathUtils.clamp(Math.floor((z1 - bz0) / CELL), 0, nz - 1);
+    for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) (cells[j * nx + i] ||= []).push(t);
+  }
+  return (x, z) => {
+    const i = Math.floor((x - bx0) / CELL);
+    const j = Math.floor((z - bz0) / CELL);
+    if (i < 0 || j < 0 || i >= nx || j >= nz) return NaN;
+    const list = cells[j * nx + i];
+    let best = NaN;
+    if (!list) return best;
+    for (const t of list) {
+      const a = tri[t * 3];
+      const b = tri[t * 3 + 1];
+      const c = tri[t * 3 + 2];
+      const d = (P[b + 2] - P[c + 2]) * (P[a] - P[c]) + (P[c] - P[b]) * (P[a + 2] - P[c + 2]);
+      if (!d) continue;
+      const l1 = ((P[b + 2] - P[c + 2]) * (x - P[c]) + (P[c] - P[b]) * (z - P[c + 2])) / d;
+      const l2 = ((P[c + 2] - P[a + 2]) * (x - P[c]) + (P[a] - P[c]) * (z - P[c + 2])) / d;
+      const l3 = 1 - l1 - l2;
+      if (l1 < 0 || l2 < 0 || l3 < 0) continue;
+      const y = l1 * P[a + 1] + l2 * P[b + 1] + l3 * P[c + 1];
+      if (!(y <= best)) best = y;
+    }
+    return best;
+  };
+}
 
 // Like box(), but a cylinder: centre at (x, y, z), axis +y unless rotated.
 function cyl(r, h, seg, x, y, z, color, glow = 0, rz = 0, rx = 0) {
@@ -1106,50 +1161,159 @@ function cyl(r, h, seg, x, y, z, color, glow = 0, rz = 0, rx = 0) {
 // A rabelo: flat-bottomed oak hull with raised prow and stern (the
 // meia-lua), a deck of port casks, a single mast and a square sail held to a
 // yard. `sail` false furls it along the yard. +z is the bow; metres.
+// The origin is the WATERLINE: the flat bottom draws 0.5 m, the midship sheer
+// stands 0.35 m clear (freeboard), the meia-lua prow and stern rise higher.
+// About 150 triangles, one hull + deck + oar + mast + sail + cargo.
+const RABELO = { half: 9.5, top: 0.35, bottom: -0.5 }; // metres
+
+// A flat-shaded triangle soup. add() flips each triangle to face along the
+// hint vector, so no winding has to be worked out by hand.
+function soup() {
+  const pos = [];
+  const col = [];
+  const c = new THREE.Color();
+  function add(a, b, d, color, hx, hy, hz) {
+    const ux = b[0] - a[0];
+    const uy = b[1] - a[1];
+    const uz = b[2] - a[2];
+    const vx = d[0] - a[0];
+    const vy = d[1] - a[1];
+    const vz = d[2] - a[2];
+    const dot = (uy * vz - uz * vy) * hx + (uz * vx - ux * vz) * hy + (ux * vy - uy * vx) * hz;
+    const t = dot < 0 ? [a, d, b] : [a, b, d];
+    c.set(color);
+    for (const p of t) {
+      pos.push(p[0], p[1], p[2]);
+      col.push(c.r, c.g, c.b);
+    }
+  }
+  const quad = (a, b, d, e, color, hx, hy, hz) => {
+    add(a, b, d, color, hx, hy, hz);
+    add(a, d, e, color, hx, hy, hz);
+  };
+  // a prism between p and q (side faces; capped ends when `caps`)
+  function prism(p, q, r, n, color, caps = false) {
+    let ax = q[0] - p[0];
+    let ay = q[1] - p[1];
+    let az = q[2] - p[2];
+    const al = Math.hypot(ax, ay, az);
+    ax /= al;
+    ay /= al;
+    az /= al;
+    const ref = Math.abs(ay) < 0.9 ? [0, 1, 0] : [1, 0, 0];
+    let ux = ay * ref[2] - az * ref[1];
+    let uy = az * ref[0] - ax * ref[2];
+    let uz = ax * ref[1] - ay * ref[0];
+    const ul = Math.hypot(ux, uy, uz);
+    ux /= ul;
+    uy /= ul;
+    uz /= ul;
+    const vx = ay * uz - az * uy;
+    const vy = az * ux - ax * uz;
+    const vz = ax * uy - ay * ux;
+    const ring = (o, i) => {
+      const t = (i / n) * Math.PI * 2;
+      const k = Math.cos(t);
+      const s = Math.sin(t);
+      return [o[0] + (ux * k + vx * s) * r, o[1] + (uy * k + vy * s) * r, o[2] + (uz * k + vz * s) * r];
+    };
+    for (let i = 0; i < n; i++) {
+      const t = ((i + 0.5) / n) * Math.PI * 2;
+      const hx = ux * Math.cos(t) + vx * Math.sin(t);
+      const hy = uy * Math.cos(t) + vy * Math.sin(t);
+      const hz = uz * Math.cos(t) + vz * Math.sin(t);
+      quad(ring(p, i), ring(p, i + 1), ring(q, i + 1), ring(q, i), color, hx, hy, hz);
+    }
+    if (caps) {
+      for (let i = 1; i < n - 1; i++) {
+        add(ring(p, 0), ring(p, i), ring(p, i + 1), color, -ax, -ay, -az);
+        add(ring(q, 0), ring(q, i), ring(q, i + 1), color, ax, ay, az);
+      }
+    }
+  }
+  function build() {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+    g.setAttribute('aGlow', new THREE.BufferAttribute(new Float32Array(pos.length / 3), 1));
+    g.computeVertexNormals();
+    return g;
+  }
+  return { add, quad, prism, build };
+}
+
 function rabeloGeometry(sail = true) {
-  const W = 4.4;
-  const L = 19;
-  const parts = [
-    box(W - 0.6, 0.5, L - 1.4, 0, -0.95, 0, 0x4a3220), // flat keel
-    box(0.4, 1.5, L, -W / 2 + 0.2, -0.95, 0, 0x6b4a2f), // port strake
-    box(0.4, 1.5, L, W / 2 - 0.2, -0.95, 0, 0x6b4a2f), // starboard strake
-    box(W, 1.5, 1.0, 0, -0.95, L / 2 - 0.5, 0x5b3d27), // transom, bow
-    box(W, 1.5, 1.0, 0, -0.95, -L / 2 + 0.5, 0x5b3d27), // transom, stern
-    box(W, 0.8, 3.2, 0, 0.15, L / 2 - 1.6, 0x6b4a2f), // raised prow
-    box(W, 0.7, 2.8, 0, 0.15, -L / 2 + 1.4, 0x6b4a2f), // raised stern
-    box(W - 0.5, 0.16, L - 1.0, 0, 0.5, 0, 0x8a6440), // deck
-    box(0.22, 0.22, L, -W / 2 + 0.15, 0.66, 0, 0x3a2a1c), // gunwale
-    box(0.22, 0.22, L, W / 2 - 0.15, 0.66, 0, 0x3a2a1c),
-    cyl(0.15, 11.4, 7, 0, 6.0, -0.6, 0x6b4a2f), // mast
-    box(0.12, 0.12, 6.6, 0, 9.8, -0.6, 0x5b3d27), // yard
-    box(0.16, 0.16, 4.8, W / 2 - 0.5, 0.9, -L / 2 - 1.3, 0x5b3d27), // steering oar
-    box(3.0, 0.5, 0.5, 0, -0.1, L / 2 - 0.1, 0x3a2a1c), // small foredeck box
+  const m = soup();
+  // ---- hull, lofted through six stations (z, half-beam at the sheer, half-beam
+  // at the bilge, sheer height, bottom height); +z is the bow
+  const ST = [
+    [-9.5, 0.9, 0.6, 1.0, -0.2], // stern post
+    [-6.5, 1.7, 1.3, 0.55, -0.5],
+    [-1.0, 2.1, 1.7, RABELO.top, RABELO.bottom], // midship
+    [4.0, 1.9, 1.5, RABELO.top, RABELO.bottom],
+    [7.5, 1.1, 0.7, 0.75, -0.3],
+    [9.5, 0.25, 0.2, 1.4, 0.2], // stem
   ];
-  // port casks, lying along x in two rows of four, oak and darker cooperage
-  for (let i = 0; i < 4; i++) {
-    const z = -3.3 + i * 2.0;
-    const tone = i % 2 ? 0x7a4a28 : 0x8a5a34;
-    parts.push(cyl(0.42, 1.05, 8, -0.85, 1.18, z, tone, 0, Math.PI / 2));
-    parts.push(cyl(0.42, 1.05, 8, 0.85, 1.18, z, tone, 0, Math.PI / 2));
+  const ring = ([z, hs, hb, yt, yb]) => {
+    const hi = Math.max(0.03, hs - 0.2); // inner edge of the gunwale
+    return [
+      [-hb, yb, z],
+      [-hs, yt, z],
+      [-hi, yt - 0.1, z],
+      [hi, yt - 0.1, z],
+      [hs, yt, z],
+      [hb, yb, z],
+    ];
+  };
+  const SIDE = 0x6b4a2f;
+  const FACE = [
+    [-1, 0, 0, SIDE], // port side
+    [0, 1, 0, 0x3a2a1c], // port gunwale
+    [0, 1, 0, 0x8a6440], // deck
+    [0, 1, 0, 0x3a2a1c], // starboard gunwale
+    [1, 0, 0, SIDE], // starboard side
+    [0, -1, 0, 0x4a3220], // flat bottom
+  ];
+  const rings = ST.map(ring);
+  for (let s = 0; s < rings.length - 1; s++) {
+    const a = rings[s];
+    const b = rings[s + 1];
+    for (let k = 0; k < 6; k++) {
+      const [hx, hy, hz, color] = FACE[k];
+      const k2 = (k + 1) % 6;
+      m.quad(a[k], a[k2], b[k2], b[k], color, hx, hy, hz);
+    }
   }
-  // a pair lashed on top amidships
-  parts.push(cyl(0.42, 1.05, 8, 0, 2.26, -0.4, 0x6f4224, 0, Math.PI / 2));
-  parts.push(cyl(0.42, 1.05, 8, 0, 2.26, 0.7, 0x6f4224, 0, Math.PI / 2));
-  // crew: the helmsman aft and one forward, workwear with bare heads
-  parts.push(cyl(0.23, 1.02, 6, 0.55, 1.09, -L / 2 + 1.1, 0x2f3b4c));
-  parts.push(cyl(0.17, 0.3, 6, 0.55, 1.75, -L / 2 + 1.1, 0xd8b48c));
-  parts.push(cyl(0.23, 1.02, 6, -0.7, 1.09, L / 2 - 2.1, 0x6b3b2a));
-  parts.push(cyl(0.17, 0.3, 6, -0.7, 1.75, L / 2 - 2.1, 0xd8b48c));
+  for (const [r, dz] of [[rings[0], -1], [rings[rings.length - 1], 1]]) {
+    for (let k = 1; k < 5; k++) m.add(r[0], r[k], r[k + 1], 0x5b3d27, 0, 0, dz); // transom, stem
+  }
+  // ---- the esparela, the long steering sweep, pivoting aft and dipping astern
+  m.prism([0, 1.5, -8.3], [0, -0.1, -13.2], 0.1, 3, 0x5b3d27);
+  m.quad([-0.3, -0.1, -12.3], [0.3, -0.1, -12.3], [0.3, -0.35, -14.2], [-0.3, -0.35, -14.2], 0x6b4a2f, 0, 1, 0);
+  m.quad([-0.3, -0.1, -12.3], [0.3, -0.1, -12.3], [0.3, -0.35, -14.2], [-0.3, -0.35, -14.2], 0x6b4a2f, 0, -1, 0);
+  // ---- mast stepped on the deck, yard across it
+  const MZ = 2.0;
+  m.prism([0, 0.25, MZ], [0, 9.6, MZ], 0.13, 3, 0x6b4a2f);
+  m.prism([-3.3, 9.0, MZ], [3.3, 9.0, MZ], 0.08, 3, 0x5b3d27);
   if (sail) {
-    parts.push(box(6.4, 7.0, 0.08, 0, 2.7, -0.5, 0xd9cdb0)); // square sail
-    // the cross of the rabelo canvas, proud of both faces
-    parts.push(box(0.62, 7.0, 0.14, 0, 2.7, -0.5, 0xb03a2e));
-    parts.push(box(6.4, 0.62, 0.14, 0, 3.4, -0.5, 0xb03a2e));
+    // the square sail, hung from the yard, with the red cross of the canvas
+    const q = (x0, x1, y0, y1, dz, color, face) => m.quad([x0, y0, MZ + dz], [x1, y0, MZ + dz], [x1, y1, MZ + dz], [x0, y1, MZ + dz], color, 0, 0, face);
+    for (const f of [1, -1]) {
+      q(-3.0, 3.0, 2.6, 8.95, 0.05 * f, 0xd9cdb0, f);
+      q(-0.3, 0.3, 2.6, 8.95, 0.09 * f, 0xb03a2e, f);
+      q(-3.0, 3.0, 5.4, 6.0, 0.09 * f, 0xb03a2e, f);
+    }
   } else {
-    parts.push(box(6.8, 0.5, 0.5, 0, 9.55, -0.6, 0xd9cdb0)); // furled along the yard
+    m.prism([-3.1, 8.7, MZ], [3.1, 8.7, MZ], 0.27, 3, 0xd9cdb0); // furled along the yard
   }
-  const g = mergeGeometries(parts);
+  // ---- port casks lashed on the aft deck: two side by side, one on top
+  const CASK = 0x8a5a34;
+  m.prism([-0.45, 0.67, -4.15], [-0.45, 0.67, -3.05], 0.42, 5, CASK, true);
+  m.prism([0.45, 0.67, -4.15], [0.45, 0.67, -3.05], 0.42, 5, 0x7a4a28, true);
+  m.prism([0, 1.38, -4.15], [0, 1.38, -3.05], 0.42, 5, 0x6f4224, true);
+  const g = m.build();
   g.scale(S, S, S);
+  g.userData.hull = { top: RABELO.top * S, bottom: RABELO.bottom * S, half: RABELO.half * S };
   return g;
 }
 
@@ -1179,6 +1343,7 @@ function cruiserGeometry() {
   parts.push(box(2.2, 0.24, 0.12, 0, 2.05, L / 2 - 0.35, 0x14120f)); // name board
   const g = mergeGeometries(parts);
   g.scale(S, S, S);
+  g.userData.hull = { top: 1.8 * S, bottom: -0.9 * S, half: (L / 2) * S };
   return g;
 }
 
@@ -1202,6 +1367,7 @@ function ferryGeometry() {
   parts.push(box(0.07, 0.55, 0.9, 0, 3.9, -4.1, 0x187ec2));
   const g = mergeGeometries(parts);
   g.scale(S, S, S);
+  g.userData.hull = { top: 1.4 * S, bottom: -0.7 * S, half: (L / 2) * S };
   return g;
 }
 
@@ -1233,6 +1399,7 @@ function hotelGeometry() {
   }
   const g = mergeGeometries(parts);
   g.scale(S, S, S);
+  g.userData.hull = { top: 2.1 * S, bottom: -1.0 * S, half: (L / 2) * S };
   return g;
 }
 
@@ -1449,9 +1616,107 @@ export function buildBoats({ project, heightAt, mobile = false, lite = false, ca
     return true;
   }
 
+  // ---- the waterline: read from the water mesh once it is in the scene. Until
+  // then the boats stay hidden (the guess from heightAt would sink the hulls).
+  const HALF = { rabelo: RABELO.half * S, cruiser: 18 * S, ferry: 6 * S, hotel: 39 * S };
+  let levelled = false;
+  let tries = 0;
+  let missed = 0;
+  function level() {
+    let root = group;
+    while (root.parent) root = root.parent;
+    let water = null;
+    root.traverse((o) => {
+      if (!water && o.isMesh && o.name === 'water') water = o;
+    });
+    if (!water) return false;
+    let x0 = Infinity;
+    let z0 = Infinity;
+    let x1 = -Infinity;
+    let z1 = -Infinity;
+    for (const a of actors) {
+      const xs = a.moving ? a.line.xs : [a.x];
+      const zs = a.moving ? a.line.zs : [a.z];
+      for (let i = 0; i < xs.length; i++) {
+        x0 = Math.min(x0, xs[i]);
+        x1 = Math.max(x1, xs[i]);
+        z0 = Math.min(z0, zs[i]);
+        z1 = Math.max(z1, zs[i]);
+      }
+    }
+    const pad = 45 * S + 20;
+    const wy = waterSampler(water, x0 - pad, z0 - pad, x1 + pad, z1 + pad);
+    // the highest water under the keel line: centre, bow and stern
+    const levelAt = (a, x, z, yaw) => {
+      const h = HALF[a.type];
+      const sx = Math.sin(yaw) * h;
+      const sz = Math.cos(yaw) * h;
+      let y = NaN;
+      for (const v of [wy(x, z), wy(x + sx, z + sz), wy(x - sx, z - sz)]) if (v === v && !(v <= y)) y = v;
+      return y;
+    };
+    for (const a of movers) {
+      const L = a.line;
+      const n = L.xs.length;
+      const raw = L.xs.map((x, i) => {
+        const j = Math.min(i + 1, n - 1);
+        const k = Math.max(i - 1, 0);
+        return levelAt(a, x, L.zs[i], Math.atan2(L.xs[j] - L.xs[k], L.zs[j] - L.zs[k]));
+      });
+      // a sample off the mesh takes the nearest one that is on it
+      raw.forEach((v, i) => {
+        if (!Number.isNaN(v)) return;
+        missed++;
+        for (let d = 1; d < n; d++) {
+          const u = raw[i - d] ?? NaN;
+          const w = raw[i + d] ?? NaN;
+          if (!Number.isNaN(u)) return void (raw[i] = u);
+          if (!Number.isNaN(w)) return void (raw[i] = w);
+        }
+        raw[i] = L.ys[i];
+      });
+      // the running max over five samples: smooth, and never under the surface
+      L.ys = raw.map((_, i) => Math.max(...raw.slice(Math.max(0, i - 2), i + 3).filter((v) => !Number.isNaN(v))));
+    }
+    for (const a of actors) {
+      if (a.moving) continue;
+      const y = levelAt(a, a.x, a.z, a.yaw);
+      if (Number.isNaN(y)) missed++;
+      else a.y = y;
+    }
+    return true;
+  }
+  function resetTrails() {
+    for (const a of movers) {
+      const { s } = arcAt(a.line, a.speed, time + a.phase * (2 * (a.line.total / a.speed)));
+      sample(a.line, s);
+      for (let i = 0; i < WAKE; i++) {
+        a.h[i * 3] = at.x;
+        a.h[i * 3 + 1] = at.y;
+        a.h[i * 3 + 2] = at.z;
+      }
+    }
+  }
+
   let time = 0;
   let visible = 0;
   function update(dt, cam, frustum, view) {
+    if (!levelled) {
+      // look for the water mesh every 20th frame; after ~10 s use the guess
+      if (tries++ % 20 === 0 && level()) {
+        levelled = true;
+        stats.levelled = true;
+        stats.levelMisses = missed;
+        resetTrails();
+      } else if (tries > 600) {
+        levelled = true;
+        stats.levelled = false;
+        resetTrails();
+      } else {
+        group.visible = false;
+        return;
+      }
+    }
     time += dt;
     const c = cam || camera;
     const hidden = c ? c.position.distanceToSquared(_p.set(ax, 0, az)) > 2600 * 2600 : false;
@@ -1537,33 +1802,28 @@ export function buildBoats({ project, heightAt, mobile = false, lite = false, ca
   }
 
   // place everything once (reduced motion: this is the final, still frame)
-  for (const a of movers) {
-    const { s } = arcAt(a.line, a.speed, a.phase * (2 * (a.line.total / a.speed)));
-    sample(a.line, s);
-    for (let i = 0; i < WAKE; i++) {
-      a.h[i * 3] = at.x;
-      a.h[i * 3 + 1] = at.y;
-      a.h[i * 3 + 2] = at.z;
-    }
-  }
+  resetTrails();
+  const geoTris = Object.values(tris).reduce((s, n) => s + n, 0);
+  const stats = {
+    items: movers.length,
+    moored: mooredList.length,
+    rabelos: actors.filter((a) => a.type === 'rabelo').length,
+    cruisers: actors.filter((a) => a.type === 'cruiser').length,
+    ferries: actors.filter((a) => a.type === 'ferry').length,
+    hotels: actors.filter((a) => a.type === 'hotel').length,
+    routes: items.length,
+    triangles: geoTris,
+    rabeloTriangles: Object.fromEntries(['rabelo-sail', 'rabelo-bare'].filter((k) => byKey.has(k)).map((k) => [k, geoFor(k).attributes.position.count / 3])),
+    levelled: false,
+    wakeTriangles: widx.length / 3,
+    wakeSegments: WAKE,
+  };
   update(0, camera ? { position: camera.position } : undefined, null);
 
-  const geoTris = Object.values(tris).reduce((s, n) => s + n, 0);
   return {
     object: group,
     update,
-    stats: {
-      items: movers.length,
-      moored: mooredList.length,
-      rabelos: actors.filter((a) => a.type === 'rabelo').length,
-      cruisers: actors.filter((a) => a.type === 'cruiser').length,
-      ferries: actors.filter((a) => a.type === 'ferry').length,
-      hotels: actors.filter((a) => a.type === 'hotel').length,
-      routes: items.length,
-      triangles: geoTris,
-      wakeTriangles: widx.length / 3,
-      wakeSegments: WAKE,
-    },
+    stats,
     get visible() {
       return visible;
     },
