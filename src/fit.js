@@ -304,7 +304,7 @@ export function fitLandmark(l, ctx) {
   const rule = { ...FIT_RULES[l.id], ...builderRule(l.model, l.id) };
   const spec = specFor(l.id, l.model);
   const bk = ctx.baked?.(l.id) ?? null;
-  const fit = { id: l.id, rule, spec, dims, heightSource: dims ? 'dimensions.json' : fp?.height_source ?? 'model' };
+  const fit = { id: l.id, category: l.category, rule, spec, dims, heightSource: dims ? 'dimensions.json' : fp?.height_source ?? 'model' };
 
   // --- no footprint: a rectangle of the dims size (or 20 x 20 m) at the point
   let src = fp;
@@ -638,8 +638,23 @@ export function padFor(fit) {
   // (a flat pad under a 400 m deck would cut a trench into both hillsides).
   if (fit.rule.pad === 'none') return null;
   const p = fit.padPlan;
+  const opt = typeof fit.rule.pad === 'object' && fit.rule.pad ? fit.rule.pad : {};
   const fall = p.fall ?? THREE.MathUtils.clamp(Math.max(p.hu, p.hv) * 0.25, 5, 16);
   const pad = { cx: p.cx, cz: p.cz, ux: p.ux, uz: p.uz, hu: p.hu, hv: p.hv, fall, y: fit.base };
+  // The pad is only as big as the model needs (padPlan: the model box plus 2 m).
+  // A building (a church, a station, a museum) takes at most a third of its own
+  // height in cut (never under 3 m): on a slope it stands partly in the hill, as
+  // real buildings do, instead of in a pit with ramps round it. A site that is
+  // meant to be level (a stadium, a park, a square, a quay) is levelled whole.
+  // rule.pad.cut (metres; Infinity = whole) overrides the choice. Every face is
+  // no steeper than 1 : 1.8 (about 29 degrees): the feather widens with the
+  // height step, up to 2.5 times the base feather, and the cut or fill is eased
+  // in with a smoothstep.
+  const BUILDING = fit.category === 'religious' || fit.category === 'civic' || fit.category === 'museum' || fit.category === 'education' || fit.category === 'culture';
+  const cutM = opt.cut ?? (BUILDING ? Math.max(3, (fit.sizeM?.height ?? 0) / 3) : Infinity);
+  if (Number.isFinite(cutM)) pad.cutMax = cutM * S;
+  pad.batter = 1.8;
+  pad.fallMax = fall * 2.5;
   if (fit.padLevel) pad.yAt = (u, v, x, z) => fit.padLevel(x, z);
   return pad;
 }

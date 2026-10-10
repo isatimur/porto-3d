@@ -1255,9 +1255,30 @@ const GROUND_COLOR = /* glsl */ `
   vec3 granite = vec3(0.300, 0.285, 0.255);
   vec3 col = mix(valley, lush, smoothstep(0.35, 0.7, n1));
   col = mix(col, upland, smoothstep(260.0, 470.0, hm + (n1 - 0.5) * 120.0) * 0.8);
-  float rock = smoothstep(0.045, 0.12, slope + (n2 - 0.5) * 0.06 + (n1 - 0.5) * 0.04);
+  // slope material, by the angle of the (smooth) normal: slope = 1 - cos, so
+  // 0.06 is about 20 degrees, 0.18 about 35, 0.36 about 50.
+  //   below 20: the flat land cover below (grass, built-up, fields);
+  //   20 to 35: scrub, gorse and dry grass, olive to ochre, mottled;
+  //   above 35: granite and schist outcrops, banded by strata (a sine in the
+  //             height, warped by noise), iron-stained, lichen at the foot.
+  float sl = slope + (n2 - 0.5) * 0.05 + (n1 - 0.5) * 0.04;
+  vec3 scrubA = vec3(0.100, 0.112, 0.048) * gMul;
+  vec3 scrubB = vec3(0.150, 0.118, 0.062);
+  float scr = smoothstep(0.05, 0.11, sl) * (1.0 - smoothstep(0.20, 0.30, sl));
+  vec3 scrub = mix(scrubA, scrubB, smoothstep(0.3, 0.75, n2) * 0.7 + sW.z * 0.2);
+  col = mix(col, scrub * (0.85 + 0.3 * nB.a), scr * 0.8);
+  float rock = smoothstep(0.17, 0.27, sl);
   rock = max(rock, smoothstep(0.62, 0.8, n2) * smoothstep(420.0, 540.0, hm));
-  col = mix(col, granite * (0.8 + 0.4 * nB.a), rock * 0.85);
+  // faces are stretched in x, z: look the noise up along the face instead
+  vec4 nF = texture2D(tNoise, vec2(W.x + W.z, W.y * 2.4) * 0.07);
+  float strata = hm * 1.7 + (nA.b - 0.5) * 7.0 + (nF.b - 0.5) * 2.4;
+  float band = 0.5 + 0.5 * sin(strata);
+  band *= 1.0 - smoothstep(0.12, 0.5, fwidth(strata)); // gone where it would alias
+  vec3 rockCol = granite * (0.76 + 0.36 * nF.a);
+  rockCol = mix(rockCol, vec3(0.215, 0.165, 0.120), 0.4 * smoothstep(0.5, 0.9, n1 * 0.6 + nF.b * 0.4));
+  rockCol *= 1.0 - 0.24 * band;
+  rockCol = mix(rockCol, vec3(0.095, 0.125, 0.055) * gMul, 0.3 * smoothstep(0.62, 0.85, nB.b) * (1.0 - smoothstep(0.30, 0.45, sl)));
+  col = mix(col, rockCol, rock * 0.94);
   // The ring around the core: its land cover streams in after the core is
   // up, so until then it gets a cheap, muted suburb tone (olive with a
   // little masonry) instead of the bare valley green. Streamed cover (grass,
@@ -1286,6 +1307,10 @@ const GROUND_COLOR = /* glsl */ `
       L += texture2D(tLandW, wuv) * smoothstep(0.0, 30.0, min(wD.x, wD.y)) * (1.0 - inR);
     }
     L.a = smoothstep(0.25, 0.8, L.a);
+    // the land cover paints the flats; steep ground keeps its own material
+    L.rgb *= 1.0 - rock * 0.9;
+    L.a *= max(0.0, 1.0 - rock - scr * 0.5);
+    L.g *= 1.0 - scr * 0.4;
     float fine = nB.a;
     // fields and vineyards: faint stripes across the parcel
     float stripe = 0.5 + 0.5 * sin((W.x * 0.8 + W.z * 0.45) * (L.b > 0.5 ? 1.2 : 4.0));

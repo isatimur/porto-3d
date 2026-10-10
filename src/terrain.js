@@ -365,11 +365,27 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
   // half extents (hu along, hv across), falloff distance, and either a
   // constant height `y` or a profile `yAt(u, v, x, z)` in local pad coords.
   const pads = [];
+  // Optional pad fields (src/fit.js padFor sets them):
+  //   cutMax  most ground a pad may take away, world units (Infinity: a site
+  //           that is levelled, a stadium; default Infinity). A building on a
+  //           slope takes a small cut and stands partly in the hill, as real
+  //           buildings do, instead of sitting in a pit with ramps round it.
+  //   batter  the fill or cut face is never steeper than 1 : batter (the
+  //           feather widens with the height step, up to fallMax), so a step
+  //           of 12 m is a long slope, not a cliff or a floating shelf.
+  //   fallMax the widest feather the batter may use (default: fall).
   function addPad(p) {
-    const pad = { ...p, r: Math.hypot(p.hu, p.hv) + p.fall };
+    const fallMax = Math.max(p.fall, p.fallMax ?? p.fall);
+    const pad = { ...p, fallMax, r: Math.hypot(p.hu, p.hv) + fallMax };
     pads.push(pad);
     return pad;
   }
+  // A cut up to 70 % of the limit is taken whole; beyond that it saturates
+  // smoothly towards the limit (no kink, so no crease in the ground).
+  const softCut = (d, L) => {
+    const a = 0.7 * L;
+    return d <= a ? d : a + (L - a) * Math.tanh((d - a) / (L - a));
+  };
 
   // heightAt runs hundreds of thousands of times at load (every building,
   // road and tree vertex) and every frame (traffic, people, camera). It used
@@ -416,10 +432,18 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
       const ou = Math.abs(u) - p.hu;
       const ov = Math.abs(v) - p.hv;
       const d = Math.hypot(ou > 0 ? ou : 0, ov > 0 ? ov : 0);
-      if (d >= p.fall) continue;
-      const w = 1 - smooth(d / p.fall);
+      if (d >= p.fallMax) continue;
       const target = p.yAt ? p.yAt(u, v, x, z) : p.y;
-      h += (target - h) * w;
+      let step = target - h; // > 0 fill, < 0 cut
+      if (step < 0 && p.cutMax !== undefined && -step > 0.7 * p.cutMax) step = -softCut(-step, p.cutMax);
+      // the feather widens with the step: face no steeper than 1 : batter
+      let fall = p.fall;
+      if (p.batter) {
+        const f = p.batter * Math.abs(target - h);
+        fall = f < p.fall ? p.fall : f > p.fallMax ? p.fallMax : f;
+      }
+      if (d >= fall) continue;
+      h += step * (1 - smooth(d / fall));
     }
     return h;
   }
