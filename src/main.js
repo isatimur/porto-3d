@@ -1283,6 +1283,8 @@ async function start() {
   story = createStory({
     ...modeCtx,
     load: loadStory,
+    // AI chapter pictures (public/art): not on the lite, P and S classes, nor with ?art=0
+    art: !perf.lite && perf.cls !== 'P' && perf.cls !== 'S' && new URLSearchParams(location.search).get('art') !== '0',
     onFocus: storyLabels,
     onExit: () => {
       storyLabels([]);

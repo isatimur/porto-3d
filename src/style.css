@@ -1260,6 +1260,9 @@ body.is-story .map-label:not(.is-story-focus) { opacity: 0 !important; }
 .story-intro .story-text { font: italic 500 23px/1.35 var(--serif); color: var(--text-2); }
 .story-hint { margin: 28px 0 0; font-size: 12.5px; color: var(--text-3); letter-spacing: 0.04em; }
 .story-hint::after { content: ' ↓'; color: var(--gold); }
+.story-art { position: relative; margin: 0 0 18px; border-radius: 10px; overflow: hidden; aspect-ratio: 16 / 9; background: rgba(14, 10, 6, 0.5); }
+.story-art img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.ai-label { position: absolute; left: 8px; bottom: 8px; padding: 3px 8px; border-radius: 999px; font: 500 11px/1.3 var(--sans); letter-spacing: 0.02em; color: #fbf3e4; background: rgba(14, 10, 6, 0.72); }
 .story-sources { margin: 18px 0 0; font-size: 11.5px; line-height: 1.5; color: var(--text-3); }
 .story-sources a { color: var(--text-2); text-decoration: underline; text-decoration-color: rgba(224, 169, 72, 0.4); text-underline-offset: 2px; }
 .story-sources a:hover { color: var(--gold); }
@@ -1304,6 +1307,8 @@ body.is-story .map-label:not(.is-story-focus) { opacity: 0 !important; }
   .story-title-main { font-size: 52px; }
   .story-text { font-size: 13.5px; line-height: 1.5; }
   .story-sources { font-size: 10.5px; }
+  .story-art { aspect-ratio: 16 / 5; margin-bottom: 10px; border-radius: 8px; }
+  .ai-label { font-size: 10px; left: 6px; bottom: 6px; }
   .story-dots { padding: 6px 10px; background: rgba(14, 10, 6, 0.5); border-radius: 14px; }
   .cinema-tick { width: 6px; height: 6px; margin: -3px 0 0 -3px; }
   .story-intro .story-text { font-size: 19px; }

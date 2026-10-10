@@ -64,6 +64,8 @@ const pick = (o, key) => o?.[`${key}_${language}`] || o?.[`${key}_ru`] || '';
 
 // ctx: { camera, rig, items, sky, home: {position, target}, reducedMotion,
 //        load(): Promise<story json>, setTime(name), getTime(), onEnter(), onExit() }
+const ART_IDS = new Set(['portus-cale', 'porto-suebi', 'episcopal', 'condado', 'paco-episcopal', 'ribeira-miragaia', 'cerco', 'ceuta', 'vinho', 'pontes', 'campanha', 'gaia', 'oitocentista', 'boavista', 'republica', 'teatros', 'matosinhos', 'porto-unesco']);
+
 export function createStory(ctx) {
   const { camera, rig, reducedMotion } = ctx;
   const root = document.getElementById('story');
@@ -96,6 +98,15 @@ export function createStory(ctx) {
     if (text != null) n.textContent = text;
     return n;
   };
+  // AI chapter picture with its visible label (art/PROVENANCE.md). Lazy, sized.
+  function artFigure(id) {
+    const fig = el('figure', 'story-art');
+    const img = el('img');
+    Object.assign(img, { src: `/art/story_${id}.webp`, width: 640, height: 360, loading: 'lazy', decoding: 'async', alt: '' });
+    img.addEventListener('error', () => fig.remove());
+    fig.append(img, el('figcaption', 'ai-label', t('Иллюстрация, создана ИИ')));
+    return fig;
+  }
 
   function render() {
     track.replaceChildren();
@@ -118,6 +129,8 @@ export function createStory(ctx) {
       era.append(el('span', 'story-num', String(i + 1).padStart(2, '0')), document.createTextNode(pick(c, 'era')));
       const h = el('h3', 'story-title', pick(c, 'title'));
       h.id = `story-h-${c.id}`;
+      const fig = CITY.id === 'porto' && ctx.art && ART_IDS.has(c.id) ? artFigure(c.id) : null;
+      if (fig) card.append(fig);
       card.append(era, h, el('p', 'story-text', pick(c, 'text')));
       if (c.sources?.length) {
         const src = el('p', 'story-sources');
