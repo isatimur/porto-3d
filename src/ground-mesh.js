@@ -299,10 +299,20 @@ export function buildGround({ xs, zs, heightAt, lite = false }) {
   let bias = 1;
   let lastKey = '';
   let planSig = -1;
-  const stats = { tris: 0, chunks: 0, stride: [0, 0, 0, 0], planMs: 0, rebuilds: 0 };
-
+  const stats = { tris: 0, chunks: 0, stride: [0, 0, 0, 0], planMs: 0, rebuilds: 0, calls: 0, totalMs: 0, maxMs: 0, idxBytes: 0 };
+  const now = () => (typeof performance !== 'undefined' ? performance.now() : 0);
+  // called from the mesh's onBeforeRender: the plan, timed (stats.totalMs / calls)
   function plan(camera) {
-    const t0 = typeof performance !== 'undefined' ? performance.now() : 0;
+    const t0 = now();
+    planInner(camera);
+    const dt = now() - t0;
+    stats.calls++;
+    stats.totalMs += dt;
+    if (dt > stats.maxMs) stats.maxMs = dt;
+  }
+
+  function planInner(camera) {
+    const t0 = now();
     camera.updateMatrixWorld?.();
     pv.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
     const key = `${pv.elements.join(',')}|${K * bias}`;
@@ -369,7 +379,8 @@ export function buildGround({ xs, zs, heightAt, lite = false }) {
     stats.tris = total / 3;
     stats.chunks = parts.length;
     stats.rebuilds++;
-    stats.planMs = (typeof performance !== 'undefined' ? performance.now() : 0) - t0;
+    stats.idxBytes += total * 4;
+    stats.planMs = now() - t0;
   }
 
   // The camera has not moved but the ground changed (pads): force a refill
