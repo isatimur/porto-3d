@@ -58,6 +58,8 @@ export const messages = {
   'Предыдущее место': ['Local anterior', 'Previous place'], 'Следующее место': ['Local seguinte', 'Next place'],
   'Закрыть маршрут': ['Fechar percurso', 'Close route'], 'Начать облёт': ['Iniciar visita aérea', 'Start flyover'], 'Стоп': ['Parar', 'Stop'],
   'Перетащите — вращение · колесо — масштаб · клик по метке — подробнее': ['Arraste para rodar · use a roda para ampliar · selecione um marcador para saber mais', 'Drag to rotate · scroll to zoom · select a marker for details'],
+  'Загружаем модели': ['A carregar os modelos', 'Loading models'],
+  'Медленное соединение, всё ещё загружается': ['Ligação lenta, ainda a carregar', 'Slow connection, still loading'], 'Лёгкий режим': ['Modo leve', 'Lite mode'],
   'Загрузка карты': ['A carregar o mapa', 'Loading map'], 'Загрузка': ['A carregar', 'Loading'], 'Просмотр фото': ['Visualizador de fotografias', 'Photo viewer'],
   'Предыдущее фото': ['Fotografia anterior', 'Previous photo'], 'Следующее фото': ['Fotografia seguinte', 'Next photo'],
   'Панорама 360°': ['Panorama 360°', '360° panorama'], 'Панорама. Стрелки — поворот, плюс и минус — масштаб': ['Panorama. Setas para rodar, mais e menos para ampliar', 'Panorama. Arrow keys to rotate, plus and minus to zoom'],

@@ -397,6 +397,8 @@
           <p class="loader-title">Порту</p>
           <div class="loader-track"><div class="loader-bar" id="loader-bar"></div></div>
           <p class="loader-text" id="loader-text">Загрузка</p>
+          <p class="loader-hint" id="loader-hint" hidden>Медленное соединение, всё ещё загружается</p>
+          <button type="button" class="loader-lite" id="loader-lite" hidden>Лёгкий режим</button>
         </div>
       </div>
     </div>
@@ -431,6 +433,28 @@
       <button type="button" class="lb-close pano-close" aria-label="Закрыть панораму">×</button>
     </dialog>
 
+    <script>
+      // Slow-load help. It runs before the bundle, so it works when the bundle is the slow part.
+      // After 12 s it shows a hint and a Lite mode button (?scene=lite). Same 3 languages as src/locales/ui.js.
+      (function () {
+        var q = new URLSearchParams(location.search), saved = '';
+        try { saved = localStorage.getItem('porto-language') || ''; } catch (e) {}
+        var langs = [q.get('lang'), saved].concat(navigator.languages || []).map(function (l) { return (l || '').toLowerCase().split('-')[0]; });
+        var lang = langs.filter(function (l) { return l === 'pt' || l === 'en' || l === 'ru'; })[0] || 'pt';
+        var tx = { pt: ['Ligação lenta, ainda a carregar', 'Modo leve'], en: ['Slow connection, still loading', 'Lite mode'], ru: ['Медленное соединение, всё ещё загружается', 'Лёгкий режим'] }[lang];
+        var lite = q.get('scene') === 'lite';
+        setTimeout(function () {
+          var root = document.getElementById('loader'), hint = document.getElementById('loader-hint'), btn = document.getElementById('loader-lite');
+          if (!root || !hint || !btn || root.classList.contains('is-done')) return;
+          hint.textContent = tx[0]; hint.hidden = false;
+          if (lite) return;
+          btn.textContent = tx[1]; btn.hidden = false;
+          btn.addEventListener('click', function () {
+            var u = new URL(location.href); u.searchParams.set('scene', 'lite'); location.assign(u.href);
+          });
+        }, 12000);
+      })();
+    </script>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

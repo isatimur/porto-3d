@@ -291,6 +291,7 @@ async function start() {
     const ruleSources = {};
     const withFn = Object.keys(loaded.fits.models).filter((id) => loaded.fits.models[id].fn);
     if (withFn.length) {
+      loader.set(0.5, t('Загружаем модели'));
       const bridges = await bridgesGroup;
       for (const id of withFn) ruleSources[id] = bridges[id].rule;
     }
