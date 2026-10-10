@@ -374,6 +374,9 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
   //           feather widens with the height step, up to fallMax), so a step
   //           of 12 m is a long slope, not a cliff or a floating shelf.
   //   fallMax the widest feather the batter may use (default: fall).
+  //   fillMax most ground a pad may add, world units (default unlimited). Where
+  //           the pad plane stands higher than the ground it may build, the rest
+  //           is a retaining wall (src/pad-walls.js) under the pad's edge.
   function addPad(p) {
     const fallMax = Math.max(p.fall, p.fallMax ?? p.fall);
     const pad = { ...p, fallMax, r: Math.hypot(p.hu, p.hv) + fallMax };
@@ -435,11 +438,20 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
       if (d >= p.fallMax) continue;
       const target = p.yAt ? p.yAt(u, v, x, z) : p.y;
       let step = target - h; // > 0 fill, < 0 cut
-      if (step < 0 && p.cutMax !== undefined && -step > 0.7 * p.cutMax) step = -softCut(-step, p.cutMax);
+      if (step < 0) {
+        if (p.cutMax !== undefined && -step > 0.7 * p.cutMax) step = -softCut(-step, p.cutMax);
+      } else if (step > 0) {
+        if (p.fillMax !== undefined && step > 0.7 * p.fillMax) step = softCut(step, p.fillMax);
+        // a pad never fills the river, the shore or a beach: ground under 1.5 m
+        // above sea level is left alone, eased in up to 5 m (a garden terrace
+        // used to push a spur 80 m high into the Douro)
+        const e = h / k + datum;
+        if (e < 5) step *= e <= 1.5 ? 0 : smooth((e - 1.5) / 3.5);
+      }
       // the feather widens with the step: face no steeper than 1 : batter
       let fall = p.fall;
       if (p.batter) {
-        const f = p.batter * Math.abs(target - h);
+        const f = p.batter * Math.abs(step);
         fall = f < p.fall ? p.fall : f > p.fallMax ? p.fallMax : f;
       }
       if (d >= fall) continue;

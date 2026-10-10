@@ -174,7 +174,11 @@ export const FIT_RULES = {
   // dome and the Douro mirador/water. Box = the drawn gardens + arena + water.
   // The arena height is the real dome apex (~39 m), set in data/dimensions.json.
   'palacio-cristal': {
-    extent: { box: { x0: -214.1, x1: 220.1, z0: -219.2, z1: 193.9 } },
+    // The box is the plateau (72 m and above on the DEM), 270 x 245 m, the size
+    // of the authored gardens (300 x 220); the OSM outline also holds the slope
+    // down to the river (x -214..220, z -219..194), which a flat model cannot
+    // stand on.
+    extent: { box: { x0: -150, x1: 120, z0: -50, z1: 195 } },
     fitTo: true,
     // The garden outline falls 88 m from the plateau to the river: the lowest
     // point is no base. The arena stands on the plateau, so the base is the
@@ -662,6 +666,11 @@ export function padFor(fit) {
   const BUILDING = fit.category === 'religious' || fit.category === 'civic' || fit.category === 'museum' || fit.category === 'education' || fit.category === 'culture';
   const cutM = opt.cut ?? (BUILDING ? Math.max(3, (fit.sizeM?.height ?? 0) / 3) : fit.category === 'sport' ? 10 : 6);
   if (Number.isFinite(cutM)) pad.cutMax = cutM * S;
+  // A pad builds up at most 2.5 m of ground (rule.pad.fill, metres, overrides).
+  // Where its plane stands higher than that the model's edge needs a retaining
+  // wall (src/pad-walls.js); a deeper fill is a spur: the Palacio garden terrace
+  // used to push an 80 m high one into the Douro.
+  if (!fit.padLevel) pad.fillMax = (opt.fill ?? 2.5) * S; // profile pads (bridge approaches) keep their own fill
   pad.batter = 1.8;
   pad.fallMax = fall * 2.5;
   if (fit.padLevel) pad.yAt = (u, v, x, z) => fit.padLevel(x, z);
