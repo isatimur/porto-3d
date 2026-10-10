@@ -28,6 +28,7 @@ import { fitLandmark, bakedFit, setDims, shrinkCheck } from '../src/fit.js';
 import { models, GROUPS } from '../src/models.js';
 import { FITS_VERSION, createMeta, serializeRule } from '../src/model-meta.js';
 import { CITY, ROOT, dataPath } from './city-lib.mjs';
+import { loadTerrain } from './terrain-load.mjs';
 
 const args = process.argv.slice(2);
 const CHECK = args.includes('--check');
@@ -52,7 +53,8 @@ function inputsHash(landmarks) {
     h.update(relative(ROOT, f));
     h.update(readFileSync(f));
   }
-  for (const f of ['terrain.json', 'footprints.json', 'dimensions.json']) {
+  for (const f of ['terrain.json', 'terrain-fine.bin.gz', 'footprints.json', 'dimensions.json']) {
+    if (!existsSync(dataPath(f))) continue;
     h.update(f);
     h.update(readFileSync(dataPath(f)));
   }
@@ -99,7 +101,7 @@ for (const id of Object.keys(groupOf)) {
 setDims(existsSync(dataPath('dimensions.json')) ? load('dimensions.json') : {});
 const roads = load('roads.json');
 const footprints = load('footprints.json');
-const terrain = load('terrain.json');
+const terrain = loadTerrain();
 const proj = createProjection(roads.origin, roads.bbox, landmarks, terrain);
 const T = proj.terrain;
 const ctx = { project: proj.project, rawAt: T.rawAt, footprints, models };

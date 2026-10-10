@@ -2,6 +2,7 @@ import { language, loadTranslations, localizeLandmark, localizeRoute } from './i
 import { CITY, dataPath } from './city.js';
 import { setDims } from './fit.js';
 import { unpackBuildings } from './buildings-pack.js';
+import { unpackFine } from './terrain-fine.js';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -216,6 +217,29 @@ async function fetchBuildings() {
   return fetchJSON(dataPath('buildings.json'));
 }
 
+// The fine core terrain: data/terrain-fine.bin.gz (terrain-fine.js, about
+// 0.3 MB on the wire). Optional: without it the ground is the coarse lattice.
+async function fetchTerrainFine() {
+  const packed = dataPath('terrain-fine.bin.gz');
+  // a dev server started before the file existed has no hash for it: try anyway
+  if (typeof DecompressionStream === 'undefined' || (!DATA_V[packed] && !import.meta.env.DEV)) return null;
+  try {
+    const res = await fetch(assetUrl(packed));
+    if (!res.ok || !res.body || /html/.test(res.headers.get('content-type') || '')) return null;
+    // the dev server sends the .gz with Content-Encoding: gzip, so the browser
+    // has already unpacked it: look at the first bytes (1f 8b = still gzip)
+    const raw = await res.arrayBuffer();
+    const b = new Uint8Array(raw, 0, 2);
+    if (b[0] === 0x1f && b[1] === 0x8b) {
+      return unpackFine(await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer());
+    }
+    return unpackFine(raw);
+  } catch (e) {
+    console.warn(`[porto] ${packed} unavailable (${e.message}); coarse ground`);
+    return null;
+  }
+}
+
 // What the first frame needs is awaited here; the two big files are not.
 // roads.json (2.8 MB) and buildings.json (9 MB) download while the landmarks
 // are fitted and the sky is already on screen; the build steps await
@@ -253,7 +277,7 @@ export async function loadData(onStep = () => {}) {
   const [lmRes, rtRes, trRes, fpRes, locRes, ntRes, dims, life, axes, fitsRes] = await Promise.allSettled([
     fetchJSON(CITY.landmarks_file).then(cleanLandmarks),
     fetchJSON(dataPath('routes.json')),
-    fetchJSON(dataPath('terrain.json')),
+    Promise.all([fetchJSON(dataPath('terrain.json')), fetchTerrainFine()]).then(([t, fine]) => (fine ? { ...t, fine } : t)),
     fetchJSON(dataPath('footprints.json')),
     loadTranslations(language, CITY.id),
     fetchJSON(dataPath('nature.json')),

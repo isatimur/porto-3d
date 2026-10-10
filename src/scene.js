@@ -25,6 +25,7 @@
 // humidity thickens that haze toward the Atlantic and pales it over the
 // water, so the western horizon reads as an ocean horizon.
 import * as THREE from 'three';
+import { buildGround } from './ground-mesh.js';
 
 // ------------------------------------------------------------ shared fog uniforms
 // Plain objects (not Vector3) on purpose: UniformsUtils.clone copies three.js
@@ -1154,8 +1155,39 @@ export const GROUND_HALF = 6000;
 // one quad per cell over the rest of the DEM (the streamed surroundings,
 // src/tiles.js); coarser beyond. The tile worker drapes the streamed tiles
 // on exactly these triangles, so nothing floats or sinks.
+// With the fine core (terrain.fine, src/terrain-fine.js) the lines inside it
+// are the data's own 12 m grid and the ring keeps one line per DEM cell;
+// the rest as before.
+function fineAxis(a0, a1, cells, f0, f1, fcols, half) {
+  const out = [];
+  const cell = (a1 - a0) / cells;
+  // the ring between the DEM edge and the fine core: whole DEM cells, nudged to meet f0
+  const ringLines = (from, to) => {
+    const m = Math.max(1, Math.round((to - from) / cell));
+    const o = [];
+    for (let k = 0; k < m; k++) o.push(from + ((to - from) * k) / m);
+    return o;
+  };
+  for (let s = cell * 2, a = a0 - cell * 2; a > -half; s *= 1.6, a -= s) out.unshift(a);
+  out.unshift(-half);
+  out.push(...ringLines(a0, f0));
+  for (let k = 0; k < fcols; k++) out.push(f0 + ((f1 - f0) * k) / (fcols - 1));
+  out.push(...ringLines(f1, a1).slice(1));
+  out.push(a1);
+  for (let s = cell * 2, a = a1 + cell * 2; a < half; s *= 1.6, a += s) out.push(a);
+  out.push(half);
+  return out;
+}
+
 export function groundAxes(terrain) {
   const b = terrain.bounds;
+  const f = terrain.fine;
+  if (f) {
+    return {
+      xs: fineAxis(b.x0, b.x1, b.cols - 1, f.x0, f.x1, f.cols, GROUND_HALF),
+      zs: fineAxis(b.zN, b.zS, b.rows - 1, f.zN, f.zS, f.rows, GROUND_HALF),
+    };
+  }
   const c = terrain.core;
   const wide = c && c !== b && Number.isInteger(c.c0);
   // columns west to east; rows: z runs north to south, the DEM rows south to north
@@ -1371,56 +1403,12 @@ function shadowProxy(terrain) {
 // cell over the DEM (so draped lines and buildings match it), coarser out
 // to the fogged edge. Vertex colour: an ambient-occlusion term from the
 // local concavity (folds darker, ridges a touch lighter).
-export function createGround(terrain) {
+export function createGround(terrain, { lite = false } = {}) {
   const { heightAt, bounds: b } = terrain;
   const { xs, zs } = groundAxes(terrain);
-  const nx = xs.length;
-  const nz = zs.length;
-  const pos = new Float32Array(nx * nz * 3);
-  for (let j = 0; j < nz; j++) {
-    for (let i = 0; i < nx; i++) {
-      const k = j * nx + i;
-      pos[k * 3] = xs[i];
-      pos[k * 3 + 1] = heightAt(xs[i], zs[j]);
-      pos[k * 3 + 2] = zs[j];
-    }
-  }
-  const idx = new Uint32Array((nx - 1) * (nz - 1) * 6);
-  let o = 0;
-  for (let j = 0; j < nz - 1; j++) {
-    for (let i = 0; i < nx - 1; i++) {
-      const a = j * nx + i;
-      const bb = a + 1;
-      const c = a + nx;
-      const d = c + 1;
-      // counter-clockwise seen from above (+y)
-      idx[o++] = a;
-      idx[o++] = c;
-      idx[o++] = bb;
-      idx[o++] = bb;
-      idx[o++] = c;
-      idx[o++] = d;
-    }
-  }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  geo.setIndex(new THREE.BufferAttribute(idx, 1));
-  geo.computeVertexNormals();
-  const col = new Float32Array(nx * nz * 3);
-  const R = 16; // 64 m
-  const aoAt = (k) => {
-    const x = pos[k * 3];
-    const z = pos[k * 3 + 2];
-    const h = pos[k * 3 + 1];
-    const around = (heightAt(x + R, z) + heightAt(x - R, z) + heightAt(x, z + R) + heightAt(x, z - R)) / 4;
-    const around2 = (heightAt(x + R * 2.5, z) + heightAt(x - R * 2.5, z) + heightAt(x, z + R * 2.5) + heightAt(x, z - R * 2.5)) / 4;
-    const concave = (around - h) * 0.6 + (around2 - h) * 0.4; // world units
-    const ao = THREE.MathUtils.clamp(1 - concave * 0.09, 0.6, 1.1);
-    col[k * 3] = col[k * 3 + 1] = col[k * 3 + 2] = ao;
-  };
-  for (let k = 0; k < nx * nz; k++) aoAt(k);
-  geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-  geo.computeBoundingSphere();
+  // chunked, per-chunk LOD, crack-free (src/ground-mesh.js)
+  const gm = buildGround({ xs: Float64Array.from(xs), zs: Float64Array.from(zs), heightAt, lite });
+  const geo = gm.geometry;
 
   const blank = new THREE.DataTexture(new Uint8Array(4), 1, 1);
   blank.needsUpdate = true;
@@ -1472,92 +1460,30 @@ export function createGround(terrain) {
   // before the landmark fits exist. Once their pads are in the terrain,
   // this re-reads heightAt where the pads reach (plus the AO radius), so
   // the result is the ground createGround would have built with the pads.
-  const lowerIndex = (arr, v) => {
-    let lo = 0;
-    let hi = arr.length - 1;
-    while (lo < hi) {
-      const mid = (lo + hi) >> 1;
-      if (arr[mid] < v) lo = mid + 1;
-      else hi = mid;
-    }
-    return lo;
-  };
-  // Geometry LOD (main.js geoLod): far from the focus the same vertices are
-  // drawn with every 2nd (or 4th) grid line: a quarter (a sixteenth) of the
-  // triangles on the same normals and colours, so the surface keeps its look.
-  const strideIndex = (step) => {
-    const lines = (n) => {
-      const a = [];
-      for (let i = 0; i < n - 1; i += step) a.push(i);
-      a.push(n - 1);
-      return a;
-    };
-    const ci = lines(nx);
-    const cj = lines(nz);
-    const out = new Uint32Array((ci.length - 1) * (cj.length - 1) * 6);
-    let q = 0;
-    for (let j = 0; j < cj.length - 1; j++) {
-      for (let i = 0; i < ci.length - 1; i++) {
-        const a = cj[j] * nx + ci[i];
-        const bb = cj[j] * nx + ci[i + 1];
-        const c = cj[j + 1] * nx + ci[i];
-        const d = cj[j + 1] * nx + ci[i + 1];
-        out[q++] = a;
-        out[q++] = c;
-        out[q++] = bb;
-        out[q++] = bb;
-        out[q++] = c;
-        out[q++] = d;
-      }
-    }
-    return new THREE.BufferAttribute(out, 1);
-  };
-  const lodIndex = [geo.index, null, null];
+  // Geometry LOD: every chunk picks its own stride from the camera distance
+  // (src/ground-mesh.js); the governor's level (main.js geoLod) only scales
+  // the distances: 1 and 2 bring the coarser strides in sooner.
   let lodLevel = 0;
   mesh.userData.setLod = (level) => {
     level = Math.max(0, Math.min(2, level | 0));
     if (level === lodLevel) return lodLevel;
-    lodIndex[level] ??= strideIndex(level === 1 ? 2 : 4);
-    geo.setIndex(lodIndex[level]);
+    gm.setLevel(level);
     lodLevel = level;
     return lodLevel;
   };
+  // The chunk plan runs when the mesh is about to be drawn, with the camera
+  // that draws it (main view or a pass of the composer).
+  mesh.frustumCulled = false;
+  mesh.onBeforeRender = (renderer, scene, camera) => gm.plan(camera);
+  mesh.userData.groundMesh = gm;
   mesh.userData.applyPads = (pads = terrain.pads) => {
     if (!pads.length) return 0;
-    // the normals need the full grid: back to the fine index while it runs
-    const keepLod = lodLevel;
-    mesh.userData.setLod(0);
-    const reach = R * 2.5 + 1; // AO samples this far away
-    const touched = new Uint8Array(nx * nz);
-    let n = 0;
-    for (const p of pads) {
-      const r = p.r + reach;
-      const i0 = Math.max(0, lowerIndex(xs, p.cx - r) - 1);
-      const i1 = Math.min(nx - 1, lowerIndex(xs, p.cx + r) + 1);
-      const j0 = Math.max(0, lowerIndex(zs, p.cz - r) - 1);
-      const j1 = Math.min(nz - 1, lowerIndex(zs, p.cz + r) + 1);
-      for (let j = j0; j <= j1; j++) {
-        for (let i = i0; i <= i1; i++) {
-          const k = j * nx + i;
-          if (touched[k]) continue;
-          touched[k] = 1;
-          pos[k * 3 + 1] = heightAt(xs[i], zs[j]);
-          n++;
-        }
-      }
-    }
-    // AO after all heights (it reads heightAt, not the mesh, but keep order clear)
-    for (let k = 0; k < nx * nz; k++) if (touched[k]) aoAt(k);
-    geo.attributes.position.needsUpdate = true;
-    geo.attributes.color.needsUpdate = true;
-    geo.computeVertexNormals();
-    geo.computeBoundingSphere();
+    const n = gm.patch(pads);
     // the shadow proxy follows (one node per DEM cell)
     const pp = proxy.geometry.attributes.position;
     for (let k = 0; k < pp.count; k++) pp.setY(k, heightAt(pp.getX(k), pp.getZ(k)) - 0.6);
     pp.needsUpdate = true;
     proxy.geometry.computeBoundingSphere();
-    mesh.userData.setLod(keepLod);
     return n;
   };
   mesh.userData.setLandcover = (tex, rect) => {

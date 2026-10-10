@@ -151,7 +151,7 @@ async function start() {
   // __porto.ready still means "fully built and interactive".
   loader.set(0.45, t('Строим рельеф'));
   const tb = terrain.bounds;
-  const ground = LITE_SCENE ? lite.createGroundLite({ terrain, heightAt, atmosphere, S: proj.S }) : createGround(terrain);
+  const ground = LITE_SCENE ? lite.createGroundLite({ terrain, heightAt, atmosphere, S: proj.S }) : createGround(terrain, { lite: LITE });
   const surfaceAt = LITE_SCENE ? ground.userData.surfaceAt : heightAt;
 
   // Geometry LOD by the distance from the camera to the focus (world units;

@@ -268,11 +268,59 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
   rim /= rimN;
   const RIM_FADE_M = 2000;
 
-  // Raw DEM height in metres above sea level, at local metres. Outside the
-  // grid there is no data: the edge profile is averaged over a window that
-  // widens with the distance (no ridges running out from the edge), then
-  // eases toward the rim mean.
+  // The fine core (data/terrain-fine.bin.gz, src/terrain-fine.js): a 12 m grid
+  // over the core bbox plus a margin, read in place of the lattice above. Inside
+  // it the surface is the fine grid; across the outer FINE_BLEND_M of its margin
+  // it blends into the lattice, so the streamed ring (which has only the
+  // lattice) meets it without a step. data.fine = { bbox, cols, rows, heights }.
+  const fineSrc =
+    ok && data.fine && data.fine.cols > 1 && data.fine.rows > 1 && data.fine.heights?.length === data.fine.cols * data.fine.rows
+      ? data.fine
+      : null;
+  const FH = fineSrc ? (fineSrc.heights instanceof Float32Array ? fineSrc.heights : Float32Array.from(fineSrc.heights)) : null;
+  const fsw = fineSrc ? toMetres(fineSrc.bbox.s, fineSrc.bbox.w) : null;
+  const fne = fineSrc ? toMetres(fineSrc.bbox.n, fineSrc.bbox.e) : null;
+  const fx0 = fsw ? fsw.x : 0;
+  const fx1 = fne ? fne.x : 0;
+  const fzS = fsw ? fsw.z : 0;
+  const fzN = fne ? fne.z : 0;
+  const FINE_BLEND_M = 360;
+  function fineMetres(mx, mz) {
+    const fcols = fineSrc.cols;
+    const frows = fineSrc.rows;
+    let fc = ((mx - fx0) / (fx1 - fx0)) * (fcols - 1);
+    let fr = ((fzS - mz) / (fzS - fzN)) * (frows - 1);
+    fc = fc < 0 ? 0 : fc > fcols - 1 ? fcols - 1 : fc;
+    fr = fr < 0 ? 0 : fr > frows - 1 ? frows - 1 : fr;
+    const c0 = Math.min(fcols - 2, Math.floor(fc));
+    const r0 = Math.min(frows - 2, Math.floor(fr));
+    const tc = fc - c0;
+    const tr = fr - r0;
+    const i = r0 * fcols + c0;
+    const a = FH[i] + (FH[i + 1] - FH[i]) * tc;
+    const b = FH[i + fcols] + (FH[i + fcols + 1] - FH[i + fcols]) * tc;
+    return a + (b - a) * tr;
+  }
+
+  // Raw ground height in metres above sea level, at local metres: the fine
+  // core where it exists, else the lattice (coarseMetres).
   function rawMetres(mx, mz) {
+    if (fineSrc) {
+      const d = Math.min(mx - fx0, fx1 - mx, mz - fzN, fzS - mz);
+      if (d >= FINE_BLEND_M) return fineMetres(mx, mz);
+      if (d > 0) {
+        const w = smooth(d / FINE_BLEND_M);
+        const c = coarseMetres(mx, mz);
+        return c + (fineMetres(mx, mz) - c) * w;
+      }
+    }
+    return coarseMetres(mx, mz);
+  }
+
+  // The lattice height (EU-DEM, enhanced). Outside the grid there is no data:
+  // the edge profile is averaged over a window that widens with the distance
+  // (no ridges running out from the edge), then eases toward the rim mean.
+  function coarseMetres(mx, mz) {
     const ox = mx < x0 ? x0 - mx : mx > x1 ? mx - x1 : 0;
     const oz = mz > zS ? mz - zS : mz < zN ? zN - mz : 0;
     if (!ox && !oz) return gridMetres(mx, mz);
@@ -305,7 +353,9 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
   }
 
   // Datum: the DEM height at the origin becomes y = 0.
-  const datum = ok ? rawMetres(0, 0) : 0;
+  // Always taken from the lattice, so it is the same number with or without
+  // the fine core: models, fits and bridge decks keep their heights.
+  const datum = ok ? coarseMetres(0, 0) : 0;
   const k = S * exaggeration;
 
   // Raw world height, no pads.
@@ -388,6 +438,12 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
     core = { x0: csw.x * S, x1: cne.x * S, zN: cne.z * S, zS: csw.z * S, cols: c.cols, rows: c.rows, c0: c.c0, r0: c.r0 };
   }
 
+  // The fine core in world units: the lattice of the ground mesh (scene.js
+  // groundAxes) is the data's own 12 m grid inside it. null without the file.
+  const fine = fineSrc
+    ? { x0: fx0 * S, x1: fx1 * S, zN: fzN * S, zS: fzS * S, cols: fineSrc.cols, rows: fineSrc.rows, blend: FINE_BLEND_M * S }
+    : null;
+
   return {
     ok,
     heightAt,
@@ -397,9 +453,11 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
     pads,
     bounds,
     core,
+    fine,
     // the raw grid, for the tile worker (src/tile-worker.js), which drapes
-    // the streamed tiles on the same ground
-    grid: ok ? { bbox: data.bbox, cols, rows, heights: H, core: data.core || null } : null,
+    // the streamed tiles on the same ground; `fine` rides along so that the
+    // workers rebuild the very same height function
+    grid: ok ? { bbox: data.bbox, cols, rows, heights: H, core: data.core || null, fine: fineSrc ? { bbox: fineSrc.bbox, cols: fineSrc.cols, rows: fineSrc.rows, heights: FH } : null } : null,
     datum,
     // metres above sea level at a world point (with pads)
     elevationAt: (x, z) => heightAt(x, z) / k + datum,

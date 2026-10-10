@@ -21,6 +21,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CITY, dataPath } from './city-lib.mjs';
+import { loadTerrain } from './terrain-load.mjs';
 import { createProjection } from '../src/geo.js';
 import { buildNetwork, createFlow, CLEAR_WATER, CLEAR_WAY } from '../src/road-network.js';
 
@@ -28,7 +29,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const load = (f) => JSON.parse(readFileSync(dataPath(f), 'utf8'));
 const roads = load('roads.json');
 const landmarks = JSON.parse(readFileSync(CITY.landmarksPath, 'utf8'));
-const proj = createProjection(roads.origin, roads.bbox, landmarks, load('terrain.json'));
+const proj = createProjection(roads.origin, roads.bbox, landmarks, loadTerrain());
 const S = proj.S;
 const t0 = Date.now();
 const net = buildNetwork(roads, proj.project, proj.heightAt);

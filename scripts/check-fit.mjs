@@ -12,6 +12,7 @@ import { createProjection, S } from '../src/geo.js';
 import { fitLandmark, padFor, shrinkCheck, DEVIATION_FAIL, SHRINK_MIN, setDims } from '../src/fit.js';
 import { loadCityModels, models } from '../src/models.js';
 import { CITY, dataPath } from './city-lib.mjs';
+import { loadTerrain } from './terrain-load.mjs';
 import { existsSync } from 'node:fs';
 
 // --city <id> picks the city (default braga).
@@ -25,7 +26,7 @@ await loadCityModels(CITY.id);
 const landmarks = load('landmarks.json');
 const roads = load('roads.json');
 const footprints = load('footprints.json');
-const terrain = load('terrain.json');
+const terrain = loadTerrain();
 const proj = createProjection(roads.origin, roads.bbox, landmarks, terrain);
 const T = proj.terrain;
 const allowLegacy = process.argv.includes('--allow-legacy');

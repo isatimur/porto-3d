@@ -20,6 +20,7 @@ import { createProjection } from '../src/geo.js';
 import { fitLandmark, setDims } from '../src/fit.js';
 import { triangleCount, loadCityModels, builderRule, models } from '../src/models.js';
 import { CITY, dataPath } from './city-lib.mjs';
+import { loadTerrain } from './terrain-load.mjs';
 
 const MAX_MODEL = 40000;
 const MIN_MODEL = 4000;
@@ -47,7 +48,7 @@ await loadCityModels(CITY.id);
 const list = load('landmarks.json');
 const roads = load('roads.json');
 const footprints = load('footprints.json');
-const proj = createProjection(roads.origin, roads.bbox, list, load('terrain.json'));
+const proj = createProjection(roads.origin, roads.bbox, list, loadTerrain());
 const warn = console.warn;
 console.warn = () => {};
 const fits = list.map((l) => fitLandmark(l, { project: proj.project, rawAt: proj.terrain.rawAt, footprints, models }));
