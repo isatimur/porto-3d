@@ -650,8 +650,11 @@ export function padFor(fit) {
   // no steeper than 1 : 1.8 (about 29 degrees): the feather widens with the
   // height step, up to 2.5 times the base feather, and the cut or fill is eased
   // in with a smoothstep.
+  // Gardens, streets and the coast take 6 m, a stadium 10 m: a level site on a
+  // real slope (the Palácio de Cristal garden, 88 m of relief over 400 m) used
+  // to be cut 60 m deep, a pit whose wall was the grey cliff above the Douro.
   const BUILDING = fit.category === 'religious' || fit.category === 'civic' || fit.category === 'museum' || fit.category === 'education' || fit.category === 'culture';
-  const cutM = opt.cut ?? (BUILDING ? Math.max(3, (fit.sizeM?.height ?? 0) / 3) : Infinity);
+  const cutM = opt.cut ?? (BUILDING ? Math.max(3, (fit.sizeM?.height ?? 0) / 3) : fit.category === 'sport' ? 10 : 6);
   if (Number.isFinite(cutM)) pad.cutMax = cutM * S;
   pad.batter = 1.8;
   pad.fallMax = fall * 2.5;

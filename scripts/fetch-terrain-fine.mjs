@@ -174,12 +174,53 @@ const heights = new Float32Array(cols * rows);
 for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) heights[r * cols + c] = terrarium(bbox.s + r * dLat, bbox.w + c * dLon);
 // Datum match. Terrarium holds the Douro at 2.5 to 3 m where the EU-DEM lattice
 // (and so the water level every module reads, the bridge decks and the quays)
-// holds it at 1 m. Pull the river surface band down by 2 m so the water stays
-// where it was; ground above ~7 m and the sea (0 m) are left alone.
+// holds it at 1 m. Inside the OSM water polygons (data/nature.json, k = water)
+// the surface is pulled down by 2 m, eased out over about 30 m beyond the
+// bank, so the water stays where it was and a quay top (3 to 5 m) keeps its
+// height. The sea (0 m) is not touched (nothing to pull above 2 m).
 const sstep = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+const mask = new Float32Array(cols * rows);
+{
+  const N = JSON.parse(readFileSync(dataPath('nature.json'), 'utf8'));
+  const toC = (lon) => (lon - bbox.w) / dLon;
+  const toR = (lat) => (lat - bbox.s) / dLat;
+  let rings = 0;
+  for (const a of N.areas || []) {
+    if (a.k !== 'water' || !Array.isArray(a.r)) continue;
+    // even-odd scanline fill over all rings of the area (holes included)
+    const R = a.r.map((ring) => ring.map(([la, lo]) => [toC(lo), toR(la)]));
+    let r0 = Infinity, r1 = -Infinity;
+    for (const ring of R) for (const [, y] of ring) { if (y < r0) r0 = y; if (y > r1) r1 = y; }
+    r0 = Math.max(0, Math.floor(r0)); r1 = Math.min(rows - 1, Math.ceil(r1));
+    for (let r = r0; r <= r1; r++) {
+      const xs = [];
+      for (const ring of R) {
+        for (let i = 0; i < ring.length; i++) {
+          const [x0, y0] = ring[i], [x1, y1] = ring[(i + 1) % ring.length];
+          if ((y0 <= r && y1 > r) || (y1 <= r && y0 > r)) xs.push(x0 + ((r - y0) / (y1 - y0)) * (x1 - x0));
+        }
+      }
+      xs.sort((p, q) => p - q);
+      for (let k = 0; k + 1 < xs.length; k += 2) {
+        for (let c = Math.max(0, Math.ceil(xs[k])); c <= Math.min(cols - 1, Math.floor(xs[k + 1])); c++) mask[r * cols + c] = 1;
+      }
+    }
+    rings++;
+  }
+  console.log(`water mask: ${rings} polygons, ${mask.reduce((s, v) => s + v, 0)} cells`);
+}
+// soften: two box blurs of radius 2 cells (about 30 m of ease at the bank)
+function blur(src, R) {
+  const tmp = new Float32Array(src.length), out = new Float32Array(src.length);
+  const k = 1 / (2 * R + 1);
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { let s = 0; for (let d = -R; d <= R; d++) s += src[r * cols + Math.min(cols - 1, Math.max(0, c + d))]; tmp[r * cols + c] = s * k; }
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { let s = 0; for (let d = -R; d <= R; d++) s += tmp[Math.min(rows - 1, Math.max(0, r + d)) * cols + c]; out[r * cols + c] = s * k; }
+  return out;
+}
+const soft = blur(blur(mask, 2), 2);
 for (let i = 0; i < heights.length; i++) {
   const h = heights[i];
-  heights[i] = h - 2.0 * sstep(2.0, 2.6, h) * (1 - sstep(3.5, 7.0, h));
+  heights[i] = h - 1.8 * Math.min(1, soft[i] * 1.6) * sstep(1.6, 2.4, h);
 }
 let min = Infinity, max = -Infinity;
 for (const v of heights) { if (v < min) min = v; if (v > max) max = v; }
