@@ -1951,6 +1951,40 @@ async function start() {
         mark('quays');
       });
     });
+    // the real coast and the harbour structures (src/harbour.js, data/coast.json): a shore
+    // apron (sand, rock, sea wall), moles with armour, piers, lighthouses. The Felgueiras mole and the
+    // Leca lighthouse belong to their landmark models: not drawn here.
+    await step('harbour', async () => {
+      const [m, qd] = await Promise.all([import('./harbour.js'), quaysP ? quaysP.then((r) => r.doc) : null]);
+      const doc = await m.loadCoast();
+      if (!doc) return;
+      const k = 1 / METRES_PER_UNIT;
+      const at = (id, r) => {
+        const l = landmarks.find((x) => x.id === id);
+        if (!l) return [];
+        const p = project(l.lat, l.lon);
+        return [{ x: p.x, z: p.z, r: r * k }];
+      };
+      const sw = project(CITY.core_bbox.s, CITY.core_bbox.w);
+      const ne = project(CITY.core_bbox.n, CITY.core_bbox.e);
+      const h = m.buildHarbour({
+        doc,
+        project,
+        heightAt,
+        S: k,
+        detail: perf.cls === 'S' ? 1 : 2, // armour units and the heavy detail from the M class up
+        mobile: LITE,
+        core: { x0: Math.min(sw.x, ne.x), x1: Math.max(sw.x, ne.x), z0: Math.min(sw.z, ne.z), z1: Math.max(sw.z, ne.z) },
+        quayLines: qd?.lines,
+        waterRings: (natureBase?.areas || []).filter((a) => a.k === 'water' && a.open && a.area < 1e6).map((a) => a.rings[0]),
+        skip: [...at('felgueiras', 90), ...at('farol-leca', 40)],
+        skipIds: ['w446589339'],
+      });
+      if (!h) return;
+      scene.add(h.group);
+      debug.harbour = h.stats;
+      mark('harbour');
+    });
     await step('ms', async () => {
       const m = await late.ms;
       ms = m.createMsBuildings({ scene, camera, terrain, heightAt, proj, footprints, plans: msPlans, osm: city.footprints, mobile: LITE, lite: LITE, debug });

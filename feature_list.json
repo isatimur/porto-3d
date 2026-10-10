@@ -390,6 +390,26 @@
       "verification": ["npm run perf", "npm run verify (14 checks)"],
       "evidence": ["perf/BASELINE.md, perf/results.json", "node scripts/perf-bench.mjs --bytes: 127 MB shipped before, 165 MB with WebP copies"],
       "notes": "The bench runs on one machine; see perf/profiles.json for what is emulated."
+    },
+    {
+      "id": "porto-w1b-001",
+      "priority": 22,
+      "area": "coast",
+      "title": "Wave 1B: the real OSM coastline as the sea, harbour basins, shore apron, moles with armour, piers, lighthouses",
+      "user_visible_behavior": "The sea follows the real coast (beaches, rocks, the Foz and Leixoes moles, the Douro mouth) instead of a straight cut; the Leixoes outer harbour and the Leca marina are water; sand strips, a granite sea wall, rock outcrops and moles with concrete cubes and tetrapods stand along the shore; 17 lighthouses and harbour lights are drawn.",
+      "status": "passing",
+      "verification": [
+        "node scripts/fetch-coast.mjs (cached: data/.cache/coast-raw.json) then npm run check:coast",
+        "npm run build, npm run check:geo, npm run check:data, npm run check:fit",
+        "Playwright shots on :5202 of an isolated copy (HEAD plus the coast files): foz, felgueiras, leixoes, leca, estiva, marina, afurada, queijo"
+      ],
+      "evidence": [
+        "OSM in the wide bbox: 29 coastline ways in 1 run + 3 islets (981-point sea ring, 124.7 km2), 31 breakwater polygons, 120 pier ways, 19 lights (16 man_made=lighthouse features, Leca once), 96 beach and 87 rock polygons, 5 marinas",
+        "sea mesh: 5021 triangles, area ratio 1.000 against the polygon (check:coast), 157 ms once, cached for the water rebuild",
+        "harbour layer: 96.8 k triangles (apron 22.6 k, mounds 24.1 k, piers 5.0 k, lights 1.1 k, armour 44.0 k hidden beyond 1.5 km), 130 ms build; scene 1.94 M triangles at the overview (desktop budget 2.4 M)",
+        "0 of 64575 buildings and 1 of 54648 street points in the new sea; no landmark point inside it (felgueiras 6 m, castelo-queijo 41 m, praia-ingleses 35 m from the coast)"
+      ],
+      "notes": "Not done: the sea shader still reads the single-valued coast profile (water.js, owner C: the sea mesh carries aSeaDist, aSeaDepth, aMouth for it); the Douro estuary and the sea still meet at the closing line (colour blend is the shader's job); Leixoes docks are not water in OSM (only the outer harbour polygon and the marinas are filled); the grass of the ring terrain still runs to the apron edge (ground, owner D). Felgueiras mole and Leca lighthouse are left to their landmark models."
     }
   ]
 }

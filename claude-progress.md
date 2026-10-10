@@ -22,6 +22,14 @@ updates it automatically.
 
 ## Session Log
 
+### Wave 1B — the real coast (feature porto-w1b-001)
+
+- Goal: the sea polygon from the real OSM coastline, the harbour structures. The old sea was 113 vertices from the easternmost coast point per 220 m latitude band.
+- Data: `scripts/fetch-coast.mjs` (`npm run fetch:coast`, Overpass mirrors, cache `data/.cache/coast-raw.json`) joins the 29 coastline ways into one sea ring (981 points at 2 m, 124.7 km2, closed along the wide bbox, 3 islets), the 31 breakwater polygons, 120 pier ways, 19 lights, 96 beaches, 87 rocks, 5 marinas, plus the Leixoes outer harbour (a landuse polygon in OSM) and the Leca marinas as harbour basins. It writes `data/coast.json` and patches `data/nature.json` (area `sea`, `basin-*`, the `coast` profile at 0.001 deg; `scripts/fetch-nature.mjs` reads coast.json too).
+- Code: `src/coast.js` (the sea mesh: quadtree, polygon cut per cell, flat at the ground level of the open sea, attributes `aSeaDist`, `aSeaDepth`, `aMouth`; 5.0 k triangles, area ratio 1.000), `src/harbour.js` (shore apron: sand, rock, sea wall, bank; moles with armour; piers; lighthouses; loaded as its own chunk after the quays), `scripts/check-coast.mjs` (`npm run check:coast`). Hooks outside my files: 4 lines in `src/water.js` (import, `buildSea`, skip of the old ocean area, `sea?.attach`) and one deferred step in `src/main.js`.
+- Not done: the shader still uses the single-valued coast profile (owner C); the estuary and the sea meet at the closing line; Leixoes docks are not water in OSM; the ring-terrain grass runs to the apron (ground, owner D).
+- Verify: `npm run build` (to a temp dir), `check:geo`, `check:data`, `check:fit`, `check:coast`. Not run: `smoke-console` (needs the shared `dist/` and its own port) and `perf` (shared machine).
+
 ### Session 008 — performance for every device class
 
 - Goal: a measured, device-class-aware performance architecture (features porto-018 to 021).

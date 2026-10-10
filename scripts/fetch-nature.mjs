@@ -445,7 +445,11 @@ function buildCoastProfile() {
   }
   return out;
 }
-const coastProfile = buildCoastProfile();
+// The real coast (data/coast.json, scripts/fetch-coast.mjs: the OSM coastline
+// joined and closed along the wide bbox) beats the band profile and the band mask
+// below; those stay as the fallback when coast.json is missing.
+const realCoast = existsSync(dataPath('coast.json')) ? JSON.parse(readFileSync(dataPath('coast.json'), 'utf8')) : null;
+const coastProfile = realCoast?.profile?.length >= 2 ? realCoast.profile.slice(0, 256) : buildCoastProfile();
 
 function buildSeaAreas() {
   const outers = [];
@@ -475,7 +479,12 @@ function buildSeaAreas() {
   }
   return outers.map((outer) => ({ k: 'water', id: 'sea', r: [outer], o: 1, _a: areaM2(outer), _n: 'Atlantic Ocean' }));
 }
-const seaAreas = buildSeaAreas();
+const seaAreas = realCoast?.sea?.length
+  ? [
+      ...(realCoast.basins || []).map((b) => ({ k: 'water', id: `basin-${b.id}`, r: [b.r], o: 1, _a: areaM2(b.r), _n: b.n || 'harbour basin' })),
+      ...realCoast.sea.map((ring, i) => ({ k: 'water', id: 'sea', r: [ring, ...(i === 0 ? realCoast.holes || [] : [])], o: 1, _a: areaM2(ring), _n: 'Atlantic Ocean' })),
+    ]
+  : buildSeaAreas();
 
 let areas, json, usedTol;
 for (const tol of [4, 6, 8, 10]) {
