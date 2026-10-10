@@ -10,10 +10,11 @@
     "prep": "Порту",
     "ins": "Порту"
   },
-  "domain": null,
+  "domain": "https://porto-3d.com",
   "hostnames": [
     "porto-3d.com",
-    "www.porto-3d.com"
+    "www.porto-3d.com",
+    "porto-3d.vercel.app"
   ],
   "origin": {
     "lat": 41.1496,

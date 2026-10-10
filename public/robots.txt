@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://porto-3d.vercel.app/sitemap.xml
+Sitemap: https://porto-3d.com/sitemap.xml

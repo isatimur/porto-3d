@@ -25,15 +25,14 @@ const ROOT = resolve(import.meta.dirname, '..');
 // The window global main.js exposes its debug handle on (__porto, __braga, ...).
 const GLOBAL = process.env.CITY_GLOBAL || (CITY.id === 'braga' ? '__braga' : `__${CITY.id}`);
 // The canonical public host for share, canonical, sitemap and robots URLs.
-// The live deploy is porto-3d.vercel.app; porto-3d.com is not registered
-// (NXDOMAIN), so the vercel.app host is the default. Set SITE_URL (or
-// VITE_SITE) when a custom domain is attached — this one constant drives the
-// /p pages, sitemap.xml and robots.txt.
+// The canonical host is cities/<id>.json "domain" (porto-3d.com for Porto; the
+// vercel.app host redirects there). Set SITE_URL (or VITE_SITE) to override —
+// this one constant drives the /p pages, sitemap.xml and robots.txt.
 const SITE = (
   process.env.SITE_URL ||
   process.env.VITE_SITE ||
   CITY.domain ||
-  (CITY.id === 'porto' ? 'https://porto-3d.vercel.app' : 'http://localhost:5173')
+  (CITY.id === 'porto' ? 'https://porto-3d.com' : 'http://localhost:5173')
 ).replace(/\/+$/, '');
 if (!CITY.domain && !process.env.SITE_URL && !process.env.VITE_SITE && CITY.id !== 'porto')
   console.warn(`warning: cities/${CITY.id}.json has no domain; share pages use http://localhost:5173`);

@@ -9,6 +9,20 @@
     "api/route.js": { "maxDuration": 10, "includeFiles": "cities/*.json" },
     "api/guide.js": { "maxDuration": 25, "includeFiles": "{cities/*.json,data/*.json,src/locales/*.js}" }
   },
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.porto-3d.com" }],
+      "destination": "https://porto-3d.com/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "porto-3d.vercel.app" }],
+      "destination": "https://porto-3d.com/$1",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/assets/(.*)",
