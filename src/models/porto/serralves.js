@@ -15,7 +15,8 @@ function venue(site) {
 function serralves(k, site) {
   const V = venue(site);
   // lawn
-  k.prism(rect(V.cx, V.cz, V.w * 2.3, V.d * 3.0), -0.3, 0.3, 'grass');
+  // (a grassed bank down to the slope, so the lawn never hangs over lower ground)
+  k.prism(rect(V.cx, V.cz, V.w * 2.3, V.d * 3.0), -8, 8, 'grass');
   // clipped hedge frame and gravel drive
   const H = rect(V.cx, V.cz, V.w + 26, V.d + 22);
   for (const e of edges(H)) {

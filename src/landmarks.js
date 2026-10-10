@@ -733,7 +733,9 @@ export function buildLandmarks(list, fits, heightAt, outlines, onLabelClick, opt
         }
       }
       if (it.catOn && !full && !wide) {
-        if (LITE_SCENE) {
+        // a bridge far away is a thin deck at its deck height, never the block
+        // of its whole box (a white box standing in the river)
+        if (LITE_SCENE || /^ponte-/.test(it.data.id)) {
           liteBox(it);
         } else {
           _msz.x = Math.max(_msz.x, 1);

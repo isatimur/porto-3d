@@ -44,6 +44,11 @@ function uportoReitoria(k, site) {
   const zFront = b.cz + D / 2;
 
   // paved square
+  // The square stands on a granite podium (a retaining wall down to the hill),
+  // not as a thin slab: on this slope a slab at y 0 hangs in the air over the
+  // lower ground in front of the building.
+  const FOOT = -16;
+  k.prism(rect(b.cx, zFront + 34, W + 70, 66), FOOT, -0.15 - FOOT, 'graniteDark');
   k.prism(rect(b.cx, zFront + 34, W + 70, 66), -0.2, 0.25, 'sand');
   k.prism(rect(b.cx, zFront + 12, W + 22, 22), -0.1, 0.2, 'graniteLight');
 

@@ -15,7 +15,8 @@ function museuRomantico(k, site) {
 
   // granite plinth and a paved forecourt in front of the villa
   k.box(W + 1.8, 1.0, D + 1.8, 'granite', 0, 0, 0);
-  k.prism(rect(0, D / 2 + 7.5, W + 17, 13), -0.15, 0.22, 'graniteLight');
+  // (a granite terrace wall down to the slope, so the forecourt never hangs in the air)
+  k.prism(rect(0, D / 2 + 7.5, W + 17, 13), -8, 8.07, 'graniteLight');
 
   // main body: two rendered storeys
   const bodyH = 8.3;

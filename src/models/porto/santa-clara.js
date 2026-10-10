@@ -15,7 +15,8 @@ const H = 18;
 function santaClara(k, site) {
   const done = fitTo(k, site, { w: W, d: D, h: H, cx: 0, cz: 0 });
 
-  k.prism(rect(0, 0, W - 0.6, D - 0.6), -0.2, 0.25, 'graniteLight');
+  // (a granite footing down to the slope, so the churchyard never hangs in the air)
+  k.prism(rect(0, 0, W - 0.6, D - 0.6), -8, 8.05, 'graniteLight');
 
   // ------------------------------------------------------------------- nave
   const cx = -3;

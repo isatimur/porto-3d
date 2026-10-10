@@ -1089,10 +1089,13 @@ export function buildPortoStreetLife(ctx) {
       cityN.funicular++;
     }
   }
-  // São Bento's azulejo wall, offset to the station's flank
+  // São Bento's azulejo wall: not placed. It stood 9 m off the station as a
+  // lone 6 m slab in the open Praça Almeida Garrett (a dark floating rectangle
+  // with its shadow beside Congregados); the azulejos of São Bento are inside
+  // the station hall, and there is no flank wall in OSM. The builder stays.
   {
     const a = atLL(41.14561, -8.61059);
-    if (KEEP.has('saoBentoAzulejo') && !full('saoBentoAzulejo')) {
+    if (false && KEEP.has('saoBentoAzulejo') && !full('saoBentoAzulejo')) {
       const p = snap(a.x + 9 * S, a.z + 4 * S, 16, landOk);
       if (p) {
         put('saoBentoAzulejo', p.x, heightAt(p.x, p.z), p.z, Math.atan2(p.x - a.x, p.z - a.z), 1);
@@ -1131,7 +1134,7 @@ export function buildPortoStreetLife(ctx) {
   }
   // the Palácio de Cristal gardens pergola
   {
-    const a = atLL(41.15442, -8.62503);
+    const a = atLL(41.1469, -8.62632); // the gardens (the old 41.15442, -8.62503 was 840 m north of them)
     for (let k = 0; k < 3; k++) {
       if (!KEEP.has('pergola') || full('pergola')) break;
       const ang = 0.6 + k * 1.9;

@@ -42,7 +42,8 @@ function builder(k, site) {
 
   // ------------------------------------------------- garden ground
   k.begin('ground');
-  k.prism([[-hx, -hz], [hx, -hz], [hx, hz], [-hx, hz]], -0.35, 0.35, 'grass');
+  // (a grassed bank down to the slope, so the garden never hangs over lower ground)
+  k.prism([[-hx, -hz], [hx, -hz], [hx, hz], [-hx, hz]], -8, 8, 'grass');
   k.prism([[-hx + hx * 0.12, -hz * 0.92], [hx * 0.88, -hz * 0.92], [hx * 0.88, -hz * 0.86], [-hx + hx * 0.12, -hz * 0.86]], 0, 0.12, 'sand');
   k.prism([[-hx + hx * 0.12, hz * 0.86], [hx * 0.88, hz * 0.86], [hx * 0.88, hz * 0.92], [-hx + hx * 0.12, hz * 0.92]], 0, 0.12, 'sand');
   k.prism([[-hx * 0.08, -hz * 0.92], [hx * 0.08, -hz * 0.92], [hx * 0.08, hz * 0.92], [-hx * 0.08, hz * 0.92]], 0, 0.12, 'sand');

@@ -154,7 +154,7 @@ function builder(k, site) {
   k.push({ x: bb.cx, z: bb.cz, ry: bb.a });
   k.begin('avenue');
   // paved central axis
-  k.prism(rect(0, 0, L, W * 0.34), -0.15, 0.3, 'graniteLight');
+  k.prism(rect(0, 0, L, W * 0.34), -6, 6.15, 'graniteLight'); // down to the slope: never a floating slab
   k.prism(rect(0, 0, L, W * 0.3), 0.15, 0.06, 'sand');
   for (let i = -4; i <= 4; i++) k.box(1.2, 0.1, W * 0.3, 'graniteDark', i * (L / 10), 0.21, 0);
   // flanking granite blocks
