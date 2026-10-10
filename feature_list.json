@@ -452,6 +452,39 @@
         "roads (commit 4d17d90), buildings (89beeda), boats (4ee34e2): see their commits"
       ],
       "notes": "Not done: retaining walls (faces are battered, not walled; a wall would float on a smooth face); pads are not hidden at a distance (they are the ground, not a mesh); the mobile (LITE, not potato) class still draws the same 1 M-vertex lattice (28 MB of buffers) with coarser strides, a coarser lattice for phones needs groundAxes passed to the tile worker; hill tops are 10 to 30 m low in the source (Serra do Pilar 70 m against about 100 m); the shadow proxy ridges lose a metre or two; the flat-shaded green footing planes at Serra do Pilar / Jardim do Morro come from the landmark models, not the ground; the art textures in art/textures are not plugged in (see the report)."
+    },
+    {
+      "id": "porto-w1a-001",
+      "priority": 25,
+      "area": "landmarks",
+      "title": "Wave 1A: Felgueiras mole and light on the OSM outline, true landmark points",
+      "user_visible_behavior": "The Farolim de Felgueiras stands at the sea end of a granite mole drawn on the OSM way (crown 4 to 6 m over the water, granite wall, red-topped 10 m tower), not alone in open water with floating rails and a green pad.",
+      "status": "passing",
+      "verification": ["npm run check:fit (felgueiras 16.9 x 236.2 x 10.2 m, 0 % site deviation)", "npm run check:dimensions", "npm run check:data", "bake-fits --check", "screenshots /tmp/p3/w1a/fin-felgueiras.png, b2-felg-*.png"],
+      "evidence": ["landmark point moved 215 m onto OSM node n1675107645 (pt.wikipedia 41 08 48.32 N, 8 40 38.2 W)", "dimensions.json sources: OSM way 446589339, Wikidata Q10280208, pt.wikipedia (10 m tower, Fl R 5 s, focal height 17 m)"],
+      "notes": "Crown heights 4 m (root) and 6 m (head) are an estimate from the 17 m focal height and photos. The old FIT_RULES.felgueiras box in src/fit.js is dead (builder.rule wins)."
+    },
+    {
+      "id": "porto-w1a-002",
+      "priority": 26,
+      "area": "camera",
+      "title": "Wave 1A: framing of places outside the map limit (Farol de Leça)",
+      "user_visible_behavior": "Selecting Farol de Leça shows the tower, not the oil tanks 1.7 km inland.",
+      "status": "passing",
+      "verification": ["node /tmp/p3/w1a/framing.mjs <preview url> all (target distance / camera distance per landmark)"],
+      "evidence": ["farol-leca: camera 146 m, target 28 m from the tower (was 25 units and 1.7 km); 68 of 70 landmarks under 0.5, lello 0.54 and carmo 0.78 (pre-existing offsets, not in this wave)"],
+      "notes": "Cause: clampPose() clamped the target to +-1700 units, the tower is at x -2120. Fix in src/camera.js (flyTo widens the clamp for the flight, landing restores it)."
+    },
+    {
+      "id": "porto-w1a-003",
+      "priority": 27,
+      "area": "landmarks, data",
+      "title": "Wave 1A: landmark points, floating slabs, odd objects",
+      "user_visible_behavior": "Palacio de Cristal, Aliados, Caves de Gaia and Cordoaria frame their real object; paved/grass slabs under Reitoria, Serralves, Jardim do Morro, Museu Romantico, Santa Clara and Aliados reach the slope instead of hanging; no dark slab at Congregados, no white box at the Douro bridges.",
+      "status": "passing",
+      "verification": ["/tmp/p3/w1a/pts.mjs (point against outline centroid and water polygons)", "before/after shots /tmp/p3/w1a/before-*.png, fin-*.png"],
+      "evidence": ["points: palacio-cristal 839 m, aliados 112 m, caves-gaia 85 m, cordoaria 19 m moved; no landmark point inside a water polygon except the bridges and cais-gaia"],
+      "notes": "Not fixed: stepped dark strips at sao-bento and the grey triangle at santa-clara are terrain/landcover, not the builders; the four box towers beside Congregados are OSM buildings; cais-gaia point is in the river polygon (pier 18 m away)."
     }
   ]
 }
