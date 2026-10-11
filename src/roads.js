@@ -328,13 +328,14 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
   const { X, Z, Y, G, HID } = net;
   const counts = {};
 
-  // ---- constant-width lines: on the decks, not through tunnels
+  // ---- constant-width lines: on the decks, not through tunnels, and no
+  // waterway that runs underground (a culvert's blue line ran down the street)
   const buckets = {};
   for (const k of Object.keys(STYLE)) buckets[k] = [];
   const hintArr = [];
   for (const w of net.ways) {
     const out = buckets[w.kind];
-    if (!out) continue;
+    if (!out || (w.kind === 'water' && net.hiddenFeature[w.fi])) continue;
     for (let i = w.start; i < w.start + w.n - 1; i++) {
       if (HID[i] || HID[i + 1]) {
         if (w.tunnel) hintArr.push(X[i], G[i] + LIFT, Z[i], X[i + 1], G[i + 1] + LIFT, Z[i + 1]);

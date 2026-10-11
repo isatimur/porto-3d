@@ -397,6 +397,9 @@ function buildAreas(bigTol) {
 // Granja). OSM tags them tunnel=culvert / tunnel=yes and layer<0; drawn as
 // stream ribbons they ran down the paved streets and across the junctions.
 // The ruined aqueducts (historic=aqueduct, ruins=yes) are dry: no water.
+// cities/<id>.json culverted_streams names the streams OSM maps as open where
+// they are not (the Ribeira da Boavista beside its avenue).
+const CULVERTED = new Set(CITY.culverted_streams || []);
 function underground(t) {
   if (t.tunnel && t.tunnel !== 'no') return 'tunnel';
   if (t.covered && t.covered !== 'no') return 'covered';
@@ -404,6 +407,7 @@ function underground(t) {
   const ly = parseInt(String(t.layer ?? ''), 10);
   if (Number.isFinite(ly) && ly < 0) return 'layer<0';
   if (t.ruins === 'yes' || t.historic === 'aqueduct' || t.disused === 'yes' || t.abandoned === 'yes') return 'dry';
+  if (t.name && CULVERTED.has(t.name)) return 'by name';
   return null;
 }
 
@@ -418,6 +422,11 @@ function underground(t) {
 const COVER_STEP_M = 2; // sample spacing along a line
 const MIN_OPEN_M = 15; // shorter open runs between covers are dropped
 const MAX_COVERED = 0.5; // a line covered over more of its length is a conduit
+// A line that runs in the gutter, on or within KERB_M of the road's edge, for
+// more than MAX_KERB of its length follows the street: a conduit under the
+// pavement (the Ribeira da Boavista beside its avenue), not an open stream.
+const KERB_M = 6; // a pavement and a verge
+const MAX_KERB = 0.7;
 // road width in metres: lanes x lane width + shoulders (src/road-network.js ROAD_CLASSES, coarse)
 const ROAD_W = { motorway: 18, trunk: 10, primary: 9, secondary: 8, tertiary: 7, motorway_link: 9, trunk_link: 8, primary_link: 7.5, secondary_link: 7, tertiary_link: 7, unclassified: 6, residential: 6, living_street: 5, pedestrian: 6, service: 4, track: 3 };
 function roadWidthM(f) {
@@ -489,18 +498,22 @@ function loadCover() {
     }
     return ins;
   };
-  // 'road' | 'building' | null at a point, for a stream of half-width hw
+  // 'road' | 'building' | 'kerb' (beside a road, not on it) | null at a
+  // point, for a stream of half-width hw
   const at = ([x, y], hw) => {
     const key = keyOf(Math.floor(x / CELL), Math.floor(y / CELL));
+    let kerb = false;
     for (const si of segGrid.get(key) || []) {
       const [a, b, half] = segs[si];
-      if (segDist([x, y], a, b) < half + hw) return 'road';
+      const d = segDist([x, y], a, b);
+      if (d < half + hw) return 'road';
+      if (d < half + hw + KERB_M) kerb = true;
     }
     for (const bi of bGrid.get(key) || []) {
       const B = blds[bi];
       if (x >= B.x0 && x <= B.x1 && y >= B.y0 && y <= B.y1 && inPoly(B.ring, x, y)) return 'building';
     }
-    return null;
+    return kerb ? 'kerb' : null;
   };
   return { at, roadsN, bldN };
 }
@@ -520,11 +533,10 @@ function openRuns(run, hw, acc) {
     for (let k = i === 1 ? 0 : 1; k <= n; k++) {
       const p = [a[0] + ((b[0] - a[0]) * k) / n, a[1] + ((b[1] - a[1]) * k) / n];
       const c = cover.at(p, hw);
-      samples.push([p[0], p[1], c]);
+      samples.push([p[0], p[1], c === 'road' || c === 'building']);
       const step = k === 0 ? 0 : L / n;
       acc.total += step;
-      if (c === 'road') acc.road += step;
-      else if (c === 'building') acc.building += step;
+      if (c) acc[c] += step;
     }
   }
   const runs = [];
@@ -567,16 +579,17 @@ function buildLines() {
     let w = LINE_KINDS[t.waterway];
     const tw = String(t.width || '').trim();
     if (/^\d+(\.\d+)?$/.test(tw) && +tw >= 1 && +tw <= 60) w = +tw;
-    const acc = { total: 0, road: 0, building: 0, short: 0 };
+    const acc = { total: 0, road: 0, building: 0, kerb: 0, short: 0 };
     const open = [];
     for (const run of clip(pts)) open.push(...openRuns(run, w / 2, acc));
     const name = t.name || `w${el.id}`;
-    const ps = lineStats.perName.get(name) || { total: 0, road: 0, building: 0, short: 0, conduit: 0 };
-    for (const k of ['total', 'road', 'building', 'short']) ps[k] += acc[k];
+    const ps = lineStats.perName.get(name) || { total: 0, road: 0, building: 0, kerb: 0, short: 0, conduit: 0 };
+    for (const k of ['total', 'road', 'building', 'kerb', 'short']) ps[k] += acc[k];
     lineStats.perName.set(name, ps);
-    if (acc.total > 0 && (acc.road + acc.building) / acc.total > MAX_COVERED) {
+    const covered = acc.road + acc.building;
+    if (acc.total > 0 && (covered > acc.total * MAX_COVERED || covered + acc.kerb > acc.total * MAX_KERB)) {
       ps.conduit += acc.total;
-      drop('conduit', el, pts);
+      drop(covered > acc.total * MAX_COVERED ? 'conduit' : 'kerbside', el, pts);
       continue;
     }
     lineStats.cutRoadM += acc.road;
@@ -730,9 +743,10 @@ const km = m => (m / 1000).toFixed(2);
 console.log(`Waterway ways: ${lines.length} in, ${lineStats.kept} kept (${km(lineStats.keptM)} km drawn, ${lineOut.length} runs); cover masks from ${cover.roadsN} roads, ${cover.bldN} buildings`);
 for (const [why, n] of Object.entries(lineStats.dropped)) console.log(`  dropped ${why.padEnd(11)} ${String(n).padStart(4)} ways, ${km(lineStats.droppedM[why])} km`);
 console.log(`  cut under roads ${km(lineStats.cutRoadM)} km, under buildings ${km(lineStats.cutBuildingM)} km, open runs < ${MIN_OPEN_M} m ${km(lineStats.cutShortM)} km`);
-console.log('  per name (total km, % under roads / buildings, conduit km):');
+console.log('  per name (total km, % under roads / buildings / at the kerb, dropped km):');
+const pct = (v, s) => ((100 * v) / (s.total || 1)).toFixed(0).padStart(3);
 for (const [name, s] of [...lineStats.perName].filter(([n]) => !/^w\d+$/.test(n)).sort((a, b) => b[1].total - a[1].total))
-  console.log(`    ${name.padEnd(28)} ${km(s.total).padStart(6)}  ${((100 * s.road) / (s.total || 1)).toFixed(0).padStart(3)}% / ${((100 * s.building) / (s.total || 1)).toFixed(0).padStart(3)}%${s.conduit ? `  conduit ${km(s.conduit)}` : ''}`);
+  console.log(`    ${name.padEnd(28)} ${km(s.total).padStart(6)}  ${pct(s.road, s)}% / ${pct(s.building, s)}% / ${pct(s.kerb, s)}%${s.conduit ? `  dropped ${km(s.conduit)}` : ''}`);
 
 // Coverage within 1.2 km of the two hills, sampled on a 20 m grid in projected metres.
 function coverage(lat, lon, radius = 1200, step = 20) {

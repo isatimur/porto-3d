@@ -22,6 +22,13 @@ updates it automatically.
 
 ## Session Log
 
+### 2026-10-11 — no stream ribbons over streets (feature porto-024)
+
+- Goal: the user saw foamy water strips along the streets and across the junctions at Congregados and the Aliados.
+- Root cause: `scripts/fetch-nature.mjs` `buildLines()` kept every waterway's geometry but dropped its tags. 132 of 283 ways carry `tunnel` or `layer<0` in the raw reply (32.7 km of culverts, the Rio da Vila branches among them). `src/water.js` drew them all as stream ribbons. The `culverted_streams` name list was a workaround for one of them.
+- Fix: `fetch-nature.mjs` drops tunnel, covered, layer<0, dry (ruined aqueduct) and by-name culverted ways, and cuts open ones where a road or building covers them (dropping a line that runs mostly under or beside a street). `fetch-tiles.mjs` drops the same tags. `road-network.js` hides water with `tu`, `cv` or `ly<0`; `roads.js` keeps those out of the `road-water` line; `src/lite/roads.js` skips them and bored road tunnels. Counts in feature_list.json `porto-024`.
+- Open, not fixed: tile v2 street records are read as v1 in `src/tile-worker.js` (no streets in the streamed ring; fixing costs ~0.5 M triangles at the XL overview); the Douro centre line shows as a band across the estuary in low views; quay-edge pedestrian ways overlap the river polygon at Massarelos.
+
 ### Session 009 — lazy landmark models and the lite scene (features porto-022, porto-023)
 
 - Goal: finish the two items left by session 008: build the 70 landmark models on demand, and give the Potato class its own cheap scene.

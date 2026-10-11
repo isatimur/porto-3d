@@ -54,7 +54,7 @@
   "data_absent": ["pois.json", "streetscape.json"],
   "locale_default": "ru",
   "season_default": "auto",
-  "culverted_streams": ["Rio da Vila"],
+  "culverted_streams": ["Rio da Vila", "Ribeira da Boavista"],
   "default_weather": "clear",
   "default_live": true,
   "default_time": "sunset",

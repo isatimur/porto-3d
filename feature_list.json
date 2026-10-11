@@ -562,6 +562,28 @@
         "screenshots read: overview, Ribeira, Clerigos, Dragao, Luis I (the park box found there is now hidden)"
       ],
       "notes": "Honest limits: emulation only (Apple GPU raster for phone-low, SwiftShader on an M1 for potato); a WebGL 1 only browser cannot run three r186 at all, so it gets the 'needs WebGL 2' message, not the lite scene; weather states, people, vehicles, trees, the streamed ring and street markings are not in the lite scene; the governor cannot switch scenes at run time (the next visit starts lite through the learned class); the lite scene is not the default for class Low (needs real-device numbers)."
+    },
+    {
+      "id": "porto-024",
+      "priority": 30,
+      "area": "water",
+      "title": "No stream ribbons over streets: buried, culverted and covered waterways are not drawn",
+      "user_visible_behavior": "The Aliados, Congregados and the other paved streets show no foamy water strips along them or across the junctions. Open streams (Riguinha, Granja, Rio Tinto, Rio Torto, Archeira ...), the Douro and the estuary stay; an open stream stops at the kerb where a road crosses it and starts again on the other side.",
+      "status": "passing",
+      "verification": [
+        "node scripts/fetch-nature.mjs --city porto (log: waterway ways in, kept, dropped per reason, cut under roads/buildings, per-name shares)",
+        "node scripts/fetch-tiles.mjs --city porto --build (log: waterways left out); only the `w` records and index counts change",
+        "screenshots at Congregados, Aliados (avenue), Boavista, Ribeira and the Riguinha stream, overcast and clear, before (HEAD worktree) and after",
+        "npm run verify"
+      ],
+      "evidence": [
+        "root cause: data/.cache/nature-raw.json carries tunnel/layer on 132 of 283 waterway ways; buildLines() kept the geometry and dropped the tags, so 32.7 km of culverted streams (the Rio da Vila branches under the Aliados and Congregados among them: w699787854, w699787855, tunnel=yes layer=-5) were drawn as stream ribbons",
+        "nature.json: 283 ways in, 147 kept (159 runs, 48.4 km); dropped: tunnel 129 (32.7 km), layer<0 3, dry aqueduct 1, by name 2 (cities/porto.json culverted_streams), kerbside 1; 0.47 km cut under roads; no open canal exists in the data (both canal ways were dry aqueducts)",
+        "tiles: water records 1508 -> 983 over 222 files, every other key unchanged",
+        "the roads.json water fallback, the constant-width road-water line and the lite scene skip waterways with tunnel, covered or layer<0",
+        "screenshots read: /tmp/p3/wb0-*.png, wb0c-*.png (before), wa1-*.png, wa1c-*.png (after)"
+      ],
+      "notes": "Not fixed, listed: (1) src/tile-worker.js reads tile v2 street records as v1 (NaN points), so no street of the streamed ring is drawn; the fix is known but adds ~0.5 M triangles to the XL overview (1.92 -> 2.46 M, budget 2.4 M) and needs a cheaper design first. (2) The Douro centre line (roads.json water, `road-water` constant-width line) shows as a grey band across the estuary in low views near Ribeira. (3) A few pedestrian ways at Massarelos and Cais da Ribeira overlap the OSM river polygon by up to 290 m (quay edge alignment)."
     }
   ]
 }
