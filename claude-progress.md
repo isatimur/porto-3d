@@ -22,6 +22,15 @@ updates it automatically.
 
 ## Session Log
 
+### 2026-10-11 — streets in the streamed ring, no band across the Douro (feature porto-025)
+
+- Goal: the two open items of porto-024: no streets in the streamed ring, and a grey band across the river in low views at Ribeira.
+- Root cause (streets): `src/tile-worker.js` read tile v2 street records as v1; every point was NaN.
+- Fix: v2 decode (v1 fallback), no tunnels, bridges on a straight deck, near-LOD ribbons in the building mesh without service roads and tracks, no far-LOD ribbons, tolerance-merged ribbon quads and line segments, tile lines as 2-triangle body quads (`src/tiles.js` `bodyOnly`) without the glow. XL overview 1913k -> 1949k triangles (+1.9 %), calls unchanged.
+- Root cause (band): not the river line (it is hidden below 320 units of camera distance). The Ribeira pad box reaches past the quay and `src/pad-walls.js` stood a wall on the river bed; its top showed through the water. Pad walls now skip open water.
+- Also: `fetch-roads.mjs` cuts quay pedestrian outlines at the waterline (170 m). River lines stay in roads.json and are drawn as before.
+- Open: a streamed-ring bridge deck and a tunnel gap are not checked on screen.
+
 ### 2026-10-11 — no stream ribbons over streets (feature porto-024)
 
 - Goal: the user saw foamy water strips along the streets and across the junctions at Congregados and the Aliados.

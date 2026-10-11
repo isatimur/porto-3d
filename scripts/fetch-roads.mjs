@@ -254,6 +254,163 @@ for (const w of ways) {
 }
 if (features.length === 0) throw new Error('No features after conversion');
 
+// ---- open water (data/nature.json areas with `o`: the Douro and the sea)
+// Pedestrian areas whose outline runs past the quay edge (Massarelos, Cais da
+// Ribeira) are cut at the waterline and the part on the water dropped: their
+// ribbon lay on the river. A cut end gets a node id of its own (a dead end),
+// so every street piece still knows both its ends. River lines stay whole:
+// road-network.js finds the river under a bridge by them.
+function cutAtOpenWater() {
+  const NATURE = dataPath('nature.json');
+  if (!existsSync(NATURE)) {
+    console.warn(`no ${NATURE}: quay pedestrian outlines not cut at the waterline (run fetch-nature, then fetch-roads again)`);
+    return { ped: 0, pedM: 0 };
+  }
+  const nature = JSON.parse(readFileSync(NATURE, 'utf8'));
+  const MO = 111320 * Math.cos((ORIGIN.lat * Math.PI) / 180);
+  const ML = 110574;
+  const xy = (p) => [(p[1] - ORIGIN.lon) * MO, (p[0] - ORIGIN.lat) * ML];
+  const ll = (q) => [r5(ORIGIN.lat + q[1] / ML), r5(ORIGIN.lon + q[0] / MO)];
+  const polys = (nature.areas || [])
+    .filter((a) => a.k === 'water' && a.o)
+    .map((a) => {
+      const rings = a.r.map((r) => r.map(xy));
+      const o = rings[0];
+      return { rings, x0: Math.min(...o.map((p) => p[0])), x1: Math.max(...o.map((p) => p[0])), z0: Math.min(...o.map((p) => p[1])), z1: Math.max(...o.map((p) => p[1])) };
+    });
+  const inRing = (r, x, z) => {
+    let s = false;
+    for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
+      const a = r[i];
+      const c = r[j];
+      if (a[1] > z !== c[1] > z && x < ((c[0] - a[0]) * (z - a[1])) / (c[1] - a[1]) + a[0]) s = !s;
+    }
+    return s;
+  };
+  const wet = (x, z) => polys.some((P) => x >= P.x0 && x <= P.x1 && z >= P.z0 && z <= P.z1 && inRing(P.rings[0], x, z) && !P.rings.slice(1).some((h) => inRing(h, x, z)));
+  // where segment a-b crosses a ring edge: the parameters along a-b
+  const cutsOf = (a, b) => {
+    const ts = [];
+    const bx0 = Math.min(a[0], b[0]);
+    const bx1 = Math.max(a[0], b[0]);
+    const bz0 = Math.min(a[1], b[1]);
+    const bz1 = Math.max(a[1], b[1]);
+    for (const P of polys) {
+      if (bx1 < P.x0 || bx0 > P.x1 || bz1 < P.z0 || bz0 > P.z1) continue;
+      for (const r of P.rings) {
+        for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
+          const c = r[j];
+          const d = r[i];
+          if (Math.max(c[0], d[0]) < bx0 || Math.min(c[0], d[0]) > bx1 || Math.max(c[1], d[1]) < bz0 || Math.min(c[1], d[1]) > bz1) continue;
+          const rx = b[0] - a[0];
+          const rz = b[1] - a[1];
+          const sx = d[0] - c[0];
+          const sz = d[1] - c[1];
+          const den = rx * sz - rz * sx;
+          if (Math.abs(den) < 1e-12) continue;
+          const t = ((c[0] - a[0]) * sz - (c[1] - a[1]) * sx) / den;
+          const u = ((c[0] - a[0]) * rz - (c[1] - a[1]) * rx) / den;
+          if (t > 1e-6 && t < 1 - 1e-6 && u >= 0 && u <= 1) ts.push(t);
+        }
+      }
+    }
+    return ts.sort((p, q) => p - q);
+  };
+  const MIN_M = 3; // a wet or dry stretch shorter than this joins its neighbours
+  // runs of a polyline on and off the open water: [{ wet, pts: [{ p, k }] }],
+  // k the index in f.pts (-1 for a cut point); neighbouring runs share their cut point
+  const runsOf = (pts) => {
+    const X = pts.map(xy);
+    const seq = [{ p: pts[0], q: X[0], k: 0 }];
+    for (let i = 1; i < pts.length; i++) {
+      for (const t of cutsOf(X[i - 1], X[i])) {
+        const q = [X[i - 1][0] + (X[i][0] - X[i - 1][0]) * t, X[i - 1][1] + (X[i][1] - X[i - 1][1]) * t];
+        seq.push({ p: ll(q), q, k: -1 });
+      }
+      seq.push({ p: pts[i], q: X[i], k: i });
+    }
+    const runs = [];
+    for (let i = 1; i < seq.length; i++) {
+      const a = seq[i - 1].q;
+      const b = seq[i].q;
+      const L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      if (L < 1e-6) continue;
+      const w = wet((a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
+      const last = runs.at(-1);
+      if (last && last.wet === w) {
+        last.pts.push(seq[i]);
+        last.m += L;
+      } else runs.push({ wet: w, m: L, pts: [seq[i - 1], seq[i]] });
+    }
+    // short stretches take their neighbours' side, then equal sides join
+    for (const r of runs) if (r.m < MIN_M && runs.length > 1) r.wet = !r.wet;
+    const out = [];
+    for (const r of runs) {
+      const last = out.at(-1);
+      if (last && last.wet === r.wet) {
+        last.pts.push(...r.pts.slice(1));
+        last.m += r.m;
+      } else out.push({ ...r, pts: [...r.pts] });
+    }
+    return out;
+  };
+  // a cut end's node id, shared by the two runs that meet there
+  const endIds = new Map();
+  const endId = (p) => {
+    const key = `${p[0]},${p[1]}`;
+    if (!endIds.has(key)) endIds.set(key, nodeId(`cut:${key}`));
+    return endIds.get(key);
+  };
+  const piece = (f, run, t) => {
+    const idOf = new Map();
+    for (let k = 0; k + 1 < (f.j || []).length; k += 2) idOf.set(f.j[k], f.j[k + 1]);
+    const P = [];
+    const J = [];
+    const last = run.pts.length - 1;
+    run.pts.forEach((s, i) => {
+      let id = s.k >= 0 ? idOf.get(s.k) : undefined;
+      if (id === undefined && (i === 0 || i === last)) id = endId(s.p);
+      if (P.length && P.at(-1)[0] === s.p[0] && P.at(-1)[1] === s.p[1]) {
+        // rounded onto the previous point: it takes the id if it has none
+        if (id !== undefined && J.at(-2) !== P.length - 1) J.push(P.length - 1, id);
+        return;
+      }
+      if (id !== undefined) J.push(P.length, id);
+      P.push(s.p);
+    });
+    if (P.length < 2) return null;
+    const g = { kind: f.kind, pts: P };
+    if (Object.keys(t).length) g.t = t;
+    if (J.length) g.j = J;
+    return g;
+  };
+  const st = { ped: 0, pedM: 0 };
+  const out = [];
+  for (const f of features) {
+    const t = f.t || {};
+    const ped = f.kind === 'minor' && t.hw === 'pedestrian' && !t.br && !t.tu && !t.cv && !t.ly;
+    const runs = ped ? runsOf(f.pts) : null;
+    if (!runs || !runs.some((r) => r.wet)) {
+      out.push(f);
+      continue;
+    }
+    for (const r of runs) {
+      if (r.wet) {
+        st.ped++;
+        st.pedM += r.m;
+        continue;
+      }
+      const g = piece(f, r, t);
+      if (g) out.push(g);
+    }
+  }
+  features.length = 0;
+  features.push(...out);
+  return st;
+}
+const wetCut = cutAtOpenWater();
+console.log(`open water: ${wetCut.ped} pedestrian runs (${Math.round(wetCut.pedM)} m) cut off at the waterline`);
+
 // every street piece must know the nodes at both its ends
 let loose = 0;
 for (const f of features) {

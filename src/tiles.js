@@ -5,9 +5,9 @@
 //   - the wanted radius grows with the camera's height above the ground:
 //     3 km at 300 m, 8 km at 2 km, everything from about 4.5 km up;
 //   - a tile within 4 km of the camera gets the near LOD (every footprint
-//     extruded with windows, all streets, water, shadows); farther tiles
-//     the far LOD (one box per building, the main streets), merged 3 x 3
-//     tiles per draw call;
+//     extruded with windows, the street ribbons in the same mesh, water,
+//     shadows); farther tiles the far LOD (one box per building), merged
+//     3 x 3 tiles per draw call;
 //   - fetching, decoding and triangulating run in a Web Worker
 //     (src/tile-worker.js); the main thread only wraps the typed arrays in
 //     BufferGeometries, within about 2 ms per frame;
@@ -76,7 +76,7 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
   const NEAR_M = mobile ? 2000 : 4000;
   const MEM_CAP = (mobile ? 120 : 350) * 1048576;
   // phones fetch and build fewer tiles at once, and hold fewer near-LOD
-  // draw calls (each near tile is 3 meshes); desktops keep the full budget
+  // draw calls (each near tile is 2 meshes); desktops keep the full budget
   const MAX_INFLIGHT = mobile ? 3 : 6;
   const MAX_NEAR = mobile ? 28 : 110;
   let TREE_CAP = nature?.streamCap ?? 0; // the full nature layer arrives later (setNature)
@@ -92,8 +92,6 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
   const sliceMs = () => SLICE_MS * Math.max(0.4, budgetScale);
 
   const matB = createBuildingMaterial({ fade: true });
-  const matS = fadeMaterial({ roughness: 0.92, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 });
-  matS.name = 'streets-tiles';
   const matW = fadeMaterial({ roughness: 0.16 }, { BRG_WATER: '' });
   matW.name = 'water-tiles';
 
@@ -435,7 +433,6 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     }
     if (m.lod === 'near') {
       if (m.mesh.b) addMesh(T, geometryOf(m.mesh.b, born, true), matB, `tile-buildings-${T.key}`, true);
-      if (m.mesh.s) addMesh(T, geometryOf(m.mesh.s, born, false), matS, `tile-streets-${T.key}`, false);
       if (m.mesh.w) addMesh(T, geometryOf(m.mesh.w, born, false), matW, `tile-water-${T.key}`, false);
     } else {
       T.far = { b: m.mesh.b, bv: m.mesh.bv, w: m.mesh.w, born };
@@ -532,6 +529,16 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
   }
 
   // ------------------------------------------------------------ street lines
+  // The tile lines are instances of LineSegmentsGeometry's 8-vertex strip: the
+  // body quad plus a round cap at each end, 6 triangles. Out here a line is
+  // a pixel or two wide and its segments run on (tile-worker.js segments), so
+  // the caps add nothing visible: keep the body, 2 triangles per instance.
+  const bodyOnly = (geo) => {
+    geo.setIndex([0, 2, 1, 2, 3, 1]);
+    geo.setAttribute('position', new THREE.Float32BufferAttribute([-1, 1, 0, 1, 1, 0, -1, 0, 0, 1, 0, 0], 3));
+    geo.setAttribute('uv', new THREE.Float32BufferAttribute([-1, 1, 1, 1, -1, -1, 1, -1], 2));
+    return geo;
+  };
   const lineMeshes = [];
   function rebuildLines() {
     linesDirty = false;
@@ -554,6 +561,7 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
         o += T.lines[kind].length;
       }
       const geo = new LineSegmentsGeometry();
+      bodyOnly(geo);
       geo.setPositions(arr);
       const add = (mat, order, name) => {
         const line = new LineSegments2(geo, mat);
@@ -564,8 +572,9 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
         group.add(line);
         lineMeshes.push(line);
       };
+      // no glow out here: the ring's motorways and main roads under the
+      // core's additive glow were a bright web over the whole overview
       add(core.material, core.renderOrder, `tiles-road-${kind}`);
-      if (kind === 'primary') for (const gm of roadLayer.glows || []) add(gm, core.renderOrder + 1, 'tiles-road-primary-glow');
     }
   }
 
@@ -646,7 +655,7 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
       if (mobile && !inView && !nearFocus && d3 > nearU * 2) continue;
       let lod = lodWant;
       // near-LOD draw-call cap: beyond ~85 % of the near radius, a tile
-      // beyond the cap streams as a far block instead of 3 near meshes
+      // beyond the cap streams as a far block instead of 2 near meshes
       if (lod === 'near' && T.state !== 'shown' && nearShown >= nearCap && d3 > nearU * 0.85) lod = 'far';
       if (T.state === 'idle' || (T.state === 'shown' && T.lod !== lodWant)) _cands.push({ T, lod, p: T.prio * (lod === 'near' ? 3 : 1) * (T.state === 'shown' ? 0.8 : 1) });
     }

@@ -4,7 +4,7 @@ import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import './style.css';
 import { loadData, loadStory } from './data.js';
 import { createProjection, METRES_PER_UNIT } from './geo.js';
-import { buildPadWalls } from './pad-walls.js';
+import { buildPadWalls, openWaterTest } from './pad-walls.js';
 import { installAtmosphereFog, createRenderer, createAtmosphere, createGround, FOG_UNIFORMS, TIMES, DEFAULT_TIME, DPR, deviceDpr } from './scene.js';
 import { setWaterLite, setWaterLiteLive, setBridgeLamps, setBridgeNight } from './water.js';
 import { setDeckBases } from './bridge-decks.js';
@@ -346,7 +346,7 @@ async function start() {
   ground.userData.applyPads();
   // the pads build up 2.5 m at most: a retaining wall under the edge of any pad that stands higher
   // (folded flat until the landmark's model shows a floor there: onModel below)
-  const padWalls = buildPadWalls(terrain, { S: proj.S });
+  const padWalls = buildPadWalls(terrain, { S: proj.S, inWater: openWaterTest(natureBase?.areas) });
   if (padWalls) {
     scene.add(padWalls);
     debug.padWalls = padWalls.userData.stats;

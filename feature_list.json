@@ -584,6 +584,29 @@
         "screenshots read: /tmp/p3/wb0-*.png, wb0c-*.png (before), wa1-*.png, wa1c-*.png (after)"
       ],
       "notes": "Not fixed, listed: (1) src/tile-worker.js reads tile v2 street records as v1 (NaN points), so no street of the streamed ring is drawn; the fix is known but adds ~0.5 M triangles to the XL overview (1.92 -> 2.46 M, budget 2.4 M) and needs a cheaper design first. (2) The Douro centre line (roads.json water, `road-water` constant-width line) shows as a grey band across the estuary in low views near Ribeira. (3) A few pedestrian ways at Massarelos and Cais da Ribeira overlap the OSM river polygon by up to 290 m (quay edge alignment)."
+    },
+    {
+      "id": "porto-025",
+      "priority": 31,
+      "area": "streets",
+      "title": "Streets in the streamed ring; no grey band across the Douro at Ribeira",
+      "user_visible_behavior": "Matosinhos, Gaia and the rest of the streamed ring show their streets: ribbons at their widths near the camera (no service roads or tracks, as in the core), the main-street lines out to the horizon, bridges on a straight deck, nothing over a tunnel, no trees on the carriageway. In low views off Cais da Ribeira the river shows no grey line across it.",
+      "status": "passing",
+      "verification": [
+        "node scripts/fetch-roads.mjs --city porto (log: pedestrian runs cut off at the waterline)",
+        "node scripts/perf-bench.mjs --reduced --check, before (HEAD) and after",
+        "screenshots at Matosinhos, Gaia (A1/A44 junction), Ribeira low, Massarelos, before (HEAD worktree build) and after",
+        "npm run verify"
+      ],
+      "evidence": [
+        "root cause (streets): src/tile-worker.js decoded tile format v2 street records [kind, hw, flags, ly, pts, j] as v1 [kind, ...pts]: every point NaN, so no ribbon, no line and no tree occupancy for any of the 45,639 street records",
+        "fix: v2 decode with v1 fallback; tunnels (flag 8) dropped; bridges (flag 4) on a straight deck between the end heights, never below the ground; ribbons only in the near LOD, in the building mesh (no extra draw call), kinds the core draws; ribbon quads and line segments merge while the surface stays within tolerance (lines across polyline vertices, 1 m); tile lines drawn as the body quad of LineSegmentsGeometry (2 triangles per instance, not 6) and without the core's additive glow (with it the ring's motorways were a bright web over the whole overview)",
+        "bench desktop-gpu overview: 1913k -> 1949k triangles (+1.9 %), calls 262 -> 262; other paths -0.3 % to +0.9 % triangles, calls -4 to +2; phone-low overview 1059k -> 1050k; shipped data and JS +0.3 KB (the bench's transfer at ready rose 2514 -> 2581 KB on desktop by one request, art/roof_canudo_512.webp, 68 KB, that main.js starts after ready)",
+        "root cause (band): the Ribeira landmark pad box reaches past the quay; pad-walls.js stood its wall on the river bed and the wall top showed through the water (isolated by hiding each scene object in turn: only pad-walls removes it); the road-water line is hidden below 320 units of camera distance and was not the band",
+        "fix: pad walls skip segments over open water (nature.json `o` areas): 429 -> 393 segments, the ribeira pad's 23 all over the river, every other pad unchanged",
+        "roads.json: quay pedestrian outlines cut at the waterline (7 runs, 170 m, Massarelos and Cais da Ribeira; a data tidy, barely visible); river lines unchanged; road-network decks unchanged (14587 of 14591 ways identical, the other 4 are the cut outlines)"
+      ],
+      "notes": "The tile-line triangle cost is a count of instances (frustumCulled false, one draw for all tiles); the 1 m line tolerance, the 2-triangle body and no glow keep the XL overview at +1.9 %. Not checked on screen: a streamed-ring bridge deck and a tunnel gap (data: 777 bridge and 288 tunnel records). Pedestrian outlines over park ponds (non-open water) are not cut."
     }
   ]
 }

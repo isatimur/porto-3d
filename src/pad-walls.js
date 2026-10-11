@@ -25,7 +25,40 @@ const FLOOR_TOL_U = 0.75; // a floor lies within 3 m of the pad plane
 const FLOOR_NY = 0.6; // and faces up (slope under about 53 degrees)
 const REACH_U = [0.5, 1.5, 2.5]; // how far inside the wall a floor is looked for
 
-export function buildPadWalls(terrain, { S = 0.25 } = {}) {
+// (x, z) -> inside an open water area (nature.js buildNatureBase `areas`:
+// projected rings, outer first), or null without them
+export function openWaterTest(areas) {
+  const water = (areas || [])
+    .filter((a) => a.k === 'water' && a.open && a.rings?.length)
+    .map((a) => {
+      const o = a.rings[0];
+      let x0 = Infinity, x1 = -Infinity, z0 = Infinity, z1 = -Infinity;
+      for (const p of o) {
+        if (p.x < x0) x0 = p.x;
+        if (p.x > x1) x1 = p.x;
+        if (p.z < z0) z0 = p.z;
+        if (p.z > z1) z1 = p.z;
+      }
+      return { rings: a.rings, x0, x1, z0, z1 };
+    });
+  if (!water.length) return null;
+  const inRing = (r, x, z) => {
+    let s = false;
+    for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
+      const a = r[i];
+      const b = r[j];
+      if (a.z > z !== b.z > z && x < ((b.x - a.x) * (z - a.z)) / (b.z - a.z) + a.x) s = !s;
+    }
+    return s;
+  };
+  return (x, z) => water.some((w) => x >= w.x0 && x <= w.x1 && z >= w.z0 && z <= w.z1 && inRing(w.rings[0], x, z) && !w.rings.slice(1).some((h) => inRing(h, x, z)));
+}
+
+// inWater(x, z): open water (the Douro, the sea; nature.json `o` areas). A
+// pad box that reaches past a quay edge has its wall there on the river bed:
+// its top showed as a grey line across the water off Cais da Ribeira. The
+// quays (src/quays.js) are the river's edge; no pad wall stands in the river.
+export function buildPadWalls(terrain, { S = 0.25, inWater = null } = {}) {
   const { pads, heightAt } = terrain;
   const pos = [];
   const nor = [];
@@ -60,7 +93,7 @@ export function buildPadWalls(terrain, { S = 0.25 } = {}) {
         const ground = heightAt(x, z);
         const h = p.y - ground;
         const cur = { x, z, ground, top: Math.max(p.y, ground), h };
-        if (prev && (prev.h > minH || cur.h > minH)) {
+        if (prev && (prev.h > minH || cur.h > minH) && !(inWater && inWater((prev.x + cur.x) / 2, (prev.z + cur.z) / 2))) {
           // foot 0.6 m into the ground, top at the plane
           const base = pos.length / 3;
           for (const q of [prev, cur]) {

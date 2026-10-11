@@ -3,9 +3,9 @@
 // its geometry as transferable typed arrays:
 //   near LOD  every footprint extruded exactly like the core (buildings.js
 //             extrudeBuilding: walls with the window coordinates, the roof),
-//             street ribbons at their real widths, water surfaces;
-//   far LOD   one oriented box per building with the same colours, the main
-//             streets only, water;
+//             street ribbons at their real widths (in the building mesh),
+//             water surfaces;
+//   far LOD   one oriented box per building with the same colours, water;
 //   extras    (once per tile) the main streets and rivers as line segments,
 //             a 64 x 64 land-cover patch for the ground shader, the trees.
 // Everything is draped on the ground mesh's own triangles (scene.js
@@ -16,6 +16,9 @@ import { extrudeBuilding } from './buildings.js';
 import { setFacadeConfig } from './facades.js';
 
 const FAR = { far: true }; // extrudeBuilding: a flat box (far LOD)
+// street record flags (scripts/fetch-tiles.mjs RF_*)
+const RF_BRIDGE = 4;
+const RF_TUNNEL = 8;
 // tile format: optional `bx` = [[i, roof shape, roof colour, wall colour,
 // material, roof orientation], ...] for the buildings b[i] that carry OSM
 // roof or facade tags (scripts/fetch-tiles.mjs)
@@ -116,9 +119,48 @@ function decode(arr, from, o) {
   return pts;
 }
 
-// Ribbon quads along a polyline (world {x,z} points), draped, lengthened by
-// half the width at the joints like roads.js. Pushed into T.
-function ribbon(T, pts, halfW, col, lift, maxSeg) {
+// A bridge deck (tile format v2 flags): straight between the ground at the
+// way's two ends, never below the ground. (s, x, z) -> height, s world units
+// along the polyline.
+function deckOf(pts) {
+  let L = 0;
+  for (let i = 1; i < pts.length; i++) L += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].z - pts[i - 1].z);
+  const y0 = ground(pts[0].x, pts[0].z);
+  const y1 = ground(pts[pts.length - 1].x, pts[pts.length - 1].z);
+  return (s, x, z) => Math.max(y0 + (y1 - y0) * Math.min(1, Math.max(0, s / (L || 1))), ground(x, z));
+}
+// the surface under a street: the ground, or its deck
+const surfaceY = (deck, s, x, z) => (deck ? deck(s, x, z) : ground(x, z));
+
+// Split n + 1 heights hs into pieces [0, ..., n]: a piece runs on while every
+// height inside stays within tol of its chord.
+function pieces(hs, tol) {
+  const n = hs.length - 1;
+  const out = [0];
+  let s0 = 0;
+  while (s0 < n) {
+    let s1 = s0 + 1;
+    while (s1 < n) {
+      const t = s1 + 1;
+      let ok = true;
+      for (let m = s0 + 1; m <= s1 && ok; m++) ok = Math.abs(hs[m] - (hs[s0] + ((hs[t] - hs[s0]) * (m - s0)) / (t - s0))) <= tol;
+      if (!ok) break;
+      s1 = t;
+    }
+    out.push(s1);
+    s0 = s1;
+  }
+  return out;
+}
+const RIBBON_TOL = 0.08; // world units (0.3 m): a street ribbon's sag over the ground
+
+// Ribbon quads along a polyline (world {x,z} points), draped (or on its
+// deck), lengthened by half the width at the joints like roads.js. The
+// surface is sampled every maxSeg; one quad spans the samples while the
+// centre line stays within RIBBON_TOL of them (a straight street on an even
+// slope is one quad, not one per 12 m). Pushed into T.
+function ribbon(T, pts, halfW, col, lift, maxSeg, deck = null) {
+  let sA = 0; // along the polyline, at A
   for (let i = 0; i + 1 < pts.length; i++) {
     const A = pts[i];
     const B = pts[i + 1];
@@ -131,23 +173,30 @@ function ribbon(T, pts, halfW, col, lift, maxSeg) {
     const nz = dx * halfW;
     const ex = dx * halfW;
     const ez = dz * halfW;
-    for (let s = 0; s < n; s++) {
-      const ax = A.x + ((B.x - A.x) * s) / n;
-      const az = A.z + ((B.z - A.z) * s) / n;
-      const bx = A.x + ((B.x - A.x) * (s + 1)) / n;
-      const bz = A.z + ((B.z - A.z) * (s + 1)) / n;
-      // lengthen only at the polyline's joints, not between subdivisions
-      const e0 = s === 0 ? 1 : 0;
-      const e1 = s === n - 1 ? 1 : 0;
+    const hs = [];
+    for (let k = 0; k <= n; k++) hs.push(surfaceY(deck, sA + (L * k) / n, A.x + ((B.x - A.x) * k) / n, A.z + ((B.z - A.z) * k) / n));
+    const cut = pieces(hs, RIBBON_TOL);
+    for (let q = 0; q + 1 < cut.length; q++) {
+      const k0 = cut[q];
+      const k1 = cut[q + 1];
+      const ax = A.x + ((B.x - A.x) * k0) / n;
+      const az = A.z + ((B.z - A.z) * k0) / n;
+      const bx = A.x + ((B.x - A.x) * k1) / n;
+      const bz = A.z + ((B.z - A.z) * k1) / n;
+      // lengthen only at the polyline's joints, not between pieces
+      const e0 = q === 0 ? 1 : 0;
+      const e1 = q === cut.length - 2 ? 1 : 0;
+      const s0 = sA + (L * k0) / n - halfW * e0;
+      const s1 = sA + (L * k1) / n + halfW * e1;
       const c = [
-        [ax - ex * e0 + nx, az - ez * e0 + nz],
-        [ax - ex * e0 - nx, az - ez * e0 - nz],
-        [bx + ex * e1 - nx, bz + ez * e1 - nz],
-        [bx + ex * e1 + nx, bz + ez * e1 + nz],
+        [ax - ex * e0 + nx, az - ez * e0 + nz, s0],
+        [ax - ex * e0 - nx, az - ez * e0 - nz, s0],
+        [bx + ex * e1 - nx, bz + ez * e1 - nz, s1],
+        [bx + ex * e1 + nx, bz + ez * e1 + nz, s1],
       ];
       const v = T.pos.length / 3;
-      for (const [x, z] of c) {
-        T.pos.push(x, ground(x, z) + lift, z);
+      for (const [x, z, s] of c) {
+        T.pos.push(x, surfaceY(deck, s, x, z) + lift, z);
         T.nor.push(0, 1, 0);
         T.col.push(col[0], col[1], col[2]);
         if (T.wall) T.wall.push(0, -1, 0, 0);
@@ -157,42 +206,65 @@ function ribbon(T, pts, halfW, col, lift, maxSeg) {
       if (up >= 0) T.idx.push(v, v + 1, v + 2, v, v + 2, v + 3);
       else T.idx.push(v, v + 2, v + 1, v, v + 3, v + 2);
     }
+    sA += L;
   }
 }
 
-// line segments (x, y, z pairs) along a polyline, draped
-function segments(out, pts, lift, maxSeg, merge) {
+// Line segments (x, y, z pairs) along a polyline, draped (or on its deck).
+// The surface is sampled every maxSeg; one segment spans the samples, across
+// the polyline's own vertices too, while every sample it passes stays within
+// tol of it in 3D. Each segment is an instance of 6 triangles, and the tile
+// lines are drawn whole (no culling): a straight street on a slope is one
+// instance, not one per 24 m.
+function segments(out, pts, lift, maxSeg, tol, deck = null) {
+  const P = []; // x, y, z of the samples
+  let sA = 0;
   for (let i = 0; i + 1 < pts.length; i++) {
     const A = pts[i];
     const B = pts[i + 1];
-    const n = Math.max(1, Math.ceil(Math.hypot(B.x - A.x, B.z - A.z) / maxSeg));
-    // ground heights at the n + 1 sub-points; a run of them is one segment
-    // while every point between stays within LINE_TOL of the chord (a
-    // straight street on a slope needs no 24 m pieces: ~4x fewer instances)
-    const hs = [];
-    for (let s = 0; s <= n; s++) hs.push(ground(A.x + ((B.x - A.x) * s) / n, A.z + ((B.z - A.z) * s) / n) + lift);
-    let s0 = 0;
-    while (s0 < n) {
-      let s1 = s0 + 1;
-      while (s1 < n) {
-        const t = s1 + 1;
-        let ok = true;
-        for (let m = s0 + 1; m <= s1; m++) {
-          const yc = hs[s0] + ((hs[t] - hs[s0]) * (m - s0)) / (t - s0);
-          if (!merge || Math.abs(hs[m] - yc) > LINE_TOL) {
-            ok = false;
-            break;
-          }
-        }
-        if (!ok) break;
-        s1 = t;
-      }
-      out.push(A.x + ((B.x - A.x) * s0) / n, hs[s0], A.z + ((B.z - A.z) * s0) / n, A.x + ((B.x - A.x) * s1) / n, hs[s1], A.z + ((B.z - A.z) * s1) / n);
-      s0 = s1;
+    const L = Math.hypot(B.x - A.x, B.z - A.z);
+    if (L < 1e-4) continue;
+    const n = Math.max(1, Math.ceil(L / maxSeg));
+    for (let k = P.length ? 1 : 0; k <= n; k++) {
+      const x = A.x + ((B.x - A.x) * k) / n;
+      const z = A.z + ((B.z - A.z) * k) / n;
+      P.push(x, surfaceY(deck, sA + (L * k) / n, x, z) + lift, z);
     }
+    sA += L;
+  }
+  const m = P.length / 3;
+  // every sample strictly between a and c within tol of the chord a-c
+  const fits = (a, c) => {
+    const ax = P[a * 3];
+    const ay = P[a * 3 + 1];
+    const az = P[a * 3 + 2];
+    const ux = P[c * 3] - ax;
+    const uy = P[c * 3 + 1] - ay;
+    const uz = P[c * 3 + 2] - az;
+    const uu = ux * ux + uy * uy + uz * uz || 1e-12;
+    for (let j = a + 1; j < c; j++) {
+      const wx = P[j * 3] - ax;
+      const wy = P[j * 3 + 1] - ay;
+      const wz = P[j * 3 + 2] - az;
+      const t = Math.max(0, Math.min(1, (wx * ux + wy * uy + wz * uz) / uu));
+      const qx = wx - ux * t;
+      const qy = wy - uy * t;
+      const qz = wz - uz * t;
+      if (qx * qx + qy * qy + qz * qz > tol * tol) return false;
+    }
+    return true;
+  };
+  let a = 0;
+  while (a < m - 1) {
+    let c = a + 1;
+    while (c + 1 < m && fits(a, c + 1)) c++;
+    out.push(P[a * 3], P[a * 3 + 1], P[a * 3 + 2], P[c * 3], P[c * 3 + 1], P[c * 3 + 2]);
+    a = c;
   }
 }
-const LINE_TOL = 0.1; // world units (0.4 m)
+// world units (1 m): a line 1.4 m above the street sags at most 1 m and
+// strays 1 m sideways; seen from afar, the tile lines' cost is their count
+const LINE_TOL = 0.25;
 
 // densify a closed ring so a draped polygon follows the ground
 function densify(ring, step) {
@@ -351,7 +423,7 @@ function buildTile(tile, key, lod, extras) {
   const K = cfg.kinds;
   const seedBase = (tile.x * 131 + tile.y * 7919) * 100003;
   const stats = { buildings: 0, trees: 0 };
-  const out = { b: null, s: null, w: null };
+  const out = { b: null, w: null };
   const near = lod === 'near';
 
   // ---- buildings
@@ -374,14 +446,28 @@ function buildTile(tile, key, lod, extras) {
     stats.buildings++;
   }
 
-  // ---- streets (near: own mesh, all kinds; far: main streets in the building mesh)
-  const lines = tile.r.map((rec) => ({ kind: K.r[rec[0]], pts: decode(rec, 1, o) }));
-  const Sx = near ? newT(false) : B;
+  // ---- streets. Tile format v2 (scripts/fetch-tiles.mjs): [kind, hw, flags,
+  // ly, pts, j]; v1: [kind, ...pts]. A tunnel is not drawn (no ribbon, no
+  // line, trees may stand over it); a bridge runs on a straight deck.
+  const lines = [];
+  for (const rec of tile.r) {
+    const v2 = Array.isArray(rec[4]);
+    const flags = v2 ? rec[2] : 0;
+    if (flags & RF_TUNNEL) continue;
+    const pts = v2 ? decode(rec[4], 0, o) : decode(rec, 1, o);
+    if (pts.length < 2) continue;
+    lines.push({ kind: K.r[rec[0]], pts, deck: flags & RF_BRIDGE ? deckOf(pts) : null });
+  }
+  // Ribbons in the near LOD only, in the building mesh (no draw call of their
+  // own), of the kinds the core draws: no service roads or tracks. The far
+  // LOD has none: out there a ribbon is a pixel wide and the constant-width
+  // lines (extras) carry the streets.
   const RW = cfg.roadWidths;
-  for (const l of lines) {
-    if (!near && l.kind !== 'primary' && l.kind !== 'secondary') continue;
-    ribbon(Sx, l.pts, (RW[l.kind] * S) / 2, cfg.roadColors[l.kind], near ? 0.14 : 0.2, near ? 3 : 8);
-    if (Bv) ribbon(Bv, l.pts, (RW[l.kind] * S) / 2, cfg.roadColors[l.kind], 0.2, 8);
+  if (near) {
+    for (const l of lines) {
+      if (l.kind === 'service' || l.kind === 'track') continue;
+      ribbon(B, l.pts, (RW[l.kind] * S) / 2, cfg.roadColors[l.kind], 0.14, 3, l.deck);
+    }
   }
 
   // ---- water: rivers and lakes
@@ -393,7 +479,6 @@ function buildTile(tile, key, lod, extras) {
 
   out.b = pack(B);
   if (Bv) out.bv = pack(Bv);
-  if (near) out.s = pack(Sx);
   out.w = pack(W);
 
   let ex = null;
@@ -403,10 +488,10 @@ function buildTile(tile, key, lod, extras) {
     const ls = [];
     const lw = [];
     for (const l of lines) {
-      if (l.kind === 'primary') segments(lp, l.pts, 0.35, 6, false); // additive glow: the overlaps at the joints are part of its look
-      else if (l.kind === 'secondary') segments(ls, l.pts, 0.35, 6, true);
+      if (l.kind === 'primary') segments(lp, l.pts, 0.35, 6, LINE_TOL, l.deck);
+      else if (l.kind === 'secondary') segments(ls, l.pts, 0.35, 6, LINE_TOL, l.deck);
     }
-    for (const r of rivers) if (r.w >= 6) segments(lw, r.pts, 0.35, 6, true);
+    for (const r of rivers) if (r.w >= 6) segments(lw, r.pts, 0.35, 6, LINE_TOL);
 
     // ---- rasters over the tile: land cover 64 x 64, occupancy 512 x 512
     const [s, w, n, e] = tile.bbox;
@@ -578,7 +663,7 @@ self.onmessage = async (ev) => {
       const t1 = performance.now();
       const r = buildTile(tile, m.key, m.lod, m.extras);
       const buildMs = performance.now() - t1;
-      const transfer = [...buffersOf(r.mesh.b), ...buffersOf(r.mesh.bv), ...buffersOf(r.mesh.s), ...buffersOf(r.mesh.w)];
+      const transfer = [...buffersOf(r.mesh.b), ...buffersOf(r.mesh.bv), ...buffersOf(r.mesh.w)];
       if (r.extras) transfer.push(r.extras.land.buffer, r.extras.trees.buffer, r.extras.lines.primary.buffer, r.extras.lines.secondary.buffer, r.extras.lines.water.buffer);
       self.postMessage({ type: 'tile', id: m.id, key: m.key, lod: m.lod, mesh: r.mesh, extras: r.extras, stats: { ...r.stats, fetchMs, buildMs } }, transfer);
     } catch (e) {
