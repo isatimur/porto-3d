@@ -14,6 +14,7 @@ const COLORS = {
   water: new THREE.Color(0x4a7a98),
 };
 const WIDTH_M = { primary: 9, secondary: 6 }; // ribbons; other kinds are lines
+const BORED = new Set(['yes', 'avalanche_protector', 'flooded']); // road-network.js ROAD_TUNNELS
 const LIFT_U = 0.12; // above the coarse ground (world units; 0.5 m)
 const STEP_U = 12; // longest piece of a segment (48 m)
 const MIN_U = 3; // drop points closer than this (12 m) on the ribbons
@@ -30,6 +31,10 @@ export function buildRoadsLite(roads, project, surfaceAt, atmosphere, S) {
     const kind = f.kind;
     const c = COLORS[kind];
     if (!c || !Array.isArray(f.pts) || f.pts.length < 2) continue;
+    // nothing that runs underground: culverted streams (tunnel, covered,
+    // layer < 0) and bored road and rail tunnels (src/road-network.js)
+    const t = f.t || {};
+    if (kind === 'water' ? t.tu || t.cv || t.ly < 0 : BORED.has(t.tu)) continue;
     const ribbon = WIDTH_M[kind] != null;
     // project, then thin the polyline
     let pts = f.pts.map((q) => project(q[0], q[1]));

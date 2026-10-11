@@ -903,7 +903,8 @@ function build(roads, project, heightAt) {
   });
   const hiddenFeature = new Uint8Array(feats.length);
   feats.forEach((f, i) => {
-    if (f.kind === 'water' && f.t?.tu) hiddenFeature[i] = 1; // culverts, the covered Rio Este
+    // culverts, the covered Rio Este, any waterway below ground (layer < 0)
+    if (f.kind === 'water' && (f.t?.tu || f.t?.cv || f.t?.ly < 0)) hiddenFeature[i] = 1;
   });
 
   // ---- curve speed caps (m/s) at each point from the bend of the polyline

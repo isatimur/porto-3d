@@ -336,6 +336,14 @@ const RKIND = {
   service: 3, track: 4,
 };
 const WATER_W = { river: 12, canal: 6, stream: 3 };
+// a waterway in a culvert or tunnel, covered, below ground, or a dry ruin
+function waterUnderground(t) {
+  if ((t.tunnel && t.tunnel !== 'no') || (t.covered && t.covered !== 'no')) return true;
+  if (t.location === 'underground' || t.location === 'underwater') return true;
+  const ly = parseInt(String(t.layer ?? ''), 10);
+  if (Number.isFinite(ly) && ly < 0) return true;
+  return t.ruins === 'yes' || t.historic === 'aqueduct' || t.disused === 'yes' || t.abandoned === 'yes';
+}
 // Street records (tile format v2): [kind, hw, flags, ly, pts, j]
 //   hw     index into HW (the OSM highway class, -1 for rail)
 //   flags  RF_* bits: one way along / against pts, bridge, tunnel, roundabout,
@@ -613,6 +621,11 @@ function buildTile(t, elements, areaPolys, level, junctions) {
     if (tags.railway === 'rail') kind = 5;
     else if (tags.highway && RKIND[tags.highway] != null) kind = RKIND[tags.highway];
     else if (WATER_W[tags.waterway]) {
+      // culverted, covered or dry: not water on the surface (scripts/fetch-nature.mjs underground)
+      if (waterUnderground(tags)) {
+        counts.waterUnderground = (counts.waterUnderground || 0) + 1;
+        continue;
+      }
       let w = WATER_W[tags.waterway];
       const tw = String(tags.width || '').trim();
       if (/^\d+(\.\d+)?$/.test(tw) && +tw >= 1 && +tw <= 60) w = +tw;
@@ -687,6 +700,7 @@ function buildAll() {
   const index = [];
   let total = 0;
   let missing = 0;
+  let waterUnder = 0;
   const want = new Set();
   for (const t of TILES) {
     if (ONLY && !ONLY.has(t.key)) continue;
@@ -701,6 +715,7 @@ function buildAll() {
       if (res.json.length <= MAX_TILE_BYTES) break;
     }
     if (res.json.length > MAX_TILE_BYTES) console.warn(`${t.key}: ${(res.json.length / 1024).toFixed(0)} KB even at the coarsest level`);
+    waterUnder += res.counts.waterUnderground || 0;
     const empty = !res.counts.buildings && !res.counts.lines && !res.counts.areas && !res.counts.water;
     const file = join(OUT_DIR, `${t.key}.json`);
     if (empty) {
@@ -738,6 +753,7 @@ function buildAll() {
   const big = index.reduce((m, t) => (t.bytes > m.bytes ? t : m), { bytes: 0 });
   console.log(`build: ${index.length} tiles written, ${(total / 1048576).toFixed(1)} MB (${(doc.gz / 1048576).toFixed(1)} MB gzip), largest ${big.x}_${big.y} ${(big.bytes / 1024).toFixed(0)} KB; ${missing} tiles without raw data; coverage ${doc.coverage.pct} %`);
   console.log('counts', doc.counts);
+  console.log(`waterways left out as culverted, covered or dry: ${waterUnder} (counted once per tile they reach)`);
 }
 
 if (DO_FETCH) await fetchAll();

@@ -818,9 +818,11 @@ export function createWater({ data, areas, project, heightAt }) {
   // open body of hundreds of km²); the rest is the tidal Douro.
   const SHORE_OPEN = 99.0;
   const OCEAN_AREA = 1.0e6; // world units² (about 16 km²)
-  // streams that run in a culvert (the OSM export lost the tunnel tag): in
-  // Porto the Rio da Vila under Rua Mouzinho da Silveira showed as a water
-  // strip up the middle of a paved street (cities/<id>.json culverted_streams)
+  // Culverted, tunnelled and covered streams never reach nature.json:
+  // scripts/fetch-nature.mjs drops them by their OSM tags (tunnel, covered,
+  // layer<0) and cuts the open ones where a road or a building covers them.
+  // cities/<id>.json culverted_streams is a by-name override on top, for a
+  // stream that OSM maps as open where it is not.
   const culverted = new Set(CITY.culverted_streams || []);
   // Open water (the sea, the tidal Douro) is drawn by its own polygon below.
   // OSM also maps the Douro as a 12 m centre line down to its mouth: as a

@@ -391,14 +391,198 @@ function buildAreas(bigTol) {
   return out;
 }
 
+// Waterway lines that are not open water on the surface. In Porto most of the
+// old streams run in culverts under the streets (the Rio da Vila under Rua
+// Mouzinho da Silveira, its branches under the Aliados, the Asprela, the
+// Granja). OSM tags them tunnel=culvert / tunnel=yes and layer<0; drawn as
+// stream ribbons they ran down the paved streets and across the junctions.
+// The ruined aqueducts (historic=aqueduct, ruins=yes) are dry: no water.
+function underground(t) {
+  if (t.tunnel && t.tunnel !== 'no') return 'tunnel';
+  if (t.covered && t.covered !== 'no') return 'covered';
+  if (t.location === 'underground' || t.location === 'underwater') return 'underground';
+  const ly = parseInt(String(t.layer ?? ''), 10);
+  if (Number.isFinite(ly) && ly < 0) return 'layer<0';
+  if (t.ruins === 'yes' || t.historic === 'aqueduct' || t.disused === 'yes' || t.abandoned === 'yes') return 'dry';
+  return null;
+}
+
+// What covers a waterway that OSM leaves untagged: a road or a building over
+// it. A stream that crosses a street goes under it (in a culvert the mapper did
+// not split out): the ribbon stops at the kerb and starts again on the other
+// side. A line that runs under streets or buildings for most of its length is
+// a buried conduit, and is dropped whole. Roads come from roads.json, the
+// buildings from buildings.json (the pipeline runs both before this step).
+// Bridges and tunnels do not cover: water runs under a bridge, and a tunnel
+// is below the stream. Footways in roads.json are only footbridges.
+const COVER_STEP_M = 2; // sample spacing along a line
+const MIN_OPEN_M = 15; // shorter open runs between covers are dropped
+const MAX_COVERED = 0.5; // a line covered over more of its length is a conduit
+// road width in metres: lanes x lane width + shoulders (src/road-network.js ROAD_CLASSES, coarse)
+const ROAD_W = { motorway: 18, trunk: 10, primary: 9, secondary: 8, tertiary: 7, motorway_link: 9, trunk_link: 8, primary_link: 7.5, secondary_link: 7, tertiary_link: 7, unclassified: 6, residential: 6, living_street: 5, pedestrian: 6, service: 4, track: 3 };
+function roadWidthM(f) {
+  const t = f.t || {};
+  if (f.kind === 'rail') return 4.2;
+  const lanes = Number.isFinite(t.ln) ? t.ln : 0;
+  const w = ROAD_W[t.hw] ?? 5;
+  return lanes ? Math.max(w * 0.6, Math.min(lanes * 3.2 + 1, 30)) : w;
+}
+function loadCover() {
+  const CELL = 25; // metres
+  const segGrid = new Map();
+  const segs = [];
+  const add = (grid, key, v) => {
+    let a = grid.get(key);
+    if (!a) grid.set(key, (a = []));
+    a.push(v);
+  };
+  const keyOf = (i, j) => i * 100003 + j;
+  let roadsN = 0;
+  let bldN = 0;
+  if (existsSync(dataPath('roads.json'))) {
+    const roads = JSON.parse(readFileSync(dataPath('roads.json'), 'utf8'));
+    for (const f of roads.features || []) {
+      if (f.kind === 'water' || f.kind === 'foot' || !Array.isArray(f.pts) || f.pts.length < 2) continue;
+      const t = f.t || {};
+      if (t.br || t.tu || t.cv || (t.ly && t.ly !== 0)) continue;
+      roadsN++;
+      const half = roadWidthM(f) / 2;
+      const xy = f.pts.map(toXY);
+      for (let i = 1; i < xy.length; i++) {
+        const a = xy[i - 1];
+        const b = xy[i];
+        const si = segs.length;
+        segs.push([a, b, half]);
+        const r = half + 4;
+        for (let gi = Math.floor((Math.min(a[0], b[0]) - r) / CELL); gi <= Math.floor((Math.max(a[0], b[0]) + r) / CELL); gi++)
+          for (let gj = Math.floor((Math.min(a[1], b[1]) - r) / CELL); gj <= Math.floor((Math.max(a[1], b[1]) + r) / CELL); gj++) add(segGrid, keyOf(gi, gj), si);
+      }
+    }
+  }
+  const bGrid = new Map();
+  const blds = [];
+  if (existsSync(dataPath('buildings.json'))) {
+    const doc = JSON.parse(readFileSync(dataPath('buildings.json'), 'utf8'));
+    for (const b of doc.buildings || []) {
+      if (!Array.isArray(b.p) || b.p.length < 3) continue;
+      const ring = b.p.map(toXY);
+      let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+      for (const [x, y] of ring) {
+        if (x < x0) x0 = x;
+        if (x > x1) x1 = x;
+        if (y < y0) y0 = y;
+        if (y > y1) y1 = y;
+      }
+      const bi = blds.length;
+      blds.push({ ring, x0, x1, y0, y1 });
+      bldN++;
+      for (let gi = Math.floor(x0 / CELL); gi <= Math.floor(x1 / CELL); gi++)
+        for (let gj = Math.floor(y0 / CELL); gj <= Math.floor(y1 / CELL); gj++) add(bGrid, keyOf(gi, gj), bi);
+    }
+  }
+  const inPoly = (ring, x, y) => {
+    let ins = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const a = ring[i];
+      const c = ring[j];
+      if (a[1] > y !== c[1] > y && x < ((c[0] - a[0]) * (y - a[1])) / (c[1] - a[1]) + a[0]) ins = !ins;
+    }
+    return ins;
+  };
+  // 'road' | 'building' | null at a point, for a stream of half-width hw
+  const at = ([x, y], hw) => {
+    const key = keyOf(Math.floor(x / CELL), Math.floor(y / CELL));
+    for (const si of segGrid.get(key) || []) {
+      const [a, b, half] = segs[si];
+      if (segDist([x, y], a, b) < half + hw) return 'road';
+    }
+    for (const bi of bGrid.get(key) || []) {
+      const B = blds[bi];
+      if (x >= B.x0 && x <= B.x1 && y >= B.y0 && y <= B.y1 && inPoly(B.ring, x, y)) return 'building';
+    }
+    return null;
+  };
+  return { at, roadsN, bldN };
+}
+const cover = loadCover();
+const M_PER_LAT = M_LAT;
+const fromXY = ([x, y]) => [ORIGIN.lat + y / M_PER_LAT, ORIGIN.lon + x / M_LON];
+
+// a run of [lat, lon] cut where a road or a building covers it: the open runs
+function openRuns(run, hw, acc) {
+  const xy = run.map(toXY);
+  const samples = []; // [x, y, covered]
+  for (let i = 1; i < xy.length; i++) {
+    const a = xy[i - 1];
+    const b = xy[i];
+    const L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const n = Math.max(1, Math.ceil(L / COVER_STEP_M));
+    for (let k = i === 1 ? 0 : 1; k <= n; k++) {
+      const p = [a[0] + ((b[0] - a[0]) * k) / n, a[1] + ((b[1] - a[1]) * k) / n];
+      const c = cover.at(p, hw);
+      samples.push([p[0], p[1], c]);
+      const step = k === 0 ? 0 : L / n;
+      acc.total += step;
+      if (c === 'road') acc.road += step;
+      else if (c === 'building') acc.building += step;
+    }
+  }
+  const runs = [];
+  let cur = [];
+  const flush = () => {
+    let len = 0;
+    for (let i = 1; i < cur.length; i++) len += Math.hypot(cur[i][0] - cur[i - 1][0], cur[i][1] - cur[i - 1][1]);
+    if (cur.length >= 2 && len >= MIN_OPEN_M) runs.push(cur.map(([x, y]) => fromXY([x, y])));
+    else if (cur.length >= 2) acc.short += len;
+    cur = [];
+  };
+  for (const s of samples) {
+    if (s[2]) flush();
+    else cur.push(s);
+  }
+  flush();
+  return runs;
+}
+
+const lineStats = { kept: 0, keptM: 0, cutRoadM: 0, cutBuildingM: 0, cutShortM: 0, dropped: {}, droppedM: {}, perName: new Map() };
+const lineLen = pts => {
+  let m = 0;
+  const xy = pts.map(toXY);
+  for (let i = 1; i < xy.length; i++) m += Math.hypot(xy[i][0] - xy[i - 1][0], xy[i][1] - xy[i - 1][1]);
+  return m;
+};
 function buildLines() {
   const out = [];
+  const drop = (why, el, pts) => {
+    lineStats.dropped[why] = (lineStats.dropped[why] || 0) + 1;
+    lineStats.droppedM[why] = (lineStats.droppedM[why] || 0) + clip(pts).reduce((s, r) => s + lineLen(r), 0);
+  };
   for (const { el, pts } of lines) {
     const t = el.tags;
+    const why = underground(t);
+    if (why) {
+      drop(why, el, pts);
+      continue;
+    }
     let w = LINE_KINDS[t.waterway];
     const tw = String(t.width || '').trim();
     if (/^\d+(\.\d+)?$/.test(tw) && +tw >= 1 && +tw <= 60) w = +tw;
-    for (const run of clip(pts)) {
+    const acc = { total: 0, road: 0, building: 0, short: 0 };
+    const open = [];
+    for (const run of clip(pts)) open.push(...openRuns(run, w / 2, acc));
+    const name = t.name || `w${el.id}`;
+    const ps = lineStats.perName.get(name) || { total: 0, road: 0, building: 0, short: 0, conduit: 0 };
+    for (const k of ['total', 'road', 'building', 'short']) ps[k] += acc[k];
+    lineStats.perName.set(name, ps);
+    if (acc.total > 0 && (acc.road + acc.building) / acc.total > MAX_COVERED) {
+      ps.conduit += acc.total;
+      drop('conduit', el, pts);
+      continue;
+    }
+    lineStats.cutRoadM += acc.road;
+    lineStats.cutBuildingM += acc.building;
+    lineStats.cutShortM += acc.short;
+    for (const run of open) {
       const s = simplify(run, 2).map(i => [r5(run[i][0]), r5(run[i][1])]);
       const p = s.filter((q, i) => i === 0 || q[0] !== s[i - 1][0] || q[1] !== s[i - 1][1]);
       if (p.length < 2) continue;
@@ -406,7 +590,9 @@ function buildLines() {
       if (t.name) line.n = t.name;
       line.p = p;
       out.push(line);
+      lineStats.keptM += lineLen(p);
     }
+    lineStats.kept++;
   }
   return out;
 }
@@ -540,6 +726,13 @@ for (const k of PRIORITY) {
 }
 console.log('Lines per kind:');
 for (const k of Object.keys(LINE_KINDS)) console.log(`  ${k.padEnd(9)} ${lineOut.filter(l => l.k === k).length}`);
+const km = m => (m / 1000).toFixed(2);
+console.log(`Waterway ways: ${lines.length} in, ${lineStats.kept} kept (${km(lineStats.keptM)} km drawn, ${lineOut.length} runs); cover masks from ${cover.roadsN} roads, ${cover.bldN} buildings`);
+for (const [why, n] of Object.entries(lineStats.dropped)) console.log(`  dropped ${why.padEnd(11)} ${String(n).padStart(4)} ways, ${km(lineStats.droppedM[why])} km`);
+console.log(`  cut under roads ${km(lineStats.cutRoadM)} km, under buildings ${km(lineStats.cutBuildingM)} km, open runs < ${MIN_OPEN_M} m ${km(lineStats.cutShortM)} km`);
+console.log('  per name (total km, % under roads / buildings, conduit km):');
+for (const [name, s] of [...lineStats.perName].filter(([n]) => !/^w\d+$/.test(n)).sort((a, b) => b[1].total - a[1].total))
+  console.log(`    ${name.padEnd(28)} ${km(s.total).padStart(6)}  ${((100 * s.road) / (s.total || 1)).toFixed(0).padStart(3)}% / ${((100 * s.building) / (s.total || 1)).toFixed(0).padStart(3)}%${s.conduit ? `  conduit ${km(s.conduit)}` : ''}`);
 
 // Coverage within 1.2 km of the two hills, sampled on a 20 m grid in projected metres.
 function coverage(lat, lon, radius = 1200, step = 20) {
