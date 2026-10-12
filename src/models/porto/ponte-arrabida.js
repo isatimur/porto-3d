@@ -11,7 +11,7 @@
 // Frame: u along the deck (+u = Gaia, local +z), v across, y up; the arch is
 // centred on the OSM corridor. Heights are metres over the water.
 // Sources and estimates: data/dimensions.json (ponte-arrabida).
-import { bridgeFrame, cuttingWalls, rod, crookLamp, LAMP } from '../bridge-kit.js';
+import { bridgeFrame, cuttingWalls, landfall, rod, crookLamp, LAMP } from '../bridge-kit.js';
 
 const H = 135; // half the arch span
 const RISE = 52;
@@ -140,13 +140,18 @@ function builder(k, site) {
     const gy = Math.min(g(u, 0), 8);
     k.box(5.4, SOFFIT - gy + 3, 11.5, CONC, u, gy - 3, 0, C);
     k.box(6.2, 0.7, 12.3, CONC_D, u, SOFFIT - 0.2, 0, C);
-    // tower above the deck: slots like the real one (the lift shaft's grille)
-    // (one on each edge of the deck: the real ones stand outside the carriageways)
+    // the lift towers: four lifts (closed in the 1990s) took walkers from the
+    // banks to the deck, one in a pillar on each edge of the deck at each
+    // springing; the pillar rises from the bank past the deck edge and ends
+    // above it in a tower with the shaft's grille
     const th = 7.4;
-    const tv = -s * 11.0;
-    k.box(3.4, th, 5.2, CONC, u, DECK_Y - 0.1, tv, C);
-    k.box(4.0, 0.5, 5.8, CONC_D, u, DECK_Y + th - 0.2, tv, C);
-    for (let j = 0; j < 6; j++) for (const f of [-1, 1]) k.box(0.1, 0.9, 0.9, 0x6a6e72, u + f * 1.72, DECK_Y + 1.2 + j * 1.2, tv, { mat: 0 });
+    for (const t of [-1, 1]) {
+      const tv = t * (DECK_W / 2 + 1.7);
+      const gb = Math.min(g(u, tv), 8) - 3;
+      k.box(3.4, DECK_Y + th - gb, 3.4, CONC, u, gb, tv, C);
+      k.box(4.0, 0.5, 4.0, CONC_D, u, DECK_Y + th - 0.2, tv, C);
+      for (let j = 0; j < 6; j++) for (const f of [-1, 1]) k.box(0.1, 0.9, 0.9, 0x6a6e72, u + f * 1.72, DECK_Y + 1.2 + j * 1.2, tv, { mat: 0 });
+    }
     // the foot of the arch: a block it springs from
     k.box(14, 7.2, 12, CONC_D, s * (H - 3), gy - 1.2, 0, C);
   }
@@ -155,9 +160,10 @@ function builder(k, site) {
   cuttingWalls(k, F, { u0: -END, u1: END, v: 13.9, maxH: 14, topMax: DECK_Y - 1, color: CONC_D, cap: CONC });
 
   // ----------------------------------------------- the deck ends: abutments
+  // (the wall reaches down to the ground in front of it: it holds the landfall)
   for (const s of [-1, 1]) {
     const e = s * END;
-    const gy = g(e, 0);
+    const gy = Math.min(g(e, 0), g(e - s * 6, 0));
     const bot = Math.min(gy, DECK_Y - 3) - 3;
     k.box(7, DECK_Y - 0.9 - bot, DECK_W, CONC_D, e + s * 3.5, bot, 0, C);
     k.box(8, 0.45, DECK_W + 1, CONC, e + s * 3.5, DECK_Y - 0.9, 0, C);
@@ -171,22 +177,26 @@ builder.metric = true;
 builder.rule = {
   note: 'Ponte da Arrábida: concrete box arch 270 m, rise 52 m; deck 26.5 m wide at 65 m over the water',
   // The DEM stays except where the structure meets it: a platform under each
-  // arch foot and the deck ends cut into the plateau.
+  // arch foot, the deck ends cut into the plateau, and the landfalls: the DEM
+  // holds both rims 17 to 21 m under the deck at the ends (the real deck lands
+  // on them), so the ground is brought up to the deck there and runs down the
+  // approach until it meets the DEM again (75 m on the Porto side).
   pad: {
-    box: { x0: -16, x1: 16, z0: -250, z1: 250 },
+    box: { x0: -16, x1: 16, z0: -332, z1: 312 },
     margin: 0,
-    fall: 9,
+    fall: 12,
     level: (x, z, h) => {
       let y = h;
       const d = Math.abs(Math.abs(z) - H);
       const f = 1 - smooth((d - 14) / 10);
       if (f > 0) y += (Math.min(h, 6) - h) * f;
-      return Math.min(y, DECK_Y - 2.2);
+      y = Math.min(y, DECK_Y - 2.2);
+      return landfall(z, y, { ends: [-END, END], top: DECK_Y - 1.2 });
     },
   },
-  extent: { box: { x0: -13.5, x1: 13.5, z0: -251.3, z1: 251.3 } },
-  deviationNote: 'OSM outline includes the approach embankments; the model is the 26.5 m deck structure with the towers',
-  frame: { x0: -13.5, x1: 13.5, z0: -251.3, z1: 251.3, y0: 0 },
+  extent: { box: { x0: -16.7, x1: 16.7, z0: -251.3, z1: 251.3 } },
+  deviationNote: 'OSM outline includes the approach embankments; the model is the 26.5 m deck structure with the lift towers outside its edges (33.4 m)',
+  frame: { x0: -16.7, x1: 16.7, z0: -251.3, z1: 251.3, y0: 0 },
 };
 
 export default { 'ponte-arrabida': builder };

@@ -58,6 +58,26 @@ export function cuttingWalls(k, F, o) {
   return k;
 }
 
+// Landfall: the ground where a deck lands on the bank, for a pad's level().
+// The DEM smears the gorge rims (data/terrain-notes.md: hill tops 10 to 30 m
+// low), so a deck end stood 15 to 25 m over the modelled ground although the
+// real one lands on the rim, and the approach roads rose to it on tall grass
+// embankments. The fill brings the ground up to `top` (m) at the end: level
+// for `seat` m outward (the abutment and the approach slab), then down along
+// the approach at `grade` until it meets the DEM; inward, under the span, it
+// falls `face` m per metre (2: the abutment wall holds it; a 1 : 1 bank ran
+// 30 m under the Infante deck, over the Fontainhas promenade). z: along the
+// deck (m), ends: the deck ends (signed z). Fill only: returns max(h, fill).
+export function landfall(z, h, { ends, top, seat = 8, grade = 0.08, face = 2 }) {
+  let y = h;
+  for (const e of ends) {
+    const d = Math.sign(e) * (z - e); // metres past the end, outward
+    const t = d >= 0 ? top - grade * Math.max(0, d - seat) : top + face * d;
+    if (t > y) y = t;
+  }
+  return y;
+}
+
 // An open four-sided prism from p0 to p1: cross-section w (across the plane
 // normal) x h (in the plane, perpendicular to the member).
 export function rod(k, p0, p1, w, h, color, o = {}) {

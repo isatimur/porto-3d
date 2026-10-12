@@ -16,7 +16,7 @@
 // lower-deck ways run -61 .. +118 m, the upper deck -205 .. +197 m.
 // Heights are metres above the water (the model's y = 0 sits 0.8 m under it).
 // Sources and estimates: data/dimensions.json (ponte-luis-i).
-import { bridgeFrame, cuttingWalls, rod, truss, railing, crookLamp, catenaryMast, wire, parabola, LAMP, IRON } from '../bridge-kit.js';
+import { bridgeFrame, cuttingWalls, landfall, rod, truss, railing, crookLamp, catenaryMast, wire, parabola, LAMP, IRON } from '../bridge-kit.js';
 
 const UC = 28.3; // arch centre along the corridor (m, from the OSM lower-deck ways)
 const HALF = 86; // half the arch chord (172 m)
@@ -127,16 +127,15 @@ function builder(k, site) {
     rod(k, [-lowU, LOWER_Y + 0.65, s * (lowW - 0.1)], [lowU, LOWER_Y + 0.65, s * (lowW - 0.1)], 0.09, 0.09, 0xffe9b8, { emit: LAMP(0.5), mat: 0 });
   }
   for (let u = -lowU; u <= lowU + 0.01; u += 3.58) rod(k, [u, LOWER_Y - 1.4, -lowW], [u, LOWER_Y - 1.4, lowW], 0.4, 0.5, IRON_C, { mat: 9 });
+  // hangers: vertical rods from the rib's lower chord to the edge girder,
+  // outside the walkway (the ribs lean in, so a hanger leans out a little in
+  // section to reach the girder)
   for (const s of [-1, 1]) {
     for (let i = 2; i < N; i += 2) {
       const u = -HALF + (2 * HALF * i) / N;
-      const v = s * ribV(u);
       const yb = axisY(u) - depthAt(u) / 2;
       if (yb - LOWER_Y < 3) continue;
-      rod(k, [u, yb, v], [u, LOWER_Y - 0.9, v], 0.2, 0.2, IRON_C, { mat: 9, emit: LAMP(0.12) });
-      const u2 = u + 3.58;
-      const yb2 = axisY(u2) - depthAt(u2) / 2;
-      if (u2 < HALF - 3 && yb2 - LOWER_Y > 3) rod(k, [u, LOWER_Y - 0.9, v], [u2, yb2 - 0.4, s * ribV(u2)], 0.16, 0.16, IRON_C);
+      rod(k, [u, yb, s * ribV(u)], [u, LOWER_Y - 1.05, s * lowW], 0.22, 0.22, IRON_C, { mat: 9, emit: LAMP(0.12) });
     }
   }
 
@@ -237,7 +236,7 @@ function builder(k, site) {
   // ---- the deck ends: abutment blocks where the deck enters the hill
   for (const e of [U_PORTO, U_GAIA]) {
     const sgn = e < 0 ? -1 : 1;
-    const gy = g(e + sgn * 2, 0);
+    const gy = Math.min(g(e + sgn * 2, 0), g(e - sgn * 6, 0)); // down to the ground in front: it holds the landfall
     const bot = Math.min(gy, UPPER_Y - 3) - 3;
     k.box(7, UPPER_Y - 0.9 - bot, 11.4, 'graniteDark', e + sgn * 0.5, bot, 0);
     k.box(7.6, 0.45, 12.2, 'graniteLight', e + sgn * 0.5, UPPER_Y - 0.9, 0);
@@ -251,18 +250,22 @@ builder.metric = true;
 builder.rule = {
   note: 'Ponte Luís I: parabolic double-deck iron arch, 172 m chord, upper deck 60 m, lower deck 11 m',
   // The DEM stays except where the structure meets it: a platform under each
-  // springing block, and the cutting the upper deck runs in where the hill
-  // is higher than the deck (both ends).
+  // springing block, the cutting the upper deck runs in where the hill
+  // is higher than the deck (both ends), and the Gaia landfall: the DEM holds
+  // the rim 19 m under the deck end (the real deck lands at the Jardim do
+  // Morro), so the ground is brought up to the deck there and runs down
+  // Avenida da República until it meets the DEM again.
   pad: {
-    box: { x0: -9, x1: 9, z0: -206, z1: 206 },
+    box: { x0: -9, x1: 9, z0: -206, z1: 252 },
     margin: 0,
-    fall: 7,
+    fall: 10,
     level: (x, z, h) => {
       let y = h;
       const d = Math.abs(Math.abs(z - UC) - HALF); // distance from a springing line
       const f = 1 - smooth((d - 8) / 10);
       if (f > 0) y += (Math.min(h, 3.5) - h) * f;
-      return Math.min(y, UPPER_Y - 1.7);
+      y = Math.min(y, UPPER_Y - 1.7);
+      return landfall(z, y, { ends: [U_PORTO, U_GAIA], top: UPPER_Y - 1.2 });
     },
   },
   extent: { box: { x0: -8.8, x1: 8.8, z0: -205.1, z1: 205.1 } },

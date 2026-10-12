@@ -15,6 +15,10 @@ export const BRIDGE_DECKS = [
     ll: [41.13957, -8.60921],
     r: 340,
     deckM: 60,
+    // the model draws the deck's own surface (paving, the Metro's track bed
+    // and rails): the two footway ribbons and the rail ribbons overlapped on
+    // it at one height and flickered (z-fighting), and hid the rails
+    surface: 'model',
     test: (t, kind) => near(t, /Luiz I \(tabuleiro superior\)|^Ponte Dom Luís I$/) || (kind === 'rail' && near(t, /Ponte Luiz I/)),
   },
   {
@@ -52,7 +56,8 @@ export const BRIDGE_DECKS = [
   {
     id: 'freixo',
     landmark: 'ponte-freixo',
-    // the OSM ways run 747 m; the model's deck stops at u = -371 / +334 m
+    // the OSM ways run 747 m; the model's deck runs u = -371 .. +388 m (on
+    // the Gaia side over the last OSM bridge ways, the start of the A20)
     ll: [41.14192, -8.5809],
     r: 520,
     deckM: 30,

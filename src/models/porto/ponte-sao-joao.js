@@ -13,7 +13,7 @@
 // are higher than the deck the girder runs inside them.
 // Heights: metres over the water (deck: estimate, see dimensions.json).
 // Sources and estimates: data/dimensions.json (ponte-sao-joao).
-import { bridgeFrame, rod, loft, catenaryMast, wire } from '../bridge-kit.js';
+import { bridgeFrame, cuttingWalls, rod, loft, catenaryMast, wire } from '../bridge-kit.js';
 
 const UC = 104; // middle of the river, from the OSM water polygon (-43 .. +251 m)
 const SPAN_C = 250;
@@ -29,8 +29,6 @@ const C = { mat: 8 };
 const U_MIN = -572; // the OSM bridge way runs -571.5 .. +575.6 m (1143 m, the published 1140 m)
 const U_MAX = 575;
 
-const smooth = (t) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
-
 // river piers, side piers, viaduct piers (absolute u)
 function pierList() {
   const P = [{ u: UC - SPAN_C / 2, kind: 'river' }, { u: UC + SPAN_C / 2, kind: 'river' }];
@@ -40,19 +38,14 @@ function pierList() {
   return P.sort((a, b) => a.u - b.u);
 }
 
-// girder depth: 4 m on the viaducts, 14 m over the river piers (a parabolic haunch
-// 62 m each side), 7 m in the middle of the central span
+// girder depth: 14 m over the river piers, 7 m in the middle of the central
+// span (a parabolic soffit between them, no dip and hump), down to 4 m at the
+// side piers and on the viaducts
 function depthAt(u) {
-  let d = 4;
-  for (const p of [UC - SPAN_C / 2, UC + SPAN_C / 2]) {
-    const t = Math.abs(u - p) / (SPAN_C / 2 - 12);
-    if (t < 1) d = Math.max(d, 4 + 10 * (1 - t) ** 2.2);
-    const ts = Math.abs(u - p) / SPAN_S;
-    if (ts < 1) d = Math.max(d, 4 + 10 * (1 - ts) ** 1.6);
-  }
-  const mid = 1 - Math.abs(u - UC) / 30;
-  if (mid > 0) d = Math.max(d, 7 * smooth(mid) + 4 * (1 - smooth(mid)));
-  return d;
+  const x = Math.abs(u - UC);
+  if (x <= SPAN_C / 2) return 7 + 7 * (x / (SPAN_C / 2)) ** 2;
+  const ts = (x - SPAN_C / 2) / SPAN_S;
+  return ts < 1 ? 4 + 10 * (1 - ts) ** 1.6 : 4;
 }
 
 function builder(k, site) {
@@ -124,6 +117,10 @@ function builder(k, site) {
     const bot = Math.min(gy, DECK_Y - 3) - 3;
     k.box(7, DECK_Y - SLAB - bot, W_TOP, CONC_D, e + sgn * 3.5, bot, 0, C);
   }
+  // the cuttings at both ends (the hills stand over the rail bed): concrete
+  // retaining walls at the pad edge (this frame is V0 off the OSM middle)
+  const FV = { ground: (u, v) => g(u, v + V0), raw: (u, v) => F.raw(u, v + V0) };
+  cuttingWalls(k, FV, { u0: U_MIN, u1: U_MAX, v: W_TOP / 2 + 0.7, maxH: 10, topMax: DECK_Y + 2, color: CONC_D, cap: CONC });
 
   k.pop();
   k.pop();
@@ -133,7 +130,17 @@ function builder(k, site) {
 builder.metric = true;
 builder.rule = {
   note: 'Ponte de São João: concrete box-girder rail bridge, 250 m central span, girder 14 m over the river piers',
-  pad: 'none',
+  // The DEM stays (the deck spans the valley) except at the two ends, where
+  // the hills stand 3 to 7 m over the rail bed: the line runs in a cutting
+  // there (the girder ends inside the hill), so the track, the parapets and
+  // the masts stand in it instead of being buried in the grass. The tracks
+  // sit 5.3 m off the middle of the OSM outline (local x +5.3).
+  pad: {
+    box: { x0: -3.9, x1: 14.5, z0: -600, z1: 600 },
+    margin: 0,
+    fall: 10,
+    level: (x, z, h) => Math.min(h, DECK_Y - 1.0),
+  },
   extent: { box: { x0: -8.5, x1: 8.5, z0: -571.9, z1: 571.9 } },
   deviationNote: 'OSM outline is the 15 m corridor of both tracks with the approach cuttings; the model is the 1143 m deck with its 14.4 m box girder',
   frame: { x0: -8.5, x1: 8.5, z0: -571.9, z1: 571.9, y0: 0 },

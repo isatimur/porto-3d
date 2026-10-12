@@ -8,15 +8,18 @@
 //   - pier stations from the OSM water polygon (-123.5, +25, +139.5 m are the
 //     river piers) and an even rhythm on the land spans
 // Frame: u along the deck (+u = Gaia, local +z), v across, y up; the decks run
-// -371 .. +334 m along the OSM corridor. Heights: metres over the water.
+// -371 .. +388 m along the OSM corridor. Heights: metres over the water.
 // Sources and estimates: data/dimensions.json (ponte-freixo).
-import { bridgeFrame, rod, loft, crookLamp } from '../bridge-kit.js';
+import { bridgeFrame, landfall, rod, loft, crookLamp } from '../bridge-kit.js';
 
 const DECK_Y = 30; // road surface (estimate: "much lower than the other bridges")
 const SLAB = 0.8;
 const U0 = -371;
-const U1 = 334;
-const PIERS = [-262, -173, -123.5, 25, 139.5, 203, 270]; // 8 spans: 109 89 49.5 148.5 114.5 63.5 67 64
+// The bridge (705 m) ends at u = 334; the OSM bridge ways go on to u = 388 over
+// the Areinho flats at the same height (the start of the A20): the deck runs
+// on over them on one more span, so no road is left in the air past the end.
+const U1 = 388;
+const PIERS = [-262, -173, -123.5, 25, 139.5, 203, 270, 334]; // 9 spans: 109 89 49.5 148.5 114.5 63.5 67 64 54
 const BOUNDS = [U0, ...PIERS, U1];
 const IN_WATER = new Set([-123.5, 25, 139.5]);
 const DECK_C = 9.05; // deck centre lines (v)
@@ -75,11 +78,10 @@ function builder(k, site) {
   k.box(U1 - U0, 0.9, 0.5, CONC, (U0 + U1) / 2, DECK_Y - 0.1, 0, C);
 
   // ---- piers: one waisted column per deck
-  for (const u of PIERS) {
+  const pier = (u, soffit) => {
     for (const s of [-1, 1]) {
       const v0 = s * DECK_C;
       const gy = g(u, v0);
-      const soffit = DECK_Y - SLAB - D_PIER;
       const base = IN_WATER.has(u) ? -4 : gy - 2.5;
       if (soffit - base < 2) continue;
       // a waisted column built from tapered slices (half sizes along u and v)
@@ -94,13 +96,21 @@ function builder(k, site) {
       }
       if (IN_WATER.has(u)) k.box(8.4, 2.2, 12.6, CONC_D, u, base, v0, C); // footing at the waterline
     }
-  }
+  };
+  for (const u of PIERS) pier(u, DECK_Y - SLAB - D_PIER);
 
-  // ---- abutments
+  // ---- the deck ends: an abutment where the deck lands on the bank; on the
+  // Gaia side the A20 goes on over the riverside flats on its own viaduct
+  // (the engine's OSM bridge ways), so the deck ends on a pier, not on a wall
+  // 22 m high
   for (const e of [U0, U1]) {
     const sgn = e < 0 ? -1 : 1;
     const gy = g(e, 0);
-    const bot = Math.min(gy, DECK_Y - 3) - 3;
+    if (DECK_Y - gy > 12) {
+      pier(e - sgn * 3.2, DECK_Y - SLAB - depthAt(e - sgn * 3.2));
+      continue;
+    }
+    const bot = Math.min(gy, g(e - sgn * 6, 0), DECK_Y - 3) - 3; // down to the ground in front: it holds the landfall
     k.box(6, DECK_Y - SLAB - bot, 2 * DECK_C + W_TOP, CONC_D, e + sgn * 3, bot, 0, C);
   }
 
@@ -111,10 +121,18 @@ function builder(k, site) {
 builder.metric = true;
 builder.rule = {
   note: 'Ponte do Freixo: two box-girder decks, 8 spans, main span 150 m, deck 30 m over the water',
-  pad: 'none',
-  extent: { box: { x0: -18.5, x1: 18.5, z0: -371.6, z1: 340 } },
-  deviationNote: 'the OSM bridge ways end at the Gaia side 30 m before the outline; the model is the 705 m deck + abutments',
-  frame: { x0: -18.5, x1: 18.5, z0: -371.6, z1: 340, y0: 0 },
+  // The DEM stays (the valley is wide and low) except at the Porto landfall:
+  // the DEM holds the bank 8 m under the deck end, so the ground is brought up
+  // to the deck there and runs down the VCI until it meets the DEM again.
+  pad: {
+    box: { x0: -18.5, x1: 18.5, z0: -436, z1: -352 },
+    margin: 0,
+    fall: 12,
+    level: (x, z, h) => landfall(z, h, { ends: [U0], top: DECK_Y - 1.2 }),
+  },
+  extent: { box: { x0: -18.5, x1: 18.5, z0: -371.6, z1: 394 } },
+  deviationNote: 'the model is the 705 m deck + abutments and, on the Gaia side, the 54 m span over the last OSM bridge ways',
+  frame: { x0: -18.5, x1: 18.5, z0: -371.6, z1: 394, y0: 0 },
 };
 
 export default { 'ponte-freixo': builder };

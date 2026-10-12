@@ -383,6 +383,8 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
     // footways: only their bridges (the paths themselves are not in the core)
     // (and not the crossings on a road deck: the deck is their surface)
     if (w.kind === 'foot' && (!w.bridge || w.onDeck)) continue;
+    // an authored deck whose model draws its own surface (src/bridge-decks.js)
+    if (w.authored?.surface === 'model') continue;
     const h = (w.widthM / 2) * S;
     if (T.pat) {
       // pedestrian streets of the centre: calçada (by name: waves on the

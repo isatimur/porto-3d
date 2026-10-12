@@ -11,7 +11,7 @@
 // Frame: u along the deck (+u = Gaia, local +z), v across, y up; the arch is
 // centred on the OSM corridor. Heights: metres over the water.
 // Sources and estimates: data/dimensions.json (ponte-infante).
-import { bridgeFrame, cuttingWalls, rod, crookLamp, LAMP } from '../bridge-kit.js';
+import { bridgeFrame, cuttingWalls, landfall, loft, rod, crookLamp, LAMP } from '../bridge-kit.js';
 
 const UC = -14; // arch centre along the corridor (middle of the OSM water polygon)
 const H = 140; // half the arch span
@@ -19,8 +19,11 @@ const DECK_Y = 73.8; // road surface (estimate; OSM height 75 incl. parapet)
 const GIRDER_D = 4.5;
 const SLAB = 0.6;
 const SOFFIT = DECK_Y - SLAB - GIRDER_D;
-const SPRING_Y = 38.5; // arch axis at the feet (the DEM cliff ledges at +-140 m)
 const RISE = 25;
+// arch axis at the feet: the crown's top meets the girder soffit (the deck
+// rests on the arch, and over the middle of the span the two are one piece)
+const SPRING_Y = SOFFIT - RISE - 0.8;
+const FUSE = 36; // half length of the joint of arch and deck (m)
 const END = 203; // OSM way ends (the deck is 370 m, the rest is approach)
 const DECK_W = 20;
 const ARCH_W = 17;
@@ -70,6 +73,16 @@ function builder(k, site) {
       p = q;
     }
   }
+  // the joint: over the middle of the span the arch runs into the girder (a
+  // web from the arch's top to the soffit, as wide as the box's bottom)
+  {
+    const rings = [];
+    for (let u = -FUSE; u <= FUSE + 0.01; u += 4) {
+      const yb = axisY(u) + thick(u) / 2 - 0.3;
+      rings.push([[u, SOFFIT + 0.2, -4.6], [u, SOFFIT + 0.2, 4.6], [u, yb, 5.6], [u, yb, -5.6]]);
+    }
+    loft(k, rings, CONC, C);
+  }
   // the feet: the arch springs from a block built into the cliff
   for (const s of [-1, 1]) {
     const x = s * (H - 4);
@@ -81,6 +94,8 @@ function builder(k, site) {
   // ------------------------------------------------------------------ deck
   // box girder: top slab with cantilevers, a trapezoid box below, braces
   k.box(2 * END, SLAB, DECK_W, CONC, 0, DECK_Y - SLAB, 0, C);
+  // the edge beams: a cornice with a drip under the parapets
+  for (const s of [-1, 1]) k.box(2 * END, 0.75, 0.42, CONC_D, 0, DECK_Y - SLAB - 0.2, s * (DECK_W / 2 + 0.2), C);
   k.box(2 * END, 0.1, DECK_W - 1.4, 0x3f4144, 0, DECK_Y - 0.1, 0, { mat: 8 });
   k.box(2 * END, GIRDER_D, 9.2, CONC, 0, SOFFIT, 0, C);
   for (let u = -END + 2.5; u <= END; u += 5) {
@@ -126,9 +141,10 @@ function builder(k, site) {
   cuttingWalls(k, F, { u0: -END, u1: END, v: 10.2, maxH: 14, topMax: DECK_Y - 1, color: CONC_D, cap: CONC });
 
   // ----------------------------------------------- the deck ends: abutments
+  // (the wall reaches down to the ground in front of it: it holds the landfall)
   for (const s of [-1, 1]) {
     const e = s * END;
-    const gy = g(e, 0);
+    const gy = Math.min(g(e, 0), g(e - s * 6, 0));
     const bot = Math.min(gy, SOFFIT - 1) - 3;
     k.box(5, SOFFIT + 0.6 - bot, DECK_W, CONC_D, e, bot, 0, C);
   }
@@ -140,18 +156,22 @@ function builder(k, site) {
 builder.metric = true;
 builder.rule = {
   note: 'Ponte Infante D. Henrique: flat concrete arch 280 m, rise 25 m, deck 20 m wide at 74 m over the water',
-  // The DEM stays except under the arch feet (a ledge in the cliff) and where
-  // the hill is above the deck.
+  // The DEM stays except under the arch feet (a ledge in the cliff), where
+  // the hill is above the deck, and at the landfalls: the DEM holds the rims
+  // 13 to 17 m under the deck ends (the real deck lands on Fontainhas and the
+  // Serra do Pilar), so the ground is brought up to the deck there and runs
+  // down the approach until it meets the DEM again.
   pad: {
-    box: { x0: -11, x1: 11, z0: -206, z1: 206 },
+    box: { x0: -11, x1: 11, z0: -248, z1: 242 },
     margin: 0,
-    fall: 9,
+    fall: 12,
     level: (x, z, h) => {
       let y = h;
       const d = Math.abs(Math.abs(z - UC) - H);
       const f = 1 - smooth((d - 10) / 10);
       if (f > 0) y += (SPRING_Y - 2.4 - h) * f;
-      return Math.min(y, SOFFIT - 1.2);
+      y = Math.min(y, SOFFIT - 1.2);
+      return landfall(z, y, { ends: [-END, END], top: DECK_Y - 1.2 });
     },
   },
   extent: { box: { x0: -10.6, x1: 10.6, z0: -202.8, z1: 202.8 } },

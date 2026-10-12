@@ -11,7 +11,7 @@
 // Frame: u along the deck (+u = local +z, bearing 54 deg), v across, y up;
 // the arch is centred on the OSM corridor. Heights: metres over the water.
 // Sources and estimates: data/dimensions.json (ponte-maria-pia).
-import { bridgeFrame, cuttingWalls, rod, truss, railing, latticeTower, parabola, IRON } from '../bridge-kit.js';
+import { bridgeFrame, cuttingWalls, landfall, rod, truss, railing, latticeTower, parabola, IRON } from '../bridge-kit.js';
 
 const UC = 12.5; // arch centre along the corridor: the OSM water polygon runs -60 .. +85 m
 const H = 80; // half the arch span
@@ -102,7 +102,7 @@ function builder(k, site) {
   // abutments: the girders end on masonry, the line goes on into the hill
   for (const e of [-END, END]) {
     const sgn = Math.sign(e);
-    const gy = Math.min(g(e + sgn * 3, 0), DECK_Y - 3) - 3;
+    const gy = Math.min(g(e + sgn * 3, 0), g(e - sgn * 6, 0), DECK_Y - 3) - 3; // down to the ground in front: it holds the landfall
     k.box(7.2, DECK_Y - 1.2 - gy, 7.6, 'graniteDark', e + sgn * 3.6, gy, 0);
     k.box(7.8, 0.4, 8.2, 'graniteLight', e + sgn * 3.6, DECK_Y - 1.2, 0);
     k.box(7.2, 0.25, 3.4, 0x6e655b, e + sgn * 3.6, DECK_Y - 0.8, 0, { mat: 8 });
@@ -136,17 +136,22 @@ function builder(k, site) {
 builder.metric = true;
 builder.rule = {
   note: 'Ponte Maria Pia: crescent iron arch 160 m, deck 60 m over the water, 352.9 m',
-  // The DEM stays except under the pivots and where the hill is above the deck.
+  // The DEM stays except under the pivots, where the hill is above the deck,
+  // and at the landfalls: the DEM holds the rims 6 m (north-east) and 27 m
+  // (south-west) under the deck ends, where the real girders rest on masonry
+  // abutments on the rim, so the ground is brought up to the deck there and
+  // runs down the old line until it meets the DEM again.
   pad: {
-    box: { x0: -8, x1: 8, z0: -186, z1: 186 },
+    box: { x0: -8, x1: 8, z0: -244, z1: 214 },
     margin: 0,
-    fall: 7,
+    fall: 10,
     level: (x, z, h) => {
       let y = h;
       const d = Math.abs(Math.abs(z - UC) - H);
       const f = 1 - smooth((d - 8) / 10);
       if (f > 0) y += (Math.min(h, 4) - h) * f;
-      return Math.min(y, DECK_Y - 2.2);
+      y = Math.min(y, DECK_Y - 2.2);
+      return landfall(z, y, { ends: [UC - END, UC + END], top: DECK_Y - 1.2 });
     },
   },
   extent: { box: { x0: -8, x1: 8, z0: -185.1, z1: 185.1 } },
