@@ -41,7 +41,10 @@ export const DEMAND_MAX = 1.5;
 // ------------------------------------------------------------ the figure
 // metres, standing on y = 0, facing +z; aPart: 0 shirt, 1 / 2 legs, 3 / 4
 // arms, 5 skin, 6 hair, 7 both legs (light mode)
-function figure(lite) {
+// variety (0 none, 1 reduced, 2 full) adds parts that only some people show
+// (the shader collapses them for the rest): 8 a shopping bag, 9 a cane,
+// 10 a dog's body and head, 11 / 12 its front and rear legs
+function figure(lite, variety = 0) {
   const P = [];
   const N = [];
   const A = [];
@@ -79,6 +82,17 @@ function figure(lite) {
     box(0.19, 0.86, -0.05, 0.28, 1.42, 0.05, 4);
     box(-0.095, 1.43, -0.1, 0.095, 1.66, 0.11, 5, ['bottom']);
     box(-0.105, 1.6, -0.115, 0.105, 1.71, 0.09, 6, ['bottom']);
+    if (variety >= 1) {
+      box(0.27, 0.5, -0.11, 0.41, 0.88, 0.11, 8, ['bottom']); // bag in the right hand
+      box(0.3, 0, -0.02, 0.34, 0.9, 0.02, 9, ['bottom', 'top']); // cane
+    }
+    if (variety >= 2) {
+      // a small dog on the left, a lead's length away
+      box(-0.64, 0.24, -0.3, -0.46, 0.48, 0.2, 10, ['bottom']);
+      box(-0.62, 0.38, 0.2, -0.48, 0.62, 0.42, 10, ['bottom']);
+      box(-0.64, 0, 0.1, -0.46, 0.25, 0.18, 11, ['top', 'bottom']);
+      box(-0.64, 0, -0.28, -0.46, 0.25, -0.2, 12, ['top', 'bottom']);
+    }
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3));
@@ -103,7 +117,7 @@ function peopleMaterial(uniforms) {
 uniform float uPTime;
 attribute float aPart;
 attribute vec4 iAnim; // phase, walking 0..1, seated 0..1, cadence
-attribute vec4 iLook; // trousers rgb, skin 0..2
+attribute vec4 iLook; // trousers rgb, skin 0..2 + 3 x kind (0 adult, 1 child, 2 elderly, 3 shopper, 4 dog walker)
 vec3 rotX(vec3 p, float pivot, float a) {
   float y = p.y - pivot;
   float c = cos(a);
@@ -123,14 +137,37 @@ vec3 rotX(vec3 p, float pivot, float a) {
   float isR = 1.0 - step(0.5, abs(aPart - 2.0));
   float isAL = 1.0 - step(0.5, abs(aPart - 3.0));
   float isAR = 1.0 - step(0.5, abs(aPart - 4.0));
+  // variety: kind 1 child, 2 elderly, 3 shopper, 4 dog walker
+  float kind = floor(iLook.w / 3.0 + 0.01);
+  float isChild = 1.0 - step(0.5, abs(kind - 1.0));
+  float isOld = 1.0 - step(0.5, abs(kind - 2.0));
+  float isShop = 1.0 - step(0.5, abs(kind - 3.0));
+  float isDw = 1.0 - step(0.5, abs(kind - 4.0));
+  float isBagP = 1.0 - step(0.5, abs(aPart - 8.0));
+  float isCane = 1.0 - step(0.5, abs(aPart - 9.0));
+  float isDogF = 1.0 - step(0.5, abs(aPart - 11.0));
+  float isDogR = 1.0 - step(0.5, abs(aPart - 12.0));
+  float isDog = step(9.5, aPart);
   // standing: a slow gesture now and then
   float idle = (1.0 - walk) * (1.0 - sit) * 0.12 * max(0.0, sin(uPTime * 0.7 + iAnim.x * 3.0));
+  // the elderly stoop at the hip; a child's head is large for its body
+  float upper = (aPart < 0.5 || (aPart > 2.5 && aPart < 6.5) || isBagP > 0.5) ? 1.0 : 0.0;
+  transformed = rotX(transformed, ${(0.86 * S).toFixed(5)}, 0.2 * isOld * upper);
+  float hs = 1.0 + 0.32 * isChild * (aPart > 4.5 && aPart < 6.5 ? 1.0 : 0.0);
+  transformed = vec3(transformed.x * hs, ${(1.43 * S).toFixed(5)} + (transformed.y - ${(1.43 * S).toFixed(5)}) * hs, transformed.z * hs);
   // legs forward (-angle) about the hip; seated: thighs folded forward
   float legA = isL * (-sw) + isR * sw - (isL + isR) * sit * 1.25;
   transformed = rotX(transformed, ${(0.86 * S).toFixed(5)}, legA);
-  float armA = isAL * (sw * 0.8 - idle) + isAR * (-sw * 0.8) - (isAL + isAR) * sit * 0.5;
+  // the bag swings with the right arm; with a bag or a cane that arm moves little
+  float armK = 1.0 - 0.7 * max(isOld, isShop);
+  float armA = isAL * (sw * 0.8 - idle) + (isAR + isBagP) * (-sw * 0.8 * armK) - (isAL + isAR + isBagP) * sit * 0.5;
   transformed = rotX(transformed, ${(1.4 * S).toFixed(5)}, armA);
-  transformed.y += walk * abs(sin(ph)) * ${(0.03 * S).toFixed(5)} - sit * ${(0.4 * S).toFixed(5)};
+  transformed.y += (1.0 - isDog) * (walk * abs(sin(ph)) * ${(0.03 * S).toFixed(5)} - sit * ${(0.4 * S).toFixed(5)});
+  // the dog trots: front and rear legs swing against each other
+  transformed = rotX(transformed, ${(0.25 * S).toFixed(5)}, (isDogF - isDogR) * sin(ph * 1.4) * 0.7 * walk);
+  transformed.y += isDog * walk * abs(sin(ph * 1.4)) * ${(0.015 * S).toFixed(5)};
+  // parts that belong to another kind collapse to a point
+  transformed *= 1.0 - max(max(isBagP * (1.0 - isShop), isCane * (1.0 - isOld)), isDog * (1.0 - isDw));
 }`,
       )
       .replace(
@@ -139,13 +176,20 @@ vec3 rotX(vec3 p, float pivot, float a) {
 {
   // the instance colour is the shirt; trousers and skin per instance too
   float pt = aPart;
-  vec3 skin = iLook.w < 0.5 ? vec3(0.62, 0.42, 0.31) : iLook.w < 1.5 ? vec3(0.42, 0.26, 0.17) : vec3(0.2, 0.12, 0.08);
-  vec3 hair = iLook.w < 0.5 ? vec3(0.09, 0.06, 0.04) : iLook.w < 1.5 ? vec3(0.03, 0.025, 0.02) : vec3(0.02, 0.02, 0.02);
+  float kd = floor(iLook.w / 3.0 + 0.01);
+  float sk = iLook.w - kd * 3.0;
+  vec3 skin = sk < 0.5 ? vec3(0.62, 0.42, 0.31) : sk < 1.5 ? vec3(0.42, 0.26, 0.17) : vec3(0.2, 0.12, 0.08);
+  vec3 hair = sk < 0.5 ? vec3(0.09, 0.06, 0.04) : sk < 1.5 ? vec3(0.03, 0.025, 0.02) : vec3(0.02, 0.02, 0.02);
+  if (kd > 1.5 && kd < 2.5) hair = vec3(0.7, 0.7, 0.72); // grey hair
   vec3 shirt = vec3(1.0);
 #ifdef USE_INSTANCING_COLOR
   shirt = instanceColor.rgb;
 #endif
-  vColor = vec4(pt < 0.5 || (pt > 2.5 && pt < 4.5) ? shirt : (pt < 2.5 || pt > 6.5) ? iLook.rgb : pt < 5.5 ? skin : hair, 1.0);
+  float hu = fract(iAnim.x * 0.37);
+  vec3 bag = hu < 0.33 ? vec3(0.78, 0.16, 0.14) : hu < 0.66 ? vec3(0.15, 0.4, 0.7) : vec3(0.85, 0.75, 0.3);
+  vec3 fur = hu < 0.25 ? vec3(0.55, 0.38, 0.2) : hu < 0.5 ? vec3(0.07, 0.06, 0.06) : hu < 0.75 ? vec3(0.85, 0.82, 0.74) : vec3(0.33, 0.2, 0.1);
+  vec3 col = pt < 0.5 || (pt > 2.5 && pt < 4.5) ? shirt : (pt < 2.5 || (pt > 6.5 && pt < 7.5)) ? iLook.rgb : pt < 5.5 ? skin : pt < 6.5 ? hair : pt < 8.5 ? bag : pt < 9.5 ? vec3(0.22, 0.14, 0.08) : fur;
+  vColor = vec4(col, 1.0);
 }`,
       );
   };
@@ -636,11 +680,31 @@ export function createPeople({ lanes, spots, max, lite, shadows = false }) {
 // everything stands still under reduced motion (the caller passes dt = 0).
 // paths: [{ x, z, y: Float32Array, half: world units, ped: bool,
 //           name, district }]
-export function createCrowd({ paths, max, lite, reducedMotion = false }) {
+// how much variety a device shows: 0 adults only (light mode and Potato),
+// 1 children, the elderly and shoppers (S), 2 plus dog walkers (M and up)
+export function crowdVariety(lite, cls) {
+  if (lite || cls === 'P') return 0;
+  return cls === 'S' ? 1 : 2;
+}
+const KIND_SPEED = [1, 0.85, 0.72, 0.95, 0.92]; // adult, child, elderly, shopper, dog walker
+const KIND_CAD = [1, 1.25, 0.85, 1, 1];
+export function createCrowd({ paths, max, lite, reducedMotion = false, variety = 0 }) {
   const list = (paths || []).filter((p) => p && p.x && p.x.length >= 2);
   if (!list.length || max < 1) return null;
   const uniforms = { uPTime: { value: 0 } };
-  const geo = figure(lite);
+  if (lite) variety = 0;
+  const geo = figure(lite, variety);
+  const krnd = lcg(4711); // kinds only: the layout of the crowd stays as it was
+  // a leader's kind; a group's followers lean to children and the elderly
+  const pickKind = (leader = -1) => {
+    if (!variety) return 0;
+    const r = krnd();
+    let k;
+    if (leader < 0) k = r < 0.6 ? 0 : r < 0.74 ? 3 : r < 0.85 ? 1 : r < 0.94 ? 2 : 4;
+    else if (leader === 1) k = 0;
+    else k = r < 0.3 ? 1 : r < 0.45 ? 3 : r < 0.55 ? 2 : 0;
+    return k === 4 && (variety < 2 || leader >= 0) ? 0 : k;
+  };
   const cap = Math.max(1, Math.round(reducedMotion ? max * 0.6 : max));
   const iAnim = new THREE.InstancedBufferAttribute(new Float32Array(cap * 4), 4).setUsage(THREE.DynamicDrawUsage);
   const iLook = new THREE.InstancedBufferAttribute(new Float32Array(cap * 4), 4).setUsage(THREE.DynamicDrawUsage);
@@ -688,6 +752,7 @@ export function createCrowd({ paths, max, lite, reducedMotion = false }) {
   const SC = new Float32Array(WALK_MAX);
   const HT = new Float32Array(WALK_MAX); // height factor
   const BD = new Float32Array(WALK_MAX); // build factor
+  const KD = new Uint8Array(WALK_MAX); // kind: 0 adult, 1 child, 2 elderly, 3 shopper, 4 dog walker
   // small groups: a follower keeps its leader's path and pace
   const LEAD = new Int32Array(WALK_MAX).fill(-1);
   const GARC = new Float32Array(WALK_MAX); // world units behind the leader
@@ -732,6 +797,10 @@ export function createCrowd({ paths, max, lite, reducedMotion = false }) {
       HT[i] = 0.9 + rnd() * 0.2;
       BD[i] = 0.86 + rnd() * 0.28;
       CAD[i] = 0.88 + rnd() * 0.28;
+      if (variety) {
+        KD[i] = pickKind(KD[li]);
+        CAD[i] *= KIND_CAD[KD[i]];
+      }
       PAUSER[i] = 0;
       STOP[i] = 0;
       LOOK[i] = 0;
@@ -752,6 +821,11 @@ export function createCrowd({ paths, max, lite, reducedMotion = false }) {
     HT[i] = 0.88 + rnd() * 0.24;
     BD[i] = 0.84 + rnd() * 0.32;
     CAD[i] = 0.84 + rnd() * 0.32;
+    if (variety) {
+      KD[i] = pickKind();
+      V[i] *= KIND_SPEED[KD[i]];
+      CAD[i] *= KIND_CAD[KD[i]];
+    }
     PAUSER[i] = rnd() < 0.18 ? 1 : 0;
     LSIDE[i] = rnd() < 0.5 ? 1 : -1;
     STOP[i] = 0;
@@ -864,7 +938,10 @@ export function createCrowd({ paths, max, lite, reducedMotion = false }) {
   const RSC = [];
   const RHT = [];
   const RBD = [];
+  const RKD = [];
   const addRest = (x, z, y, yaw, sit) => {
+    const kr = variety ? krnd() : 0;
+    RKD.push(!variety ? 0 : sit ? (kr < 0.7 ? 0 : kr < 0.85 ? 2 : 3) : kr < 0.55 ? 0 : kr < 0.75 ? 3 : kr < 0.88 ? 1 : 2);
     RX.push(x);
     RZ.push(z);
     RY.push(y);
@@ -937,8 +1014,13 @@ export function createCrowd({ paths, max, lite, reducedMotion = false }) {
   const C = mesh.instanceColor.array;
   const IA = iAnim.array;
   const IL = iLook.array;
-  function write(n, x, y, z, hx, hz, sc, ht, bd, shirt, pants, skin, ph, walk, sit, cad) {
+  function write(n, x, y, z, hx, hz, sc, ht, bd, shirt, pants, skin, ph, walk, sit, cad, kind = 0) {
     const o = n * 16;
+    // a child is short and slight, the elderly a little shorter
+    if (kind === 1) {
+      ht *= 0.62;
+      bd *= 0.8;
+    } else if (kind === 2) ht *= 0.95;
     const rw = sc * bd;
     E[o] = hz * rw;
     E[o + 1] = 0;
@@ -964,7 +1046,7 @@ export function createCrowd({ paths, max, lite, reducedMotion = false }) {
     IL[n * 4] = p.r;
     IL[n * 4 + 1] = p.g;
     IL[n * 4 + 2] = p.b;
-    IL[n * 4 + 3] = skin;
+    IL[n * 4 + 3] = skin + 3 * kind;
     IA[n * 4] = ph;
     IA[n * 4 + 1] = walk;
     IA[n * 4 + 2] = sit;
@@ -1025,7 +1107,7 @@ export function createCrowd({ paths, max, lite, reducedMotion = false }) {
         hx = nx;
       }
       const walking = reducedMotion || (PAUSER[i] && STOP[i] > 0) ? 0 : 1;
-      write(n++, p.x, p.y, p.z, hx, hz, SC[i], HT[i], BD[i], SH[i], PA[i], SK[i], PH[i], walking, 0, CAD[i]);
+      write(n++, p.x, p.y, p.z, hx, hz, SC[i], HT[i], BD[i], SH[i], PA[i], SK[i], PH[i], walking, 0, CAD[i], KD[i]);
       shownWalkers++;
     }
     // the people who stay: sitters on the quay, queues at the ends
@@ -1043,7 +1125,7 @@ export function createCrowd({ paths, max, lite, reducedMotion = false }) {
           if (RTH[i] > share * 1.1) continue;
           if (!inView(frustum, x, RY[i] + 0.2, z, 0.6)) continue;
           const yaw = RYAW[i];
-          write(n++, x, RY[i], z, Math.sin(yaw), Math.cos(yaw), RSC[i], RHT[i], RBD[i], RSH[i], RPA[i], RSK[i], RPH[i], 0, RSIT[i], 1);
+          write(n++, x, RY[i], z, Math.sin(yaw), Math.cos(yaw), RSC[i], RHT[i], RBD[i], RSH[i], RPA[i], RSK[i], RPH[i], 0, RSIT[i], 1, RKD[i]);
           shownStaying++;
         }
       }

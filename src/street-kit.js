@@ -29,7 +29,7 @@ import { CITY, dataPath, hasData } from './city.js';
 import { assetUrl } from './data.js';
 import { buildNetwork } from './road-network.js';
 import { RIBBON_LIFT, SIDEWALK_R, WALKED, sidewalkM, lampPosts } from './roads.js';
-import { createCrowd, pedestrianDemand } from './people.js';
+import { createCrowd, crowdVariety, pedestrianDemand } from './people.js';
 
 // ------------------------------------------------------------ geometry
 // metres; y is the bottom; +z is the front of every piece
@@ -972,7 +972,7 @@ export function createStreetKit(ctx) {
     crowdPaths = paths.length;
     if (!paths.length) return null;
     const max = Math.round((ctx.lite ? 100 : 160) * Math.min(1, K * 1.15));
-    return createCrowd({ paths, max, lite: !!ctx.lite, reducedMotion });
+    return createCrowd({ paths, max, lite: !!ctx.lite, reducedMotion, variety: crowdVariety(!!ctx.lite, cls) });
   }
 
   // ---- the layer: one merged mesh around the focus, from baked cells

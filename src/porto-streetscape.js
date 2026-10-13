@@ -19,7 +19,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { S } from './geo.js';
 import { buildNetwork } from './road-network.js';
-import { createCrowd, pedestrianDemand, DEMAND_MAX } from './people.js';
+import { createCrowd, crowdVariety, pedestrianDemand, DEMAND_MAX } from './people.js';
 
 const IRON = 0x1d2621;
 const AZUL = 0x1b3a6b; // Porto azulejo cobalt
@@ -1243,6 +1243,7 @@ export function buildPortoStreetLife(ctx) {
     max: lite ? 150 : 340,
     lite,
     reducedMotion,
+    variety: crowdVariety(!!lite, ctx.debug?.governor?.cls || (lite ? 'M' : 'XL')),
   });
   if (people) group.add(people.object);
 
