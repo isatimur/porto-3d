@@ -15,7 +15,8 @@ import { fileURLToPath } from 'node:url';
 const args = process.argv.slice(2);
 const rootIdx = args.indexOf('--root');
 const ROOT = rootIdx >= 0 ? resolve(args[rootIdx + 1]) : join(fileURLToPath(new URL('..', import.meta.url)), 'dist');
-const PORT = Number(args.find((a, i) => /^\d+$/.test(a) && i !== rootIdx + 1) || process.env.PORT || 5192);
+// a bare number is the port, unless it is the value of --root (rootIdx is -1 without the flag)
+const PORT = Number(args.find((a, i) => /^\d+$/.test(a) && (rootIdx < 0 || i !== rootIdx + 1)) || process.env.PORT || 5192);
 const br = promisify(brotliCompress);
 const gz = promisify(gzip);
 const TYPES = {
