@@ -769,7 +769,7 @@ export function buildNature(opts) {
   };
   stats.turn = [+uniforms.uTurn.value.x.toFixed(2), +uniforms.uTurn.value.y.toFixed(2)];
   const base = opts.base || buildNatureBase(opts);
-  if (!base) return { group, stats, landcover: null, update() {}, uniforms, setStreamTrees() {} };
+  if (!base) return { group, stats, landcover: null, update() {}, uniforms, setStreamTrees() {}, setNearRadius() {} };
   const { rect, areas, landcover, landRect, water } = base;
   base.paintBuilt(opts.buildings);
   stats.areas = areas.length;

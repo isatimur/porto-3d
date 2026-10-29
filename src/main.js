@@ -458,6 +458,7 @@ async function start() {
   scene.add(city.group);
   cityRef = city;
   fadeIn((k) => {
+    if (!city.material) return; // empty buildings.json: no material
     city.material.userData.reveal.value = k;
     if (k >= 1 && city.material.defines.BRG_REVEAL !== undefined) {
       // done: the plain shader again (no discard path in the core's fill)

@@ -63,6 +63,16 @@ function inputsHash(landmarks) {
   return h.digest('hex').slice(0, 16);
 }
 
+// Empty-data guard: a fresh city has no roads.json (or landmarks) yet. The
+// build hook must not fail then; there is nothing to bake.
+if (IF_STALE) {
+  const missing = [CITY.landmarksPath, dataPath('roads.json')].filter((f) => !existsSync(f));
+  if (missing.length) {
+    console.log(`bake-fits: skipped, input missing (${missing.map((f) => relative(ROOT, f)).join(', ')})`);
+    process.exit(0);
+  }
+}
+
 const landmarks = load('landmarks.json');
 const hash = inputsHash(landmarks);
 
