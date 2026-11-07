@@ -14,6 +14,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "verify": "node scripts/verify.mjs",
+    "test": "node --test scripts/*.test.mjs",
     "perf": "node scripts/perf-bench.mjs --reduced --check",
     "perf:full": "node scripts/perf-bench.mjs --check --out perf/results.json",
     "perf:serve": "node scripts/perf-serve.mjs",
