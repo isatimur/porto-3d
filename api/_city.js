@@ -7,7 +7,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const CITIES = join(dirname(fileURLToPath(import.meta.url)), '..', 'cities');
-const ID_RE = /^[a-z][a-z0-9-]*$/;
+const ID_RE = /^[a-z][a-z0-9-]{0,39}$/; // capped: the id comes from the query string
 const cache = new Map();
 
 // { id, name, origin, aircraft: { lat, lon, radius_nm }, domain } or null
@@ -32,7 +32,7 @@ export function cityConfig(id = 'porto') {
       cfg = null;
     }
   }
-  cache.set(id, cfg);
+  if (cfg) cache.set(id, cfg); // misses are not cached: unknown ids must not grow the map
   return cfg;
 }
 
