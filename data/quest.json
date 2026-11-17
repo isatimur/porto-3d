@@ -301,9 +301,9 @@
             ]
           },
           "question": {
-            "ru": "Что сегодня ходит по верхнему ярусу моста?",
-            "en": "What runs on the bridge's upper deck today?",
-            "pt": "O que circula hoje no tabuleiro superior da ponte?"
+            "ru": "Что с 2005 года ходит по верхнему ярусу моста?",
+            "en": "Since 2005, what has run on the bridge's upper deck?",
+            "pt": "Desde 2005, o que circula no tabuleiro superior da ponte?"
           },
           "options": [
             { "ru": "Линия метро Порту", "en": "A Porto Metro line", "pt": "Uma linha do Metro do Porto" },
