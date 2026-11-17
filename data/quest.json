@@ -78,7 +78,7 @@
       "stops": [
         {
           "id": "clerigos",
-          "view": {},
+          "view": { "az": 1.6, "elev": 0.4, "k": 1.4 },
           "sources": [
             "https://pt.wikipedia.org/wiki/Igreja_e_Torre_dos_Cl%C3%A9rigos",
             "https://en.wikipedia.org/wiki/Cl%C3%A9rigos_Church",
@@ -228,7 +228,7 @@
         },
         {
           "id": "ribeira",
-          "view": {},
+          "view": { "az": -2.3, "elev": 0.28, "k": 0.9 },
           "sources": [
             "https://whc.unesco.org/en/list/755",
             "https://en.wikipedia.org/wiki/Porto",
@@ -276,7 +276,7 @@
         },
         {
           "id": "ponte-luis-i",
-          "view": {},
+          "view": { "az": 1.4, "elev": 0.22, "k": 0.9 },
           "sources": [
             "https://en.wikipedia.org/wiki/Dom_Lu%C3%ADs_I_Bridge",
             "https://pt.wikipedia.org/wiki/Ponte_de_D._Lu%C3%ADs",
@@ -388,7 +388,7 @@
         },
         {
           "id": "bolsa",
-          "view": {},
+          "view": { "az": 3.14, "elev": 0.4, "k": 1.2 },
           "sources": [
             "https://pt.wikipedia.org/wiki/Pal%C3%A1cio_da_Bolsa",
             "https://en.wikipedia.org/wiki/Pal%C3%A1cio_da_Bolsa",
@@ -436,7 +436,7 @@
         },
         {
           "id": "ribeira",
-          "view": {},
+          "view": { "az": -2.3, "elev": 0.28, "k": 0.9 },
           "sources": [
             "https://whc.unesco.org/en/list/755",
             "https://en.wikipedia.org/wiki/Porto",
@@ -484,7 +484,7 @@
         },
         {
           "id": "ponte-luis-i",
-          "view": {},
+          "view": { "az": 1.4, "elev": 0.22, "k": 0.9 },
           "sources": [
             "https://en.wikipedia.org/wiki/Dom_Lu%C3%ADs_I_Bridge",
             "https://pt.wikipedia.org/wiki/Ponte_de_D._Lu%C3%ADs",
@@ -532,7 +532,7 @@
         },
         {
           "id": "serra-do-pilar",
-          "view": {},
+          "view": { "az": 3.14, "elev": 0.3, "k": 1.5 },
           "sources": [
             "https://pt.wikipedia.org/wiki/Mosteiro_da_Serra_do_Pilar",
             "https://en.wikipedia.org/wiki/Monastery_of_Serra_do_Pilar",
