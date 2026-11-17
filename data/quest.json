@@ -177,7 +177,7 @@
         },
         {
           "id": "se-porto",
-          "view": {},
+          "view": { "mk": 0.8 },
           "sources": [
             "https://pt.wikipedia.org/wiki/S%C3%A9_do_Porto",
             "https://en.wikipedia.org/wiki/Porto_Cathedral",
@@ -276,7 +276,7 @@
         },
         {
           "id": "ponte-luis-i",
-          "view": { "az": 1.4, "elev": 0.22, "k": 0.9 },
+          "view": { "az": 1.4, "elev": 0.22, "k": 0.9, "mk": 0.5 },
           "sources": [
             "https://en.wikipedia.org/wiki/Dom_Lu%C3%ADs_I_Bridge",
             "https://pt.wikipedia.org/wiki/Ponte_de_D._Lu%C3%ADs",
@@ -484,7 +484,7 @@
         },
         {
           "id": "ponte-luis-i",
-          "view": { "az": 1.4, "elev": 0.22, "k": 0.9 },
+          "view": { "az": 1.4, "elev": 0.22, "k": 0.9, "mk": 0.5 },
           "sources": [
             "https://en.wikipedia.org/wiki/Dom_Lu%C3%ADs_I_Bridge",
             "https://pt.wikipedia.org/wiki/Ponte_de_D._Lu%C3%ADs",
@@ -532,7 +532,7 @@
         },
         {
           "id": "serra-do-pilar",
-          "view": { "az": 3.14, "elev": 0.3, "k": 1.5 },
+          "view": { "az": 3.14, "elev": 0.3, "k": 1.5, "mk": 0.9 },
           "sources": [
             "https://pt.wikipedia.org/wiki/Mosteiro_da_Serra_do_Pilar",
             "https://en.wikipedia.org/wiki/Monastery_of_Serra_do_Pilar",

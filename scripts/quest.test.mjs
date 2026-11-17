@@ -47,6 +47,8 @@ test('routes: stable unique ids', () => {
     for (const k of ['title', 'intro', 'end_lead']) for (const lang of LANGS) assert.ok(r[k]?.[lang]?.trim(), `${r.id}: ${k}.${lang}`);
     assert.ok(r.stops.length >= 3 && r.stops.length <= 7, `${r.id}: 3 to 7 stops`);
     assert.equal(new Set(r.stops.map((s) => s.id)).size, r.stops.length, `${r.id}: a stop appears once`);
+    // a stop's camera: only the keys src/quest.js frame() reads, as numbers
+    for (const s of r.stops) for (const [k, v] of Object.entries(s.view || {})) assert.ok(['az', 'elev', 'k', 'mk'].includes(k) && Number.isFinite(v), `${r.id}/${s.id}: view.${k}`);
     for (const id of r.overview || []) assert.ok(r.stops.some((s) => s.id === id), `${r.id}: overview ${id} is not a stop`);
   }
 });

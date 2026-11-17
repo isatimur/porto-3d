@@ -405,8 +405,10 @@ export function createQuest(ctx) {
 
   // A view of `list` (landmark items), framed in the free part of the
   // screen. v: { az: radians added to `bearing`, elev: radians above the
-  // horizon, k: distance multiplier }. The view is raised until no roof
-  // hides the first item (as story.js does for its chapters).
+  // horizon, k: distance multiplier, mk: the same on a phone (Porto: a long
+  // bridge in a tall, narrow view would otherwise shrink to a line) }. The
+  // view is raised until no roof hides the first item (as story.js does for
+  // its chapters).
   function frame(list, v, bearing) {
     const box = new THREE.Box3();
     for (const it of list) box.union(it.box);
@@ -420,7 +422,8 @@ export function createQuest(ctx) {
     const view = freeView();
     const fw = view.r - view.l;
     const fh = view.b - view.t;
-    const dist = THREE.MathUtils.clamp(Math.max(r / (tanV * fh), r / (tanV * aspect * fw)) * (v.k ?? 1), 30, 2600);
+    const k = (mobile() ? v.mk : null) ?? v.k ?? 1;
+    const dist = THREE.MathUtils.clamp(Math.max(r / (tanV * fh), r / (tanV * aspect * fw)) * k, 30, 2600);
     const az = bearing + (v.az ?? 0);
     const subject = list[0];
     const q = new THREE.Vector3();
