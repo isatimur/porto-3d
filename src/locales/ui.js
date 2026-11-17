@@ -20,6 +20,12 @@ export const messages = {
   'Иллюстрация, создана ИИ': ['Ilustração criada por IA', 'Illustration created by AI'],
   'Вернуться к карте':['Voltar ao mapa', 'Back to the map'],
   'Не удалось загрузить историю': ['Não foi possível carregar a história', 'The story could not be loaded'],
+  // history routes (quest.js); its own texts live in data/quest.json. The
+  // label and title hold for one route or several.
+  'Маршруты с вопросами': ['Rotas com perguntas', 'Quiz routes'],
+  'Исторические маршруты Порту: вопрос на каждой остановке': ['Rotas da história do Porto: uma pergunta em cada paragem', 'Porto history routes: a question at every stop'],
+  'Не удалось загрузить маршрут': ['Não foi possível carregar a rota', 'The route could not be loaded'],
+  'Текстовая версия исторических маршрутов': ['Versão em texto das rotas da história', 'Text version of the history routes'],
   'Порту': ['Porto', 'Porto'],
   'Порту — 3D-карта достопримечательностей': ['Porto — mapa 3D de pontos de interesse', 'Porto — 3D landmarks map'],
   'Интерактивная 3D-карта Порту: Дору, шесть мостов, Рибейра, соборы, дворцы и сады.': ['Mapa 3D interativo do Porto: o Douro, as seis pontes, a Ribeira, catedrais, palácios e jardins.', 'An interactive 3D map of Porto: the Douro, its six bridges, the Ribeira, cathedrals, palaces and gardens.'],

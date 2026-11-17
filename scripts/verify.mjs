@@ -22,6 +22,8 @@ const has = (...parts) => existsSync(join(ROOT, ...parts));
 
 const checks = [
   { name: 'build', cmd: ['npm', 'run', 'build'], needs: [], why: 'the app must compile' },
+  // the history routes' text pages (public/route/) match data/quest.json
+  ...(CITY === 'porto' ? [{ name: 'route pages', cmd: ['node', 'scripts/route-pages.mjs', '--check'], needs: ['data/quest.json'], why: 'data/quest.json holds the history routes' }] : []),
   {
     name: 'data contract',
     cmd: ['node', 'scripts/check-data.mjs', '--city', CITY],

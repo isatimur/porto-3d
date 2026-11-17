@@ -11,6 +11,7 @@ updates it automatically.
 - Repository root: `~/Dev/porto-3d`
 - Standard startup path: `./init.sh`
 - Standard verification path: `npm run verify`
+- Verified 2026-11-17 (branch feat/history-routes): `npm run verify` OK, 16 passed, 0 skipped (with PLAYWRIGHT_CORE set; the new step is «route pages»). `node --test scripts/*.test.mjs` 27/27.
 - Verified 2026-10-05: `npm run verify` is GREEN, 11 checks: build, data contract, geo, dimensions, 1:1 fit, traffic, models, smoke life, smoke trams, smoke rail, smoke console. 0 skipped on a machine with Chromium.
   - Geo has 3 known warnings (palacio-cristal centroid 847 m off; buildings 8.64 MB over the 8 MB baseline, within the 12 MB porto ceiling; 147 building centroids inside a landmark outline).
   - `check:fit` holds two rules: 15 % deviation fail and never-shrink (>= 97 % of the OSM extent and of the `dimensions.json` height).
@@ -21,6 +22,17 @@ updates it automatically.
 - Live: https://porto-3d.vercel.app (Vercel project `porto-3d`); git remote `isatimur/porto-3d`.
 
 ## Session Log
+
+### 2026-11-17 — history routes (#quest), ported from braga-3d (feature porto-026)
+
+- Goal: Braga's «history routes» mode (braga-3d main 1048925) in Porto, with Porto's own routes.
+- Engine: `src/quest.js`, `src/quest.css` (lazy chunk), `src/quest-progress.js` (save `porto-quests-<city>`, no Braga legacy migration), `src/events.js` (`p3d:event`, no network), `src/live.js` `hold()`, hooks in `src/main.js` (menu button «Маршруты с вопросами» in Modes, `#quest` / `#quest=<id>`, a request token so Esc during the load cancels, the visitor's light in the hash while the route shows daylight, label declutter, map clicks and fly keys off). Porto's `modeCtx.onExit` is not used: it would save the time of day.
+- Porto differences from Braga: source links named by their site (Porto's source titles are bare URLs); `view.mk` (phone distance) for long subjects; the fly keys and the back-to-globe link are hidden too; the menu label and title name no count.
+- Routes (`data/quest.json`): `from-the-tower-to-the-river` (Clérigos, São Bento, Sé, Ribeira, Ponte Luís I) and `down-to-the-river-and-across` (São Francisco, Bolsa, Ribeira, Ponte Luís I, Serra do Pilar). Every history, answer and visit line is a verbatim excerpt of the place card in that language; `scripts/quest.test.mjs` checks it and rejects visit lines with hours, prices, free entry, tickets, schedules or house rules.
+- Text version: `scripts/route-pages.mjs` (run by `make-og.mjs --pages`) writes `public/route/` with photo width/height and a WebP source; sitemap entries; verify step «route pages»; links from the intro, the chooser and the no-WebGL notice.
+- Checks: `node --test scripts/*.test.mjs` 27/27; browser checks `/tmp/porto-quest/check.mjs` (preview build): both routes in en at 1280x800 and 390x844, the first route in pt at both sizes (ru only through the tests), wrong-then-right, end screen, resume after reload, night+rain restored after Esc (storage: only the quests key changes), live mode restored, reduced motion, the lite scene, no-WebGL link, text page.
+- Sizes: first load +0.99 KB JS, +0.02 KB CSS (brotli, perf bench); lazy quest JS 14.8 kB, CSS 8.3 kB, data/quest.json on first use. Bench desktop-gpu transferKB 2516 -> 2584: the +68 KB is one image (art/roof_canudo_512.webp, the art pack that starts after ready) that landed before the ready mark in the faster run (wall 16.1 s -> 8.1 s), as in porto-025; not from the route.
+- Known: under `vite preview` the app logs «buildings.bin.gz unavailable (Failed to fetch)» on every load and falls back to buildings.json (this change does not touch that loader; not rechecked on main). Not checked on a physical phone or with a screen reader.
 
 ### 2026-10-11 — streets in the streamed ring, no band across the Douro (feature porto-025)
 

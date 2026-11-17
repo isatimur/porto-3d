@@ -1,6 +1,6 @@
 {
   "project": "porto-3d",
-  "last_updated": "2026-10-05",
+  "last_updated": "2026-11-17",
   "rules": {
     "single_active_feature": true,
     "passing_requires_evidence": true,
@@ -607,6 +607,27 @@
         "roads.json: quay pedestrian outlines cut at the waterline (7 runs, 170 m, Massarelos and Cais da Ribeira; a data tidy, barely visible); river lines unchanged; road-network decks unchanged (14587 of 14591 ways identical, the other 4 are the cut outlines)"
       ],
       "notes": "The tile-line triangle cost is a count of instances (frustumCulled false, one draw for all tiles); the 1 m line tolerance, the 2-triangle body and no glow keep the XL overview at +1.9 %. Not checked on screen: a streamed-ring bridge deck and a tunnel gap (data: 777 bridge and 288 tunnel records). Pedestrian outlines over park ponds (non-open water) are not cut."
+    },
+    {
+      "id": "porto-026",
+      "priority": 32,
+      "area": "guided modes",
+      "title": "History routes (#quest), ported from braga-3d",
+      "user_visible_behavior": "Menu > Modes > «Маршруты с вопросами» (pt «Rotas com perguntas», en «Quiz routes») or #quest opens a chooser of two routes; #quest=<id> opens one. Each stop: the camera flies to the landmark, the card shows the photo with its credit, sourced lines from the place card and one three-option question; a wrong pick is set aside and the visitor tries again (gold stamp right first time, plain after a retry), then the quoted line and the sources. The end lists one «in the real city» line per stop. Progress is saved per route; the scene shows clear daylight and the visitor's own light comes back on exit. A text version without script lives under /route/.",
+      "status": "passing",
+      "verification": [
+        "node --test scripts/*.test.mjs (quest.test.mjs: verbatim lines, sources, no stale visit lines, text pages current, storage key)",
+        "node scripts/route-pages.mjs --check (verify step «route pages»)",
+        "browser checks /tmp/porto-quest/check.mjs on vite preview: flow-en, flow-pt, phone, phone-en (ALL=1: both routes), light, resume, behave, lite, reduced, nowebgl",
+        "npm run verify"
+      ],
+      "evidence": [
+        "routes: from-the-tower-to-the-river (clerigos, sao-bento, se-porto, ribeira, ponte-luis-i); down-to-the-river-and-across (sao-francisco-porto, bolsa, ribeira, ponte-luis-i, serra-do-pilar)",
+        "first load (gzip): entry JS +967 B, city chunk (ui strings) +179 B, CSS +25 B, index.html unchanged; lazy: quest JS 14.8 kB (6.4 kB gzip), quest CSS 8.3 kB (2.3 kB gzip), data/quest.json fetched on first use",
+        "npm run verify 16 passed, 0 failed, 0 skipped; node --test scripts/*.test.mjs 27/27; bench desktop-gpu transferKB 2516 -> 2584, of which +1 KB is the route's first-load code and +68 KB one art-pack image (art/roof_canudo_512.webp) that landed before ready in a faster run",
+        "light: a night+rain visit shows day+clear during the route, night+rain after Esc; only porto-quests-porto changes in localStorage; a live=1 visit returns to live mode"
+      ],
+      "notes": "caves-gaia was left out: its sources are two Wikipedia pages and two port houses' sites. Not checked on a physical phone or with a screen reader."
     }
   ]
 }

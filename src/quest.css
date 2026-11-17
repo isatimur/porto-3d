@@ -1,0 +1,272 @@
+/* History route (src/quest.js). Loaded with the mode's chunk, not with the
+   first page. A porcelain card like the place panel: on the left on a
+   desktop, a bottom sheet on a phone. The map stays live and can be turned
+   around the stop; only the card takes clicks. */
+
+/* the map chrome steps aside, as in the story */
+body.is-quest :is(.side, .detail, .topbar, .brand, .instruments, .hint, .clusters, .callout, .callout-leader, .atmo, .guide-fab, .guide, .back-globe) { opacity: 0 !important; pointer-events: none !important; }
+body.is-quest .fly-keys { display: none !important; }
+body.is-quest .map-label { pointer-events: none !important; }
+body.is-quest .map-label:not(.is-story-focus) { opacity: 0 !important; }
+
+.quest {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  outline: none;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.quest.is-open { opacity: 1; }
+.quest-card {
+  --text: var(--ink-c);
+  --text-2: #3c4a63;
+  --text-3: #6d7890;
+  --gold: var(--cob); /* focus rings */
+  --line: var(--line-c);
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  bottom: 20px;
+  width: 410px;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  color: var(--ink-c);
+  background: var(--por);
+  border-radius: 12px;
+  box-shadow: 0 18px 44px rgba(10, 20, 40, 0.35);
+  overflow: hidden;
+}
+/* the tile band along the top edge, as on the other porcelain cards */
+.quest-card::before {
+  content: '';
+  flex: none;
+  height: 8px;
+  background: var(--azul);
+  background-size: 16px 16px;
+  opacity: 0.85;
+}
+.quest-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 12px 10px 22px;
+  border-bottom: 1px solid var(--line-c);
+}
+.quest-kicker {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  font: 700 11px/1.2 var(--sans);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cob);
+  overflow: hidden;
+  /* a long route title wraps to two lines beside the stamps */
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.quest-stamps { display: flex; gap: 5px; margin: 0; padding: 0; list-style: none; flex: none; }
+.quest-stamp {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  font: 700 11px/1 var(--sans);
+  color: var(--text-3);
+  border: 1.5px dashed #b6c1d6;
+  border-radius: 50%;
+}
+.quest-stamp.is-seen { color: var(--cob); border: 1.5px solid var(--cob); }
+/* plain: right after a retry; gold: right first time */
+.quest-stamp.is-plain { color: #fff; background: var(--cob); border: 1.5px solid var(--cob); box-shadow: inset 0 0 0 2px var(--por), 0 0 0 1px var(--cob); }
+.quest-stamp.is-gold { color: var(--cob-d); background: #e7b450; border: 1.5px solid #a87a1f; box-shadow: inset 0 0 0 2px var(--por), 0 0 0 1px #a87a1f; }
+.quest-stamp[aria-current='step'] { outline: 2px solid #e0a948; outline-offset: 2px; }
+.quest-close {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--text-2);
+  background: transparent;
+  border: 1px solid var(--line-c);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.quest-close:hover { color: var(--cob-d); border-color: var(--cob); }
+
+.quest-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 18px 22px 20px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(20, 33, 58, 0.25) transparent;
+}
+.quest-step {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 6px;
+  font: 600 12px/1.3 var(--sans);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.quest-year { letter-spacing: 0.02em; text-transform: none; color: var(--cob); }
+.quest-title {
+  margin: 0 0 12px;
+  font: 800 24px/1.1 var(--sans);
+  font-stretch: var(--wide);
+  letter-spacing: -0.005em;
+  color: var(--cob-d);
+  outline: none;
+  text-wrap: balance;
+}
+.quest-title-main { font-size: 28px; }
+.quest-lead { margin: 0 0 14px; font-size: 15px; line-height: 1.55; color: var(--text-2); }
+.quest-note { margin: 14px 0 0; font-size: 12px; line-height: 1.5; color: var(--text-3); }
+.quest-plan { margin: 0; padding: 0; list-style: none; counter-reset: plan; border-top: 1px solid var(--line-c); }
+.quest-plan li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line-c);
+  counter-increment: plan;
+}
+.quest-plan li::before { content: counter(plan); flex: none; width: 18px; font: 700 13px/1 var(--sans); color: var(--cob); }
+.quest-plan-name { flex: 1 1 auto; font-weight: 600; color: var(--ink-c); }
+.quest-plan-year { flex: none; font-size: 12px; color: var(--text-3); }
+
+/* the route chooser */
+.quest-routes { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.quest-route { padding: 14px; background: #fff; border: 1.5px solid #c9d3e6; border-radius: 10px; }
+.quest-route-title { margin: 0 0 4px; font: 800 18px/1.2 var(--sans); font-stretch: var(--wide); color: var(--cob-d); }
+.quest-route-intro { margin: 0 0 6px; font-size: 14px; line-height: 1.5; color: var(--text-2); }
+.quest-route-meta { margin: 0 0 10px; font-size: 12px; color: var(--text-3); }
+.quest-back { display: inline-block; margin: 0 0 8px; }
+
+.quest-photo { position: relative; margin: 0 0 12px; border-radius: 8px; overflow: hidden; background: var(--cob-l); }
+.quest-photo img { display: block; width: 100%; height: 170px; object-fit: cover; }
+.quest-credit {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  max-width: 100%;
+  padding: 3px 8px;
+  font-size: 10.5px;
+  line-height: 1.3;
+  color: #fff;
+  background: rgba(15, 42, 87, 0.72);
+  border-top-left-radius: 6px;
+}
+.quest-credit a { color: inherit; text-decoration: underline; text-decoration-color: rgba(255, 255, 255, 0.5); }
+.quest-text { margin: 0 0 16px; font-size: 15px; line-height: 1.6; color: var(--ink-c); }
+
+.quest-q { margin: 0 0 14px; padding: 14px; background: var(--cob-l); border-radius: 10px; }
+.quest-qlabel { margin: 0 0 4px; font: 700 11px/1.2 var(--sans); letter-spacing: 0.12em; text-transform: uppercase; color: var(--cob); }
+.quest-question { margin: 0 0 10px; font: 700 16px/1.35 var(--sans); color: var(--cob-d); }
+.quest-options { display: grid; gap: 7px; }
+.quest-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px 8px 8px;
+  text-align: left;
+  color: var(--ink-c);
+  background: #fff;
+  border: 1.5px solid #c9d3e6;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.quest-option:hover:not(:disabled) { border-color: var(--cob); }
+.quest-option:disabled { cursor: default; color: var(--text-2); }
+.quest-option-key {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  font: 700 12px/1 var(--sans);
+  color: var(--cob);
+  background: var(--cob-l);
+  border-radius: 50%;
+}
+.quest-option-text { flex: 1 1 auto; line-height: 1.35; }
+.quest-option.is-right { color: var(--ink-c); background: #e6f1e4; border-color: var(--moss); }
+.quest-option.is-right .quest-option-key { color: #fff; background: var(--moss); }
+/* an option already tried: set aside, not marked as a failure */
+.quest-option.is-tried { color: var(--text-3); background: transparent; border-style: dashed; }
+.quest-option.is-tried .quest-option-text { text-decoration: line-through; text-decoration-color: rgba(60, 74, 99, 0.45); }
+.quest-option.is-tried .quest-option-key { color: var(--text-3); background: transparent; }
+.quest-feedback:empty { display: none; }
+.quest-feedback { margin-top: 12px; }
+.quest-verdict { margin: 0 0 8px; font-weight: 700; }
+.quest-verdict.is-right { color: #2f6a2d; }
+.quest-verdict.is-retry { margin: 0; color: var(--cob-d); }
+.quest-basis { margin: 0; padding: 0 0 0 10px; font-size: 13.5px; line-height: 1.5; color: var(--text-2); border-left: 3px solid var(--cob); }
+.quest-basis-label { font-weight: 600; color: var(--cob-d); }
+.quest-sources { margin: 0 0 4px; font-size: 11.5px; line-height: 1.5; color: var(--text-3); }
+.quest-sources a, .quest-link { color: var(--cob); text-decoration: underline; text-decoration-color: rgba(29, 78, 158, 0.35); text-underline-offset: 2px; }
+
+.quest-actions {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 22px 12px;
+  border-top: 1px solid var(--line-c);
+  background: var(--por);
+}
+.quest-actions:empty { display: none; }
+.quest-btn {
+  min-height: 42px;
+  padding: 9px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cob-d);
+  background: transparent;
+  border: 1.5px solid var(--cob);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.quest-btn:hover { background: var(--cob-l); }
+.quest-btn.is-primary { color: #fff; background: var(--cob); }
+.quest-btn.is-primary:hover { background: var(--cob-d); }
+.quest-btn.is-quiet { margin-right: auto; border-color: var(--line-c); color: var(--text-2); }
+.quest-btn[hidden] { display: none; }
+
+.quest-sub { margin: 16px 0 6px; font: 700 11px/1.2 var(--sans); letter-spacing: 0.12em; text-transform: uppercase; color: var(--cob); }
+.quest-visits { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line-c); }
+.quest-visit { position: relative; padding: 10px 0 10px 40px; border-bottom: 1px solid var(--line-c); }
+.quest-visit-stamp { position: absolute; left: 0; top: 10px; width: 28px; height: 28px; font-size: 12px; }
+.quest-visit-name { margin: 0 0 3px; font: 700 14.5px/1.3 var(--sans); color: var(--cob-d); }
+.quest-visit-text { margin: 0 0 4px; font-size: 13.5px; line-height: 1.5; color: var(--text-2); }
+.quest-link { padding: 4px 0; font-size: 13px; font-weight: 600; background: none; border: 0; cursor: pointer; }
+
+@media (max-width: 900px) {
+  .quest-card { top: auto; left: 0; right: 0; bottom: 0; width: auto; max-height: 58vh; max-height: 58dvh; border-radius: 14px 14px 0 0; }
+  .quest[data-screen='intro'] .quest-card, .quest[data-screen='end'] .quest-card { max-height: 66vh; max-height: 66dvh; }
+  .quest-head { padding: 8px 10px 8px 16px; }
+  .quest-body { padding: 14px 16px 16px; }
+  .quest-actions { padding: 8px 16px calc(10px + env(safe-area-inset-bottom)); }
+  .quest-title { font-size: 21px; margin-bottom: 10px; }
+  .quest-title-main { font-size: 23px; }
+  .quest-photo img { height: 100px; }
+  .quest-text { font-size: 14px; margin-bottom: 12px; }
+  .quest-lead { font-size: 14px; }
+  .quest-stamp { width: 22px; height: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .quest { transition: none; }
+}
