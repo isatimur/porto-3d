@@ -11,6 +11,7 @@ updates it automatically.
 - Repository root: `~/Dev/porto-3d`
 - Standard startup path: `./init.sh`
 - Standard verification path: `npm run verify`
+- Verified 2026-11-17 (branch feat/quest-task-types, history routes round 3, porto-028): `npm run verify` OK, 16 passed, 0 skipped (PLAYWRIGHT_CORE set; perf soft gate warns as on main: desktop transfer 2604 KB and p95 33.3 ms, phone-low ready 42.9 s); `node --test scripts/*.test.mjs` 43/43.
 - Verified 2026-11-17 (branch perf/visible-only, perf round 3): `npm run verify` 16 passed, 0 skipped (PLAYWRIGHT_CORE set); `node --test scripts/*.test.mjs` 32/32.
 - Verified 2026-11-17 (branch feat/history-routes): `npm run verify` OK, 16 passed, 0 skipped (with PLAYWRIGHT_CORE set; the new step is «route pages»). `node --test scripts/*.test.mjs` 27/27.
 - Verified 2026-10-05: `npm run verify` is GREEN, 11 checks: build, data contract, geo, dimensions, 1:1 fit, traffic, models, smoke life, smoke trams, smoke rail, smoke console. 0 skipped on a machine with Chromium.
@@ -23,6 +24,19 @@ updates it automatically.
 - Live: https://porto-3d.vercel.app (Vercel project `porto-3d`); git remote `isatimur/porto-3d`.
 
 ## Session Log
+
+### 2026-11-17 — history routes round 3: task types (branch feat/quest-task-types, feature porto-028)
+
+- Goal: braga-3d's typed tasks (braga main 08ce468) in Porto's history routes, Porto's own tasks, and a side view of the Clérigos tower.
+- Engine: `src/quest-tasks.js` (copied as is), `src/quest.js`, `src/quest.css`, `src/events.js` and the two tests merged three-way (braga 1048925 as the base), so Porto's own differences stay (storage key, early deep-link card and `attach()`, `view.mk`, fly keys and back-to-globe link, source names). Porto-only changes on top: `attach()` keeps a find-on-map task pickable (labels not inert, every candidate in focus, never the place alone); a sequence stop holds back the place's year until solved; a filtered-out candidate shows through `marks.setForced()` in `src/landmarks.js` (Braga toggles mesh visibility, which Porto's per-frame LOD would undo); `pick(raycaster, only)`; the three `main.js` hunks.
+- Progress v3 (`src/quest-progress.js`): tries by task id as id tokens, stamps by stop. Porto's live round-2 save (option indices) migrates through `legacy.v2` in `data/quest.json`: every stamp stays; the three kept questions (Clérigos, Ponte Luís I on route 1, São Francisco) keep their tries by option id. No round-1 path (Porto never had one).
+- Tasks: route 1 = Clérigos (multiple choice, kept), São Bento (sequence 1896/1900/1905/1916), Sé (true/false, false: the silver altarpiece), Ribeira (find on the map), Ponte Luís I (multiple choice, kept). Route 2 = São Francisco (multiple choice, kept), Bolsa (sequence 1833/1842/1862/1982), Ribeira (true/false, true: rabelo boats), Ponte Luís I (visual detail: the iron arch, `src/models/porto/ponte-luis-i.js`), Serra do Pilar (find on the map). Each stop's `from` names the place-card fields it quotes. São Bento, Sé, São Francisco and Bolsa history lines were swapped for other lines of the same card so no line gives an answer or a date away.
+- Clérigos: view `{az 1.6, elev 0.4, k 1.4}` ended at 64° (the roof clearance raised it 9 steps) -> `{az 4.2, elev 0.25, k 1.8, mk 0.9}`: 23.5° on 1280x800, 24.6° on 390x844, the tower standing against the city and the river; checked also at 1024x768, 1920x1080, 360x740, 844x390. Data only; the clearance code is unchanged.
+- Menu: «Исторические маршруты» / «Rotas da história» / «History routes», title «…маршруты с заданием на каждой остановке»; no count.
+- The route plan and the stop card keep back the place's year while its sequence task is open (São Bento 1916 and Bolsa 1842 are events to order).
+- Checks: `node --test scripts/*.test.mjs` 43/43; `npm run verify` (see the state line). Browser, `/tmp/porto-quest-3/check.mjs` on `vite preview` of the build (port 4891, outside requests blocked, no fixed sleeps): flow 396, find 27, seq 8, migrate 16, matrix 48, early 7, early2 18, light 10, behave 10, lite 17, nowebgl 4, views 4 = 565 pass, 0 fail, consoles clean (matrix and early2 rerun after the last commit, which only renamed one wrong option of the bridge question). Covered: every stop of both routes at 1280x800 and 390x844 in pt and en, wrong then right, keyboard and click, events with the type; a real canvas click and a label click on find; the list path by Tab; a reload mid-task (find, sequence, choice types); reduced motion cuts and a still hint; Esc mid-task; a round-2 save; a filtered-out category; the early card held before the city (roads.json held) with attach() after; night+rain and live mode restored; lite scene; no-WebGL link. Screenshots in `/tmp/porto-quest-3/` (not in the repository).
+- Sizes against fc5545f (gzip): entry JS 256457 -> 256605 (+148 B), city chunk 12.36 -> 12.38 kB (+20 B), CSS and index.html unchanged. Lazy: quest JS 15.3 -> 24.2 kB (6.5 -> 9.5 kB gzip), quest CSS 8.3 -> 11.0 kB, data/quest.json 49.0 -> 58.3 kB (15.5 -> 17.6 kB gzip). Route card on a deep link (local preview): questOpen about 1.0 s, ready 4.6 s phone size / 6.1 s desktop size.
+- Not checked: a physical phone, a screen reader, the live site. Not pushed, not deployed.
 
 ### 2026-11-17 — perf round 3: draw only what is in view (branch perf/visible-only, feature porto-027)
 

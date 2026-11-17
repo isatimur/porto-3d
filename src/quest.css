@@ -9,6 +9,18 @@ body.is-quest .fly-keys { display: none !important; }
 body.is-quest .map-label { pointer-events: none !important; }
 body.is-quest .map-label:not(.is-story-focus) { opacity: 0 !important; }
 
+/* find on the map: the candidates' labels take clicks and show «?» instead
+   of their names; a tried one shows «✕» (the card names it; a name would
+   crowd the other markers); the place's own marker stands out after two
+   wrong picks */
+body.is-quest-picking .map-label.is-quest-candidate { pointer-events: auto !important; cursor: pointer; padding: 4px 11px; font-weight: 800; }
+body.is-quest-picking .map-label.is-quest-candidate :is(.map-label-text, .map-label-thumb) { display: none; }
+body.is-quest-picking .map-label.is-quest-candidate::before { content: '?'; font-size: 15px; line-height: 1.2; }
+body.is-quest-picking .map-label.is-quest-tried { color: var(--text-3, #6d7890); background: rgba(245, 247, 251, 0.6); box-shadow: none; }
+body.is-quest-picking .map-label.is-quest-tried::before { content: '✕'; }
+body.is-quest-picking .map-label.is-quest-hint { color: #fff; background: var(--cob); animation: quest-hint 1.1s ease-in-out infinite; }
+@keyframes quest-hint { 50% { box-shadow: 0 0 0 9px rgba(224, 169, 72, 0.55); } }
+
 .quest {
   position: absolute;
   inset: 0;
@@ -216,6 +228,44 @@ body.is-quest .map-label:not(.is-story-focus) { opacity: 0 !important; }
 .quest-basis { margin: 0; padding: 0 0 0 10px; font-size: 13.5px; line-height: 1.5; color: var(--text-2); border-left: 3px solid var(--cob); }
 .quest-basis-label { font-weight: 600; color: var(--cob-d); }
 .quest-sources { margin: 0 0 4px; font-size: 11.5px; line-height: 1.5; color: var(--text-3); }
+.quest-text[hidden] { display: none; }
+
+/* true or false: two buttons side by side */
+.quest-q.is-true-false .quest-options { grid-template-columns: 1fr 1fr; }
+.quest-q.is-true-false .quest-question { font-style: italic; }
+.quest-tf { margin: 0 0 8px; font-weight: 600; color: var(--cob-d); }
+.quest-look { margin: -4px 0 10px; font-size: 13px; line-height: 1.45; color: var(--text-2); }
+
+/* find on the map: the candidates as compact buttons, the keyboard path */
+.quest-listlabel { margin: 0 0 6px; font-size: 12.5px; color: var(--text-2); }
+.quest-candidates { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.quest-candidate { width: auto; min-height: 40px; padding: 7px 11px; font-size: 13.5px; line-height: 1.25; }
+.quest-hint { margin: 6px 0 0; font-size: 13.5px; color: var(--cob-d); }
+
+/* put in order: rows with up/down arrows */
+.quest-seq { display: grid; gap: 6px; margin: 0 0 10px; padding: 0; list-style: none; }
+.quest-seq[hidden], .quest-seq-check[hidden] { display: none; }
+.quest-seq-item { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 4px 4px 4px 8px; background: #fff; border: 1.5px solid #c9d3e6; border-radius: 8px; }
+.quest-seq-num { flex: none; display: grid; place-items: center; width: 24px; height: 24px; font: 700 12px/1 var(--sans); color: var(--cob); background: var(--cob-l); border-radius: 50%; }
+.quest-seq-label { flex: 1 1 auto; font-size: 14px; line-height: 1.35; color: var(--ink-c); }
+.quest-seq-move {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--cob-d);
+  background: var(--cob-l);
+  border: 1.5px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.quest-seq-move:hover:not(:disabled) { border-color: var(--cob); }
+.quest-seq-move:disabled { opacity: 0.35; cursor: default; }
+.quest-seq-check { width: 100%; }
+.quest-seq-done { display: grid; gap: 8px; margin: 6px 0 0; padding: 0 0 0 20px; }
+.quest-seq-done .quest-seq-label { display: block; margin: 0 0 3px; font-weight: 600; }
+.quest-sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .quest-sources a, .quest-link { color: var(--cob); text-decoration: underline; text-decoration-color: rgba(29, 78, 158, 0.35); text-underline-offset: 2px; }
 
 .quest-actions {
@@ -266,7 +316,13 @@ body.is-quest .map-label:not(.is-story-focus) { opacity: 0 !important; }
   .quest-text { font-size: 14px; margin-bottom: 12px; }
   .quest-lead { font-size: 14px; }
   .quest-stamp { width: 22px; height: 22px; }
+  /* find on the map: a shorter sheet, so the candidates show above it */
+  .quest[data-picking] .quest-card { max-height: 47vh; max-height: 47dvh; }
+  .quest[data-picking] .quest-photo img { height: 76px; }
+  .quest[data-picking] .quest-title { font-size: 19px; margin-bottom: 8px; }
+  .quest-seq-label { font-size: 13.5px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .quest { transition: none; }
+  body.is-quest-picking .map-label.is-quest-hint { animation: none; box-shadow: 0 0 0 4px #e0a948; }
 }

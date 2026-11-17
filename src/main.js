@@ -392,7 +392,8 @@ async function start() {
   // lite scene: only the 12 most important landmarks ever get their detailed model
   // (when selected or filmed); the others stay coloured boxes
   const topIds = new Set([...landmarks].sort((a, b) => (IMPORTANCE[b.id] ?? 3) - (IMPORTANCE[a.id] ?? 3)).slice(0, 12).map((l) => l.id));
-  const marks = buildLandmarks(landmarks, fits, surfaceAt, outlines, (i) => select(i), {
+  // during a history route a label click is a find-on-map pick (quest.js)
+  const marks = buildLandmarks(landmarks, fits, surfaceAt, outlines, (i) => (quest?.active ? quest.mapPick(i) : select(i)), {
     lite: LITE,
     massing: true,
     lazy: lazyModels,
@@ -447,6 +448,7 @@ async function start() {
         city: CITY.id || 'porto',
         atmosphere,
         getLife: () => null,
+        forceShow: (set) => marks.setForced(set),
         setTime: (name) => atmosphere.setTime(name, { animate: !reducedMotion }),
         onExit: () => history.replaceState(null, '', location.pathname + location.search),
         onError: (e) => console.warn('[porto] the history route could not open early', e),
@@ -1377,13 +1379,15 @@ async function start() {
       setHash(currentHash());
     },
   });
-  // History routes: a few landmarks each, one question per stop (quest.js,
+  // History routes: a few landmarks each, one task per stop (quest.js,
   // data/quest.json). The chunk and the data load on the first use.
   const questCtx = () => ({
     ...modeCtx,
     city: CITY.id || 'porto',
     atmosphere,
     getLife: () => life,
+    // a find-on-map task's candidates show whatever the category filter
+    forceShow: (set) => marks.setForced(set),
     // the route puts the visitor's light back itself (live mode too);
     // nothing is saved, so the city's default time stays a default
     onExit: () => setHash(currentHash()),
@@ -1431,8 +1435,8 @@ async function start() {
     questBtn.className = 'tool mode-btn';
     questBtn.id = 'quest-toggle';
     questBtn.setAttribute('aria-controls', 'quest');
-    questBtn.title = t('Исторические маршруты Порту: вопрос на каждой остановке');
-    questBtn.innerHTML = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8l1.6 3.5 3.8.4-2.8 2.6.8 3.8L8 10.2 4.6 12.1l.8-3.8-2.8-2.6 3.8-.4z" /></svg><span class="mode-label">${t('Маршруты с вопросами')}</span>`;
+    questBtn.title = t('Откройте исторический Порту: маршруты с заданием на каждой остановке');
+    questBtn.innerHTML = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8l1.6 3.5 3.8.4-2.8 2.6.8 3.8L8 10.2 4.6 12.1l.8-3.8-2.8-2.6 3.8-.4z" /></svg><span class="mode-label">${t('Исторические маршруты')}</span>`;
     mountTool(questBtn, 'modes', { closes: true });
     questBtn.addEventListener('click', () => (quest?.active ? quest.stop() : startMode('quest')));
   }
@@ -1538,21 +1542,23 @@ async function start() {
   });
   canvas.addEventListener('pointerup', (e) => {
     if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5) return;
-    if (quest?.active) return; // the history route owns the map
     toNdc(e);
     raycaster.setFromCamera(ndc, camera);
+    // the history route owns the map: only a find-on-map task's candidates pick
+    if (quest?.active) return void quest.mapPick(marks.pick(raycaster, quest.pickable));
     const hit = marks.pick(raycaster);
     if (hit != null) select(hit);
   });
   let hoverQueued = false;
   canvas.addEventListener('pointermove', (e) => {
-    if (hoverQueued || e.buttons || quest?.active) return;
+    if (quest?.active && !quest.pickable.size) return void setHover(-1);
+    if (hoverQueued || e.buttons) return;
     hoverQueued = true;
     requestAnimationFrame(() => {
       hoverQueued = false;
       toNdc(e);
       raycaster.setFromCamera(ndc, camera);
-      setHover(marks.pick(raycaster) ?? -1);
+      setHover(marks.pick(raycaster, quest?.active ? quest.pickable : null) ?? -1);
     });
   });
   canvas.addEventListener('pointerleave', () => setHover(-1));
@@ -1790,7 +1796,8 @@ async function start() {
       const box = { l: o.sx - w / 2 - 4, r: o.sx + w / 2 + 4, t: o.sy - h - 2, b: o.sy + 2 };
       const clash = placed.some((p) => box.l < p.r && box.r > p.l && box.t < p.b && box.b > p.t);
       const offEdge = box.l < 0 || box.r > size.w || box.t < 0; // a clipped name reads as a typo
-      const show = !o.behind && (!clash || o.it.index === active) && !hits(box) && !offEdge;
+      // a find-on-map candidate's small «?» marker shows even where it touches another
+      const show = !o.behind && (!clash || o.it.index === active || el.classList.contains('is-quest-candidate')) && !hits(box) && !offEdge;
       el.classList.toggle('is-muted', !show);
       if (show) placed.push(box);
     }

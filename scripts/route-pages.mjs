@@ -31,7 +31,7 @@ const CYRILLIC = /[А-Яа-яЁё]/;
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 // A route's intro without its sentences about questions and stamps: the
 // text version has neither.
-const textIntro = (intro) => intro.split(/(?<=\.)\s+/).filter((x) => !/stamp|selo|печат|question|pergunta|вопрос/i.test(x)).join(' ') || intro;
+const textIntro = (intro) => intro.split(/(?<=\.)\s+/).filter((x) => !/stamp|selo|печат|question|pergunta|вопрос|task|tarefa|задани/i.test(x)).join(' ') || intro;
 // the folder of a page: the routes list (id null) or one route, per language
 const dir = (id, lang) => `/route/${id ? `${id}/` : ''}${lang === 'pt' ? '' : `${lang}/`}`;
 

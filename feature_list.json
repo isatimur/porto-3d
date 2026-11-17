@@ -650,6 +650,27 @@
         "64 of 64 culled/whole pairs pixel-identical; main/branch screenshot pairs of seven views read the same"
       ],
       "notes": "Measured on one Apple M1 Max; phones are CPU-throttled emulations with the Apple GPU. Options left with their cost are in perf/BASELINE.md."
+    },
+    {
+      "id": "porto-028",
+      "priority": 34,
+      "area": "guided modes",
+      "title": "History routes, round 3: task types that use the 3D map (ported from braga-3d)",
+      "user_visible_behavior": "Each stop of a history route sets one task, by type: multiple choice, true/false, sequence (four dated events moved up and down by keyboard or touch, then each event's dated quote; the place's year waits until solved), visual detail (the Dom Luís I bridge's iron arch, read off the 3D model) and find on the map (the camera pulls back over seven landmarks shown as «?» markers; a click or tap on the right model, pin or marker solves it; a wrong one names the place; after two wrong picks the place's marker stands out; the card lists the same places as buttons). Retry with no penalty, gold first time, plain after a retry. The Clérigos stop shows the tower from the side against the city and the river. The menu reads «History routes» / «Rotas da história» / «Исторические маршруты», no count. Saved round-2 progress keeps every stamp.",
+      "status": "passing",
+      "verification": [
+        "node --test scripts/*.test.mjs (quest.test.mjs: task shape, every quote verbatim per language and type, sequence quotes hold their years and no line gives them away, true/false not settled by a history line, find-on-map candidates are real landmarks with models, shared stops set different tasks, legacy.v2 against the round-2 answers, v2 save keeps every stamp and kept tries; events.test.mjs: seven keys, every task type documented)",
+        "npm run verify",
+        "Browser (headless Chromium, vite preview of the build, outside requests blocked): /tmp/porto-quest-3/check.mjs flow, find, seq, migrate, matrix, early, light, behave, lite, nowebgl, views"
+      ],
+      "evidence": [
+        "2026-11-17: node --test scripts/*.test.mjs 43/43 pass; npm run verify OK",
+        "Browser: 565 checks pass (matrix and early2 on the final build; the others on the build before the last commit, which only renamed one wrong option of the bridge question) (flow 396, find 27, seq 8, migrate 16, matrix 48, early 7, early2 18, light 10, behave 10, lite 17, nowebgl 4, views 4), no console errors; screenshots in /tmp/porto-quest-3/ (not in the repository)",
+        "First load against fc5545f (gzip): entry JS +148 B, city chunk +20 B, CSS and HTML unchanged. Lazy: quest JS 24.2 kB (9.5 kB gzip, was 15.3 / 6.5), quest CSS 11.0 kB (2.9 kB gzip, was 8.3 / 2.3), data/quest.json 58.3 kB (17.6 kB gzip, was 49.0 / 15.5)",
+        "Clérigos: the camera ended at 64° above the horizon on 1280x800 (33° on 390x844); with view {az 4.2, elev 0.25, k 1.8, mk 0.9} it ends at 23.5° and 24.6°, the tower against the city and the river; no change to the roof clearance code",
+        "v2 save in the browser: 3 stamps kept (1 plain kept question, 2 gold replaced ones), the kept question's wrong try shown by option id, written back as v3 on the first change"
+      ],
+      "notes": "One visual detail only: the bridge's arch is in the ru, en and pt texts and is the model's main member; the Clérigos tower's height shows, but no question about it rests on a fact the simplified model shows better than the photo. The find-on-map view on a phone is wide and top-down, with the far landmarks as massing boxes (the markers and the list carry the task). Not checked: a physical phone, a screen reader. Not deployed."
     }
   ]
 }
