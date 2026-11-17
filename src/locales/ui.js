@@ -21,9 +21,9 @@ export const messages = {
   'Вернуться к карте':['Voltar ao mapa', 'Back to the map'],
   'Не удалось загрузить историю': ['Não foi possível carregar a história', 'The story could not be loaded'],
   // history routes (quest.js); its own texts live in data/quest.json. The
-  // label and title hold for one route or several.
-  'Маршруты с вопросами': ['Rotas com perguntas', 'Quiz routes'],
-  'Исторические маршруты Порту: вопрос на каждой остановке': ['Rotas da história do Porto: uma pergunta em cada paragem', 'Porto history routes: a question at every stop'],
+  // label and title hold for one route or several, and name no count.
+  'Исторические маршруты': ['Rotas da história', 'History routes'],
+  'Откройте исторический Порту: маршруты с заданием на каждой остановке': ['Descobrir o Porto histórico: rotas com uma tarefa em cada paragem', 'Discover historic Porto: routes with a task at every stop'],
   'Не удалось загрузить маршрут': ['Não foi possível carregar a rota', 'The route could not be loaded'],
   'Текстовая версия исторических маршрутов': ['Versão em texto das rotas da história', 'Text version of the history routes'],
   'Порту': ['Porto', 'Porto'],

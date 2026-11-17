@@ -3,9 +3,9 @@
     "kicker": { "ru": "Исторические маршруты", "en": "History routes", "pt": "Rotas da história" },
     "title": { "ru": "Откройте исторический Порту", "en": "Discover historic Porto", "pt": "Descobrir o Porto histórico" },
     "subtitle": {
-      "ru": "Выберите маршрут. На каждой остановке один вопрос, за верный ответ — печать.",
-      "en": "Choose a route. Each stop asks one question, and each right answer earns a stamp.",
-      "pt": "Escolha uma rota. Cada paragem faz uma pergunta, e cada resposta certa vale um selo."
+      "ru": "Выберите маршрут. На каждой остановке задание: вопрос, поиск на карте или события по порядку. За верный ответ — печать.",
+      "en": "Choose a route. Each stop sets a task: a question, a place to find on the map or events to put in order. Each right answer earns a stamp.",
+      "pt": "Escolha uma rota. Cada paragem traz uma tarefa: uma pergunta, um lugar para encontrar no mapa ou acontecimentos para ordenar. Cada resposta certa vale um selo."
     },
     "note": {
       "ru": "Тексты взяты из карточек мест этой карты, у каждого указаны источники. 3D-здания — упрощённые модели нынешних построек.",
@@ -59,16 +59,85 @@
     "open_map": { "ru": "Открыть этот маршрут на 3D-карте", "en": "Open this route on the 3D map", "pt": "Abrir esta rota no mapa 3D" },
     "open_map_all": { "ru": "Открыть 3D-карту", "en": "Open the 3D map", "pt": "Abrir o mapa 3D" },
     "languages": { "ru": "Язык", "en": "Language", "pt": "Idioma" },
-    "places": { "ru": "Места маршрута", "en": "Places on the route", "pt": "Lugares da rota" }
+    "places": { "ru": "Места маршрута", "en": "Places on the route", "pt": "Lugares da rota" },
+    "tf_label": { "ru": "Верно или нет?", "en": "True or false?", "pt": "Verdadeiro ou falso?" },
+    "tf_true": { "ru": "Верно", "en": "True", "pt": "Verdadeiro" },
+    "tf_false": { "ru": "Неверно", "en": "False", "pt": "Falso" },
+    "tf_is_true": { "ru": "Утверждение верно.", "en": "The statement is true.", "pt": "A afirmação é verdadeira." },
+    "tf_is_false": { "ru": "Утверждение неверно.", "en": "The statement is false.", "pt": "A afirmação é falsa." },
+    "find_label": { "ru": "Найдите на карте", "en": "Find it on the map", "pt": "Encontre no mapa" },
+    "find_prompt": {
+      "ru": "Где на карте {name}? Нажмите на здание или на его метку «?». Как оно выглядит, видно на фото.",
+      "en": "Where is {name} on the map? Click or tap its building or its «?» marker. The photo shows what it looks like.",
+      "pt": "Onde fica {name} no mapa? Clique ou toque no edifício ou na sua marca «?». A fotografia mostra como é."
+    },
+    "find_list": { "ru": "Или выберите из списка:", "en": "Or choose from the list:", "pt": "Ou escolha na lista:" },
+    "find_wrong": {
+      "ru": "Не то: это {name}. Попробуйте другое место.",
+      "en": "Not this one: that is {name}. Try another place.",
+      "pt": "Não é este: é {name}. Experimente outro lugar."
+    },
+    "find_hint": {
+      "ru": "Подсказка: метка нужного места теперь выделена на карте.",
+      "en": "A hint: the marker of the place you are looking for now stands out on the map.",
+      "pt": "Uma ajuda: a marca do lugar que procura está agora destacada no mapa."
+    },
+    "show_area": { "ru": "Показать район", "en": "Show the area", "pt": "Mostrar a zona" },
+    "seq_label": { "ru": "Расставьте по порядку", "en": "Put in order", "pt": "Ponha por ordem" },
+    "seq_prompt": {
+      "ru": "Расставьте события по времени: самое раннее наверху. Двигайте их стрелками.",
+      "en": "Put these events in time order, the earliest at the top. Move them with the arrows.",
+      "pt": "Ordene estes acontecimentos no tempo, o mais antigo em cima. Mova-os com as setas."
+    },
+    "seq_up": { "ru": "Выше: {item}", "en": "Move up: {item}", "pt": "Subir: {item}" },
+    "seq_down": { "ru": "Ниже: {item}", "en": "Move down: {item}", "pt": "Descer: {item}" },
+    "seq_moved": { "ru": "{item}: теперь {n}-е из {m}.", "en": "{item}: now {n} of {m}.", "pt": "{item}: agora {n} de {m}." },
+    "seq_check": { "ru": "Проверить порядок", "en": "Check the order", "pt": "Verificar a ordem" },
+    "seq_wrong": {
+      "ru": "Пока не по порядку: на своём месте {k} из {m}. Переставьте и проверьте снова.",
+      "en": "Not in order yet: {k} of {m} in the right place. Move them and check again.",
+      "pt": "Ainda não está por ordem: {k} de {m} no lugar certo. Mude-os e verifique de novo."
+    },
+    "seq_same": {
+      "ru": "Этот порядок вы уже проверяли. Переставьте событие и проверьте снова.",
+      "en": "You have checked this order already. Move an event and check again.",
+      "pt": "Já verificou esta ordem. Mude um acontecimento e verifique de novo."
+    },
+    "seq_basis": { "ru": "Даты из карточки места:", "en": "Dates from the place card:", "pt": "Datas da ficha do lugar:" },
+    "look_label": { "ru": "Посмотрите на карту", "en": "Look at the map", "pt": "Observe o mapa" },
+    "look_hint": {
+      "ru": "Ответ — на 3D-модели. Кнопка «{show}» вернёт её в кадр.",
+      "en": "The answer is on the 3D model. “{show}” brings it back into view.",
+      "pt": "A resposta está no modelo 3D. «{show}» volta a enquadrá-lo."
+    }
+  },
+  "legacy": {
+    "_about": "Round 2 (live before the task types) saved tries as option indices per stop. For each stop: the right index then; for a question still asked, its task id and its option ids in the old order. scripts/quest.test.mjs checks the kept ones against the tasks.",
+    "v2": {
+      "from-the-tower-to-the-river": {
+        "clerigos": { "answer": 1, "task": "clerigos-tower-service", "options": ["radio-news", "noon-shot", "aircraft-guide"] },
+        "sao-bento": { "answer": 2 },
+        "se-porto": { "answer": 0 },
+        "ribeira": { "answer": 2 },
+        "ponte-luis-i": { "answer": 0, "task": "luis-upper-deck", "options": ["metro-line", "boat-canal", "horse-racecourse"] }
+      },
+      "down-to-the-river-and-across": {
+        "sao-francisco-porto": { "answer": 1, "task": "sao-francisco-gilded-wood", "options": ["neon-lights", "gilded-woodcarving", "modern-graffiti"] },
+        "bolsa": { "answer": 0 },
+        "ribeira": { "answer": 2 },
+        "ponte-luis-i": { "answer": 1 },
+        "serra-do-pilar": { "answer": 2 }
+      }
+    }
   },
   "routes": [
     {
       "id": "from-the-tower-to-the-river",
       "title": { "ru": "От башни к реке", "en": "From the tower to the river", "pt": "Da torre ao rio" },
       "intro": {
-        "ru": "Пять мест: от башни Клеригуш вниз к Дору и мосту Луиша I. На каждой остановке один вопрос, за верный ответ — печать.",
-        "en": "Five places, from the Clérigos tower down to the Douro and the Dom Luís I bridge. Each stop asks one question. Each right answer earns a stamp.",
-        "pt": "Cinco lugares, da Torre dos Clérigos até ao Douro e à Ponte de Dom Luís I. Cada paragem faz uma pergunta. Cada resposta certa vale um selo."
+        "ru": "Пять мест: от башни Клеригуш вниз к Дору и мосту Луиша I. На каждой остановке одно задание, за верный ответ — печать.",
+        "en": "Five places, from the Clérigos tower down to the Douro and the Dom Luís I bridge. Each stop sets one task. Each right answer earns a stamp.",
+        "pt": "Cinco lugares, da Torre dos Clérigos até ao Douro e à Ponte de Dom Luís I. Cada paragem traz uma tarefa. Cada resposta certa vale um selo."
       },
       "end_lead": {
         "ru": "Вы прошли пять мест на карте. Все они стоят в Порту, и их можно увидеть своими глазами.",
@@ -102,21 +171,25 @@
               "Foi a torre, mais do que a igreja, que se tornou o ex-libris do Porto."
             ]
           },
-          "question": {
-            "ru": "Чем, кроме звона, башня служила городу?",
-            "en": "Besides ringing the hours, how did the tower serve the city?",
-            "pt": "Além de tocar os sinos, como servia a torre a cidade?"
-          },
-          "options": [
-            { "ru": "Передавала новости по радио", "en": "It broadcast the radio news", "pt": "Transmitia as notícias da rádio" },
-            { "ru": "Ежедневный пороховой выстрел отмечал полдень", "en": "A daily gunpowder shot marked noon", "pt": "Um tiro diário de pólvora marcava o meio-dia" },
-            { "ru": "Указывала путь самолётам в аэропорт", "en": "It guided aircraft to the airport", "pt": "Guiava os aviões até ao aeroporto" }
-          ],
-          "answer": 1,
-          "basis": {
-            "ru": "Помимо звона, башня выполняла городские службы: ежедневный пороховой выстрел отмечал полдень, отсюда работал коммерческий телеграф, а её силуэт служил морякам и лодочникам на Дору.",
-            "en": "Beyond ringing the hours, the tower served the city: a daily gunpowder shot marked noon, it carried the commercial telegraph, its outline guided boatmen on the Douro, and a flag warned traders of an incoming steamer.",
-            "pt": "Além de tocar os sinos, a torre prestou serviços à cidade: um tiro diário de pólvora seca marcava o meio-dia, servia de telégrafo comercial, orientava as embarcações do Douro e hasteava bandeira à chegada do paquete."
+          "task": {
+            "id": "clerigos-tower-service",
+            "type": "multiple_choice",
+            "question": {
+              "ru": "Чем, кроме звона, башня служила городу?",
+              "en": "Besides ringing the hours, how did the tower serve the city?",
+              "pt": "Além de tocar os sinos, como servia a torre a cidade?"
+            },
+            "options": [
+              { "id": "radio-news", "ru": "Передавала новости по радио", "en": "It broadcast the radio news", "pt": "Transmitia as notícias da rádio" },
+              { "id": "noon-shot", "ru": "Ежедневный пороховой выстрел отмечал полдень", "en": "A daily gunpowder shot marked noon", "pt": "Um tiro diário de pólvora marcava o meio-dia" },
+              { "id": "aircraft-guide", "ru": "Указывала путь самолётам в аэропорт", "en": "It guided aircraft to the airport", "pt": "Guiava os aviões até ao aeroporto" }
+            ],
+            "answer": "noon-shot",
+            "basis": {
+              "ru": "Помимо звона, башня выполняла городские службы: ежедневный пороховой выстрел отмечал полдень, отсюда работал коммерческий телеграф, а её силуэт служил морякам и лодочникам на Дору.",
+              "en": "Beyond ringing the hours, the tower served the city: a daily gunpowder shot marked noon, it carried the commercial telegraph, its outline guided boatmen on the Douro, and a flag warned traders of an incoming steamer.",
+              "pt": "Além de tocar os sinos, a torre prestou serviços à cidade: um tiro diário de pólvora seca marcava o meio-dia, servia de telégrafo comercial, orientava as embarcações do Douro e hasteava bandeira à chegada do paquete."
+            }
           },
           "visit": {
             "ru": ["Лестница узкая, винтовая, всего 225 ступеней, поэтому выбирайте удобную обувь.", "Лучший вид на закате, когда Порту и Дору подсвечены."],
@@ -136,38 +209,74 @@
           "text": {
             "ru": [
               "Вокзал Сан-Бенту возвели на месте старинного бенедиктинского монастыря Сан-Бенту-де-Аве-Мария, снесённого в конце XIX века.",
-              "Официально вокзал открыли 5 октября 1916 года.",
               "Вестибюль покрывают около 20 000 азулежу общей площадью примерно 551 м².",
-              "Панели создал Жоржи Коласу, изготовлены на фабрике в Сакавене в 1905–1906 годах."
+              "Изначально это был тупиковый вокзал, поэтому поезда въезжают и выезжают через туннели."
             ],
             "en": [
               "São Bento station was built on the site of the old Benedictine monastery of São Bento de Avé Maria, demolished in the late 19th century.",
-              "The station was officially inaugurated on 5 October 1916.",
               "The vestibule holds around 20,000 azulejos covering some 551 square metres.",
-              "The panels were made by Jorge Colaço at the Sacavém factory in 1905–1906."
+              "Because it is a terminus, trains enter and leave through tunnels."
             ],
             "pt": [
               "A estação de São Bento foi erguida no lugar do antigo mosteiro beneditino de São Bento de Avé Maria, demolido no final do século XIX.",
-              "A estação foi oficialmente inaugurada a 5 de Outubro de 1916.",
               "O átrio reúne cerca de 20 000 azulejos, cobrindo aproximadamente 551 m².",
-              "Os painéis foram executados por Jorge Colaço na Fábrica de Sacavém, em 1905–1906."
+              "Sendo uma estação terminal, os comboios entram e saem por túneis."
             ]
           },
-          "question": {
-            "ru": "Что изображают панно из азулежу в вестибюле?",
-            "en": "What do the tile panels in the hall show?",
-            "pt": "O que mostram os painéis de azulejo do átrio?"
-          },
-          "options": [
-            { "ru": "Ракеты и космонавтов", "en": "Rockets and astronauts in space", "pt": "Foguetões e astronautas no espaço" },
-            { "ru": "Героев мультфильмов с телевидения", "en": "Cartoon heroes from television", "pt": "Heróis de desenhos animados da televisão" },
-            { "ru": "Сцены из истории Португалии и сельской жизни", "en": "Scenes from Portugal's history and country life", "pt": "Cenas da história de Portugal e da vida rural" }
-          ],
-          "answer": 2,
-          "basis": {
-            "ru": "На них изображены турнир при Аркуш-ди-Валдевеш (1140), Эгаш Мониш перед королём Альфонсо VII, въезд Жуана I и Филипы Ланкастерской в Порту (1387) и взятие Сеуты (1415), а также сельские сцены и фриз об истории транспорта, завершающийся первыми железными дорогами.",
-            "en": "They depict the tournament at Arcos de Valdevez (1140), Egas Moniz before King Alfonso VII, the entry of John I and Philippa of Lancaster into Porto (1387) and the conquest of Ceuta (1415), along with rural scenes and a frieze on the history of transport that ends with the coming of the railways.",
-            "pt": "Representam o Torneio de Arcos de Valdevez (1140), a apresentação de Egas Moniz ao rei Afonso VII, a entrada de D. João I e D. Filipa de Lencastre no Porto (1387) e a Conquista de Ceuta (1415), além de cenas rurais e de um friso sobre a história dos transportes, que termina com a chegada dos caminhos de ferro."
+          "task": {
+            "id": "sao-bento-timeline",
+            "type": "sequence",
+            "items": [
+              {
+                "id": "provisional-station",
+                "year": 1896,
+                "label": { "ru": "Открывается временная станция", "en": "A provisional station opens", "pt": "Abre uma estação provisória" },
+                "quote": {
+                  "ru": "Временная станция открылась 8 ноября 1896 года",
+                  "en": "A provisional station opened on 8 November 1896",
+                  "pt": "Uma estação provisória abriu a 8 de Novembro de 1896"
+                }
+              },
+              {
+                "id": "building-work",
+                "year": 1900,
+                "label": {
+                  "ru": "Начинают строить здание по проекту Жозе Маркеша да Силвы",
+                  "en": "Work starts on José Marques da Silva's building",
+                  "pt": "Começam as obras do edifício de José Marques da Silva"
+                },
+                "quote": {
+                  "ru": "Современное здание в стиле бозар с выраженным французским влиянием спроектировал архитектор Жозе Маркеш да Силва; работы начались в 1900 году.",
+                  "en": "The present Beaux-Arts building, with a pronounced French influence, was designed by the architect José Marques da Silva; work began in 1900.",
+                  "pt": "O edifício actual, em estilo Belle Époque e de forte influência francesa, foi projectado pelo arquitecto José Marques da Silva, com obras iniciadas em 1900."
+                }
+              },
+              {
+                "id": "tile-panels",
+                "year": 1905,
+                "label": {
+                  "ru": "В вестибюле устанавливают панно Жоржи Коласу",
+                  "en": "Jorge Colaço's tile panels go up in the hall",
+                  "pt": "Os painéis de azulejo de Jorge Colaço são colocados no átrio"
+                },
+                "quote": {
+                  "ru": "Вестибюль облицевали азулежу работы Жоржи Коласу: панели установили в 1905–1906 годах, а изготовили их на фабрике в Сакавене.",
+                  "en": "The vestibule was lined with azulejos by Jorge Colaço: the panels were installed in 1905–1906 and made at the Sacavém factory.",
+                  "pt": "O átrio foi revestido de azulejos de Jorge Colaço: os painéis foram instalados em 1905–1906 e produzidos na Fábrica de Sacavém."
+                }
+              },
+              {
+                "id": "official-opening",
+                "year": 1916,
+                "label": { "ru": "Вокзал официально открывают", "en": "The station is officially inaugurated", "pt": "A estação é oficialmente inaugurada" },
+                "quote": {
+                  "ru": "Официально вокзал открыли 5 октября 1916 года.",
+                  "en": "The station was officially inaugurated on 5 October 1916.",
+                  "pt": "A estação foi oficialmente inaugurada a 5 de Outubro de 1916."
+                }
+              }
+            ],
+            "start": ["official-opening", "tile-panels", "provisional-station", "building-work"]
           },
           "visit": {
             "ru": ["Панели удобнее рассматривать с верхнего уровня галереи.", "Отсюда пешком пять минут до башни Клеригуш и собора."],
@@ -188,37 +297,36 @@
             "ru": [
               "Строительство собора началось в первой половине XII века и продолжалось до начала XIII века.",
               "Никколо Назони пристроил барочную галерею около 1736 года, а новый портал появился около 1772 года.",
-              "Серебряный алтарь XVII века спасли в 1807 году, замуровав его за гипсовой стеной.",
+              "В 1387 году здесь венчались король Жуан I и Филипа Ланкастерская.",
               "Собор — национальный памятник с 1910 года."
             ],
             "en": [
               "Construction began in the first half of the 12th century and continued into the early 13th.",
               "Niccolò Nasoni added the Baroque lateral gallery around 1736; a new portal followed around 1772.",
-              "The 17th-century silver altarpiece was saved in 1807 by being walled up behind plaster.",
+              "John I and Philippa of Lancaster married here in 1387.",
               "It has been a national monument since 1910."
             ],
             "pt": [
               "A construção começou na primeira metade do século XII e prolongou-se até ao início do século XIII.",
               "Nicolau Nasoni acrescentou a galilé barroca por volta de 1736; o novo portal surgiu cerca de 1772.",
-              "O altar de prata do século XVII foi salvo em 1807 ao ser murado atrás de gesso.",
+              "D. João I e D. Filipa de Lencastre casaram aqui em 1387.",
               "É Monumento Nacional desde 1910."
             ]
           },
-          "question": {
-            "ru": "Какая королевская пара венчалась в этом соборе в 1387 году?",
-            "en": "Which royal couple married in this cathedral in 1387?",
-            "pt": "Que casal real casou nesta Sé em 1387?"
-          },
-          "options": [
-            { "ru": "Жуан I и Филипа Ланкастерская", "en": "John I and Philippa of Lancaster", "pt": "D. João I e D. Filipa de Lencastre" },
-            { "ru": "Наполеон и Жозефина", "en": "Napoleon and Josephine", "pt": "Napoleão e Josefina" },
-            { "ru": "Ромео и Джульетта", "en": "Romeo and Juliet", "pt": "Romeu e Julieta" }
-          ],
-          "answer": 0,
-          "basis": {
-            "ru": "В 1387 году здесь венчались король Жуан I и Филипа Ланкастерская.",
-            "en": "John I and Philippa of Lancaster married here in 1387.",
-            "pt": "D. João I e D. Filipa de Lencastre casaram aqui em 1387."
+          "task": {
+            "id": "se-silver-altarpiece",
+            "type": "true_false",
+            "statement": {
+              "ru": "Наполеоновские войска вывезли из собора его серебряный алтарь.",
+              "en": "Napoleon's troops carried off the cathedral's silver altarpiece.",
+              "pt": "As tropas napoleónicas levaram o altar de prata da Sé."
+            },
+            "answer": false,
+            "basis": {
+              "ru": "Слева от главной капеллы стоит великолепный серебряный алтарь второй половины XVII века; в 1807 году его спасли от наполеоновских войск, спешно замуровав за гипсовой стеной.",
+              "en": "To the left of the main chapel stands a magnificent silver altarpiece of the second half of the 17th century; in 1807 it was saved from Napoleon's troops by being hastily walled up behind plaster.",
+              "pt": "À esquerda da capela-mor ergue-se um magnífico altar de prata da segunda metade do século XVII; em 1807 foi salvo das tropas napoleónicas ao ser apressadamente murado atrás de uma parede de gesso."
+            }
           },
           "visit": {
             "ru": ["Собор стоит на холме, поднимайтесь пешком от станции São Bento или на фуникулёре Guindais от Рибейры."],
@@ -252,21 +360,17 @@
               "Em 1996, o centro histórico do Porto, incluindo a Ribeira e a Ponte de Dom Luís I, foi inscrito na lista do Património Mundial da UNESCO."
             ]
           },
-          "question": {
-            "ru": "Что дало имя городу и стране?",
-            "en": "What gave the city and the country their name?",
-            "pt": "O que deu o nome à cidade e ao país?"
-          },
-          "options": [
-            { "ru": "Железнодорожная компания", "en": "A railway company", "pt": "Uma companhia de caminhos de ferro" },
-            { "ru": "Футбольный клуб", "en": "A football club", "pt": "Um clube de futebol" },
-            { "ru": "Глубоководная гавань, Portus Cale", "en": "A deep-water harbour, Portus Cale", "pt": "Um porto de águas profundas, Portus Cale" }
-          ],
-          "answer": 2,
-          "basis": {
-            "ru": "Рибейра — старейший речной квартал Порту, выросший у глубоководной гавани, давшей городу и стране имя (Portus Cale).",
-            "en": "Ribeira is Porto's oldest riverside quarter, grown around a deep-water harbour that gave the city and the country their name (Portus Cale).",
-            "pt": "A Ribeira é o mais antigo bairro ribeirinho do Porto, nascido em torno de um porto de águas profundas que deu o nome à cidade e ao país (Portus Cale)."
+          "task": {
+            "id": "find-ribeira",
+            "type": "find_on_map",
+            "target": "ribeira",
+            "candidates": ["ribeira", "clerigos", "sao-bento", "se-porto", "bolsa", "ponte-luis-i", "serra-do-pilar"],
+            "view": { "az": 0, "elev": 0.9, "k": 1 },
+            "basis": {
+              "ru": "Рибейра — старейший речной квартал Порту, выросший у глубоководной гавани, давшей городу и стране имя (Portus Cale).",
+              "en": "Ribeira is Porto's oldest riverside quarter, grown around a deep-water harbour that gave the city and the country their name (Portus Cale).",
+              "pt": "A Ribeira é o mais antigo bairro ribeirinho do Porto, nascido em torno de um porto de águas profundas que deu o nome à cidade e ao país (Portus Cale)."
+            }
           },
           "visit": {
             "ru": ["Приходите ранним утром, пока не пришли толпы: так лучше видно аркады и цветные фасады.", "От Праша-да-Рибейра отходят прогулочные лодки, а рядом проходит канатная дорога Гая."],
@@ -300,21 +404,25 @@
               "O arco central de 172 metros foi recorde entre as pontes metálicas da época."
             ]
           },
-          "question": {
-            "ru": "Что с 2005 года ходит по верхнему ярусу моста?",
-            "en": "Since 2005, what has run on the bridge's upper deck?",
-            "pt": "Desde 2005, o que circula no tabuleiro superior da ponte?"
-          },
-          "options": [
-            { "ru": "Линия метро Порту", "en": "A Porto Metro line", "pt": "Uma linha do Metro do Porto" },
-            { "ru": "Канал для лодок", "en": "A canal for boats", "pt": "Um canal para barcos" },
-            { "ru": "Ипподром для скачек", "en": "A racecourse for horses", "pt": "Uma pista de corridas de cavalos" }
-          ],
-          "answer": 0,
-          "basis": {
-            "ru": "В 1908 году по верхнему ярусу пустили трамваи, а 27 июня 2003 года его закрыли для автомобилей и приспособили под линию D метро Порту, открытую 18 сентября 2005 года.",
-            "en": "In 1908 trams began using the upper deck, and on 27 June 2003 it was closed to cars and adapted for line D of the Porto Metro, opened on 18 September 2005.",
-            "pt": "Em 1908 os elétricos começaram a circular no tabuleiro superior e, a 27 de junho de 2003, este foi fechado aos automóveis e adaptado à linha D do Metro do Porto, aberta a 18 de setembro de 2005."
+          "task": {
+            "id": "luis-upper-deck",
+            "type": "multiple_choice",
+            "question": {
+              "ru": "Что с 2005 года ходит по верхнему ярусу моста?",
+              "en": "Since 2005, what has run on the bridge's upper deck?",
+              "pt": "Desde 2005, o que circula no tabuleiro superior da ponte?"
+            },
+            "options": [
+              { "id": "metro-line", "ru": "Линия метро Порту", "en": "A Porto Metro line", "pt": "Uma linha do Metro do Porto" },
+              { "id": "boat-canal", "ru": "Канал для лодок", "en": "A canal for boats", "pt": "Um canal para barcos" },
+              { "id": "horse-racecourse", "ru": "Ипподром для скачек", "en": "A racecourse for horses", "pt": "Uma pista de corridas de cavalos" }
+            ],
+            "answer": "metro-line",
+            "basis": {
+              "ru": "В 1908 году по верхнему ярусу пустили трамваи, а 27 июня 2003 года его закрыли для автомобилей и приспособили под линию D метро Порту, открытую 18 сентября 2005 года.",
+              "en": "In 1908 trams began using the upper deck, and on 27 June 2003 it was closed to cars and adapted for line D of the Porto Metro, opened on 18 September 2005.",
+              "pt": "Em 1908 os elétricos começaram a circular no tabuleiro superior e, a 27 de junho de 2003, este foi fechado aos automóveis e adaptado à linha D do Metro do Porto, aberta a 18 de setembro de 2005."
+            }
           },
           "visit": {
             "ru": ["Поднимитесь на верхний ярус на закате: вид на Рибейру, монастырь Серра-ду-Пилар и долину Дору особенно хорош."],
@@ -328,9 +436,9 @@
       "id": "down-to-the-river-and-across",
       "title": { "ru": "К реке и на другой берег", "en": "Down to the river and across", "pt": "Até ao rio e à outra margem" },
       "intro": {
-        "ru": "Пять мест у Дору: от церкви Святого Франциска до монастыря Серра-ду-Пилар на южном берегу. На каждой остановке один вопрос, за верный ответ — печать.",
-        "en": "Five places by the Douro, from the Church of São Francisco to the Serra do Pilar monastery on the south bank. Each stop asks one question. Each right answer earns a stamp.",
-        "pt": "Cinco lugares junto ao Douro, da Igreja de São Francisco ao Mosteiro da Serra do Pilar, na margem sul. Cada paragem faz uma pergunta. Cada resposta certa vale um selo."
+        "ru": "Пять мест у Дору: от церкви Святого Франциска до монастыря Серра-ду-Пилар на южном берегу. На каждой остановке одно задание, за верный ответ — печать.",
+        "en": "Five places by the Douro, from the Church of São Francisco to the Serra do Pilar monastery on the south bank. Each stop sets one task. Each right answer earns a stamp.",
+        "pt": "Cinco lugares junto ao Douro, da Igreja de São Francisco ao Mosteiro da Serra do Pilar, na margem sul. Cada paragem traz uma tarefa. Cada resposta certa vale um selo."
       },
       "end_lead": {
         "ru": "Вы прошли пять мест на карте, на обоих берегах Дору. Все их можно увидеть своими глазами.",
@@ -351,34 +459,38 @@
             "ru": [
               "В 1383 году по указу короля Фернанду, особо покровительствовавшего францисканцам, началось строительство нынешней церкви, завершённое в 1410 году.",
               "Это лучший пример готической архитектуры в Порту; в эпоху Жуана I здесь появилась редкая настенная роспись «Богоматерь с розой», приписываемая Антониу Флорентину.",
-              "В 1833 году монастырские постройки уничтожил пожар, начавшийся от перестрелки мигелистских войск во время осады Порту."
+              "Под храмом находятся катакомбы с захоронениями монахов, сегодня доступные как часть музея."
             ],
             "en": [
               "In 1383, by decree of King Ferdinand, a special protector of the Franciscans, work began on the present church, completed in 1410.",
               "It is the finest example of Gothic architecture in Porto; under King John I a rare mural, the Madonna of the Rose, attributed to António Florentim, was painted here.",
-              "In 1833 a fire, started by gunfire from Miguelite troops during the siege of Porto, destroyed the monastic buildings."
+              "Beneath it lie catacombs holding the remains of friars, now open as part of the museum."
             ],
             "pt": [
               "Em 1383, por decreto de D. Fernando, protector dos franciscanos, iniciaram-se as obras da igreja actual, concluídas em 1410.",
               "É o melhor exemplo de arquitectura gótica no Porto; no reinado de D. João I pintou-se aqui uma rara pintura mural, a Senhora da Rosa, atribuída a António Florentim.",
-              "Em 1833, um incêndio provocado por tiros das tropas miguelistas durante o cerco do Porto destruiu as instalações conventuais."
+              "Sob o templo existem catacumbas com os restos dos frades, hoje integradas no museu."
             ]
           },
-          "question": {
-            "ru": "Чем покрыты почти все поверхности внутри церкви?",
-            "en": "What covers almost every surface inside the church?",
-            "pt": "O que reveste quase todas as superfícies do interior da igreja?"
-          },
-          "options": [
-            { "ru": "Неоновые лампы", "en": "Neon lights", "pt": "Luzes de néon" },
-            { "ru": "Барочная золочёная резьба", "en": "Baroque gilded woodcarving", "pt": "Talha dourada barroca" },
-            { "ru": "Современные граффити", "en": "Modern graffiti", "pt": "Graffiti modernos" }
-          ],
-          "answer": 1,
-          "basis": {
-            "ru": "Главная художественная кампания прошла в первой половине XVIII века, когда почти все поверхности интерьера — стены, колонны, боковые капеллы и потолок — покрыли барочной золочёной резьбой.",
-            "en": "The main artistic campaign took place in the first half of the 18th century, when almost every interior surface — walls, columns, side chapels and ceiling — was covered in Baroque gilded woodcarving.",
-            "pt": "A principal campanha artística decorreu na primeira metade do século XVIII, quando quase todas as superfícies interiores — paredes, colunas, capelas e tecto — foram revestidas de talha dourada barroca."
+          "task": {
+            "id": "sao-francisco-gilded-wood",
+            "type": "multiple_choice",
+            "question": {
+              "ru": "Чем покрыты почти все поверхности внутри церкви?",
+              "en": "What covers almost every surface inside the church?",
+              "pt": "O que reveste quase todas as superfícies do interior da igreja?"
+            },
+            "options": [
+              { "id": "neon-lights", "ru": "Неоновые лампы", "en": "Neon lights", "pt": "Luzes de néon" },
+              { "id": "gilded-woodcarving", "ru": "Барочная золочёная резьба", "en": "Baroque gilded woodcarving", "pt": "Talha dourada barroca" },
+              { "id": "modern-graffiti", "ru": "Современные граффити", "en": "Modern graffiti", "pt": "Graffiti modernos" }
+            ],
+            "answer": "gilded-woodcarving",
+            "basis": {
+              "ru": "Главная художественная кампания прошла в первой половине XVIII века, когда почти все поверхности интерьера — стены, колонны, боковые капеллы и потолок — покрыли барочной золочёной резьбой.",
+              "en": "The main artistic campaign took place in the first half of the 18th century, when almost every interior surface — walls, columns, side chapels and ceiling — was covered in Baroque gilded woodcarving.",
+              "pt": "A principal campanha artística decorreu na primeira metade do século XVIII, quando quase todas as superfícies interiores — paredes, colunas, capelas e tecto — foram revestidas de talha dourada barroca."
+            }
           },
           "visit": {
             "ru": ["Церковь стоит в двух шагах от дворца биржи, поэтому смотрите их вместе.", "Внутри темно и много золота — не пользуйтесь вспышкой и дайте глазам привыкнуть."],
@@ -397,36 +509,67 @@
           ],
           "text": {
             "ru": [
-              "Дворец биржи начали возводить в октябре 1842 года.",
-              "Поводом стало закрытие городской торговой биржи (Casa da Bolsa do Comércio), после чего коммерсантам Порту пришлось временно обсуждать сделки под открытым небом на улице Руа-душ-Инглезеш.",
-              "Участок, где поднялось здание, прежде занимал монастырь Святого Франциска, сгоревший в 1833 году во время осады Порту."
+              "Внутренний двор Наций (Pátio das Nações) перекрыт стеклянной кровлей и украшен гербами стран, с которыми торговал Порту; к нему примыкают Золотой зал, зал Ассамблей и зал Портретов.",
+              "Над проектом работали шесть архитекторов, включая Жозе Маркеша да Силву.",
+              "Служит штаб-квартирой Коммерческой ассоциации Порту."
             ],
             "en": [
-              "Construction of the Stock Exchange Palace began in October 1842.",
-              "It was prompted by the closure of the city's old trading house (Casa da Bolsa do Comércio), which forced Porto's merchants to discuss deals outdoors on Rua dos Ingleses.",
-              "The site had previously held the São Francisco monastery, burnt down in 1833 during the siege of Porto."
+              "The Nations' Courtyard (Pátio das Nações) is roofed in glass and decorated with the coats of arms of the countries Porto traded with; around it lie the Golden Room, the Assembly Rooms and the Portrait Room.",
+              "Six architects worked on the project, including José Marques da Silva.",
+              "It is the headquarters of the Porto Commercial Association."
             ],
             "pt": [
-              "A construção do Palácio da Bolsa começou em Outubro de 1842.",
-              "O motivo foi o encerramento da Casa da Bolsa do Comércio, que obrigou os comerciantes portuenses a discutir negócios ao ar livre, na Rua dos Ingleses.",
-              "O terreno fora antes ocupado pelo mosteiro de São Francisco, incendiado em 1833 durante o cerco do Porto."
+              "O Pátio das Nações é coberto por uma clarabóia de vidro e decorado com os brasões dos países com que o Porto negociava; em volta ficam a Sala Dourada, a Sala das Assembleias Gerais e a Sala dos Retratos.",
+              "Passaram pelo projecto seis arquitectos, entre eles José Marques da Silva.",
+              "É a sede da Associação Comercial do Porto."
             ]
           },
-          "question": {
-            "ru": "Какое здание вдохновило Арабский зал дворца?",
-            "en": "Which building inspired the palace's Arab Room?",
-            "pt": "Que monumento inspirou o Salão Árabe do palácio?"
-          },
-          "options": [
-            { "ru": "Альгамбра в Гранаде", "en": "The Alhambra in Granada", "pt": "A Alhambra de Granada" },
-            { "ru": "Эмпайр-стейт-билдинг", "en": "The Empire State Building", "pt": "O Empire State Building" },
-            { "ru": "Сиднейский оперный театр", "en": "The Sydney Opera House", "pt": "A Ópera de Sydney" }
-          ],
-          "answer": 0,
-          "basis": {
-            "ru": "Арабский зал создан в 1862–1880 годах Гонсалвешем де Соузой по мотивам Альгамбры.",
-            "en": "The Arab Room was created between 1862 and 1880 by Gonçalves e Sousa, inspired by the Alhambra.",
-            "pt": "O Salão Árabe foi criado entre 1862 e 1880 por Gonçalves e Sousa, inspirado na Alhambra."
+          "task": {
+            "id": "bolsa-timeline",
+            "type": "sequence",
+            "items": [
+              {
+                "id": "monastery-burns",
+                "year": 1833,
+                "label": { "ru": "Сгорает монастырь Святого Франциска", "en": "The São Francisco monastery burns down", "pt": "O mosteiro de São Francisco arde" },
+                "quote": {
+                  "ru": "Дворец стоит на месте монастыря Святого Франциска, сгоревшего в 1833 году.",
+                  "en": "It stands on the site of the São Francisco monastery, burnt in 1833.",
+                  "pt": "Ergue-se no lugar do mosteiro de São Francisco, incendiado em 1833."
+                }
+              },
+              {
+                "id": "palace-begun",
+                "year": 1842,
+                "label": { "ru": "Начинают строить дворец биржи", "en": "Building starts on the Stock Exchange Palace", "pt": "Começa a construção do Palácio da Bolsa" },
+                "quote": {
+                  "ru": "Дворец биржи начали возводить в октябре 1842 года.",
+                  "en": "Construction of the Stock Exchange Palace began in October 1842.",
+                  "pt": "A construção do Palácio da Bolsa começou em Outubro de 1842."
+                }
+              },
+              {
+                "id": "arab-room",
+                "year": 1862,
+                "label": { "ru": "Гонсалвеш де Соуза создаёт Арабский зал", "en": "Gonçalves e Sousa creates the Arab Room", "pt": "Gonçalves e Sousa cria o Salão Árabe" },
+                "quote": {
+                  "ru": "Арабский зал создан в 1862–1880 годах Гонсалвешем де Соузой по мотивам Альгамбры.",
+                  "en": "The Arab Room was created between 1862 and 1880 by Gonçalves e Sousa, inspired by the Alhambra.",
+                  "pt": "O Salão Árabe foi criado entre 1862 e 1880 por Gonçalves e Sousa, inspirado na Alhambra."
+                }
+              },
+              {
+                "id": "national-monument",
+                "year": 1982,
+                "label": { "ru": "Дворец объявляют национальным памятником", "en": "The palace is declared a national monument", "pt": "O palácio é classificado Monumento Nacional" },
+                "quote": {
+                  "ru": "В 1982 году дворец объявлен национальным памятником Португалии.",
+                  "en": "In 1982 the palace was declared a Portuguese national monument.",
+                  "pt": "Em 1982 o palácio foi classificado como Monumento Nacional."
+                }
+              }
+            ],
+            "start": ["arab-room", "national-monument", "monastery-burns", "palace-begun"]
           },
           "visit": {
             "ru": ["Дворец стоит прямо рядом с церковью Святого Франциска в районе Рибейра, поэтому оба памятника удобно смотреть подряд."],
@@ -460,21 +603,20 @@
               "Casas com arcadas dos séculos XVII–XVIII e fachadas de azulejo definem o cais."
             ]
           },
-          "question": {
-            "ru": "Как перевозили бочки с портвейном по Дору?",
-            "en": "How were the barrels of port wine carried on the Douro?",
-            "pt": "Como eram transportadas as pipas de vinho do Porto no Douro?"
-          },
-          "options": [
-            { "ru": "По подземному трубопроводу", "en": "Through an underground pipeline", "pt": "Por um oleoduto subterrâneo" },
-            { "ru": "На воздушном шаре", "en": "By hot-air balloon", "pt": "De balão de ar quente" },
-            { "ru": "На лодках-рабелу", "en": "On rabelo boats", "pt": "Em barcos rabelos" }
-          ],
-          "answer": 2,
-          "basis": {
-            "ru": "С XVIII века Рибейра была центром торговли портвейном: в местных складах и на пристанях грузили бочки, которые сплавляли по Дору на лодках-рабелу.",
-            "en": "From the 18th century Ribeira was a hub of the port wine trade: barrels were loaded in its warehouses and on its quays and carried down the Douro on rabelo boats.",
-            "pt": "Desde o século XVIII a Ribeira foi um centro do comércio do vinho do Porto: nos seus armazéns e cais carregavam-se pipas que desciam o Douro em barcos rabelos."
+          "task": {
+            "id": "ribeira-rabelo-boats",
+            "type": "true_false",
+            "statement": {
+              "ru": "Бочки с портвейном, которые грузили в Рибейре, сплавляли по Дору на лодках-рабелу.",
+              "en": "Barrels of port wine loaded at Ribeira were carried down the Douro on rabelo boats.",
+              "pt": "As pipas de vinho do Porto carregadas na Ribeira desciam o Douro em barcos rabelos."
+            },
+            "answer": true,
+            "basis": {
+              "ru": "С XVIII века Рибейра была центром торговли портвейном: в местных складах и на пристанях грузили бочки, которые сплавляли по Дору на лодках-рабелу.",
+              "en": "From the 18th century Ribeira was a hub of the port wine trade: barrels were loaded in its warehouses and on its quays and carried down the Douro on rabelo boats.",
+              "pt": "Desde o século XVIII a Ribeira foi um centro do comércio do vinho do Porto: nos seus armazéns e cais carregavam-se pipas que desciam o Douro em barcos rabelos."
+            }
           },
           "visit": {
             "ru": ["От Праша-да-Рибейра отходят прогулочные лодки, а рядом проходит канатная дорога Гая."],
@@ -508,21 +650,26 @@
               "Em 1996, a ponte foi inscrita na lista do Património Mundial da UNESCO."
             ]
           },
-          "question": {
-            "ru": "На чём держится мост над рекой?",
-            "en": "What carries the bridge across the river?",
-            "pt": "O que sustenta a ponte sobre o rio?"
-          },
-          "options": [
-            { "ru": "Верёвки, сплетённые из травы", "en": "Ropes woven from grass", "pt": "Cordas de erva entrançada" },
-            { "ru": "Арка из сварочного железа", "en": "A wrought-iron arch", "pt": "Um arco de ferro forjado" },
-            { "ru": "Воздушные шары с газом", "en": "Balloons filled with gas", "pt": "Balões cheios de gás" }
-          ],
-          "answer": 1,
-          "basis": {
-            "ru": "Конструкция представляет собой двухшарнирную арочную систему из сварочного железа с центральной аркой пролётом 172 метра — на момент постройки самым длинным металлическим пролётом в мире.",
-            "en": "The structure is a two-hinged wrought-iron arch system whose central arch has a span of 172 metres, the longest of its kind in the world when it was built.",
-            "pt": "A estrutura é um sistema de arco de ferro forjado com dois rótulas, cujo arco central tem 172 metros de vão — o maior do seu género no mundo à data da construção."
+          "task": {
+            "id": "luis-arch",
+            "type": "visual_detail",
+            "model_check": { "file": "src/models/porto/ponte-luis-i.js", "word": "arch" },
+            "question": {
+              "ru": "Посмотрите на мост на карте. Что держит его над рекой?",
+              "en": "Look at the bridge on the map. What carries it across the river?",
+              "pt": "Observe a ponte no mapa. O que a sustenta sobre o rio?"
+            },
+            "options": [
+              { "id": "towers-cables", "ru": "Тросы, подвешенные к высоким башням", "en": "Cables hung from tall towers", "pt": "Cabos suspensos de torres altas" },
+              { "id": "iron-arch", "ru": "Одна большая железная арка", "en": "One great iron arch", "pt": "Um grande arco de ferro" },
+              { "id": "stone-arches", "ru": "Ряд каменных арок, стоящих в реке", "en": "A row of stone arches standing in the river", "pt": "Uma fila de arcos de pedra assentes no rio" }
+            ],
+            "answer": "iron-arch",
+            "basis": {
+              "ru": "Конструкция представляет собой двухшарнирную арочную систему из сварочного железа с центральной аркой пролётом 172 метра — на момент постройки самым длинным металлическим пролётом в мире.",
+              "en": "The structure is a two-hinged wrought-iron arch system whose central arch has a span of 172 metres, the longest of its kind in the world when it was built.",
+              "pt": "A estrutura é um sistema de arco de ferro forjado com dois rótulas, cujo arco central tem 172 metros de vão — o maior do seu género no mundo à data da construção."
+            }
           },
           "visit": {
             "ru": ["Поднимитесь на верхний ярус на закате: вид на Рибейру, монастырь Серра-ду-Пилар и долину Дору особенно хорош."],
@@ -557,21 +704,17 @@
               "Património Mundial da UNESCO desde 1996, com o centro histórico do Porto e a ponte Luís I."
             ]
           },
-          "question": {
-            "ru": "Чем монастырь был важен в войнах XIX века?",
-            "en": "Why did the monastery matter in the wars of the 19th century?",
-            "pt": "Porque contou o mosteiro nas guerras do século XIX?"
-          },
-          "options": [
-            { "ru": "Там была взлётная полоса для самолётов", "en": "It had a runway for aircraft", "pt": "Tinha uma pista para aviões" },
-            { "ru": "Его стены были из пуленепробиваемого стекла", "en": "Its walls were made of bulletproof glass", "pt": "As paredes eram de vidro à prova de bala" },
-            { "ru": "Он стоит на господствующей высоте над рекой", "en": "It stands on a commanding height above the river", "pt": "Ergue-se numa altura dominante sobre o rio" }
-          ],
-          "answer": 2,
-          "basis": {
-            "ru": "Военно-географическое значение монастыря на господствующей высоте проявилось в эпоху французских вторжений (1807–1814), во время осады Порту (1832–1833) и событий Мария-да-Фонте (1846–1847); вокруг выросла фортификационная система.",
-            "en": "The monastery's geo-military value, on its commanding height, showed during the French invasions (1807–1814), the Siege of Porto (1832–1833) and the Maria da Fonte troubles (1846–1847), when a fortified system grew around it.",
-            "pt": "A relevância geo-militar do mosteiro, na sua altura dominante, manifestou-se nas invasões francesas (1807–1814), no Cerco do Porto (1832–1833) e na Maria da Fonte (1846–1847), levando à construção de um sistema fortificado."
+          "task": {
+            "id": "find-serra-do-pilar",
+            "type": "find_on_map",
+            "target": "serra-do-pilar",
+            "candidates": ["serra-do-pilar", "ponte-luis-i", "ribeira", "se-porto", "bolsa", "sao-francisco-porto", "caves-gaia"],
+            "view": { "az": 0, "elev": 0.9, "k": 1 },
+            "basis": {
+              "ru": "Военно-географическое значение монастыря на господствующей высоте проявилось в эпоху французских вторжений (1807–1814), во время осады Порту (1832–1833) и событий Мария-да-Фонте (1846–1847); вокруг выросла фортификационная система.",
+              "en": "The monastery's geo-military value, on its commanding height, showed during the French invasions (1807–1814), the Siege of Porto (1832–1833) and the Maria da Fonte troubles (1846–1847), when a fortified system grew around it.",
+              "pt": "A relevância geo-militar do mosteiro, na sua altura dominante, manifestou-se nas invasões francesas (1807–1814), no Cerco do Porto (1832–1833) e na Maria da Fonte (1846–1847), levando à construção de um sistema fortificado."
+            }
           },
           "visit": {
             "ru": ["Лучшее время для подъёма к монастырю — раннее утро или закат: с площадки открывается панорама Порту, Рибейры и моста Луиша I."],

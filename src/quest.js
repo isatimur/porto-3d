@@ -3,16 +3,25 @@
 // only route, or the one in progress); each route shows its landmarks one at
 // a time. The camera flies to each one (tour.js flightCurve, over roofs and
 // terrain); the card tells its history in a few sentences, shows the photo
-// with its credit and asks one question with three options. A wrong pick is
-// set aside and the visitor picks again; right first time earns a gold
-// stamp, right after a retry a plain one. The end counts the places and the
-// first-time answers and says how to see each place in the real city.
+// with its credit and sets one task (quest-tasks.js): a question with three
+// options, a true/false statement, a detail to read off the 3D model, events
+// to put in time order, or the place itself to find on the map among a few
+// unnamed candidates. A wrong try is set aside and the visitor tries again;
+// right first time earns a gold stamp, right after a retry a plain one. The
+// end counts the places and the first-time answers and says how to see each
+// place in the real city.
 //
-// Content: data/quest.json, loaded with the module. Its history, answer
-// and visit lines are verbatim excerpts of the place cards (checked by
+// Content: data/quest.json, loaded with the module. Its history, answer,
+// dated and visit lines are verbatim excerpts of the place cards (checked by
 // scripts/quest.test.mjs); its `ui` table holds this mode's interface
 // strings in ru/en/pt, so the first load carries none of them. Progress is
 // saved per route id (quest-progress.js).
+//
+// Find on the map: map picking is off during a route (main.js); while such a
+// task is open, quest.pickable names the candidates, main.js picks among them
+// only (canvas clicks and label clicks) and hands the pick to mapPick(). The
+// candidates' labels show «?» instead of their names; the card lists the
+// same candidates as buttons, the keyboard and screen-reader path.
 //
 // While a stop is shown the visitor may orbit the map freely; «Show the
 // place» flies back to the framing. Reduced motion: every flight is a cut.
@@ -20,10 +29,13 @@
 // clear daylight while the route runs; the visitor's light comes back on
 // exit (see «light» below).
 //
-// Ported from braga-3d (main 1048925). Porto differences: the storage key
-// (quest-progress.js), the map chrome list below (the fly keys and the
-// back-to-globe link), and source links named by their site (Porto's source
-// titles are the bare URLs).
+// Ported from braga-3d (main 1048925, task types from main 08ce468). Porto
+// differences: the storage key and the round-2 save table (quest-progress.js,
+// data/quest.json legacy.v2), the map chrome list below (the fly keys and the
+// back-to-globe link), source links named by their site (Porto's source
+// titles are the bare URLs), the early route card on a #quest deep link
+// (attach()), and two optional view keys: `mk` (the distance on a phone) and
+// `aim` (see frame()).
 import * as THREE from 'three';
 import { language } from './i18n.js';
 import { flightCurve, easeInOut } from './tour.js';
@@ -32,6 +44,7 @@ import { assetUrl } from './data.js';
 import { dataPath } from './city.js';
 import { creditNode } from './gallery.js';
 import { createQuestProgress, questSummary, stopResult } from './quest-progress.js';
+import { answerKey, taskErrors } from './quest-tasks.js';
 import { emit } from './events.js';
 import './quest.css';
 
@@ -124,11 +137,9 @@ export function createQuest(ctx) {
   (document.getElementById('story')?.parentElement || document.body).append(root);
 
   // a stop's stamp: gold (right first time), plain (right after a retry),
-  // seen (visited, not answered yet) or none
+  // seen (visited, not solved yet) or none
   function stampOf(st) {
-    const tries = rp.tries(st.id);
-    const r = stopResult(tries, st.answer);
-    const kind = r.gold ? 'gold' : r.done ? 'plain' : rp.visited(st.id) || tries.length ? 'seen' : 'none';
+    const kind = rp.stamp(st.id) || (rp.visited(st.id) || rp.tries(st.task.id).length ? 'seen' : 'none');
     return { cls: kind === 'none' ? '' : ` is-${kind}`, label: s(`stamp_${kind}`, { name: st.item.data.name }) };
   }
 
@@ -163,6 +174,7 @@ export function createQuest(ctx) {
   }
 
   function show(nodes, buttons, focus) {
+    endPick(); // every screen change ends a find-on-map task's picking
     root.dataset.screen = screen;
     kicker.textContent = route ? pick(route.title) : s('kicker');
     stampList.hidden = !route;
@@ -266,7 +278,10 @@ export function createQuest(ctx) {
     const l = st.item.data;
     rp.visit(st.id);
     const step = el('p', 'quest-step', s('stop', { n: i + 1, m: stops.length }));
-    if (l.year) step.append(el('span', 'quest-year', l.year));
+    // the place's year; a sequence task shows it once solved (it may be one
+    // of the events to order)
+    const year = l.year ? el('span', 'quest-year', l.year) : null;
+    if (year) step.append(year);
     const title = el('h2', 'quest-title', l.name);
     title.tabIndex = -1;
 
@@ -286,68 +301,315 @@ export function createQuest(ctx) {
     }
     const text = el('p', 'quest-text', pick(st.text).join(' '));
 
-    // question
-    const qBox = el('div', 'quest-q');
+    // the task
+    const task = st.task;
+    const key = answerKey(task);
+    const qBox = el('div', `quest-q is-${task.type.replace(/_/g, '-')}`);
     qBox.setAttribute('role', 'group');
     const qId = `quest-q-${st.id}`;
     qBox.setAttribute('aria-labelledby', qId);
-    const q = el('p', 'quest-question', pick(st.question));
-    q.id = qId;
-    const opts = el('div', 'quest-options');
     const feedback = el('div', 'quest-feedback');
     feedback.setAttribute('aria-live', 'polite');
     const nextBtn = i < stops.length - 1
       ? button('quest-btn is-primary', s('next'), () => goStop(i + 1))
       : button('quest-btn is-primary', s('finish'), () => renderEnd());
-    const optButtons = st.options.map((o, k) => {
-      const b = button('quest-option', '', () => answer(k));
-      b.append(el('span', 'quest-option-key', 'ABC'[k]), el('span', 'quest-option-text', pick(o)));
-      opts.append(b);
-      return b;
-    });
-    qBox.append(el('p', 'quest-qlabel', s('question')), q, opts, feedback);
+    const showBtn = button('quest-btn is-quiet', s('show'), () => fly(shot));
+    const state = () => {
+      const tries = rp.tries(task.id);
+      const stamp = rp.stamp(st.id);
+      return { tries, stamp, done: !!stamp, wrong: tries.filter((t) => t !== key) };
+    };
+    // one try: right or wrong is saved, then the card repaints. how: 'panel'
+    // (a button in the card) or 'map' (a pick on the map: focus stays)
+    function submit(token, how = 'panel') {
+      const verdict = rp.submit(st.id, task.id, token, key);
+      if (!verdict) return null;
+      paint(how, token);
+      if (verdict === 'right') {
+        track('quest_step_completed', st.id, stopResult(rp.tries(task.id), key).attempts, task.type);
+        const sum = questSummary(stops, rp);
+        if (sum.done === sum.total) track('quest_completed', st.id);
+      }
+      return verdict;
+    }
+    const view = VIEWS[task.type]({ st, task, key, submit, feedback, state });
+    const q = el('p', 'quest-question', view.question);
+    q.id = qId;
+    qBox.append(el('p', 'quest-qlabel', view.label), q, ...view.nodes, feedback);
 
-    // A wrong pick: «not this one», that option is disabled, no reveal; the
-    // visitor picks again. The right pick shows the explanation. The saved
-    // picks repaint the same state on a revisit.
-    function paint(announce) {
-      const tries = rp.tries(st.id);
-      const r = stopResult(tries, st.answer);
-      optButtons.forEach((b, k) => {
-        const tried = tries.includes(k);
-        b.disabled = r.done || tried;
-        b.classList.toggle('is-right', r.done && k === st.answer);
-        b.classList.toggle('is-tried', tried && k !== st.answer);
-      });
-      nextBtn.hidden = !r.done;
-      if (r.done) {
-        const verdict = el('p', 'quest-verdict is-right', s(r.gold ? 'correct_gold' : 'correct_plain'));
-        const basis = el('blockquote', 'quest-basis');
-        basis.append(el('span', 'quest-basis-label', s('basis')), document.createTextNode(` ${s('basis_quote', { text: pick(st.basis) })}`));
-        feedback.replaceChildren(verdict, basis);
-      } else feedback.replaceChildren(...(tries.length ? [el('p', 'quest-verdict is-retry', s('retry'))] : []));
+    // A wrong try: «not this one», that try is set aside, no reveal; the
+    // visitor tries again. The right one shows the explanation. The saved
+    // tries repaint the same state on a revisit or after a reload.
+    function paint(how, last) {
+      const S = state();
+      view.paint(S);
+      nextBtn.hidden = !S.done;
+      if (year) year.hidden = task.type === 'sequence' && !S.done;
+      if (S.done) feedback.replaceChildren(el('p', 'quest-verdict is-right', s(S.stamp === 'gold' ? 'correct_gold' : 'correct_plain')), ...view.explain());
+      else feedback.replaceChildren(...view.retry(S, last));
       renderStamps();
-      if (!announce) return;
-      if (r.done) nextBtn.focus({ preventScroll: true });
-      else optButtons.find((b) => !b.disabled)?.focus({ preventScroll: true });
+      // found on the map: the history shows and the camera goes to the place
+      if (S.done && picking) {
+        endPick();
+        text.hidden = false;
+        showBtn.textContent = s('show');
+        ctx.onFocus?.([st.id]);
+        shot = cameraReady() ? screenShot() : null;
+        fly(shot);
+      }
+      if (!how) return;
+      if (S.done) {
+        const next = () => nextBtn.isConnected && nextBtn.focus({ preventScroll: true });
+        next();
+        // a tap's compatibility mousedown comes after the pick and moves
+        // focus to the page: put it back on Next
+        if (how === 'map') setTimeout(() => document.activeElement === document.body && next(), 150);
+      } else if (how !== 'map') view.focus()?.focus({ preventScroll: true });
       feedback.scrollIntoView({ block: 'end', behavior: reducedMotion ? 'auto' : 'smooth' });
     }
-    function answer(k) {
-      const verdict = rp.pick(st.id, k, st.answer);
-      if (!verdict) return;
-      paint(true);
-      if (verdict !== 'right') return;
-      track('quest_step_completed', st.id, stopResult(rp.tries(st.id), st.answer).attempts);
-      const sum = questSummary(stops, rp);
-      if (sum.done === sum.total) track('quest_completed', st.id);
-    }
 
-    const showBtn = button('quest-btn is-quiet', s('show'), () => fly(shot));
     show([step, title, photo, text, qBox, sourcesLine(l)], [showBtn, nextBtn]);
+    // find on the map: the camera shows the candidates, not the place; its
+    // history waits until it is found
+    const finding = task.type === 'find_on_map' && !rp.stamp(st.id);
+    if (finding) {
+      text.hidden = true;
+      showBtn.textContent = s('show_area');
+      startPick(task, (id) => {
+        if (submit(id, 'map') === null && !state().done) feedback.replaceChildren(...view.retry(state(), id));
+      });
+    }
     paint(false);
-    ctx.onFocus?.([st.id]);
+    if (!finding) ctx.onFocus?.([st.id]);
     shot = cameraReady() ? screenShot() : null;
     fly(shot);
+  }
+
+  // ------------------------------------------------ task views
+  // Each view gets { st, task, key, submit, feedback, state } and returns
+  // { label, question, nodes, paint(S), retry(S, last), explain(), focus() }.
+  const quoteNode = (text) => {
+    const b = el('blockquote', 'quest-basis');
+    b.append(el('span', 'quest-basis-label', s('basis')), document.createTextNode(` ${s('basis_quote', { text })}`));
+    return b;
+  };
+  const retryNode = (key, vars) => el('p', 'quest-verdict is-retry', s(key, vars));
+
+  // options as buttons: multiple choice, true/false, visual detail
+  function choiceView({ task, key, submit }, { label, question, options, keys, extra = [], explain }) {
+    const box = el('div', 'quest-options');
+    const btns = options.map((o, k) => {
+      const b = button('quest-option', '', () => submit(o.id));
+      b.dataset.option = o.id;
+      const mark = el('span', 'quest-option-key', keys[k]);
+      mark.setAttribute('aria-hidden', 'true');
+      b.append(mark, el('span', 'quest-option-text', o.text));
+      box.append(b);
+      return b;
+    });
+    return {
+      label,
+      question,
+      nodes: [...extra, box],
+      paint(S) {
+        btns.forEach((b, k) => {
+          const id = options[k].id;
+          const tried = S.tries.includes(id);
+          b.disabled = S.done || tried;
+          b.classList.toggle('is-right', S.done && id === key);
+          b.classList.toggle('is-tried', tried && id !== key);
+        });
+      },
+      retry: (S) => (S.wrong.length ? [retryNode('retry')] : []),
+      explain: explain || (() => [quoteNode(pick(task.basis))]),
+      focus: () => btns.find((b) => !b.disabled),
+    };
+  }
+
+  const VIEWS = {
+    multiple_choice: (a) =>
+      choiceView(a, { label: s('question'), question: pick(a.task.question), keys: 'ABC', options: a.task.options.map((o) => ({ id: o.id, text: pick(o) })) }),
+    // the answer is read off the model: «Show the place» brings it back
+    visual_detail: (a) =>
+      choiceView(a, {
+        label: s('look_label'),
+        question: pick(a.task.question),
+        keys: 'ABC',
+        options: a.task.options.map((o) => ({ id: o.id, text: pick(o) })),
+        extra: [el('p', 'quest-look', s('look_hint', { show: s('show') }))],
+      }),
+    true_false: (a) =>
+      choiceView(a, {
+        label: s('tf_label'),
+        question: pick(a.task.statement),
+        keys: ['✓', '✕'],
+        options: [
+          { id: 'true', text: s('tf_true') },
+          { id: 'false', text: s('tf_false') },
+        ],
+        explain: () => [el('p', 'quest-tf', s(a.task.answer ? 'tf_is_true' : 'tf_is_false')), quoteNode(pick(a.task.basis))],
+      }),
+    find_on_map: findView,
+    sequence: sequenceView,
+  };
+
+  // The place among unnamed candidates on the map; the same candidates as
+  // buttons in the card, in alphabetical order (it gives nothing away).
+  function findView({ st, task, key, submit }) {
+    const name = (id) => byId.get(id)?.data.name || id;
+    const ids = task.candidates.filter((id) => byId.has(id)).sort((a, b) => name(a).localeCompare(name(b), language));
+    const list = el('ul', 'quest-candidates');
+    const btns = ids.map((id) => {
+      const li = el('li');
+      const b = button('quest-option quest-candidate', name(id), () => submit(id));
+      b.dataset.option = id;
+      li.append(b);
+      list.append(li);
+      return b;
+    });
+    return {
+      label: s('find_label'),
+      question: s('find_prompt', { name: st.item.data.name }),
+      nodes: [el('p', 'quest-listlabel', s('find_list')), list],
+      paint(S) {
+        btns.forEach((b, k) => {
+          const tried = S.tries.includes(ids[k]);
+          b.disabled = S.done || tried;
+          b.classList.toggle('is-right', S.done && ids[k] === key);
+          b.classList.toggle('is-tried', tried && ids[k] !== key);
+        });
+        if (!picking) return;
+        // a tried candidate shows its name on the map; after two wrong picks
+        // the place's own marker stands out (pulses, or a still ring with
+        // reduced motion)
+        for (const it of picking.list) {
+          it.labelEl.classList.toggle('is-quest-tried', S.tries.includes(it.data.id));
+          it.labelEl.classList.toggle('is-quest-hint', it.data.id === key && S.wrong.length >= 2);
+        }
+      },
+      retry(S, last) {
+        const wrong = last && last !== key ? last : S.wrong.at(-1);
+        const out = wrong ? [retryNode('find_wrong', { name: name(wrong) })] : [];
+        if (S.wrong.length >= 2) out.push(el('p', 'quest-hint', s('find_hint')));
+        return out;
+      },
+      explain: () => [quoteNode(pick(task.basis))],
+      focus: () => btns.find((b) => !b.disabled),
+    };
+  }
+
+  // Events to put in time order with up/down buttons (keyboard and touch).
+  // The order shown first comes from the data; after a wrong check the
+  // checked order stays, after a reload too. The dated quotes show only
+  // once the order is right.
+  function sequenceView({ task, key, submit, feedback, state }) {
+    const items = new Map(task.items.map((it) => [it.id, it]));
+    const m = task.items.length;
+    const last = state().wrong.at(-1)?.split(',');
+    let order = last && last.length === m && last.every((id) => items.has(id)) ? last : [...task.start];
+    const list = el('ol', 'quest-seq');
+    const live = el('p', 'quest-sr');
+    live.setAttribute('aria-live', 'polite');
+    const check = button('quest-btn is-primary quest-seq-check', s('seq_check'), () => {
+      if (submit(order.join(',')) === null && !state().done) feedback.replaceChildren(retryNode('seq_same'));
+    });
+    function move(k, dir) {
+      const j = k + dir;
+      if (j < 0 || j >= m) return;
+      [order[k], order[j]] = [order[j], order[k]];
+      draw();
+      // focus stays with the moved event; at the end of the list, on its other arrow
+      const row = list.children[j];
+      const same = row.querySelector(dir < 0 ? '.is-up' : '.is-down');
+      (same.disabled ? row.querySelector(dir < 0 ? '.is-down' : '.is-up') : same).focus({ preventScroll: true });
+      live.textContent = s('seq_moved', { item: pick(items.get(order[j]).label), n: j + 1, m });
+    }
+    function draw() {
+      list.replaceChildren(
+        ...order.map((id, k) => {
+          const label = pick(items.get(id).label);
+          const li = el('li', 'quest-seq-item');
+          li.dataset.item = id;
+          const num = el('span', 'quest-seq-num', String(k + 1));
+          num.setAttribute('aria-hidden', 'true');
+          const up = button('quest-seq-move is-up', '↑', () => move(k, -1));
+          const down = button('quest-seq-move is-down', '↓', () => move(k, 1));
+          up.setAttribute('aria-label', s('seq_up', { item: label }));
+          down.setAttribute('aria-label', s('seq_down', { item: label }));
+          up.disabled = k === 0;
+          down.disabled = k === m - 1;
+          li.append(num, el('span', 'quest-seq-label', label), up, down);
+          return li;
+        }),
+      );
+    }
+    draw();
+    return {
+      label: s('seq_label'),
+      question: s('seq_prompt'),
+      nodes: [list, check, live],
+      paint(S) {
+        list.hidden = S.done;
+        check.hidden = S.done;
+      },
+      retry(S, lastTry) {
+        const tried = (lastTry && lastTry !== key ? lastTry : S.wrong.at(-1))?.split(',');
+        if (!tried) return [];
+        const right = key.split(',');
+        return [retryNode('seq_wrong', { k: tried.filter((id, i) => id === right[i]).length, m })];
+      },
+      explain() {
+        const done = el('ol', 'quest-seq-done');
+        for (const it of task.items) {
+          const li = el('li');
+          li.append(el('span', 'quest-seq-label', pick(it.label)), el('blockquote', 'quest-basis', s('basis_quote', { text: pick(it.quote) })));
+          done.append(li);
+        }
+        return [el('p', 'quest-basis-label', s('seq_basis')), done];
+      },
+      focus: () => check,
+    };
+  }
+
+  // ------------------------------------------------ find on the map: picking
+  // While a find-on-map task is open its candidates pick on the map (main.js
+  // asks quest.pickable and calls mapPick), their labels take clicks and
+  // show «?», and the labels layer is out of the screen-reader tree (the
+  // card's list is that path). endPick() puts all of it back; every screen
+  // change and stop() call it.
+  let picking = null; // { task, list: [item], ids: Set(id), allow: Set(index), onPick(id) }
+  const NONE = new Set();
+  const labelsEl = () => document.getElementById('labels');
+  // the labels layer takes clicks while picking; out of it, it is inert like
+  // the rest of the map chrome (attach() may inert it after a pick started)
+  function pickLabels(on) {
+    const layer = labelsEl();
+    if (!layer) return;
+    layer.inert = on ? false : inerted.includes(layer);
+    if (on) layer.setAttribute('aria-hidden', 'true');
+    else layer.removeAttribute('aria-hidden');
+  }
+  function startPick(task, onPick) {
+    const list = task.candidates.map((id) => byId.get(id)).filter(Boolean);
+    picking = { task, list, ids: new Set(list.map((it) => it.data.id)), allow: new Set(list.map((it) => it.index)), onPick };
+    for (const it of list) it.labelEl.classList.add('is-quest-candidate');
+    // a candidate whose category the visitor filtered out still shows (its
+    // model, pin and label), and goes back to the filter afterwards
+    // (landmarks.js setForced; the early card gets it with attach())
+    ctx.forceShow?.(picking.allow);
+    document.body.classList.add('is-quest-picking');
+    root.dataset.picking = '1';
+    pickLabels(true);
+    ctx.onFocus?.([...picking.ids]);
+  }
+  function endPick() {
+    if (!picking) return;
+    for (const it of picking.list) it.labelEl.classList.remove('is-quest-candidate', 'is-quest-tried', 'is-quest-hint');
+    ctx.forceShow?.(null);
+    document.body.classList.remove('is-quest-picking');
+    delete root.dataset.picking;
+    picking = null;
+    pickLabels(false);
   }
 
   function renderEnd() {
@@ -401,7 +663,7 @@ export function createQuest(ctx) {
   }
 
   // product events (events.js): a CustomEvent on window, sent nowhere
-  const track = (name, stop = null, attempt = null) => emit(name, { city: ctx.city, route: route?.id ?? null, stop, attempt, lang: language });
+  const track = (name, stop = null, attempt = null, type = null) => emit(name, { city: ctx.city, route: route?.id ?? null, stop, attempt, type, lang: language });
 
   // ------------------------------------------------ camera
   // The part of the screen the card leaves free, as fractions of the view.
@@ -468,6 +730,8 @@ export function createQuest(ctx) {
   // the bearing of the map's opening view, so the city reads as it did
   const homeBearing = () => Math.atan2(ctx.home.position.x - ctx.home.target.x, ctx.home.position.z - ctx.home.target.z);
   function screenShot() {
+    // a find-on-map task: every candidate in view, the target not singled out
+    if (screen === 'stop' && picking) return frame(picking.list, picking.task.view || OVERVIEW, homeBearing());
     if (screen === 'stop') return frame([stops[current].item], stops[current].view || {}, stops[current].item.viewBearing ?? 0);
     // a route's `overview` stops (all of them when it has no list); the
     // chooser frames every route's overview
@@ -618,9 +882,21 @@ export function createQuest(ctx) {
         if (wanted()) ctx.onError?.(err);
         return;
       }
-      // a route keeps the stops this map has; one with fewer than two is left out
+      // a route keeps the stops this map has, each with a sound task (a
+      // find-on-map task keeps the candidates this map has); one with fewer
+      // than two stops is left out
+      const usable = (r, st) => {
+        if (!st.item) return null;
+        const task = st.task?.type === 'find_on_map' ? { ...st.task, candidates: (st.task.candidates || []).filter((id) => byId.has(id)) } : st.task;
+        const errors = taskErrors(task);
+        if (errors.length) {
+          console.warn(`[porto] quest.json ${r.id}/${st.id}: ${errors.join('; ')}`);
+          return null;
+        }
+        return { ...st, task };
+      };
       routes = (data?.routes || [])
-        .map((r) => ({ ...r, stops: (r.stops || []).map((st) => ({ ...st, item: byId.get(st.id) })).filter((st) => st.item) }))
+        .map((r) => ({ ...r, stops: (r.stops || []).map((st) => usable(r, { ...st, item: byId.get(st.id) })).filter(Boolean) }))
         .filter((r) => r.id && r.stops.length >= 2);
       if (!routes.length) {
         console.error('[porto] quest.json: no route with two stops on this map');
@@ -628,7 +904,7 @@ export function createQuest(ctx) {
         ctx.onError?.(new Error('no stops'));
         return;
       }
-      progress = createQuestProgress(ctx.city);
+      progress = createQuestProgress(ctx.city, data.legacy?.v2 || {});
       root.setAttribute('aria-label', s('title'));
       stampList.setAttribute('aria-label', s('stamps'));
       closeBtn.setAttribute('aria-label', s('close'));
@@ -664,7 +940,14 @@ export function createQuest(ctx) {
     holdLight();
     ctx.onEnter?.();
     ctx.onRoute?.();
-    if (screen === 'stop') ctx.onFocus?.([stops[current].id]);
+    // a find-on-map task opened early: its labels take clicks again (the
+    // chrome pass above made them inert), the filter lets its candidates
+    // show, and the focus names every candidate, never the place alone
+    if (picking) {
+      pickLabels(true);
+      ctx.forceShow?.(picking.allow);
+      ctx.onFocus?.([...picking.ids]);
+    } else if (screen === 'stop') ctx.onFocus?.([stops[current].id]);
     else ctx.onFocus?.([...new Set((route ? [route] : routes).flatMap((r) => r.stops.map((st) => st.id)))]);
     shot = cameraReady() ? screenShot() : null;
     fly(shot);
@@ -672,6 +955,7 @@ export function createQuest(ctx) {
 
   function stop() {
     if (!active) return;
+    endPick();
     active = false;
     flying = false;
     ctx.rig?.stopDrive();
@@ -724,15 +1008,36 @@ export function createQuest(ctx) {
       if (id) openFirst(id);
       else if (routes.length > 1) renderRoutes();
     },
+    // main.js: the item indices a map click may pick (empty unless a
+    // find-on-map task is open), and the pick itself (an item index or null)
+    get pickable() {
+      return picking ? picking.allow : NONE;
+    },
+    mapPick(index) {
+      if (!picking || index == null) return;
+      const it = ctx.items.find((x) => x.index === index);
+      if (it && picking.ids.has(it.data.id)) picking.onPick(it.data.id);
+    },
     // tests and screenshots
     get state() {
       const sum = stops.length && rp ? questSummary(stops, rp) : null;
-      return { active, screen, route: route?.id ?? null, stop: current, id: stops[current]?.id ?? null, flying: flying && !!ctx.rig?.touring, ...sum };
+      const task = stops[current]?.task;
+      return { active, screen, route: route?.id ?? null, stop: current, id: stops[current]?.id ?? null, type: task?.type ?? null, picking: !!picking, flying: flying && !!ctx.rig?.touring, ...sum };
     },
     goStop,
     showEnd: () => route && renderEnd(),
     answer(k) {
       body.querySelectorAll('.quest-option')[k]?.click();
+    },
+    // where a landmark's pin and model centre are on the screen (CSS pixels)
+    screenPoint(id) {
+      const it = byId.get(id);
+      if (!it) return null;
+      const at = (v) => {
+        v.project(camera);
+        return { x: ((v.x + 1) / 2) * window.innerWidth, y: ((1 - v.y) / 2) * window.innerHeight, behind: v.z > 1 };
+      };
+      return { pin: at(new THREE.Vector3(it.center.x, it.pinY ?? it.top, it.center.z)), model: at(it.box.getCenter(new THREE.Vector3())) };
     },
   };
 }
