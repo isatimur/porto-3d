@@ -494,7 +494,8 @@ export function initPerf() {
 }
 
 // A full-screen notice (no WebGL 2) or a bottom toast (context lost).
-export function showNotice(title, text, { toast = false } = {}) {
+// link: { href, text }, a way on without the 3D map
+export function showNotice(title, text, { toast = false, link = null } = {}) {
   const el = document.createElement('div');
   el.className = `gpu-notice${toast ? ' is-toast' : ''}`;
   el.setAttribute('role', toast ? 'status' : 'alert');
@@ -507,6 +508,14 @@ export function showNotice(title, text, { toast = false } = {}) {
   const p = document.createElement('p');
   p.textContent = text;
   inner.append(p);
+  if (link) {
+    const a = document.createElement('a');
+    a.href = link.href;
+    a.textContent = link.text;
+    const q = document.createElement('p');
+    q.append(a);
+    inner.append(q);
+  }
   el.append(inner);
   document.body.append(el);
   return el;

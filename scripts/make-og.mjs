@@ -1,7 +1,8 @@
 // Social previews, share pages and PWA icons.
 //
 //   node scripts/make-og.mjs            # everything
-//   node scripts/make-og.mjs --pages    # public/p/<id>/index.html only (fast, no browser)
+//   node scripts/make-og.mjs --pages    # public/p/<id>/index.html and the route
+//                                       # text pages public/route/ (fast, no browser)
 //   node scripts/make-og.mjs --icons    # public/icons/*.png
 //   node scripts/make-og.mjs --og       # public/og/<city>.jpg + public/og/<id>.jpg
 //   node scripts/make-og.mjs --og --only=ribeira,hero
@@ -17,6 +18,7 @@ import { resolve, dirname } from 'node:path';
 import { existsSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { CITY } from './city-lib.mjs';
+import { loadInputs as loadRouteInputs, renderRoutePages, routePagePaths, writeRoutePages } from './route-pages.mjs';
 
 // --city <id> picks the city (default porto). Porto reads
 // src/locales/{en,pt}.porto.js, Braga src/locales/{en,pt}.js, other cities
@@ -172,6 +174,9 @@ function sharePage(l) {
 }
 if (all || flag('pages')) {
   for (const l of list) write(resolve(ROOT, `public/p/${l.id}/index.html`), sharePage(l));
+  // the text version of the history routes (Porto only: data/quest.json)
+  const routeInputs = CITY.id === 'porto' ? await loadRouteInputs() : null;
+  if (routeInputs) writeRoutePages(renderRoutePages(routeInputs));
 
   // robots.txt + sitemap.xml, both from the same SITE constant and landmark
   // list as the share pages, so the domain never drifts between them.
@@ -181,6 +186,7 @@ if (all || flag('pages')) {
     ...list.map(
       (l) => `  <url><loc>${SITE}/p/${l.id}/</loc><lastmod>${today}</lastmod><priority>0.8</priority></url>`,
     ),
+    ...(routeInputs ? routePagePaths(routeInputs.quest).map((p) => `  <url><loc>${SITE}${p}</loc><lastmod>${today}</lastmod><priority>0.7</priority></url>`) : []),
   ];
   write(
     resolve(ROOT, 'public/sitemap.xml'),

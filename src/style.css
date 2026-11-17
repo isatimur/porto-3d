@@ -914,6 +914,8 @@ dialog { color: var(--text); font: 400 14px/1.5 var(--sans); }
 .gpu-notice > div { max-width: 460px; }
 .gpu-notice h1 { margin: 0 0 12px; font-size: 22px; font-weight: 600; }
 .gpu-notice p { margin: 0; line-height: 1.55; opacity: 0.9; }
+.gpu-notice p + p { margin-top: 14px; }
+.gpu-notice a, .loader-text a { color: #e0a948; }
 .gpu-notice.is-toast { inset: auto 0 16px 0; background: transparent; pointer-events: none; padding: 0 16px; }
 .gpu-notice.is-toast > div { margin: 0 auto; padding: 10px 14px; border-radius: 8px; background: rgba(14, 10, 6, 0.9); font-size: 13px; }
 
