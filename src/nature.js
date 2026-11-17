@@ -21,6 +21,7 @@ import * as THREE from 'three';
 import { S } from './geo.js';
 import { FOG_UNIFORMS, WEATHER_UNIFORMS, CLOUD_GLSL, SEASON_GLSL } from './scene.js';
 import { createWater } from './water.js';
+import { setRingBounds } from './bounds.js';
 import { CITY } from './city.js';
 import { loadStreetTrees, plantStreetTrees, HEDGE } from './street-trees.js';
 
@@ -1286,7 +1287,9 @@ export function buildNature(opts) {
     mesh.customDepthMaterial = treeDepthMaterial(uniforms, s);
     mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     mesh.count = 0;
-    mesh.frustumCulled = false;
+    mesh.visible = false; // until partition() fills it
+    // bounds: the ball around the camera that holds its trees (partition)
+    mesh.boundingSphere = new THREE.Sphere(new THREE.Vector3(), -1);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     mesh.name = `trees-${s}`;
@@ -1357,9 +1360,12 @@ export function buildNature(opts) {
     let far = 0;
     let nearCount = 0;
     let streetCount = 0;
+    // every near tree stands within this of the camera (honest bounds below)
+    const meshR = Math.sqrt(Math.max(r2, rs2, rh2));
     for (let s = 0; s < near.length; s++) {
       const N = near[s];
       let k = 0;
+      let smax = 0;
       const wr = SPECIES[s].w;
       const nl = N.list.length;
       const ns = nl + N.street.length;
@@ -1378,6 +1384,7 @@ export function buildNature(opts) {
           _m.compose(_p, _q, _s);
           N.mesh.setMatrixAt(k, _m);
           N.tintAttr.setXYZW(k, t.tint[0], t.tint[1], t.tint[2], t.f || 0);
+          smax = Math.max(smax, t.h * Math.max(t.sx || 1, t.sz || 1, 1));
           k++;
           if (st) streetCount++;
         } else if (st === 0 || (st === 1 && d2 < rf2)) {
@@ -1388,6 +1395,10 @@ export function buildNature(opts) {
         }
       }
       N.mesh.count = k;
+      // an empty species is no draw at all (it was one in the view and one in
+      // the shadow pass); a filled one is culled when its ball is out of view
+      N.mesh.visible = k > 0;
+      if (k) setRingBounds(N.mesh, cam.x, cam.z, meshR, cam.y, cam.y, smax * 1.15); // +15 %: the wind sway
       upload(N.mesh.instanceMatrix, k);
       upload(N.tintAttr, k);
       nearCount += k;
