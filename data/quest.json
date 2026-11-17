@@ -147,7 +147,8 @@
       "stops": [
         {
           "id": "clerigos",
-          "view": { "az": 1.6, "elev": 0.4, "k": 1.4 },
+          "view": { "az": 4.2, "elev": 0.25, "k": 1.8, "mk": 0.9 },
+          "from": { "text": "history, facts", "basis": "history", "visit": "tip" },
           "sources": [
             "https://pt.wikipedia.org/wiki/Igreja_e_Torre_dos_Cl%C3%A9rigos",
             "https://en.wikipedia.org/wiki/Cl%C3%A9rigos_Church",
@@ -200,6 +201,7 @@
         {
           "id": "sao-bento",
           "view": {},
+          "from": { "text": "history, facts", "items": "history", "visit": "tip" },
           "sources": [
             "https://pt.wikipedia.org/wiki/Esta%C3%A7%C3%A3o_Ferrovi%C3%A1ria_de_Porto-S%C3%A3o_Bento",
             "https://en.wikipedia.org/wiki/S%C3%A3o_Bento_railway_station",
@@ -287,6 +289,7 @@
         {
           "id": "se-porto",
           "view": { "mk": 0.8 },
+          "from": { "text": "history, facts", "basis": "history", "visit": "tip" },
           "sources": [
             "https://pt.wikipedia.org/wiki/S%C3%A9_do_Porto",
             "https://en.wikipedia.org/wiki/Porto_Cathedral",
@@ -337,6 +340,7 @@
         {
           "id": "ribeira",
           "view": { "az": -2.3, "elev": 0.28, "k": 0.9 },
+          "from": { "text": "history", "basis": "history", "visit": "tip" },
           "sources": [
             "https://whc.unesco.org/en/list/755",
             "https://en.wikipedia.org/wiki/Porto",
@@ -387,6 +391,7 @@
             "https://whc.unesco.org/en/list/755",
             "https://commons.wikimedia.org/wiki/Category:Luiz_I_bridge"
           ],
+          "from": { "text": "history, facts", "basis": "history", "visit": "tip" },
           "text": {
             "ru": [
               "Идея новой переправы через Дору возникла в 1870-е годы, когда старая висячая «Понте Пенсил» уже не справлялась с растущим городом.",
@@ -449,6 +454,7 @@
         {
           "id": "sao-francisco-porto",
           "view": {},
+          "from": { "text": "history", "basis": "history", "visit": "tip" },
           "sources": [
             "https://pt.wikipedia.org/wiki/Igreja_de_S%C3%A3o_Francisco_(Porto)",
             "https://en.wikipedia.org/wiki/Church_of_S%C3%A3o_Francisco,_Porto",
@@ -501,6 +507,7 @@
         {
           "id": "bolsa",
           "view": { "az": 3.14, "elev": 0.4, "k": 1.2 },
+          "from": { "text": "history, facts", "items": "history, facts", "visit": "tip" },
           "sources": [
             "https://pt.wikipedia.org/wiki/Pal%C3%A1cio_da_Bolsa",
             "https://en.wikipedia.org/wiki/Pal%C3%A1cio_da_Bolsa",
@@ -580,6 +587,7 @@
         {
           "id": "ribeira",
           "view": { "az": -2.3, "elev": 0.28, "k": 0.9 },
+          "from": { "text": "history, facts", "basis": "history", "visit": "tip" },
           "sources": [
             "https://whc.unesco.org/en/list/755",
             "https://en.wikipedia.org/wiki/Porto",
@@ -633,6 +641,7 @@
             "https://whc.unesco.org/en/list/755",
             "https://commons.wikimedia.org/wiki/Category:Luiz_I_bridge"
           ],
+          "from": { "text": "facts, history", "basis": "history", "visit": "tip" },
           "text": {
             "ru": [
               "Автор проекта — Теофил Сейриг, бывший партнёр Гюстава Эйфеля.",
@@ -680,6 +689,7 @@
         {
           "id": "serra-do-pilar",
           "view": { "az": 3.14, "elev": 0.3, "k": 1.5, "mk": 0.9 },
+          "from": { "text": "facts", "basis": "history", "visit": "tip" },
           "sources": [
             "https://pt.wikipedia.org/wiki/Mosteiro_da_Serra_do_Pilar",
             "https://en.wikipedia.org/wiki/Monastery_of_Serra_do_Pilar",
@@ -708,7 +718,7 @@
             "id": "find-serra-do-pilar",
             "type": "find_on_map",
             "target": "serra-do-pilar",
-            "candidates": ["serra-do-pilar", "ponte-luis-i", "ribeira", "se-porto", "bolsa", "sao-francisco-porto", "caves-gaia"],
+            "candidates": ["serra-do-pilar", "ponte-luis-i", "ribeira", "se-porto", "bolsa", "sao-bento", "caves-gaia"],
             "view": { "az": 0, "elev": 0.9, "k": 1 },
             "basis": {
               "ru": "Военно-географическое значение монастыря на господствующей высоте проявилось в эпоху французских вторжений (1807–1814), во время осады Порту (1832–1833) и событий Мария-да-Фонте (1846–1847); вокруг выросла фортификационная система.",

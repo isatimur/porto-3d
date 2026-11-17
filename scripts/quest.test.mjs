@@ -29,7 +29,7 @@ const tag = (s) => `${s.route}/${s.id}`;
 const of = (type) => STOPS.filter((s) => s.task.type === type);
 const CHOICE = STOPS.filter((s) => s.task.type === 'multiple_choice' || s.task.type === 'visual_detail');
 // the keys src/quest.js frame() reads from a view
-const VIEW_KEYS = ['az', 'elev', 'k', 'mk', 'aim'];
+const VIEW_KEYS = ['az', 'elev', 'k', 'mk'];
 
 // the texts a stop may quote, per language and field
 function sourceText(id, lang) {
@@ -83,6 +83,10 @@ test('each stop is a known landmark with its sources', () => {
     assert.ok(l.sources?.length >= 2, `${tag(s)}: needs at least two sources`);
     assert.ok(l.image && l.image_credit, `${tag(s)}: needs a credited photo`);
     assert.deepEqual([...s.sources].sort(), l.sources.map((q) => q.url).sort(), `${tag(s)}: sources differ from the landmark`);
+    // `from` names the place-card fields each part quotes (for review; the
+    // quote checks below are what holds them to it)
+    for (const [k, v] of Object.entries(s.from || {})) for (const f of v.split(/,\s*/)) assert.ok(['history', 'facts', 'long', 'tip'].includes(f), `${tag(s)}: from.${k} names «${f}»`);
+    assert.ok(s.from?.text && s.from?.visit && (s.from.basis || s.from.items), `${tag(s)}: from.text, from.visit and from.basis or from.items`);
   }
 });
 

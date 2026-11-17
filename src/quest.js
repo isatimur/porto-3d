@@ -34,8 +34,9 @@
 // data/quest.json legacy.v2), the map chrome list below (the fly keys and the
 // back-to-globe link), source links named by their site (Porto's source
 // titles are the bare URLs), the early route card on a #quest deep link
-// (attach()), and two optional view keys: `mk` (the distance on a phone) and
-// `aim` (see frame()).
+// (attach()), the view key `mk` (the distance on a phone, see frame()), the
+// place's year held back on an open sequence task, and filtered-out
+// candidates shown through ctx.forceShow (landmarks.js setForced).
 import * as THREE from 'three';
 import { language } from './i18n.js';
 import { flightCurve, easeInOut } from './tour.js';
