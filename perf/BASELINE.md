@@ -178,6 +178,54 @@ JS heap after a full GC: 204 MB desktop, 197 to 203 MB phone-low. GL allocation 
 | 7 | GPU copies of core geometry far from the camera | 158 to 333 MB of GL allocation over a fly-around (phone-low) | up to about 150 MB on phones | medium (re-upload hitch on return) | medium |
 | 8 | Render on demand | none found: the scene always animates, a hidden tab already stops | none | n/a | n/a |
 
+### Results: main against the branch (2026-11-17, second session)
+
+Both builds from the same sources (`main` b0b713b in a worktree, the branch at 580d308), served by `scripts/perf-serve.mjs` on two ports and measured in turn, round after round (`/tmp/porto-perf/measure.mjs`, headless Chromium, **ANGLE on Metal for every number here**; no software GL). Views: uncapped, governor pinned at level 0, `#time=day&weather=clear&live=0`, medians of three rounds. The app's 120 Hz frame limiter (`perf.js`) was switched off in the views: uncapped, it read the fast rAF as a 120 Hz panel on some runs and drew every other frame, which made one round of phone-low numbers worthless (dropped). The machine was shared but quieter than in part 1 (load average about 5).
+
+Per view, main -> branch:
+
+| View | desktop-gpu main-pass primitives | desktop calls | desktop p50 / p95 ms | desktop script ms/frame | phone-low primitives | phone-low calls | phone-low p50 / p95 ms |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| overview | 2.10 -> 2.08 M | 323 -> 323 | 16.8 / 32.7 -> 16.8 / 18.9 | 16.6 -> 16.6 | 1.21 -> 0.82 M | 96 -> 107 | 7.0 / 9.5 -> 6.4 / 9.1 |
+| Ribeira, street level | 2.72 -> 1.91 M | 195 -> 219 | 16.9 / 33.3 -> 16.8 / 18.1 | 17.0 -> 16.7 | 2.07 -> 1.01 M | 88 -> 106 | 8.2 / 10.7 -> 7.7 / 10.5 |
+| sea, city behind | 1.50 -> 0.21 M | 93 -> 82 | 11.1 / 14.1 -> 10.7 / 14.1 | 11.2 -> 1.8 | 1.43 -> 0.15 M | 49 -> 39 | 6.2 / 8.4 -> 4.0 / 6.4 |
+| Clérigos | 2.59 -> 1.84 M | 212 -> 226 | 15.4 / 16.7 -> 15.3 / 16.4 | 15.3 -> 15.1 | 1.96 -> 1.01 M | 91 -> 110 | 8.6 / 11.1 -> 8.2 / 10.7 |
+| Luís I bridge | 2.41 -> 1.58 M | 178 -> 201 | 13.8 / 15.0 -> 13.7 / 15.0 | 13.7 -> 13.5 | 1.92 -> 0.86 M | 86 -> 101 | 8.3 / 10.9 -> 7.8 / 10.5 |
+| route stop (São Bento) | 2.12 -> 0.92 M | 150 -> 152 | 10.8 / 13.5 -> 10.6 / 12.2 | 10.8 -> 10.3 | 1.91 -> 0.71 M | 85 -> 87 | 8.3 / 11.0 -> 7.8 / 10.5 |
+| Ribeira at night | 3.10 -> 2.35 M | 232 -> 254 | 17.0 / 19.0 -> 16.7 / 18.4 | 16.8 -> 16.6 | 2.28 -> 1.42 M | 112 -> 137 | 9.0 / 11.4 -> 8.8 / 11.5 |
+
+Shadow-pass primitives fall 5 to 43 % on desktop (sea 0.21 -> 0.12 M) and are unchanged on phone-low (only landmarks cast there). GL allocation, JS heap after GC (202 to 205 MB desktop, 193 to 200 MB phone-low) and textures are the same on both builds; the branch holds 11 to 36 more geometry objects (the cell slots, which share the buffers of their object).
+
+Startup, cold cache, three interleaved runs each (seconds):
+
+| Profile | Build | First frame | Interactive | Ready | Route card on `#quest=from-the-tower-to-the-river` | KB at ready | KB until the card |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| desktop-gpu | main | 1.02 to 1.04 | 3.70 to 3.76 | 6.31 to 6.34 | 4.56 to 4.57 | 2518 to 2520 | 2423 |
+| | branch | 0.91 to 1.04 | 3.73 to 3.77 | 6.27 to 6.43 | 1.25 to 1.30 | 2522 | 2321 |
+| phone-low | main | 14.29 to 14.33 | 27.82 to 27.97 | 38.26 to 38.44 | 30.63 to 30.80 | 2499 | 2431 |
+| | branch | 14.31 to 14.35 | 27.86 to 28.21 | 38.25 to 38.69 | 16.0 to 16.9 | 2501 | 2321 |
+
+(One desktop branch run is left out: first frame 2.47 s, interactive 7.96 s, the machine stalled; the run before and after were normal.) The live site's 22.7 s to the route card (headless, real network) cannot be reproduced here; locally the card now opens 3.3 s sooner on the desktop profile and about 14 s sooner on phone-low, with 100 KB less on the wire before it.
+
+Reading it:
+
+- **Phones gain, desktops hold.** On phone-low (6x CPU, Metal) every view is faster at the median, 0.2 to 0.6 ms close up and 2.2 ms (35 %) in the sea view, with half the primitives or less, although close views now cost 15 to 25 more draw calls. The desktop GPU is pixel-bound at DPR 2: p50 does not move. The Ribeira street view lost its p95 spike (33 ms, a doubled frame) in all three rounds (main 32.9, 33.7, 33.3; branch 18.1, 18.2, 18.0); the overview's p95 is 18.5 to 33.9 on both builds, round by round, so its median says nothing. The CPU time the sea view spends submitting roads falls from 11.2 to 1.8 ms a frame (the frame still waits for the GPU's water and sky). On a GPU where vertices cost (phones) the primitive cut is the gain to expect; this machine cannot show it.
+- **Load.** The roads' one-time cell sort first ran inside the roads build step: +55 to +140 ms to the first full frame on the desktop, +340 to +650 ms on phone-low. A counting sort (`2cbd81b`) halved it; running it after `ready`, one object per idle slot (`580d308`), brought the roads step back to main's (565 to 600 ms desktop, 3.1 to 3.2 s phone-low). Until an object is sorted it draws whole, as on main.
+- **The look.** Screenshots of the seven views on both profiles, main and branch, three rounds: the pixel diff is under 1 % with no blob over 13 cells of 16 px, except where water fills the frame (the sea view 3 to 23 %, the phone's Luís I view 2.3 %): the waves move between shots. I read the pairs of the overview, Ribeira, Clérigos, Luís I and the route stop (desktop) and Clérigos and Luís I (phone): they are the same picture. A stricter test on the branch alone: at four street-level spots (Aliados, Ribeira, Boavista, the Luís I deck), the camera turned in 45° steps and each frame was drawn twice, culled and with every road object whole, under reduced motion and with the labels hidden: 64 of 64 pairs (32 at desktop size, 32 at phone size) are pixel-identical. `scripts/cell-runs.test.mjs` holds the same rule for random cameras (no triangle or segment whose box meets the view or the shadow camera is left out).
+
+Measured costs of what is left (phone-low unless noted, branch build, V8 profile of an unminified build at 6x CPU, 60 Hz cap):
+
+| Item | Cost today | Why not now |
+| --- | --- | --- |
+| Matrices of static objects | 446 of the 678 scene objects recompute their matrix every frame (942 `updateMatrix` calls a frame: the render and the label pass each walk the scene); `updateMatrixWorld` and `multiplyMatrices` take 4.7 to 5.1 % of the main thread, about 1 ms a frame | landmarks (188 objects) move and scale (real scale, shrink, lazy swaps); a frozen matrix is a wrong picture. Harbour, quays and ground (109 objects) are safe but save about a quarter of it |
+| Life far away or behind the camera | `life.js` 1.1 to 1.8 % of the main thread (about 0.2 to 0.4 ms a frame at 6x), 1.3 % in the sea view; traffic, boats and people already test the frustum | under 0.2 ms to win; the earlier estimate of 1 to 2 ms was too high |
+| Tram rails | one static InstancedMesh of 53 to 67 k triangles, drawn whole when any of it is in view (7 to 9 % of the phone-low main pass close up) | three.js cannot draw a window of an InstancedMesh; splitting it into cells adds draw calls at the overview, where the desktop is at 323 of its 330 budget |
+| Tree billboards and falling leaves | 14 to 28 k quads, always drawn (one instanced set each) | small; billboards behind the camera produce no fragments |
+| Shadow map while nothing moves (desktop) | 1.6 to 2.8 ms a frame (part 1) | traffic, people and boats cast: their shadows would lag |
+| Pixels under the phone sheets | the sheet covers 36 to 64 % of the canvas | scissor with the post stack and the sheet's edges: medium risk |
+| GPU copies of far core tiles | GL 158 -> 333 MB over a fly-around (part 1), under the 380 MB budget | re-upload hitch on return |
+| Transfer over the 2500 KB soft budget | 2584 KB main, 2604 KB branch: +2 KB of JS (cell-runs, the early route), the rest streamed tiles that finished before `ready`; the two Roboto Flex files are 293 KB of it | a font subset is a separate change |
+
 ## Stress tests (`scripts/perf-stress.mjs`)
 
 Class switching 40 times in 5 s, `WEBGL_lose_context` loss and restore (the map redraws; screenshot read), freeze and resume of the page (the governor changes nothing), `?quality=` values and the saved choice, reduced motion, offline second visit through the service worker (caches `porto-v2`, `porto-data-v2`), and a 300 s soak flying to random landmarks: JS heap 190 to 195 MB (1.6 % spread), GL memory 628 to 667 MB (3 % spread), no console errors.
