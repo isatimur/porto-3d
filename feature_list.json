@@ -650,6 +650,23 @@
         "64 of 64 culled/whole pairs pixel-identical; main/branch screenshot pairs of seven views read the same"
       ],
       "notes": "Measured on one Apple M1 Max; phones are CPU-throttled emulations with the Apple GPU. Options left with their cost are in perf/BASELINE.md."
+    },
+    {
+      "id": "porto-028",
+      "priority": 34,
+      "area": "guided modes",
+      "title": "History routes, round 3: task types that use the 3D map (ported from braga-3d)",
+      "user_visible_behavior": "Each stop of a history route sets one task, by type: multiple choice, true/false, sequence (four dated events moved up and down by keyboard or touch, then each event's dated quote; the place's year waits until solved), visual detail (the Dom Luís I bridge's iron arch, read off the 3D model) and find on the map (the camera pulls back over seven landmarks shown as «?» markers; a click or tap on the right model, pin or marker solves it; a wrong one names the place; after two wrong picks the place's marker stands out; the card lists the same places as buttons). Retry with no penalty, gold first time, plain after a retry. The Clérigos stop shows the tower from the side against the city and the river. The menu reads «History routes» / «Rotas da história» / «Исторические маршруты», no count. Saved round-2 progress keeps every stamp.",
+      "status": "passing",
+      "verification": [
+        "node --test scripts/*.test.mjs (quest.test.mjs: task shape, every quote verbatim per language and type, sequence quotes hold their years and no line gives them away, true/false not settled by a history line, find-on-map candidates are real landmarks with models, shared stops set different tasks, legacy.v2 against the round-2 answers, v2 save keeps every stamp and kept tries; events.test.mjs: seven keys, every task type documented)",
+        "npm run verify",
+        "Browser (headless Chromium, vite preview of the build, outside requests blocked): /tmp/porto-quest-3/check.mjs flow, find, seq, migrate, matrix, early, light, behave, lite, nowebgl, views"
+      ],
+      "evidence": [
+        "BROWSER_EVIDENCE"
+      ],
+      "notes": "One visual detail only: the bridge's arch is in the ru, en and pt texts and is the model's main member; the Clérigos tower's height shows, but no question about it rests on a fact the simplified model shows better than the photo. Not checked: a physical phone, a screen reader. Not deployed."
     }
   ]
 }

@@ -260,7 +260,9 @@ export function createQuest(ctx) {
     const plan = el('ol', 'quest-plan');
     for (const st of stops) {
       const li = el('li');
-      li.append(el('span', 'quest-plan-name', st.item.data.name), el('span', 'quest-plan-year', st.item.data.year || ''));
+      // an open sequence task's place keeps its year back here too
+      const year = st.task.type === 'sequence' && !rp.stamp(st.id) ? '' : st.item.data.year || '';
+      li.append(el('span', 'quest-plan-name', st.item.data.name), el('span', 'quest-plan-year', year));
       plan.append(li);
     }
     let primary;

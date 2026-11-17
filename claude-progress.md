@@ -24,6 +24,15 @@ updates it automatically.
 
 ## Session Log
 
+### 2026-11-17 — history routes round 3: task types (branch feat/quest-task-types, feature porto-028)
+
+- Goal: braga-3d's typed tasks (braga main 08ce468) in Porto's history routes, Porto's own tasks, and a side view of the Clérigos tower.
+- Engine: `src/quest-tasks.js` (copied as is), `src/quest.js`, `src/quest.css`, `src/events.js` and the two tests merged three-way (braga 1048925 as the base), so Porto's own differences stay (storage key, early deep-link card and `attach()`, `view.mk`, fly keys and back-to-globe link, source names). Porto-only changes on top: `attach()` keeps a find-on-map task pickable (labels not inert, every candidate in focus, never the place alone); a sequence stop holds back the place's year until solved; a filtered-out candidate shows through `marks.setForced()` in `src/landmarks.js` (Braga toggles mesh visibility, which Porto's per-frame LOD would undo); `pick(raycaster, only)`; the three `main.js` hunks.
+- Progress v3 (`src/quest-progress.js`): tries by task id as id tokens, stamps by stop. Porto's live round-2 save (option indices) migrates through `legacy.v2` in `data/quest.json`: every stamp stays; the three kept questions (Clérigos, Ponte Luís I on route 1, São Francisco) keep their tries by option id. No round-1 path (Porto never had one).
+- Tasks: route 1 = Clérigos (multiple choice, kept), São Bento (sequence 1896/1900/1905/1916), Sé (true/false, false: the silver altarpiece), Ribeira (find on the map), Ponte Luís I (multiple choice, kept). Route 2 = São Francisco (multiple choice, kept), Bolsa (sequence 1833/1842/1862/1982), Ribeira (true/false, true: rabelo boats), Ponte Luís I (visual detail: the iron arch, `src/models/porto/ponte-luis-i.js`), Serra do Pilar (find on the map). Each stop's `from` names the place-card fields it quotes. São Bento, Sé, São Francisco and Bolsa history lines were swapped for other lines of the same card so no line gives an answer or a date away.
+- Clérigos: view `{az 1.6, elev 0.4, k 1.4}` ended at 64° (the roof clearance raised it 9 steps) -> `{az 4.2, elev 0.25, k 1.8, mk 0.9}`: 23.5° on 1280x800, 24.6° on 390x844, the tower standing against the city and the river; checked also at 1024x768, 1920x1080, 360x740, 844x390. Data only; the clearance code is unchanged.
+- Menu: «Исторические маршруты» / «Rotas da história» / «History routes», title «…маршруты с заданием на каждой остановке»; no count.
+
 ### 2026-11-17 — perf round 3: draw only what is in view (branch perf/visible-only, feature porto-027)
 
 - Goal (the owner): do not draw the whole map, only the visible part; load and unload objects and effects. Symptom: a `#quest` deep link took 22.7 s on the live site before the route card showed.

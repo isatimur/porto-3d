@@ -224,6 +224,7 @@ test('sequence: each event has its own quote holding its year, in every language
   // the place's own year waits until the order is right (src/quest.js)
   const code = readFileSync(new URL('src/quest.js', root), 'utf8');
   assert.match(code, /year\.hidden = task\.type === 'sequence' && !S\.done/, 'src/quest.js hides the year of an open sequence stop');
+  assert.match(code, /st\.task\.type === 'sequence' && !rp\.stamp\(st\.id\) \? ''/, 'src/quest.js keeps that year out of the route plan too');
 });
 
 test('a stop shared by two routes sets a different task in each', () => {
