@@ -669,7 +669,7 @@
               "pt": "Observe a ponte no mapa. O que a sustenta sobre o rio?"
             },
             "options": [
-              { "id": "towers-cables", "ru": "Тросы, подвешенные к высоким башням", "en": "Cables hung from tall towers", "pt": "Cabos suspensos de torres altas" },
+              { "id": "floating-pontoons", "ru": "Понтоны, плавающие на воде", "en": "Pontoons floating on the water", "pt": "Pontões a flutuar na água" },
               { "id": "iron-arch", "ru": "Одна большая железная арка", "en": "One great iron arch", "pt": "Um grande arco de ferro" },
               { "id": "stone-arches", "ru": "Ряд каменных арок, стоящих в реке", "en": "A row of stone arches standing in the river", "pt": "Uma fila de arcos de pedra assentes no rio" }
             ],
