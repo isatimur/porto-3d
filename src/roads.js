@@ -1025,15 +1025,15 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
   // Every mesh and line set here spans the whole city: each draws only the
   // grid cells in view (cell-runs.js; the shadow camera's too for the
   // structures, which cast). 1 km cells, at most 3 draws per object; over the
-  // whole city it is one draw each, as before.
+  // whole city it is one draw each, as before. The one-time sort of each
+  // object (60 ms on a desktop, about 350 ms at 6x CPU) waits for
+  // prepareCells(), which main.js calls one object per idle slot after the
+  // first full frame; until then an object draws whole.
   const culler = createCellCuller();
-  const merged = [];
+  const pendingCells = [];
   group.traverse((o) => {
-    if (o !== group && !o.isPoints && (o.isMesh || o.isLineSegments2)) merged.push(o);
+    if (o !== group && !o.isPoints && (o.isMesh || o.isLineSegments2)) pendingCells.push(o);
   });
-  // (fat lines: 30 units around each cell for their width on screen, a
-  // 10 px glow 3 km away)
-  for (const o of merged) culler.add(o, { cell: 250, maxRuns: 3, pad: o.isLineSegments2 ? 30 : 0 });
 
   let detailOn = true;
   const api = {
@@ -1135,6 +1135,16 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
     // (its matrices for this frame), or null without a shadow pass
     updateCells(camera, shadowCamera = null) {
       culler.update(camera, shadowCamera);
+    },
+    // sort up to `n` more objects into cells; returns how many still wait
+    // (fat lines: 30 units around each cell for their width on screen, a
+    // 10 px glow 3 km away)
+    prepareCells(n = Infinity) {
+      for (let k = 0; k < n && pendingCells.length; k++) {
+        const o = pendingCells.shift();
+        culler.add(o, { cell: 250, maxRuns: 3, pad: o.isLineSegments2 ? 30 : 0 });
+      }
+      return pendingCells.length;
     },
     get cellStats() {
       return culler.stats;

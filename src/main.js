@@ -2235,6 +2235,16 @@ async function start() {
     // (the first logStats ran before they existed) so logStats always ends
     // with the full picture, including life, streetscape, people and buses.
     requestAnimationFrame(() => requestAnimationFrame(() => logStats()));
+    // The road layer's cell order (cell-runs.js), one object per idle slot,
+    // inside the governor's warm-up. Before the first full frame it held the
+    // controls back (60 ms desktop, 350 ms at 6x CPU); before `ready` it held
+    // the trees and life back. Until an object is sorted it draws whole.
+    try {
+      while (roadLayer.prepareCells?.(1) > 0) await idle();
+      mark('roadCells');
+    } catch (e) {
+      console.error('[porto] road cells failed', e);
+    }
   }
 
   loader.set(0.95, t('Первый кадр'));
