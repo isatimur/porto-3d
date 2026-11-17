@@ -34,31 +34,50 @@ function morton(ix, iz) {
 }
 
 // n primitives with a centre (x, z) each: their stable order by cell key, and
-// the cells as [start, count] ranges of that order, in curve order
+// the cells as [start, count] ranges of that order, in curve order. A counting
+// sort over the grid's cells (a few hundred): no Map lookup per primitive, it
+// runs once per object while the road layer is built (on the critical path).
 function sortByCell(n, centre, cell) {
-  const key = new Uint32Array(n);
   const cx = new Float64Array(n);
   const cz = new Float64Array(n);
   const c = [0, 0];
   let x0 = Infinity;
   let z0 = Infinity;
+  let x1 = -Infinity;
+  let z1 = -Infinity;
   for (let i = 0; i < n; i++) {
     centre(i, c);
     cx[i] = c[0];
     cz[i] = c[1];
     if (c[0] < x0) x0 = c[0];
+    if (c[0] > x1) x1 = c[0];
     if (c[1] < z0) z0 = c[1];
+    if (c[1] > z1) z1 = c[1];
   }
-  for (let i = 0; i < n; i++) key[i] = morton(Math.floor((cx[i] - x0) / cell), Math.floor((cz[i] - z0) / cell));
-  const keys = [...new Set(key)].sort((a, b) => a - b);
-  const rank = new Map(keys.map((k, i) => [k, i]));
-  const counts = new Uint32Array(keys.length + 1);
-  for (let i = 0; i < n; i++) counts[rank.get(key[i]) + 1]++;
-  for (let k = 0; k < keys.length; k++) counts[k + 1] += counts[k];
+  const nx = Math.floor((x1 - x0) / cell) + 1;
+  const nz = Math.floor((z1 - z0) / cell) + 1;
+  const id = new Uint32Array(n); // the primitive's grid cell
+  const count = new Uint32Array(nx * nz);
+  for (let i = 0; i < n; i++) {
+    const g = Math.floor((cx[i] - x0) / cell) + nx * Math.floor((cz[i] - z0) / cell);
+    id[i] = g;
+    count[g]++;
+  }
+  // the occupied cells along the Morton curve, and where each one starts
+  const used = [];
+  for (let g = 0; g < count.length; g++) if (count[g]) used.push(g);
+  const key = (g) => morton(g % nx, Math.floor(g / nx));
+  used.sort((a, b) => key(a) - key(b));
+  const fill = new Uint32Array(nx * nz);
+  let s = 0;
+  const cells = used.map((g) => {
+    fill[g] = s;
+    const cellRange = { start: s, count: count[g], box: new THREE.Box3() };
+    s += count[g];
+    return cellRange;
+  });
   const order = new Uint32Array(n);
-  const fill = counts.slice(0, keys.length);
-  for (let i = 0; i < n; i++) order[fill[rank.get(key[i])]++] = i;
-  const cells = keys.map((k, i) => ({ start: counts[i], count: counts[i + 1] - counts[i], box: new THREE.Box3() }));
+  for (let i = 0; i < n; i++) order[fill[id[i]]++] = i;
   return { order, cells };
 }
 
@@ -89,10 +108,26 @@ function prepareMesh(mesh, cell) {
   }
   idx.needsUpdate = true;
   for (const c of cells) {
+    let x0 = Infinity;
+    let y0 = Infinity;
+    let z0 = Infinity;
+    let x1 = -Infinity;
+    let y1 = -Infinity;
+    let z1 = -Infinity;
     for (let e = 3 * c.start; e < 3 * (c.start + c.count); e++) {
       const v = a[e] * 3;
-      c.box.expandByPoint(_v.set(p[v], p[v + 1], p[v + 2]));
+      const x = p[v];
+      const y = p[v + 1];
+      const z = p[v + 2];
+      if (x < x0) x0 = x;
+      if (x > x1) x1 = x;
+      if (y < y0) y0 = y;
+      if (y > y1) y1 = y;
+      if (z < z0) z0 = z;
+      if (z > z1) z1 = z;
     }
+    c.box.min.set(x0, y0, z0);
+    c.box.max.set(x1, y1, z1);
     c.start *= 3;
     c.count *= 3;
   }
@@ -119,8 +154,13 @@ function prepareLines(line, cell, pad) {
     if (!attr) return;
     const data = attr.data;
     const s = data.stride;
-    const src = data.array.slice();
-    for (let k = 0; k < n; k++) data.array.set(src.subarray(order[k] * s, order[k] * s + s), k * s);
+    const dst = data.array;
+    const src = dst.slice();
+    for (let k = 0; k < n; k++) {
+      const o = order[k] * s;
+      const d = k * s;
+      for (let j = 0; j < s; j++) dst[d + j] = src[o + j];
+    }
     data.needsUpdate = true;
   };
   permute(start);
@@ -197,8 +237,11 @@ export function cellRuns(object, { cell = 250, maxRuns = 3, gapShare = 0.06, pad
   // small sets are not worth their slots (min: segments or triangles)
   if ((isLine ? g.attributes.instanceStart.count : g.index.count / 3) < min) return null;
   let cells = PREPARED.get(g);
+  let prepMs = 0;
   if (!cells) {
+    const t0 = performance.now();
     cells = isLine ? prepareLines(object, cell, pad) : prepareMesh(object, cell);
+    prepMs = Math.round((performance.now() - t0) * 10) / 10;
     PREPARED.set(g, cells);
   }
   if (cells.length < 2) return null;
@@ -216,7 +259,7 @@ export function cellRuns(object, { cell = 250, maxRuns = 3, gapShare = 0.06, pad
   object.layers.set(HIDDEN_LAYER);
   const vis = new Uint8Array(cells.length);
   const runs = [{ start: 0, end: total }]; // until the first update: everything, as before
-  const stats = { name: object.name, cells: cells.length, runs: 1, drawn: total, total };
+  const stats = { name: object.name, cells: cells.length, runs: 1, drawn: total, total, prepMs };
 
   // the object's own state onto the slots that draw (cheap, every frame)
   function sync() {
