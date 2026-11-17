@@ -49,17 +49,22 @@ function sortByCell(n, centre, cell) {
     centre(i, c);
     cx[i] = c[0];
     cz[i] = c[1];
+    if (!Number.isFinite(c[0]) || !Number.isFinite(c[1])) continue;
     if (c[0] < x0) x0 = c[0];
     if (c[0] > x1) x1 = c[0];
     if (c[1] < z0) z0 = c[1];
     if (c[1] > z1) z1 = c[1];
   }
+  if (!(x1 >= x0 && z1 >= z0)) x0 = x1 = z0 = z1 = 0; // no finite centre at all
   const nx = Math.floor((x1 - x0) / cell) + 1;
   const nz = Math.floor((z1 - z0) / cell) + 1;
   const id = new Uint32Array(n); // the primitive's grid cell
   const count = new Uint32Array(nx * nz);
   for (let i = 0; i < n; i++) {
-    const g = Math.floor((cx[i] - x0) / cell) + nx * Math.floor((cz[i] - z0) / cell);
+    let g = Math.floor((cx[i] - x0) / cell) + nx * Math.floor((cz[i] - z0) / cell);
+    // a primitive with a broken (NaN) centre still gets a cell, the first: it
+    // is kept and counted, never dropped or written twice
+    if (!(g >= 0 && g < count.length)) g = 0;
     id[i] = g;
     count[g]++;
   }

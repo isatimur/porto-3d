@@ -83,6 +83,16 @@ test('mesh: the reorder keeps every triangle', () => {
   assert.equal(new Set(Array.from({ length: a1.length / 3 }, (_, t) => triKey(a1, t))).size, before.size);
 });
 
+test('mesh: a triangle with a broken (NaN) vertex is kept once, not dropped or doubled', () => {
+  const mesh = cityMesh(12000, 1600, 21);
+  const pos = mesh.geometry.attributes.position.array;
+  for (const t of [5, 777, 11999]) pos[t * 9] = NaN; // one vertex x of three triangles
+  const before = Array.from({ length: 12000 }, (_, t) => triKey(mesh.geometry.index.array, t)).sort();
+  createCellCuller().add(mesh, { cell: 250 });
+  const after = Array.from({ length: 12000 }, (_, t) => triKey(mesh.geometry.index.array, t)).sort();
+  assert.deepEqual(after, before);
+});
+
 test('mesh: no triangle in view is left out, for random cameras', () => {
   const R = 1600;
   const mesh = cityMesh(30000, R, 7);
