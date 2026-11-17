@@ -28,6 +28,7 @@ import { S } from './geo.js';
 import { buildNetwork, surfaceOf } from './road-network.js';
 import { bridgeGeometry, portalGeometry, quad as embankmentQuad } from './road-structures.js';
 import { language } from './i18n.js';
+import { createCellCuller } from './cell-runs.js';
 import { calcadaMaterial, calcadaPatternOf, CALCADA, KERB_SIDE } from './calcada.js';
 
 // Order is draw order (later draws on top). metres: fallback width; px: the
@@ -1021,6 +1022,19 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
 
   if (hint) legendToggle((on) => api.setTunnelHint(on));
 
+  // Every mesh and line set here spans the whole city: each draws only the
+  // grid cells in view (cell-runs.js; the shadow camera's too for the
+  // structures, which cast). 1 km cells, at most 3 draws per object; over the
+  // whole city it is one draw each, as before.
+  const culler = createCellCuller();
+  const merged = [];
+  group.traverse((o) => {
+    if (o !== group && !o.isPoints && (o.isMesh || o.isLineSegments2)) merged.push(o);
+  });
+  // (fat lines: 30 units around each cell for their width on screen, a
+  // 10 px glow 3 km away)
+  for (const o of merged) culler.add(o, { cell: 250, maxRuns: 3, pad: o.isLineSegments2 ? 30 : 0 });
+
   let detailOn = true;
   const api = {
     group,
@@ -1116,6 +1130,14 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
     setTunnelHint(on) {
       hintOn = !!on;
       if (hint) hint.visible = hintOn;
+    },
+    // once a frame before the render: the view and the sun's shadow camera
+    // (its matrices for this frame), or null without a shadow pass
+    updateCells(camera, shadowCamera = null) {
+      culler.update(camera, shadowCamera);
+    },
+    get cellStats() {
+      return culler.stats;
     },
   };
   return api;

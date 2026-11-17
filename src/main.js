@@ -207,6 +207,20 @@ async function start() {
     if (cityRef && (LITE_SCENE || geoTick++ % 10 === 0)) cityRef.group.userData.updateLod?.(camera.position, camera.userData.focus || home.target);
     debug.geoLod = geoState;
   }
+  // The road layer's city-wide meshes draw only their cells in view
+  // (cell-runs.js): right before each render, with this frame's camera and
+  // shadow camera (three.js would update both inside render, too late here).
+  function cullCells() {
+    if (!roadsRef?.updateCells) return;
+    camera.updateMatrixWorld();
+    const sun = atmosphere.sun;
+    let shadowCam = null;
+    if (sun?.castShadow && renderer.shadowMap.enabled) {
+      sun.shadow.updateMatrices(sun);
+      shadowCam = sun.shadow.camera;
+    }
+    roadsRef.updateCells(camera, shadowCam);
+  }
   scene.add(ground);
   // light mode: only the landmarks cast shadows; the hill-shadow proxy goes
   const groundShadow = ground.getObjectByName('ground-shadow');
@@ -453,6 +467,8 @@ async function start() {
   scene.add(roadLayer.group);
   fadeIn((k) => roadLayer.setReveal(k), 1200);
   debug.roadSegments = roadLayer.counts;
+  debug.roadCells = () => roadLayer.cellStats; // per object: cells, runs, drawn of total
+
 
   roadsRef = roadLayer;
   Object.assign(roadHolder, { lines: roadLayer.lines, glows: roadLayer.glows });
@@ -695,6 +711,7 @@ async function start() {
         pins.setMatrixAt(i, _m);
       }
       pins.instanceMatrix.needsUpdate = true;
+      cullCells();
       renderer.render(scene, camera);
       debug.calls = renderer.info.render.calls;
       debug.triangles = renderer.info.render.triangles;
@@ -1948,6 +1965,7 @@ async function start() {
         m.castShadow = m.userData.liteCast && camDist < 4000 && m.position.distanceToSquared(camera.position) < 1200 * 1200;
       }
     }
+    cullCells();
     if (fx.enabled) {
       fx.update(rawDt, atmosphere.sunDir, night);
       fx.render();
@@ -2232,7 +2250,7 @@ async function start() {
 
   Object.assign(debug, { select, close, openRoute, exitRoute, startTour, stopTour, ui, panorama, routes, rig, landmarksRealScale: marks.realScale, shrink: marks.shrink, lodStats: () => marks.lodStats, landmarkDraw: () => marks.drawnStats, landmarkModels: () => ({ ...marks.models, client: modelClient?.stats ?? null }), marks });
   Object.defineProperty(debug, 'touring', { get: () => !!tour });
-  installShare({ renderer, scene, camera, fx, setFx, atmosphere, roadLayer, routeLayer, marks, landmarks, routes, ui, getSize: () => size });
+  installShare({ renderer, scene, camera, fx, setFx, atmosphere, roadLayer, routeLayer, marks, landmarks, routes, ui, getSize: () => size, beforeRender: cullCells });
   // the talking guide (guide.js, api/guide.js) is parked until later; ?guide=1 turns it on for testing
   if (new URLSearchParams(location.search).get('guide') === '1') {
     createGuide({ landmarks, select, getActive: () => active, project, rig, reducedMotion, debug });

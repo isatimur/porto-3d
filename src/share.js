@@ -281,7 +281,8 @@ function download(blob, name) {
 // ------------------------------------------------------------ install
 // ctx: the running scene. getSize returns main.js' current { w, h, dpr }.
 export function installShare(ctx) {
-  const { renderer, scene, camera, fx, setFx, atmosphere, roadLayer, routeLayer, marks, landmarks, routes, getSize, ui } = ctx;
+  // beforeRender: main.js's per-frame culling (cell-runs.js), for the postcard's own aspect
+  const { renderer, scene, camera, fx, setFx, atmosphere, roadLayer, routeLayer, marks, landmarks, routes, getSize, ui, beforeRender } = ctx;
   const debug = (window.__porto = window.__porto || {});
   const placeIds = new Set(landmarks.map((l) => l.id));
   const toast = (msg, ms) => ui?.toast?.(msg, ms);
@@ -329,6 +330,7 @@ export function installShare(ctx) {
       camera.updateProjectionMatrix();
     };
     const draw = () => {
+      beforeRender?.();
       if (fx.enabled) {
         fx.update(0, atmosphere.sunDir, atmosphere.night);
         fx.render();
