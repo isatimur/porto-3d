@@ -18,6 +18,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { S } from './geo.js';
+import { setRingBounds } from './bounds.js';
 import { buildNetwork } from './road-network.js';
 import { createCrowd, crowdVariety, pedestrianDemand, DEMAND_MAX } from './people.js';
 
@@ -1160,7 +1161,8 @@ export function buildPortoStreetLife(ctx) {
     const cap = Math.min(total, CAP[type][lite ? 1 : 0]);
     const mesh = new THREE.InstancedMesh(geo, pieceMaterial(uniforms, type), cap);
     mesh.name = `porto-${type}`;
-    mesh.frustumCulled = false;
+    // bounds of the ring it holds (fillLayer, setRingBounds); empty until then
+    mesh.boundingSphere = new THREE.Sphere(new THREE.Vector3(), -1);
     mesh.count = 0;
     mesh.visible = false;
     mesh.castShadow = !lite && type !== 'bollard' && type !== 'plaque' && type !== 'walllamp';
@@ -1188,6 +1190,9 @@ export function buildPortoStreetLife(ctx) {
     const E = mesh.instanceMatrix.array;
     let k = 0;
     const R2 = R * R;
+    let ylo = Infinity;
+    let yhi = -Infinity;
+    let smax = 0;
     for (let gx = Math.floor((fx0 - R) / 16); gx <= Math.floor((fx0 + R) / 16) && k < cap; gx++) {
       for (let gz = Math.floor((fz0 - R) / 16); gz <= Math.floor((fz0 + R) / 16) && k < cap; gz++) {
         const c = grid.get(gx * 65536 + gz);
@@ -1200,6 +1205,9 @@ export function buildPortoStreetLife(ctx) {
           if ((x - fx0) ** 2 + (z - fz0) ** 2 > R2) continue;
           const yaw = arr[o + 3];
           const sc = arr[o + 4];
+          if (arr[o + 1] < ylo) ylo = arr[o + 1];
+          if (arr[o + 1] > yhi) yhi = arr[o + 1];
+          if (sc > smax) smax = sc;
           const cs = Math.cos(yaw) * sc;
           const sn = Math.sin(yaw) * sc;
           const e = k * 16;
@@ -1225,6 +1233,7 @@ export function buildPortoStreetLife(ctx) {
     mesh.count = k;
     mesh.visible = k > 0;
     if (k) {
+      setRingBounds(mesh, fx0, fz0, R, ylo, yhi, smax); // culled when the whole ring is out of view
       mesh.instanceMatrix.clearUpdateRanges();
       mesh.instanceMatrix.addUpdateRange(0, k * 16);
       mesh.instanceMatrix.needsUpdate = true;

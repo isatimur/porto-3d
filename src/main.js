@@ -97,6 +97,16 @@ async function start() {
   loader.set(0.08, t('Загружаем данные'));
 
   mark('start');
+  // the history routes (quest.js, data/quest.json): a lazy chunk, made on
+  // the first #quest or menu click; Porto's data only. A #quest deep link
+  // fetches the chunk and the route data now, beside the map's data, and
+  // opens the route's card as soon as the landmarks exist (below): the card
+  // is HTML over the canvas and does not wait for the city to be built.
+  let quest = null;
+  let questLoad = null;
+  const hasQuest = CITY.id === 'porto';
+  const questChunk = hasQuest && /(^|[#&])quest(=|&|$)/.test(location.hash) ? import('./quest.js') : null;
+  questChunk?.then((m) => m.preloadQuest()).catch(() => {}); // a failure shows when the route opens
   // the lite scene's builders (a separate chunk: the full scene never loads it)
   const lite = LITE_SCENE ? await import('./lite/index.js') : null;
   // the bridges' builder chunk: its fit rules hold functions the terrain needs
@@ -196,6 +206,20 @@ async function start() {
     // from the first frame, not only once the streamed tiles exist
     if (cityRef && (LITE_SCENE || geoTick++ % 10 === 0)) cityRef.group.userData.updateLod?.(camera.position, camera.userData.focus || home.target);
     debug.geoLod = geoState;
+  }
+  // The road layer's city-wide meshes draw only their cells in view
+  // (cell-runs.js): right before each render, with this frame's camera and
+  // shadow camera (three.js would update both inside render, too late here).
+  function cullCells() {
+    if (!roadsRef?.updateCells) return;
+    camera.updateMatrixWorld();
+    const sun = atmosphere.sun;
+    let shadowCam = null;
+    if (sun?.castShadow && renderer.shadowMap.enabled) {
+      sun.shadow.updateMatrices(sun);
+      shadowCam = sun.shadow.camera;
+    }
+    roadsRef.updateCells(camera, shadowCam);
   }
   scene.add(ground);
   // light mode: only the landmarks cast shadows; the hill-shadow proxy goes
@@ -406,6 +430,33 @@ async function start() {
 
   mark('landmarks');
 
+  // #quest deep link: the route's card opens now, over the boot view. Its
+  // camera flights, the UI hooks and the skyline come with attach() once the
+  // city is built (ensureQuest below); until then the card reads and answers.
+  // If the chunk is late, the usual path (applyHash) opens the route instead.
+  let questEarly = !!questChunk;
+  questChunk
+    ?.then(({ createQuest }) => {
+      if (quest || !questEarly) return;
+      const id = new URLSearchParams(location.hash.replace(/^#/, '')).get('quest');
+      quest = createQuest({
+        camera,
+        items: marks.items,
+        home,
+        reducedMotion,
+        city: CITY.id || 'porto',
+        atmosphere,
+        getLife: () => null,
+        setTime: (name) => atmosphere.setTime(name, { animate: !reducedMotion }),
+        onExit: () => history.replaceState(null, '', location.pathname + location.search),
+        onError: (e) => console.warn('[porto] the history route could not open early', e),
+      });
+      debug.quest = quest;
+      mark('questEarly');
+      return quest.start(() => questEarly, id).then(() => quest.active && mark('questOpen'));
+    })
+    .catch(() => {});
+
   loader.set(0.66, t('Прокладываем улицы'));
   roads = await loaded.roadsReady;
   mark('roadsData');
@@ -416,6 +467,8 @@ async function start() {
   scene.add(roadLayer.group);
   fadeIn((k) => roadLayer.setReveal(k), 1200);
   debug.roadSegments = roadLayer.counts;
+  debug.roadCells = () => roadLayer.cellStats; // per object: cells, runs, drawn of total
+
 
   roadsRef = roadLayer;
   Object.assign(roadHolder, { lines: roadLayer.lines, glows: roadLayer.glows });
@@ -658,6 +711,7 @@ async function start() {
         pins.setMatrixAt(i, _m);
       }
       pins.instanceMatrix.needsUpdate = true;
+      cullCells();
       renderer.render(scene, camera);
       debug.calls = renderer.info.render.calls;
       debug.triangles = renderer.info.render.triangles;
@@ -878,11 +932,7 @@ async function start() {
   let tour = null; // fly-along driver while it plays
   let cinema = null; // cinema and story modes, created further down
   let story = null;
-  // the history routes (quest.js, data/quest.json): a lazy chunk, made on
-  // the first #quest or menu click; Porto's data only
-  let quest = null;
-  let questLoad = null;
-  const hasQuest = CITY.id === 'porto';
+  // (quest, questLoad, hasQuest: at the top of start())
   // startMode() numbers each request; a route whose chunk or data arrives
   // after a newer request (or after Esc, cancelQuestLoad) does not start
   let modeRequest = 0;
@@ -998,7 +1048,10 @@ async function start() {
   function applyHash() {
     const q = new URLSearchParams(location.hash.replace(/^#/, ''));
     const tm = q.get('time');
-    if (tm && TIMES.includes(tm) && tm !== atmosphere.time) setTime(tm, { writeHash: false });
+    // (while a history route shows daylight, the hash carries the visitor's
+    // held light: that one is not a new choice)
+    const heldTime = quest?.heldLight?.time;
+    if (tm && TIMES.includes(tm) && tm !== atmosphere.time && tm !== heldTime) setTime(tm, { writeHash: false });
     // #cinema, #story and #quest open the guided modes
     if (q.has('cinema')) return void (cinema.active || startMode('cinema'));
     if (q.has('story')) return void (story.active || startMode('story'));
@@ -1053,7 +1106,13 @@ async function start() {
       saved = null;
     }
     const fromHash = new URLSearchParams(location.hash.replace(/^#/, '')).get('time');
-    setTime(fromHash || saved || START_TIME, { animate: false, writeHash: false, persist: false });
+    const initial = fromHash || saved || START_TIME;
+    if (quest?.heldLight) {
+      // an early history route already shows daylight: the visitor's own
+      // light waits behind it and comes back on exit
+      for (const b of timeButtons) b.setAttribute('aria-pressed', String(b.dataset.time === (TIMES.includes(initial) ? initial : START_TIME)));
+      quest.holdTime(TIMES.includes(initial) ? initial : START_TIME);
+    } else setTime(initial, { animate: false, writeHash: false, persist: false });
   }
   debug.setTime = setTime;
 
@@ -1320,30 +1379,31 @@ async function start() {
   });
   // History routes: a few landmarks each, one question per stop (quest.js,
   // data/quest.json). The chunk and the data load on the first use.
+  const questCtx = () => ({
+    ...modeCtx,
+    city: CITY.id || 'porto',
+    atmosphere,
+    getLife: () => life,
+    // the route puts the visitor's light back itself (live mode too);
+    // nothing is saved, so the city's default time stays a default
+    onExit: () => setHash(currentHash()),
+    onFocus: storyLabels,
+    onEnter: () => {
+      ui.callout.hide();
+      if (active >= 0) close();
+    },
+    onPlace: (i) => select(i),
+    onRoute: () => setHash(currentHash()),
+    onError: () => {
+      ui.toast(t('Не удалось загрузить маршрут'), 4000);
+      setHash(currentHash());
+    },
+  });
   function ensureQuest() {
     if (quest) return Promise.resolve(quest);
-    questLoad ??= import('./quest.js')
+    questLoad ??= (questChunk || import('./quest.js'))
       .then(({ createQuest }) => {
-        quest = createQuest({
-          ...modeCtx,
-          city: CITY.id || 'porto',
-          atmosphere,
-          getLife: () => life,
-          // the route puts the visitor's light back itself (live mode too);
-          // nothing is saved, so the city's default time stays a default
-          onExit: () => setHash(currentHash()),
-          onFocus: storyLabels,
-          onEnter: () => {
-            ui.callout.hide();
-            if (active >= 0) close();
-          },
-          onPlace: (i) => select(i),
-          onRoute: () => setHash(currentHash()),
-          onError: () => {
-            ui.toast(t('Не удалось загрузить маршрут'), 4000);
-            setHash(currentHash());
-          },
-        });
+        quest ??= createQuest(questCtx());
         debug.quest = quest;
         return quest;
       })
@@ -1361,6 +1421,10 @@ async function start() {
     setHash(currentHash());
     return true;
   }
+  // an early route (#quest deep link) gets the camera, the skyline and the
+  // UI hooks now; a chunk that comes after this point takes the usual path
+  questEarly = false;
+  quest?.attach(questCtx());
   if (hasQuest) {
     const questBtn = document.createElement('button');
     questBtn.type = 'button';
@@ -1901,6 +1965,7 @@ async function start() {
         m.castShadow = m.userData.liteCast && camDist < 4000 && m.position.distanceToSquared(camera.position) < 1200 * 1200;
       }
     }
+    cullCells();
     if (fx.enabled) {
       fx.update(rawDt, atmosphere.sunDir, night);
       fx.render();
@@ -2170,6 +2235,16 @@ async function start() {
     // (the first logStats ran before they existed) so logStats always ends
     // with the full picture, including life, streetscape, people and buses.
     requestAnimationFrame(() => requestAnimationFrame(() => logStats()));
+    // The road layer's cell order (cell-runs.js), one object per idle slot,
+    // inside the governor's warm-up. Before the first full frame it held the
+    // controls back (60 ms desktop, 350 ms at 6x CPU); before `ready` it held
+    // the trees and life back. Until an object is sorted it draws whole.
+    try {
+      while (roadLayer.prepareCells?.(1) > 0) await idle();
+      mark('roadCells');
+    } catch (e) {
+      console.error('[porto] road cells failed', e);
+    }
   }
 
   loader.set(0.95, t('Первый кадр'));
@@ -2185,7 +2260,7 @@ async function start() {
 
   Object.assign(debug, { select, close, openRoute, exitRoute, startTour, stopTour, ui, panorama, routes, rig, landmarksRealScale: marks.realScale, shrink: marks.shrink, lodStats: () => marks.lodStats, landmarkDraw: () => marks.drawnStats, landmarkModels: () => ({ ...marks.models, client: modelClient?.stats ?? null }), marks });
   Object.defineProperty(debug, 'touring', { get: () => !!tour });
-  installShare({ renderer, scene, camera, fx, setFx, atmosphere, roadLayer, routeLayer, marks, landmarks, routes, ui, getSize: () => size });
+  installShare({ renderer, scene, camera, fx, setFx, atmosphere, roadLayer, routeLayer, marks, landmarks, routes, ui, getSize: () => size, beforeRender: cullCells });
   // the talking guide (guide.js, api/guide.js) is parked until later; ?guide=1 turns it on for testing
   if (new URLSearchParams(location.search).get('guide') === '1') {
     createGuide({ landmarks, select, getActive: () => active, project, rig, reducedMotion, debug });

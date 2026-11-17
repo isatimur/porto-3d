@@ -628,6 +628,28 @@
         "light: a night+rain visit shows day+clear during the route, night+rain after Esc; only porto-quests-porto changes in localStorage; a live=1 visit returns to live mode"
       ],
       "notes": "caves-gaia was left out: its sources are two Wikipedia pages and two port houses' sites. Not checked on a physical phone or with a screen reader."
+    },
+    {
+      "id": "porto-027",
+      "priority": 33,
+      "area": "performance",
+      "title": "Perf round 3: draw only what is in view; the route card before the city",
+      "user_visible_behavior": "The road layer draws only its 1 km cells in the view (and in the sun's shadow view for the structures); the tram rails, street furniture and near trees are culled with honest bounds. A #quest deep link shows the route card as soon as the landmarks exist; the camera flies to the route once the city is built. The picture is unchanged.",
+      "status": "passing",
+      "verification": [
+        "node --test scripts/*.test.mjs (cell-runs.test.mjs: no primitive in the view or the shadow camera dropped, for random cameras)",
+        "npm run verify",
+        "/tmp/porto-perf/measure.mjs views and startup, main against the branch, interleaved (perf/BASELINE.md 'Results: main against the branch')",
+        "/tmp/porto-perf/border.mjs --still: culled against whole roads at 32 street-level poses, desktop and phone size"
+      ],
+      "evidence": [
+        "route card on #quest=from-the-tower-to-the-river: 4.57 -> 1.28 s desktop-gpu, 30.7 -> 16.9 s phone-low (Metal, cold cache, local server)",
+        "main-pass primitives: Ribeira street level 2.72 -> 1.91 M desktop, 2.07 -> 1.01 M phone-low; sea view 1.50 -> 0.21 M, 1.43 -> 0.15 M; route stop 2.12 -> 0.92 M, 1.91 -> 0.71 M",
+        "phone-low p50 (6x CPU, uncapped): every view faster, 0.2 to 0.6 ms close up, 6.2 -> 4.0 ms in the sea view; desktop p50 unchanged (pixel-bound)",
+        "first frame, interactive and ready equal to main within run-to-run spread; JS heap and GL allocation unchanged",
+        "64 of 64 culled/whole pairs pixel-identical; main/branch screenshot pairs of seven views read the same"
+      ],
+      "notes": "Measured on one Apple M1 Max; phones are CPU-throttled emulations with the Apple GPU. Options left with their cost are in perf/BASELINE.md."
     }
   ]
 }

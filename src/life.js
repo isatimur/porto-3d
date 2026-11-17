@@ -500,7 +500,7 @@ function buildRails(lines, cfg, solidAt) {
   rails.name = 'tram-rails';
   rails.castShadow = false;
   rails.receiveShadow = true;
-  rails.frustumCulled = false;
+  rails.frustumCulled = false; // until the bounds below are made
   const m = new THREE.Matrix4();
   const q = new THREE.Quaternion();
   const e = new THREE.Euler(0, 0, 0, 'YXZ');
@@ -560,6 +560,11 @@ function buildRails(lines, cfg, solidAt) {
   rails.userData.setNear = (near) => {
     rails.count = near ? total : railCount;
   };
+  // static: the bounds of every piece (catenary included) hold for both
+  // counts, so three.js may cull the whole set when it is out of view (it was
+  // drawn behind the camera: 53 to 67 k triangles)
+  rails.computeBoundingSphere();
+  rails.frustumCulled = true;
   return rails;
 }
 const CATENARY_WHITE = new THREE.Color(1, 1, 1);

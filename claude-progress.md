@@ -11,6 +11,7 @@ updates it automatically.
 - Repository root: `~/Dev/porto-3d`
 - Standard startup path: `./init.sh`
 - Standard verification path: `npm run verify`
+- Verified 2026-11-17 (branch perf/visible-only, perf round 3): `npm run verify` 16 passed, 0 skipped (PLAYWRIGHT_CORE set); `node --test scripts/*.test.mjs` 32/32.
 - Verified 2026-11-17 (branch feat/history-routes): `npm run verify` OK, 16 passed, 0 skipped (with PLAYWRIGHT_CORE set; the new step is «route pages»). `node --test scripts/*.test.mjs` 27/27.
 - Verified 2026-10-05: `npm run verify` is GREEN, 11 checks: build, data contract, geo, dimensions, 1:1 fit, traffic, models, smoke life, smoke trams, smoke rail, smoke console. 0 skipped on a machine with Chromium.
   - Geo has 3 known warnings (palacio-cristal centroid 847 m off; buildings 8.64 MB over the 8 MB baseline, within the 12 MB porto ceiling; 147 building centroids inside a landmark outline).
@@ -22,6 +23,17 @@ updates it automatically.
 - Live: https://porto-3d.vercel.app (Vercel project `porto-3d`); git remote `isatimur/porto-3d`.
 
 ## Session Log
+
+### 2026-11-17 — perf round 3: draw only what is in view (branch perf/visible-only, feature porto-027)
+
+- Goal (the owner): do not draw the whole map, only the visible part; load and unload objects and effects. Symptom: a `#quest` deep link took 22.7 s on the live site before the route card showed.
+- Inherited from the first session of this branch and checked: `4476621` (the route card opens with the landmarks; attach() hands it the camera once the city exists), `f1c589f` (roads draw only their 1 km cells in view, `src/cell-runs.js`), `7e90a91` (honest bounds for the tram rails, the street furniture rings and the near tree species; an empty species is hidden). The tree item of the ranked list was already in `7e90a91`.
+- Added: `2cbd81b` counting sort for the cells (3x faster, same order) and `scripts/cell-runs.test.mjs` (no primitive in the view or the shadow camera is dropped, for random cameras); `580d308` the cell sort runs after `ready`, one road object per idle slot, so the first full frame and `ready` are main's again.
+- Numbers (Metal, main against the branch, interleaved): `perf/BASELINE.md` "Results: main against the branch". Route card 4.57 -> 1.28 s desktop, 30.7 -> 16.9 s phone-low; close-up main-pass primitives -29 to -63 %, sea view -86 to -90 %; phone-low p50 -0.2 to -2.2 ms in every view; desktop p50 unchanged (pixel-bound).
+- Look: main and branch screenshots of seven views on two profiles read the same; culled against whole roads at 32 street-level poses per size: pixel-identical.
+- Checks: `node --test scripts/*.test.mjs` 32/32; `npm run verify` 16/16 (perf soft gate: the same misses on main and branch, desktop p95 33.3 and transfer 2584/2604 KB over 2500); deep link desktop and phone, lite scene, pick, story, cinema, quest menu: `/tmp/porto-perf/qcheck.mjs`, `smoke.mjs`.
+- Left, with measured cost: `perf/BASELINE.md` (static matrices about 1 ms a frame at 6x CPU, life 0.2 to 0.4 ms, tram rails 53 to 67 k triangles, shadow refresh, phone sheet pixels, far GPU tiles, fonts 293 KB).
+- Not checked: real phones, other GPUs, Safari or Firefox; the live site.
 
 ### 2026-11-17 — history routes (#quest), ported from braga-3d (feature porto-026)
 
