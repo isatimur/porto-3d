@@ -11,6 +11,7 @@ import paco from '../porto/paco-episcopal.js';
 import aliados from '../porto/aliados.js';
 import pracaBatalha from '../porto/praca-batalha.js';
 import casaInfante from '../porto/casa-do-infante.js';
+import mindera from '../porto/mindera.js';
 
 export default {
   ...bolsa,
@@ -25,4 +26,5 @@ export default {
   ...aliados,
   ...pracaBatalha,
   ...casaInfante,
+  ...mindera,
 };

@@ -25,6 +25,18 @@ updates it automatically.
 
 ## Session Log
 
+### 2026-11-20 — new place: Mindera's Porto office (branch feat/mindera, feature porto-030)
+
+- Goal (owner request): Mindera's Porto office on the map, with its own model.
+- Where: Centro Empresarial Mapfre, Rua de Gonçalo Cristóvão 347 (mindera.com/locations: "R. de Gonçalo Cristóvão 347 s404"; mindera.com/portugal: "next to Trindade, in the Mapfre building"). OSM way 285901827 carries the name and the address.
+- Model `src/models/porto/mindera.js` (group civic, 6,068 triangles) on the OSM outline, 43.6 x 65.1 m in the frame of the north street front: stone frame with three glazed bays, stone block with the owner's emblem, blue glass block of three storeys, the south wing with a roof terrace. Look taken from the owner's photos (edificiosmapfre.com, seen 2026-11-20; none of them is shipped).
+- Estimates, stated in `data/dimensions.json` (confidence low) and in the place text: height 30 m (no published figure, no OSM tag; storeys counted on one photo); the south wing's height (18.5 m) and walls are an assumption, it cannot be seen in the street photo. No Mindera sign is drawn: the photo shows none.
+- Content: `data/new/mindera.{landmark,en,pt,osm}.json`, merged with `scripts/merge-content.mjs`; `no_free_photos: true` (Commons has no photo of the building within 150 m). `year` is 2014, the year Mindera opened in Porto, not the year of the building (unknown).
+- UI: a place with no photo had an empty picture box in the card and in the details panel, and on a phone the card fell into the 112 px photo column. `ui.js` now sets `.is-none` on both figures and `style.css` drops the box; a photo that fails to load keeps the old `.is-missing` look.
+- Share page `public/p/mindera/`, sitemap (71 places). `public/og/mindera.jpg` was rendered by hand at 1200x630 on the full scene: `make-og.mjs --og` runs SwiftShader, gets the lite scene and draws a massing box.
+- Checks: `npm run verify` OK, 17 passed (fit 100 % on the three axes, deviation main 1.2 %); unit tests 67/67; screenshots of the card (desktop en, phone pt), the details panel (ru) and the model from north, west and south.
+- Not done: historian or native PT review of the texts; a real photo (the owner may have one of their own); the height is unverified.
+
 ### 2026-11-20 — Layers panel and loading pill (branch feat/layers, feature porto-029)
 
 - Goal: the Layers panel and status pill of braga-3d in Porto, the last map without them. Source: the arouca-3d port (dda1978), since Arouca descends from Porto; its patch applied to `tiles.js`, `style.css` and most of `buildings-ms.js`, `life.js` and `main.js`, and the rejected hunks were fitted by hand.

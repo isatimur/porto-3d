@@ -240,6 +240,8 @@ export function createUI(landmarks, routes, h) {
     fig.classList.add('is-loading');
     img.onload = () => fig.classList.remove('is-loading');
     img.alt = l.name;
+    // a place with no free photo (no_free_photos): no picture box at all
+    fig.classList.toggle('is-none', !l.image);
     if (l.image) img.src = assetUrl(l.image);
     else fig.classList.add('is-missing');
     $('#detail-short').textContent = l.short || '';
@@ -811,6 +813,8 @@ export function createCallout({ onMore, onClose, onPano }) {
     shown = l;
     if (!same) {
       fig.classList.remove('is-missing');
+      // a place with no free photo (no_free_photos): no picture box at all
+      fig.classList.toggle('is-none', !l.image);
       if (l.image) img.src = assetUrl(l.image);
       else {
         img.removeAttribute('src');

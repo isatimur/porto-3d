@@ -560,6 +560,12 @@
       "name_pt": "Paço Episcopal do Porto",
       "category": "civic",
       "why": "Nasoni's Episcopal palace beside the Sé"
+    },
+    {
+      "id": "mindera",
+      "name_pt": "Mindera (Centro Empresarial Mapfre)",
+      "category": "civic",
+      "why": "Mindera's Porto office, in the Mapfre building beside Trindade (owner request, 2026-11-20)"
     }
   ],
   "notes": "The Douro with six real bridges; the ocean at Foz. Single-city fork: data_dir is flat data/. Data pipeline complete (see README)."

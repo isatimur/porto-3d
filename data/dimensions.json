@@ -3215,5 +3215,62 @@
       }
     ],
     "confidence": "medium"
+  },
+  "mindera": {
+    "footprint_m": {
+      "length": 66.4,
+      "width": 38.7,
+      "matches_osm": true,
+      "note": "OSM way 285901827 \"Centro Empresarial Mapfre\", Rua de Gonçalo Cristóvão 347: 66.4 x 38.7 m minimum rectangle at bearing 14.5 deg; 43.6 x 65.1 m in the frame of the street front."
+    },
+    "height_m": {
+      "total": 30,
+      "stone_frame": 21.4,
+      "stone_block": 26.3,
+      "south_wing": 18.5
+    },
+    "elements": {
+      "storeys_under_frame": 5,
+      "storeys_glass_block": 3,
+      "front_bays": 3
+    },
+    "facade_faces": "N",
+    "facade_azimuth_deg": 360,
+    "facade_axis_rel": "the street front faces north to Rua de Gonçalo Cristóvão",
+    "facade_note": "Grey stone frame of four piers with three glazed bays, a stone block with the owner's emblem on the west end, a blue glass block above (owner's street photo, edificiosmapfre.com). The OSM address node 347 and Mindera's own map pin lie on the north edge.",
+    "sources": [
+      {
+        "paths": [
+          "footprint_m.length",
+          "footprint_m.width"
+        ],
+        "source": "estimate",
+        "fact": "OSM footprint box",
+        "reasoning": "Minimum-area rectangle of the OSM outline (way 285901827, \"Centro Empresarial Mapfre\", addr:housenumber 347): 66.4 x 38.7 m at bearing 14.5 deg."
+      },
+      {
+        "paths": [
+          "facade_azimuth_deg"
+        ],
+        "source": "estimate",
+        "fact": "street front faces north",
+        "reasoning": "The north edge of the outline lies on Rua de Gonçalo Cristóvão; OSM node 13529574197 (house 347) and the coordinates on mindera.com/locations (41.15343, -8.61131) sit on that edge."
+      },
+      {
+        "paths": [
+          "height_m.total",
+          "height_m.stone_frame",
+          "height_m.stone_block",
+          "height_m.south_wing",
+          "elements.storeys_under_frame",
+          "elements.storeys_glass_block",
+          "elements.front_bays"
+        ],
+        "source": "estimate",
+        "fact": "heights and storeys read from one photo",
+        "reasoning": "No published height and no OSM height or levels tag. The owner's street photo (edificiosmapfre.com, seen 2026-11-20) shows three glazed bays, five storeys under the stone lintel and three in the blue glass block: eight storeys at about 3.6 m, about 30 m. The lintel and the stone block are scaled from the same photo. The south wing is not in that photo: 18.5 m is an assumption (five storeys)."
+      }
+    ],
+    "confidence": "low"
   }
 }

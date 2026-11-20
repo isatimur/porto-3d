@@ -686,6 +686,8 @@ body.is-quest .layers, body.is-story .layers, body.is-cinema .layers { display: 
 .detail-missing { display: none; position: absolute; inset: 0; place-items: center; color: var(--text-3); font: italic 500 18px var(--serif); }
 .detail-figure.is-missing img { display: none; }
 .detail-figure.is-missing .detail-missing { display: grid; }
+/* a place with no free photo: no picture box (a failed load keeps the note above) */
+.detail-figure.is-none { display: none; }
 .detail-close {
   position: absolute;
   top: 10px;
@@ -1618,6 +1620,11 @@ body.is-intro .fly-keys, body.is-cinema .fly-keys, body.is-story .fly-keys, .is-
 .callout-figure { position: relative; height: 172px; margin: 0; overflow: hidden; background: linear-gradient(160deg, #cfd8e8, #e6ebf3); border-radius: 2px 2px 0 0; }
 .callout-figure img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; }
 .callout-figure.is-missing img { display: none; }
+/* a place with no free photo (no_free_photos; ui.js sets .is-none): no empty
+   picture box; the title keeps clear of the close button */
+.callout-figure.is-none { display: none; }
+.callout-figure.is-none + .callout-body { border-radius: 2px; }
+.callout-figure.is-none + .callout-body :is(.callout-meta, .callout-title) { padding-right: 38px; }
 .callout-body { padding: 13px 15px 15px; color: var(--ink-c); background: var(--por); border-radius: 0 0 2px 2px; }
 .callout-meta { margin: 0 0 4px; font: 600 12px/1.3 var(--sans); color: var(--cob); }
 .callout-title { margin: 0; font: 800 21px/1.1 var(--sans); font-stretch: var(--wide); color: var(--cob-d); letter-spacing: -0.005em; overflow-wrap: anywhere; hyphens: auto; }
@@ -1688,6 +1695,8 @@ body.is-cinema .callout, body.is-story .callout { display: none; }
   .callout-acts { margin-top: auto; padding-top: 10px; gap: 6px; }
   .btn-primary, .btn-ghost { height: 36px; padding: 0 10px; font-size: 12.5px; }
   .callout-close { top: 12px; right: 12px; width: 28px; height: 28px; }
+  /* no photo: the body takes both columns */
+  .callout-figure.is-none + .callout-body { grid-column: 1 / -1; border-radius: 2px; }
   .side { transition: transform 0.28s cubic-bezier(0.2, 0.7, 0.1, 1), opacity 0.7s ease; }
   body.is-callout .side { transform: translateY(105%); }
   body.is-callout .instruments { bottom: 186px; }
