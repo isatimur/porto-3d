@@ -748,6 +748,11 @@ const PORTO_CFG = {
     // outer way is used directly so the footprint always closes.
     main: 'w210507256', name: /.*/, site: { buffer: 0 }, cats: [], model: 'palace',
   },
+  // Mindera's Porto office: the Centro Empresarial Mapfre, Rua de Gonçalo Cristóvão 347
+  // (mindera.com/locations; OSM way 285901827 carries the address and the name).
+  mindera: {
+    main: 'w285901827', name: /Mapfre/, site: { buffer: 0 }, cats: [], model: 'concert-hall',
+  },
   // <<< ROSTER-EXPANSION
 };
 const OVERRIDES_BY_CITY = { braga: BRAGA_CFG, guimaraes: GUIMARAES_CFG, porto: PORTO_CFG };

@@ -37,7 +37,7 @@ export const landmarks = {
     "year": "1906",
     "short": "Livraria neogótica inaugurada a 13 de janeiro de 1906, com a escadaria vermelha bifurcada e um vitral com a divisa «Decus in Labore».",
     "long": "A Livraria Lello fica no número 144 da Rua das Carmelitas, a poucos passos da Torre dos Clérigos. O edifício neogótico foi projetado pelo engenheiro Francisco Xavier Esteves, e a inauguração, a 13 de janeiro de 1906, causou grande impacto no meio cultural portuense. A escadaria vermelha que se bifurca em dois lanços e o vitral do holandês Van Krieken tornaram-na uma das livrarias mais fotografadas do mundo. A lenda local ligava a escadaria a Harry Potter, mas em 2020 J. K. Rowling negou-o.",
-    "history": "A firma nasceu em 1869, quando o francês Ernesto Chardron abriu a «Livraria Internacional de Ernesto Chardron» na Rua dos Clérigos, 96–98. Foi o primeiro a publicar grande parte da obra de Camilo Castelo Branco e outros nomes maiores da época. Após a sua morte, aos 45 anos, a casa passou para a firma «Lugan & Genelioux» e depois para Mathieux Lugan; em 1891 a Chardron adquiriu os fundos de três livrarias do Porto.\n\nEm 1881 José Pinto de Sousa Lello abriu um estabelecimento na Rua do Almada, 18–20. A 30 de junho de 1894 Mathieux Lugan vendeu-lhe a antiga Livraria Chardron, e José, associado ao irmão António Lello, manteve-a com a razão social «Sociedade José Pinto Sousa Lello & Irmão». Em 1898 entrou na sociedade o fundo da Livraria Lemos.\n\nO novo edifício, com projeto do engenheiro Francisco Xavier Esteves, foi inaugurado a 13 de janeiro de 1906 no número 144 da Rua das Carmelitas. Entre os presentes estavam Guerra Junqueiro, Abel Botelho, João Grave, Bento Carqueja, Aurélio da Paz dos Reis, José Leite de Vasconcelos e Afonso Costa. Em 1919 a firma passou a «Livraria Lello e Irmão, Lda.» e, desde 1995, voltou a chamar-se simplesmente «Livraria Lello».\n\nA fachada abre num grande arco abatido com entrada central e duas montras; acima, três janelas ladeadas pelas figuras pintadas da «Arte» e da «Ciência», do belga Joseph Bielmann. Sob baldaquinos rendilhados, o escultor Romão Júnior esculpiu os bustos de Antero de Quental, Eça de Queirós, Camilo Castelo Branco, Teófilo Braga, Tomás Ribeiro e Guerra Junqueiro. O vitral da claraboia (8 × 3,5 m, 55 painéis) foi feito pelo holandês Gerardus Samuel van Krieken e ostenta o monograma e a divisa da livraria, «Decus in Labore».\n\nDurante anos disse-se que a escadaria da Lello inspirou a loja Flourish and Blotts, onde Harry Potter conhece Gilderoy Lockhart. J. K. Rowling viveu no Porto em 1991–1993, mas em maio de 2020 afirmou que nunca entrou na Lello e que a escadaria não influenciou Harry Potter.\n\nO espaço foi modernizado em 1995 e, desde 23 de julho de 2015, a entrada é paga, com o valor descontado na compra de um livro. Em 2016 o vitral foi desmontado e restaurado pela primeira vez desde a sua criação. A livraria recebe cerca de 1,2 milhões de visitantes por ano (Forbes Portugal). Em 2024 foi anunciada a Fundação Livraria Lello e, em 2026, no seu 120.º aniversário, abriu uma nova ala de Álvaro Siza e a livraria foi reclassificada como monumento nacional.",
+    "history": "A firma nasceu em 1869, quando o francês Ernesto Chardron abriu a «Livraria Internacional de Ernesto Chardron» na Rua dos Clérigos, 96–98. Foi o primeiro a publicar grande parte da obra de Camilo Castelo Branco e outros nomes maiores da época. Após a sua morte, aos 45 anos, a casa passou para a firma «Lugan & Genelioux» e depois para Mathieux Lugan; em 1891 a Chardron adquiriu os fundos de três livrarias do Porto.\n\nEm 1881 José Pinto de Sousa Lello abriu um estabelecimento na Rua do Almada, 18–20. A 30 de junho de 1894 Mathieux Lugan vendeu-lhe a antiga Livraria Chardron, e José, associado ao irmão António Lello, manteve-a com a razão social «Sociedade José Pinto Sousa Lello & Irmão». Em 1898 entrou na sociedade o fundo da Livraria Lemos.\n\nO novo edifício, com projeto do engenheiro Francisco Xavier Esteves, foi inaugurado a 13 de janeiro de 1906 no número 144 da Rua das Carmelitas. Entre os presentes estavam Guerra Junqueiro, Abel Botelho, João Grave, Bento Carqueja, Aurélio da Paz dos Reis, José Leite de Vasconcelos e Afonso Costa. Em 1919 a firma passou a «Livraria Lello e Irmão, Lda.» e, desde 1995, voltou a chamar-se simplesmente «Livraria Lello».\n\nA fachada abre num grande arco abatido com entrada central e duas montras; acima, três janelas ladeadas pelas figuras pintadas da «Arte» e da «Ciência», do belga Joseph Bielmann. Sob baldaquinos rendilhados, o escultor Romão Júnior esculpiu os bustos de Antero de Quental, Eça de Queirós, Camilo Castelo Branco, Teófilo Braga, Tomás Ribeiro e Guerra Junqueiro. O vitral da claraboia (8 × 3,5 m, 55 painéis) foi feito pelo holandês Gerardus Samuel van Krieken e ostenta o monograma e a divisa da livraria, «Decus in Labore».\n\nDurante anos disse-se que a escadaria da Lello inspirou a loja Flourish and Blotts, onde Harry Potter conhece Gilderoy Lockhart. J. K. Rowling viveu no Porto em 1991–1993, mas em maio de 2020 afirmou que nunca entrou na Lello e que a escadaria não influenciou Harry Potter.\n\nO espaço foi modernizado em 1995 e, desde 23 de julho de 2015, a entrada é paga, com o valor descontado na compra de um livro. Em 2016 o vitral foi desmontado e restaurado pela primeira vez desde a sua criação. Em 2019 a livraria recebeu 1,2 milhões de visitantes. Em 2024 foi anunciada a Fundação Livraria Lello e, em 2026, no seu 120.º aniversário, abriu uma nova ala de Álvaro Siza e a livraria foi reclassificada como monumento nacional.",
     "facts": [
       "Inaugurada a 13 de janeiro de 1906, no número 144 da Rua das Carmelitas.",
       "O edifício foi projetado pelo engenheiro Francisco Xavier Esteves.",
@@ -45,7 +45,7 @@ export const landmarks = {
       "Os bustos de seis escritores portugueses foram esculpidos por Romão Júnior.",
       "Desde 23 de julho de 2015 a entrada é paga, com o valor descontado na compra de um livro.",
       "Em 2016 o vitral foi desmontado para restauro pela primeira vez desde 1906.",
-      "Recebe cerca de 1,2 milhões de visitantes por ano e tornou-se monumento nacional em 2026."
+      "Recebeu 1,2 milhões de visitantes em 2019 e tornou-se monumento nacional em 2026."
     ],
     "tip": "Chegue à hora de abertura; ao meio-dia as filas são longas. A entrada é paga, mas o valor é descontado na compra de um livro. A livraria fica a cinco minutos da estação de São Bento e da Torre dos Clérigos — combine com a Igreja do Carmo, mesmo em frente.",
     "gallery": [
@@ -201,7 +201,7 @@ export const landmarks = {
     "facts": [
       "Inaugurada a 31 de outubro de 1886; a primeira pedra foi lançada a 21 de novembro de 1881.",
       "O arco central de 172 metros foi recorde entre as pontes metálicas da época.",
-      "O tabuleiro superior passa cerca de 60 m acima do Douro (as fontes indicam entre 60 e 70 m, consoante o que medem) e transporta a linha D do metro.",
+      "O tabuleiro superior passa cerca de 60 m acima do Douro e transporta a linha D do metro.",
       "O projeto é de Théophile Seyrig, antigo sócio de Gustave Eiffel.",
       "Substituiu a Ponte Pênsil e integra o Património Mundial da UNESCO desde 1996."
     ],
@@ -1969,6 +1969,24 @@ export const landmarks = {
         "caption": "O palácio junto à Sé."
       }
     ],
+    "panorama": null
+  },
+  "mindera": {
+    "name": "Mindera (Centro Empresarial Mapfre)",
+    "year": "2014",
+    "short": "O escritório do Porto da empresa de software Mindera: o Centro Empresarial Mapfre, na Rua de Gonçalo Cristóvão, junto à estação da Trindade. A Mindera trabalha na cidade desde 2014.",
+    "long": "A Mindera é uma empresa de engenharia de software. Abriu o seu primeiro escritório português no Porto, em 2014. Hoje o escritório do Porto fica no Centro Empresarial Mapfre, na Rua de Gonçalo Cristóvão, 347, junto à estação da Trindade. O edifício de pedra cinzenta e vidro azul volta a fachada principal a norte, para a rua.",
+    "history": "A Mindera abriu o seu primeiro escritório português no Porto, em 2014. Seguiram-se mais dois: Aveiro, em 2018, e Coimbra, em 2021. Segundo a própria empresa, Portugal é a sua maior localização, com mais de 650 pessoas, que escolhem entre o escritório e o trabalho remoto.\n\nA empresa descreve o escritório do Porto em poucas palavras: junto à Trindade, no edifício Mapfre, no coração da Baixa. A morada indicada no seu sítio é Rua de Gonçalo Cristóvão, 347, sala 404. As suas equipas organizaram também na cidade uma conferência própria, a Type Off, na Alfândega do Porto.\n\nO edifício é o Centro Empresarial Mapfre. O proprietário aponta a combinação entre o vidro e a pedra como a marca do projecto. O centro tem 83 escritórios, alguns com terraço privativo. Por baixo há um parque de estacionamento coberto com 260 lugares em três pisos, com entradas pelas ruas de Alferes Malheiro e de Gonçalo Cristóvão.\n\nA fachada da rua tem três partes claras. À esquerda, três vãos altos envidraçados entre pilares de pedra. À direita, um volume cego de pedra com o emblema e o nome do centro. Por cima, um bloco de vidro azul com os pisos superiores.\n\nO modelo neste mapa segue o contorno do edifício no OpenStreetMap e as fotografias do proprietário. Não há altura publicada do edifício: os 30 metros são uma estimativa a partir dos pisos visíveis numa fotografia. A ala sul não se vê da rua, por isso a sua altura e as suas paredes são uma suposição no modelo.",
+    "facts": [
+      "A Mindera abriu o seu primeiro escritório português no Porto, em 2014.",
+      "Morada do escritório: Rua de Gonçalo Cristóvão, 347, Centro Empresarial Mapfre.",
+      "A Mindera tem três escritórios em Portugal: Porto, Aveiro e Coimbra.",
+      "Em Portugal trabalham na empresa mais de 650 pessoas.",
+      "O Centro Empresarial Mapfre tem 83 escritórios e um parque coberto com 260 lugares.",
+      "A altura do modelo, 30 metros, é uma estimativa: não há valor publicado."
+    ],
+    "tip": "É um edifício de escritórios, não um museu: a entrada é só para quem lá tem assuntos. Por fora, a fachada vê-se melhor da Rua de Gonçalo Cristóvão. A estação de metro da Trindade fica ao lado.",
+    "gallery": [],
     "panorama": null
   }
 };

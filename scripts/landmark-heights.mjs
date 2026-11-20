@@ -270,6 +270,7 @@ const PORTO = {
   'camara-matosinhos': { m: 14, source: 'estimate', force: true, note: 'Câmara Municipal de Matosinhos: low civic block, but the glazed atrium/entrance block rises above the two office levels (OSM building:levels=2); about 14 m. No published height.' },
   'farol-leca': { m: 46, source: 'osm height tag', on: 'w1424430396', force: true, note: 'Farol de Leça (1926): 46 m, OSM height=46 on the tower way; Wikidata Q10280159 P2048 = 46 m. The OSM close-up way is 8 m square, so 46 m is the tower.' },
   'paco-episcopal': { m: 26, source: 'estimate', force: true, note: 'Paço Episcopal do Porto (Nicolau Nasoni, rebuilt 1734-1745): seven levels around a courtyard (OSM building:levels=7 gives only 22.4 m); the rooftop and the great staircase block about 26 m. No published height.' },
+  mindera: { m: 30, source: 'estimate', note: 'Centro Empresarial Mapfre: no published height and no OSM height or levels tag. The street front shows five storeys under the stone frame and three in the blue glass block above it (owner photo, edificiosmapfre.com): eight storeys at about 3.6 m, plus the roof edge, about 30 m.' },
   // <<< ROSTER-HEIGHTS-2
 };
 

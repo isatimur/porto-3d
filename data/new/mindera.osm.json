@@ -1,0 +1,11 @@
+{
+  "osm": {
+    "type": "way",
+    "id": 285901827,
+    "height_m": 30,
+    "height_source": "estimate"
+  },
+  "lat": 41.15313,
+  "lon": -8.61132,
+  "model": "concert-hall"
+}

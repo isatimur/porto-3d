@@ -155,4 +155,6 @@ export const specs = {
   'camara-matosinhos': { type: 'palace', h: 14, yaw: 0 },
   'farol-leca': { type: 'lighthouse', h: 46, yaw: 0 },
   'paco-episcopal': { type: 'palace', h: 26, yaw: 0 },
+  // its builder lives in groups/civic.js (src/models/porto/mindera.js)
+  'mindera': { type: 'concert-hall', h: 30, yaw: 0 },
 };

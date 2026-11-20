@@ -37,7 +37,7 @@ export const landmarks = {
     "year": "1906",
     "short": "A neo-Gothic bookshop opened on 13 January 1906, with its forked red staircase and a skylight bearing the motto “Decus in Labore”.",
     "long": "Livraria Lello stands at 144 Rua das Carmelitas, a few steps from the Clérigos tower. The neo-Gothic building was designed by the engineer Francisco Xavier Esteves, and its opening on 13 January 1906 caused a stir in Porto’s cultural circles. The red staircase that forks into two flights and the stained-glass skylight by the Dutchman Van Krieken have made it one of the most photographed bookshops on earth. A local legend long tied the staircase to Harry Potter, but in 2020 J. K. Rowling denied it.",
-    "history": "The firm began in 1869, when the Frenchman Ernesto Chardron opened the “Livraria Internacional de Ernesto Chardron” at 96–98 Rua dos Clérigos. He was the first to publish much of Camilo Castelo Branco’s work and other major names of the age. After his death at 45 the house passed to “Lugan & Genelioux” and then to Mathieux Lugan alone; in 1891 Chardron absorbed the stock of three Porto bookshops.\n\nIn 1881 José Pinto de Sousa Lello opened a shop of his own at 18–20 Rua do Almada. On 30 June 1894 Mathieux Lugan sold him the old Livraria Chardron, and José, together with his brother António Lello, kept it under the name “Sociedade José Pinto Sousa Lello & Irmão”. In 1898 the stock of the Lemos bookshop joined the firm.\n\nThe new building, designed by the engineer Francisco Xavier Esteves, was inaugurated on 13 January 1906 at 144 Rua das Carmelitas. Among the guests were Guerra Junqueiro, Abel Botelho, João Grave, Bento Carqueja, Aurélio da Paz dos Reis, José Leite de Vasconcelos and Afonso Costa. In 1919 the firm became “Livraria Lello e Irmão, Lda.”, and since 1995 it has again been known simply as “Livraria Lello”.\n\nThe façade opens in a large segmental arch with a central door and two side windows; above are three rectangular windows flanked by painted figures of “Art” and “Science” by the Belgian Joseph Bielmann. Under carved canopies the sculptor Romão Júnior carved busts of Antero de Quental, Eça de Queirós, Camilo Castelo Branco, Teófilo Braga, Tomás Ribeiro and Guerra Junqueiro. The skylight (8 × 3.5 m, 55 glass panels) was made by the Dutchman Gerardus Samuel van Krieken and carries the shop’s monogram and motto, “Decus in Labore”.\n\nFor years it was said that the Lello staircase inspired Flourish and Blotts, where Harry Potter first meets Gilderoy Lockhart. J. K. Rowling lived in Porto in 1991–1993, but in May 2020 she stated that she had never entered Lello and that its staircase had not influenced Harry Potter.\n\nThe shop was modernised in 1995, and since 23 July 2015 entry has been ticketed, with the fee deducted from a book purchase. In 2016 the skylight was dismantled and restored for the first time since it was made. The shop receives about 1.2 million visitors a year (Forbes Portugal). A Livraria Lello Foundation was announced in 2024, and in 2026, for its 120th anniversary, a new wing by Álvaro Siza opened and the shop was reclassified as a national monument.",
+    "history": "The firm began in 1869, when the Frenchman Ernesto Chardron opened the “Livraria Internacional de Ernesto Chardron” at 96–98 Rua dos Clérigos. He was the first to publish much of Camilo Castelo Branco’s work and other major names of the age. After his death at 45 the house passed to “Lugan & Genelioux” and then to Mathieux Lugan alone; in 1891 Chardron absorbed the stock of three Porto bookshops.\n\nIn 1881 José Pinto de Sousa Lello opened a shop of his own at 18–20 Rua do Almada. On 30 June 1894 Mathieux Lugan sold him the old Livraria Chardron, and José, together with his brother António Lello, kept it under the name “Sociedade José Pinto Sousa Lello & Irmão”. In 1898 the stock of the Lemos bookshop joined the firm.\n\nThe new building, designed by the engineer Francisco Xavier Esteves, was inaugurated on 13 January 1906 at 144 Rua das Carmelitas. Among the guests were Guerra Junqueiro, Abel Botelho, João Grave, Bento Carqueja, Aurélio da Paz dos Reis, José Leite de Vasconcelos and Afonso Costa. In 1919 the firm became “Livraria Lello e Irmão, Lda.”, and since 1995 it has again been known simply as “Livraria Lello”.\n\nThe façade opens in a large segmental arch with a central door and two side windows; above are three rectangular windows flanked by painted figures of “Art” and “Science” by the Belgian Joseph Bielmann. Under carved canopies the sculptor Romão Júnior carved busts of Antero de Quental, Eça de Queirós, Camilo Castelo Branco, Teófilo Braga, Tomás Ribeiro and Guerra Junqueiro. The skylight (8 × 3.5 m, 55 glass panels) was made by the Dutchman Gerardus Samuel van Krieken and carries the shop’s monogram and motto, “Decus in Labore”.\n\nFor years it was said that the Lello staircase inspired Flourish and Blotts, where Harry Potter first meets Gilderoy Lockhart. J. K. Rowling lived in Porto in 1991–1993, but in May 2020 she stated that she had never entered Lello and that its staircase had not influenced Harry Potter.\n\nThe shop was modernised in 1995, and since 23 July 2015 entry has been ticketed, with the fee deducted from a book purchase. In 2016 the skylight was dismantled and restored for the first time since it was made. In 2019 the shop received 1.2 million visitors. A Livraria Lello Foundation was announced in 2024, and in 2026, for its 120th anniversary, a new wing by Álvaro Siza opened and the shop was reclassified as a national monument.",
     "facts": [
       "Opened on 13 January 1906 at 144 Rua das Carmelitas.",
       "The building was designed by the engineer Francisco Xavier Esteves.",
@@ -45,7 +45,7 @@ export const landmarks = {
       "Busts of six Portuguese writers were carved by the sculptor Romão Júnior.",
       "Since 23 July 2015 entry has been ticketed, with the fee deducted from a book purchase.",
       "In 2016 the skylight was dismantled for restoration for the first time since 1906.",
-      "It receives about 1.2 million visitors a year and became a national monument in 2026."
+      "It received 1.2 million visitors in 2019 and became a national monument in 2026."
     ],
     "tip": "Come at opening time; by midday the queues are long. Entry is ticketed, but the fee is deducted from any book you buy. The shop is five minutes from São Bento station and the Clérigos tower, so combine it with the Carmo church across the street.",
     "gallery": [
@@ -201,7 +201,7 @@ export const landmarks = {
     "facts": [
       "Inaugurated on 31 October 1886; the first stone was laid on 21 November 1881.",
       "Its 172 m central arch was a record among metal bridges of its time.",
-      "The upper deck runs about 60 m above the Douro (sources give 60 to 70 m, depending on what they measure) and carries Metro line D.",
+      "The upper deck runs about 60 m above the Douro and carries Metro line D.",
       "The design was by Théophile Seyrig, a former partner of Gustave Eiffel.",
       "It replaced the Ponte Pênsil and is part of the UNESCO listing since 1996."
     ],
@@ -1969,6 +1969,24 @@ export const landmarks = {
         "caption": "The palace beside the cathedral."
       }
     ],
+    "panorama": null
+  },
+  "mindera": {
+    "name": "Mindera (Centro Empresarial Mapfre)",
+    "year": "2014",
+    "short": "The Porto office of the software company Mindera: the Mapfre business centre on Rua de Gonçalo Cristóvão, beside Trindade station. Mindera has worked in the city since 2014.",
+    "long": "Mindera is a software engineering company. It opened its first Portuguese office in Porto in 2014. Today its Porto office is in the Centro Empresarial Mapfre at Rua de Gonçalo Cristóvão 347, beside Trindade station. The building of grey stone and blue glass turns its main front north, to the street.",
+    "history": "Mindera opened its first Portuguese office in Porto in 2014. Two more followed: Aveiro in 2018 and Coimbra in 2021. By the company's own account Portugal is its largest location, with more than 650 people, who choose between an office and remote work.\n\nThe company describes its Porto office in a few words: next to Trindade, in the Mapfre building, in the heart of downtown. The address on its site is Rua de Gonçalo Cristóvão 347, suite 404. Its teams also ran their own conference in the city, Type Off, held at the Alfândega do Porto.\n\nThe building itself is the Mapfre business centre. Its owner names the combination of glass and stone as the mark of the design. The centre has 83 offices, some with their own terraces. Under it lies a covered car park with 260 places on three levels, entered from Rua de Alferes Malheiro and Rua de Gonçalo Cristóvão.\n\nThe street front has three clear parts. On the left, three tall glazed bays stand between stone piers. On the right, a plain stone block carries the emblem and the name of the centre. Above them sits a blue glass block of the upper floors.\n\nThe model on this map follows the building's outline in OpenStreetMap and the owner's photographs. No height of the building is published: 30 metres is an estimate from the storeys seen in a photograph. The south wing cannot be seen from the street, so its height and its walls are an assumption in the model.",
+    "facts": [
+      "Mindera opened its first Portuguese office in Porto in 2014.",
+      "The office address: Rua de Gonçalo Cristóvão 347, the Mapfre business centre.",
+      "Mindera has three offices in Portugal: Porto, Aveiro and Coimbra.",
+      "More than 650 people work for the company in Portugal.",
+      "The Mapfre business centre has 83 offices and a covered car park with 260 places.",
+      "The model's height, 30 metres, is an estimate: no figure is published."
+    ],
+    "tip": "This is an office building, not a museum: entry is for business only. From outside, the front shows best from Rua de Gonçalo Cristóvão. Trindade metro station is next to it.",
+    "gallery": [],
     "panorama": null
   }
 };

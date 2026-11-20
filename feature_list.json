@@ -691,6 +691,26 @@
         "data/layers.json: ring 2.62 MB, ms 0.75 MB, live 0.26 MB transfer"
       ],
       "notes": "No street level layer: Porto ships no streetscape.json, and its street life is built from code in the main chunk, so a switch would save no download. Not measured: load time on a throttled phone, with and without the ring. Run once per size, not five times. Not tested on a real phone, Safari or Firefox. The soft perf step of verify reported 7 budget misses (phone-low readyMs 45.7 s against 42 s); not compared with main on the same machine load."
+    },
+    {
+      "id": "porto-030",
+      "priority": 36,
+      "area": "places",
+      "title": "New place: Mindera's Porto office (Centro Empresarial Mapfre) with its own model",
+      "user_visible_behavior": "The map has a 71st place: Mindera, in the Centro Empresarial Mapfre at Rua de Gonçalo Cristóvão 347. Its model shows the stone frame with three glazed bays, the stone block with the emblem, the blue glass block and the south wing. The card and the details panel have texts in ru, pt and en with sources, and no picture box, since no free photo exists.",
+      "status": "passing",
+      "verification": [
+        "npm run verify",
+        "node --test scripts/*.test.mjs",
+        "Browser (headless Chromium on the build): /tmp/mindera/shot.mjs, ui.mjs, photo.mjs"
+      ],
+      "evidence": [
+        "2026-11-20: npm run verify OK, 17 passed; unit tests 67/67",
+        "check:fit mindera ok: model 43.6 x 65.1 x 30.0 m against OSM 43.6 x 65.1, 100 % on each axis; check:models 6,068 triangles",
+        "Screenshots viewed: card on desktop (en) and phone (pt), details panel (ru), model from north, west and south; console clean",
+        "Moving from Mindera to Clérigos and back: Clérigos keeps its 172 px photo, Mindera has none"
+      ],
+      "notes": "Height 30 m is an estimate from one photo; the south wing is an assumption; both are stated in dimensions.json and in the place text. The og image was rendered by hand (make-og's SwiftShader browser gets the lite scene)."
     }
   ]
 }
