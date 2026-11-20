@@ -671,6 +671,26 @@
         "v2 save in the browser: 3 stamps kept (1 plain kept question, 2 gold replaced ones), the kept question's wrong try shown by option id, written back as v3 on the first change"
       ],
       "notes": "One visual detail only: the bridge's arch is in the ru, en and pt texts and is the model's main member; the Clérigos tower's height shows, but no question about it rests on a fact the simplified model shows better than the photo. The find-on-map view on a phone is wide and top-down, with the far landmarks as massing boxes (the markers and the list carry the task). Not checked: a physical phone, a screen reader. Not deployed."
+    },
+    {
+      "id": "porto-029",
+      "priority": 35,
+      "area": "loading",
+      "title": "Layers panel and loading status pill (ported from braga-3d through arouca-3d)",
+      "user_visible_behavior": "A Layers button opens a panel with three optional layers and their measured download sizes: the city around the centre, the extra buildings, and aircraft with buses and metro. A layer that is off is never downloaded; switching needs no reload and the choice is saved. Presets: Light, Compact, Full. Phones of the S and P classes start on Compact (extra buildings only); the rest start on Full. A pill says what is loading, says when tiles failed and offers Retry. The pill hides and the panel stays shut during a history route, a route fly-along, the story and cinema.",
+      "status": "passing",
+      "verification": [
+        "node --test scripts/*.test.mjs (layers.test.mjs)",
+        "npm run verify (new step: layers manifest)",
+        "npm run build && node scripts/perf-serve.mjs 5763; node scripts/check-layers.mjs --url http://localhost:5763/ [--size 360x740] [--negative]"
+      ],
+      "evidence": [
+        "2026-11-20: node --test scripts/*.test.mjs 67/67 pass (43 before); npm run verify OK, 17 passed",
+        "check-layers.mjs: OK at 1440x900 and at 360x740; --negative fails the ring-off assertion as it must",
+        "Class S phone (?quality=s) starts on Compact in ru and pt, panel without sideways overflow, console clean; a history route in Compact shows stop 1 with no pill",
+        "data/layers.json: ring 2.62 MB, ms 0.75 MB, live 0.26 MB transfer"
+      ],
+      "notes": "No street level layer: Porto ships no streetscape.json, and its street life is built from code in the main chunk, so a switch would save no download. Not measured: load time on a throttled phone, with and without the ring. Run once per size, not five times. Not tested on a real phone, Safari or Firefox. The soft perf step of verify reported 7 budget misses (phone-low readyMs 45.7 s against 42 s); not compared with main on the same machine load."
     }
   ]
 }

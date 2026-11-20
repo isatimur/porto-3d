@@ -64,6 +64,12 @@ const checks = [
     skipExit: 77,
   },
   {
+    name: 'layers manifest',
+    cmd: ['node', 'scripts/layers-manifest.mjs', '--check', '--city', CITY],
+    needs: ['data/layers.json'],
+    why: 'the Layers panel shows the sizes of data/layers.json: they must match the build just made (node scripts/layers-manifest.mjs rewrites it)',
+  },
+  {
     name: 'smoke perf',
     cmd: ['node', 'scripts/smoke-perf.mjs'],
     needs: [],

@@ -24,6 +24,7 @@ import { dataPath } from './city.js';
 import { groundAxes } from './scene.js';
 import { BUILDING_UNIFORMS, createBuildingMaterial, extrudeBuilding, lastPlan, hash } from './buildings.js';
 import { hexLinear, minRect } from './facades.js';
+import { createWave } from './load-status.js';
 
 const CORE_TILE_M = 2000;
 const GROUP = 3; // far ring tiles per merged block side
@@ -416,7 +417,29 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
   debug.msStats = stats;
   const group = new THREE.Group();
   group.name = 'buildings-ms';
-  const api = { group, stats, update() {}, prefetch() {}, idle: async () => stats, tiles: new Map() };
+  // the status pill (layers-ui.js) reads the wave; the Layers panel calls
+  // setEnabled (off: hidden, nothing scheduled) and retry (from braga-3d)
+  const wave = createWave();
+  let enabled = true;
+  // begun: the core block is asked for and the ring has been scheduled once
+  // (its index read, its first tiles asked for). Until then the Layers panel
+  // says "loading", not "loaded": nothing of the layer is on screen yet
+  let begun = false;
+  let ringIndexDone = false;
+  const api = {
+    group,
+    stats,
+    update() {},
+    prefetch() {},
+    idle: async () => stats,
+    tiles: new Map(),
+    wave,
+    setEnabled() {},
+    retry() {},
+    get begun() {
+      return off || begun;
+    },
+  };
   debug.ms = api;
   if (off) {
     // main.js sets debug.stats after the first frames: fill it in then
@@ -568,6 +591,7 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
   // ---- the core
   async function startCore() {
     let doc;
+    wave.send();
     try {
       const res = await fetch(assetUrl(dataPath('buildings-ms.json')));
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -575,6 +599,7 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
       doc = await res.json();
       if (!Array.isArray(doc?.buildings)) throw new Error('no buildings[]');
     } catch (e) {
+      wave.finish('error');
       stats.errors++;
       console.warn(`[porto] ms: ${dataPath('buildings-ms.json')} unavailable (${e.message}); no MS buildings in the core`);
       coreDone = true;
@@ -628,6 +653,7 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
         }
         stats.coreTiles = coreMeshes.length;
         coreDone = true;
+        wave.finish('ok');
         stats.buildMs = Math.round(performance.now() - t0);
         refreshStats();
       },
@@ -646,6 +672,7 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
     } catch (e) {
       stats.errors++;
       console.warn(`[porto] ms: ${dataPath('tiles-ms/index.json')} unavailable (${e.message}); no MS buildings in the ring`);
+      ringIndexDone = true;
       return;
     }
     for (const t of doc.tiles) {
@@ -657,12 +684,14 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
       tiles.set(key, { key, x: t.x, y: t.y, n: t.n, rect, box: new THREE.Box3(new THREE.Vector3(rect.x0, -100, rect.zN), new THREE.Vector3(rect.x1, 400, rect.zS)), url: assetUrl(dataPath(`tiles-ms/${key}.json`)), state: 'idle', lod: null, near: null, far: null, mesh: null, born: 0, reqId: 0, job: null, prio: 0, tries: 0 });
     }
     stats.ringTotal = tiles.size;
+    ringIndexDone = true;
   }
 
   async function load(T) {
     T.state = 'loading';
     const id = (T.reqId = ++reqId);
     fetching++;
+    wave.send();
     let tile;
     try {
       const res = await fetch(T.url);
@@ -672,7 +701,11 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
       if (!Array.isArray(tile?.b) || !Array.isArray(tile?.o)) throw new Error('not a tile');
     } catch (e) {
       fetching--;
-      if (id !== T.reqId) return;
+      if (id !== T.reqId) {
+        wave.finish('cancel');
+        return;
+      }
+      wave.finish('error');
       stats.errors++;
       T.tries++;
       T.state = T.tries >= 3 ? 'failed' : 'idle';
@@ -681,7 +714,10 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
       return;
     }
     fetching--;
-    if (id !== T.reqId) return; // unloaded meanwhile
+    if (id !== T.reqId) {
+      wave.finish('cancel');
+      return; // unloaded meanwhile
+    }
     const o = tile.o;
     const Tn = newT(true);
     const Tf = newT();
@@ -710,7 +746,11 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
       h: (rec, f) => msHeight(f.areaM2, rec[0] / 10, seedOf(f)),
       done() {
         T.job = null;
-        if (id !== T.reqId) return;
+        if (id !== T.reqId) {
+          wave.finish('cancel');
+          return;
+        }
+        wave.finish('ok');
         T.near = pack(Tn, tint);
         T.far = pack(Tf, tint);
         T.vfar = pack(Tvf, tint);
@@ -791,7 +831,10 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
   }
   function unload(T) {
     setLod(T, null);
-    if (T.job) T.job.cancelled = true;
+    if (T.job) {
+      T.job.cancelled = true; // runJobs drops it without done()
+      wave.finish('cancel');
+    }
     T.job = null;
     T.near = T.far = T.vfar = null;
     T.vf = false;
@@ -890,6 +933,7 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
       changed = true;
     }
     quiet = !changed && !fetching && !jobs.length ? quiet + 1 : 0;
+    if (ringIndexDone) begun = true; // the first ring tiles are asked for (load() sends the wave at once)
   }
 
   function refreshStats() {
@@ -899,7 +943,9 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
     let n = 0;
     let tris = 0;
     let meshes = 0;
+    let stuck = 0;
     for (const T of tiles.values()) {
+      if (T.state === 'failed') stuck++;
       if (T.state !== 'built' || !T.lod) continue;
       loaded++;
       n += T.count || 0;
@@ -911,13 +957,30 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
       meshes++;
       tris += Math.min(m.geometry.index.count, m.geometry.drawRange.count) / 3;
     });
-    Object.assign(stats, { ringLoaded: loaded, ringNear: near, ringFar: far, ringBuildings: n, tris: Math.round(tris), meshes, gpuMB: +(gpuBytes / 1048576).toFixed(1), pending: fetching + jobs.length });
+    Object.assign(stats, { stuck, ringLoaded: loaded, ringNear: near, ringFar: far, ringBuildings: n, tris: Math.round(tris), meshes, gpuMB: +(gpuBytes / 1048576).toFixed(1), pending: fetching + jobs.length });
     if (debug.stats) debug.stats.ms = { core: stats.core, ringLoaded: loaded, tris: stats.tris };
   }
 
+  api.setEnabled = function setEnabled(on) {
+    enabled = !!on;
+    group.visible = enabled;
+  };
+  api.retry = function retry() {
+    for (const T of tiles.values()) {
+      if (T.state !== 'failed') continue;
+      T.state = 'idle';
+      T.tries = 0;
+      T.retryAt = 0;
+    }
+    sinceSchedule = SCHEDULE_S;
+    refreshStats();
+  };
+
   api.update = function update(dt = 1 / 60) {
+    if (!enabled) return;
     frames++;
-    clock = BUILDING_UNIFORMS.uClock.value; // src/tiles.js advances it
+    // src/tiles.js advances it; main.js while the ring layer is off
+    clock = BUILDING_UNIFORMS.uClock.value;
     if (!started) {
       // after the first full frames (main.js sets interactive before ready)
       if (!((debug.interactive || debug.ready) && frames > 20)) return;

@@ -6,3 +6,4 @@ docs
 videos
 .playwright-cli
 .DS_Store
+.claude

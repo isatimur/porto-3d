@@ -2884,15 +2884,29 @@ export function createLife(ctx) {
   for (const p of [funicular, trams, trains, cablecar, boats, traffic, birds, fountains, street]) if (p) group.add(p.object);
 
   const ctxLive = { scene, camera, renderer, project, heightAt, datumM, mobile, reducedMotion, live, model, atmosphere, group };
-  // aircraft and buses: a separate chunk, loaded after the first frame
+  // aircraft and buses: a separate chunk, loaded after the first frame, when
+  // the live layer is on (layer-defs.js, the Layers panel; from braga-3d).
+  // Off: the chunks are never fetched. setLive switches it later without a
+  // reload.
+  const layerOn = { live: ctx.layers?.live !== false };
   let air = null;
   let buses = null;
-  Promise.all([import('./liveair.js'), import('./livebus.js')])
-    .then(([a, b]) => {
-      air = safe('aircraft', () => a.createLiveAir(ctxLive));
-      buses = safe('buses', () => b.createLiveBus(ctxLive));
-    })
-    .catch((e) => console.warn('[porto] life: live layers failed to load', e));
+  let liveLoad = null;
+  function loadLive() {
+    liveLoad ||= Promise.all([import('./liveair.js'), import('./livebus.js')])
+      .then(([a, b]) => {
+        air = safe('aircraft', () => a.createLiveAir(ctxLive));
+        buses = safe('buses', () => b.createLiveBus(ctxLive));
+        return !!(air || buses);
+      })
+      .catch((e) => {
+        console.warn('[porto] life: live layers failed to load', e);
+        liveLoad = null; // a retry may import again
+        return false;
+      });
+    return liveLoad;
+  }
+  if (layerOn.live) loadLive();
   const buildMs = Math.round(performance.now() - t0);
 
   const frustum = new THREE.Frustum();
@@ -2922,8 +2936,8 @@ export function createLife(ctx) {
     if (tNow - lastBadge < 1000) return;
     lastBadge = tNow;
     if (!live.live) return;
-    live.setExtra('air', air?.badge() ?? null);
-    live.setExtra('bus', buses?.badge() ?? null);
+    live.setExtra('air', layerOn.live ? air?.badge() ?? null : null);
+    live.setExtra('bus', layerOn.live ? buses?.badge() ?? null : null);
     const ms = model?.state;
     if (ms && traffic) {
       const n = Math.round(traffic.active / 10) * 10;
@@ -2961,8 +2975,10 @@ export function createLife(ctx) {
     birds?.update(adt, camera, view);
     fountains?.update(camera, view);
     street?.update(adt, frustum, view);
-    air?.update(adt, dt, view);
-    buses?.update(adt, dt, view);
+    if (layerOn.live) {
+      air?.update(adt, dt, view);
+      buses?.update(adt, dt, view);
+    }
     badgeLines();
 
     stats.visibleVehicles = traffic?.visible ?? 0;
@@ -2988,6 +3004,19 @@ export function createLife(ctx) {
     stats,
     group,
     model,
+    // the Layers panel: the live layer on (its chunks load on the first
+    // switch-on; resolves true once built) or off (hidden at once)
+    setLive(on) {
+      layerOn.live = !!on;
+      // the bus mesh sets its own visibility every update; the aircraft root
+      // only when live mode changes, so it is set back here
+      if (air?.object) air.object.visible = !!on && !!live.live;
+      if (buses?.object && !on) buses.object.visible = false;
+      return on ? loadLive() : Promise.resolve(true);
+    },
+    get layers() {
+      return { ...layerOn };
+    },
     get air() {
       return air;
     },

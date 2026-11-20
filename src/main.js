@@ -30,6 +30,8 @@ import { installShare } from './share.js';
 import { createGuide } from './guide.js';
 import { createFlyKeys } from './fly.js';
 import { createTiles } from './tiles.js';
+import { createLayers } from './layers.js';
+import { createLayersUI } from './layers-ui.js';
 import { CITY, loadCity, applyCityShell } from './city.js';
 import { initPerf, showNotice } from './perf.js';
 import { CLASSES, MAX_PRESSURE, knobsFor, modeToClass } from './perf-classes.js';
@@ -95,6 +97,16 @@ async function start() {
     return;
   }
   loader.set(0.08, t('Загружаем данные'));
+
+  // The optional layers (layer-defs.js, from braga-3d): ?layers= > the
+  // visitor's saved choice > the device class default. A layer that is off
+  // is never fetched; the Layers panel (layers-ui.js) switches them later
+  // without a reload. The landmarks, the routes, the history routes, the
+  // story, the trams, trains and boats of life.js are core: no layer gates
+  // them.
+  const layers = createLayers({ cls: perf.cls, cityId: CITY.id });
+  debug.layers = layers;
+  debug.buildingClock = () => BUILDING_UNIFORMS.uClock.value; // check-layers: the MS fade clock runs
 
   mark('start');
   // the history routes (quest.js, data/quest.json): a lazy chunk, made on
@@ -268,8 +280,20 @@ async function start() {
   // exist, and the main thread takes 2 ms a frame. The streets' lines come
   // from the road layer later (roadHolder), the trees from the nature layer.
   const roadHolder = {};
-  // (the lite scene draws the core only: no streamed ring)
-  if (!LITE_SCENE) tiles = createTiles({ renderer, scene, camera, terrain, heightAt, proj, roadLayer: roadHolder, nature: natureBase, ground, mobile: LITE, debug });
+  // (the lite scene draws the core only: no streamed ring.) Only when the
+  // ring layer is on: off, not even its index is fetched, and the land
+  // beyond the core keeps the core's own cover (no built-up tint).
+  // startRing() runs again when the Layers panel switches it on later.
+  let natureFull = null; // the full nature layer, once built (buildNatureLayer)
+  function startRing() {
+    if (tiles || LITE_SCENE) return;
+    tiles = createTiles({ renderer, scene, camera, terrain, heightAt, proj, roadLayer: roadHolder, nature: natureFull || natureBase, ground, mobile: LITE, debug });
+    // switched on after ready: the governor's current radius (at boot it is
+    // applied with the other knobs, as before layers existed)
+    if (debug.ready) tiles.setBudgetScale(perf.knobs.radius);
+    if (cityRef) tiles.refreshCore(); // the core's built-up channel is already painted
+  }
+  if (layers.on('ring')) startRing();
 
   // the landmark positions before the fits: the centre of the OSM outline's
   // box (the fit's pivot), else the point itself
@@ -581,6 +605,7 @@ async function start() {
     nature.setNearRadius(perf.knobs.natureNearM);
     mark('nature');
     // the streamed woods get their trees (the tiles already run, see below)
+    natureFull = nature;
     tiles?.setNature(nature);
   }
   // Microsoft footprints in the OSM gaps, core and ring (buildings-ms.js;
@@ -588,6 +613,11 @@ async function start() {
   // the core passes, so the first interactive frame does not wait on it.
   const msPlans = fits.filter((f) => !f.fallback).map((f) => f.plan);
   let ms = null;
+  let msModule = null; // the module, once the deferred step has it
+  function createMs() {
+    if (ms || !msModule) return;
+    ms = msModule.createMsBuildings({ scene, camera, terrain, heightAt, proj, footprints, plans: msPlans, osm: city.footprints, mobile: LITE, lite: LITE, debug });
+  }
   const lightInfo = { dir: atmosphere.sunDir, color: new THREE.Color(), ambient: new THREE.Color() };
   const _amb = new THREE.Color();
 
@@ -703,7 +733,9 @@ async function start() {
       atmosphere.update(dt, camera);
       natureBase?.water?.update(dt, null); // the sea moves from the first frame
       stepFades();
-      tiles?.update(dt);
+      // the fade clock: tiles.js advances it; main.js while the ring layer is off
+      if (tiles) tiles.update(dt);
+      else BUILDING_UNIFORMS.uClock.value += dt;
       for (let i = 0; i < pts.length; i++) {
         _p.set(pts[i].x, base[i], pts[i].z);
         const H = Math.max(0.05, camera.position.distanceTo(_p) * 0.018);
@@ -1948,7 +1980,10 @@ async function start() {
     lightInfo.ambient.add(_amb.copy(atmosphere.hemi.color).multiplyScalar(atmosphere.hemi.intensity * 0.5));
     // nature, tiles, life and seasons are null until deferLayers built them
     nature?.update(reducedMotion ? 0 : dt, camera, lightInfo); // no sway or ripples under reduced motion
-    tiles?.update(rawDt);
+    // the fade clock the MS buildings read: tiles.js advances it; main.js
+    // while the ring layer is off (braga-3d)
+    if (tiles) tiles.update(rawDt);
+    else BUILDING_UNIFORMS.uClock.value += rawDt;
     ms?.update(rawDt);
     // traffic, birds, funicular, fountains, weather (life.js) at the class's
     // simulation rate: the time of the skipped frames is handed over at once
@@ -2194,8 +2229,10 @@ async function start() {
       mark('harbour');
     });
     await step('ms', async () => {
-      const m = await late.ms;
-      ms = m.createMsBuildings({ scene, camera, terrain, heightAt, proj, footprints, plans: msPlans, osm: city.footprints, mobile: LITE, lite: LITE, debug });
+      msModule = await late.ms;
+      // only when its layer is on: off, buildings-ms.json and tiles-ms/ are
+      // never fetched (the Layers panel calls createMs later)
+      if (layers.on('ms')) createMs();
       mark('ms');
     });
     await step('life', async () => {
@@ -2210,7 +2247,9 @@ async function start() {
         await marks.ensureBuilt(sites, { pin: true });
       }
       // footprints, outlines: where the people of streetscape.js may not walk
-      life = m.createLife({ renderer, scene, camera, atmosphere, project, heightAt, roads, items: marks.items, nature, fx, reducedMotion, mobile: LITE, lite: LITE, debug, setHash: () => setHash(currentHash()), footprints: city.footprints, outlines });
+      life = m.createLife({ renderer, scene, camera, atmosphere, project, heightAt, roads, items: marks.items, nature, fx, reducedMotion, mobile: LITE, lite: LITE, debug, setHash: () => setHash(currentHash()), footprints: city.footprints, outlines, layers: { live: layers.on('live') } });
+      // the status pill follows the first load of the live layer
+      if (layers.on('live')) track('live', life.setLive(true));
       quest?.lifeReady();
     });
     await step('seasons', async () => {
@@ -2253,6 +2292,89 @@ async function start() {
       console.error('[porto] road cells failed', e);
     }
   }
+
+  // ------------------------------------------------------------ layers
+  // From braga-3d (lisboa-3d). The load of a switched-on layer that has one
+  // promise (live): { active, error, endedAt } for the status pill and the
+  // panel. Porto's layers: the ring (tiles.js), the MS buildings
+  // (buildings-ms.js) and the live aircraft, buses and metro (life.js).
+  const tasks = {};
+  function track(id, promise) {
+    const task = (tasks[id] = { active: true, error: false, endedAt: 0 });
+    Promise.resolve(promise)
+      .then((ok) => {
+        task.active = false;
+        task.error = ok === false;
+        task.endedAt = Date.now();
+      })
+      .catch(() => {
+        task.active = false;
+        task.error = true;
+        task.endedAt = Date.now();
+      });
+  }
+  const LAYER_LABEL = { live: 'Самолёты, автобусы и метро' };
+  function stateOf(id) {
+    if (!layers.on(id)) return 'off';
+    if (id === 'ring' || id === 'ms') {
+      const src = id === 'ring' ? tiles : ms;
+      if (!src) return 'waiting';
+      // switched on, its index on the way, no tile asked for yet: loading,
+      // not "loaded"
+      if (!src.begun || src.wave.snapshot().active) return 'loading';
+      return src.stats.stuck > 0 ? 'failed' : 'ready';
+    }
+    const task = tasks[id];
+    if (!task) return 'waiting';
+    return task.active ? 'loading' : task.error ? 'failed' : 'ready';
+  }
+  // what the pill reads: one entry for the area (ring and MS tiles of this
+  // camera move together), one per layer load
+  function sources() {
+    const out = [];
+    const waves = [layers.on('ring') && tiles, layers.on('ms') && ms].filter(Boolean).map((s) => ({ w: s.wave.snapshot(), stuck: s.stats.stuck || 0 }));
+    if (waves.length) {
+      out.push({
+        id: 'area',
+        kind: 'area',
+        active: waves.some((x) => x.w.active),
+        // a finished wave of one source does not count into the other's
+        done: waves.reduce((a, x) => a + (x.w.active ? x.w.done : 0), 0),
+        total: waves.reduce((a, x) => a + (x.w.active ? x.w.total : 0), 0),
+        stuck: waves.reduce((a, x) => a + x.stuck, 0),
+        endedAt: Math.max(0, ...waves.map((x) => x.w.endedAt)),
+      });
+    }
+    const task = tasks.live;
+    if (task && layers.on('live')) out.push({ id: 'live', kind: 'layer', label: LAYER_LABEL.live, active: task.active, done: 0, total: 0, error: task.error, endedAt: task.endedAt });
+    return out;
+  }
+  function retryLayer(id) {
+    if (id === 'area') {
+      tiles?.retry();
+      ms?.retry();
+    } else if (id === 'live' && life) track('live', life.setLive(true));
+  }
+  layers.onChange((id, on) => {
+    if (id === 'ring') {
+      if (!on) tiles?.setEnabled(false);
+      else if (tiles) tiles.setEnabled(true);
+      else startRing();
+    } else if (id === 'ms') {
+      // before the deferred step has the module, it reads the switch itself
+      if (!on) ms?.setEnabled(false);
+      else if (ms) ms.setEnabled(true);
+      else createMs();
+    } else if (id === 'live') {
+      // before life exists, deferLayers reads the switch itself
+      if (life && on) track('live', life.setLive(true));
+      else if (life) life.setLive(false);
+    }
+  });
+  // the route fly-along has no body class of its own: the UI asks. The lite
+  // scene (class P) streams no ring and builds no MS buildings or life: no
+  // panel and no pill there (AGENTS.md: keep what the full scene adds out)
+  if (!LITE_SCENE) debug.layersUI = createLayersUI({ layers, stateOf, sources, retry: retryLayer, reducedMotion, flying: () => !!tour });
 
   loader.set(0.95, t('Первый кадр'));
   await nextFrame();

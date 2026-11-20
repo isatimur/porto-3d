@@ -25,6 +25,16 @@ updates it automatically.
 
 ## Session Log
 
+### 2026-11-20 — Layers panel and loading pill (branch feat/layers, feature porto-029)
+
+- Goal: the Layers panel and status pill of braga-3d in Porto, the last map without them. Source: the arouca-3d port (dda1978), since Arouca descends from Porto; its patch applied to `tiles.js`, `style.css` and most of `buildings-ms.js`, `life.js` and `main.js`, and the rejected hunks were fitted by hand.
+- Layers: `ring` (data/tiles, tile-worker; 2.62 MB), `ms` (buildings-ms.json, tiles-ms; 0.75 MB), `live` (liveair and livebus chunks, data/gtfs; 0.26 MB plus live data). No street level layer: Porto ships no streetscape.json and its street life is code in the main chunk, so a switch would save no download. Presets Light, Compact (`ms`), Full; Standard equals Full and is not offered. S and P classes start on Compact (owner decision, 2026-11-18).
+- Guided modes: `body.is-quest`, `is-story`, `is-cinema` and the route fly-along (`flying()`, no body class) hide the pill and keep the panel shut.
+- New: `src/layer-defs.js`, `src/layers.js`, `src/layers-ui.js`, `src/load-status.js`, `scripts/layers-manifest.mjs` -> `data/layers.json`, `scripts/layers.test.mjs`, `scripts/check-layers.mjs`; `scripts/verify.mjs` has a `layers manifest` step. After a data or build change run `npm run build && node scripts/layers-manifest.mjs`.
+- Check script, two faults of mine fixed: the fly targets were Arouca's coordinates (now Maia and Gaia); the fly-along step reused the history route's URL with another hash, which is no reload, so the route stayed open (now `&fly=1`, and the step asserts it starts outside a route).
+- Checks: unit tests 67/67 (43 before); `npm run verify` OK, 17 passed; `check-layers.mjs` OK at 1440x900 and 360x740, `--negative` fails as it must; class S phone starts on Compact in ru and pt.
+- Not done: load time on a throttled phone; repeated runs of the check (one run per size); a real phone, Safari, Firefox. The soft perf step reported 7 budget misses (phone-low readyMs 45.7 s against 42 s), not compared with main under the same machine load.
+
 ### 2026-11-17 — history routes round 3: task types (branch feat/quest-task-types, feature porto-028)
 
 - Goal: braga-3d's typed tasks (braga main 08ce468) in Porto's history routes, Porto's own tasks, and a side view of the Clérigos tower.
