@@ -325,6 +325,112 @@ button { font: inherit; color: inherit; }
 .atmo-opt.atmo-minor { color: var(--mut); background: transparent; box-shadow: inset 0 0 0 1px var(--line-c); }
 .atmo-opt.atmo-minor[aria-pressed='true'] { color: #fff; background: var(--cob-d); box-shadow: none; }
 
+/* ------------------------------------------------------------ layers: status pill (layers-ui.js)
+   From braga-3d (lisboa-3d). Fixed under the header, centred: it never moves
+   anything else. Hidden (and out of the tab order) when there is nothing to say. */
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.load-status {
+  position: fixed;
+  top: 74px;
+  left: 50%;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 24px);
+  min-height: 34px;
+  padding: 4px 4px 4px 12px;
+  box-sizing: border-box;
+  font: 500 13px/1.2 var(--sans);
+  color: #fff;
+  background: rgba(15, 42, 87, 0.92);
+  border-radius: 17px;
+  box-shadow: var(--shadow-c);
+  overflow: hidden;
+  transform: translateX(-50%);
+  transition: opacity 0.2s, visibility 0s linear 0s;
+}
+.load-status[data-state='idle'] { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.3s, visibility 0s linear 0.3s; }
+.load-status[data-state='failed'] { background: rgba(120, 32, 24, 0.94); }
+.ls-text { flex: 0 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.ls-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: #a9c6ff; }
+.load-status[data-state='loading'] .ls-dot { animation: ls-pulse 1.1s ease-in-out infinite; }
+.load-status[data-state='done'] .ls-dot { background: #7fd07a; }
+.load-status[data-state='failed'] .ls-dot { background: #ffb4a8; }
+@keyframes ls-pulse { 50% { opacity: 0.3; transform: scale(0.7); } }
+.ls-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(255, 255, 255, 0.12); }
+.ls-bar i { display: block; height: 100%; background: #a9c6ff; transform-origin: 0 50%; transform: scaleX(0); transition: transform 0.25s; }
+.load-status[data-state='done'] .ls-bar i { background: #7fd07a; }
+.ls-retry, .ls-open { flex: none; height: 26px; padding: 0 10px; font: 600 12.5px/1 var(--sans); color: var(--cob-d); background: #e3eaf6; border: 0; border-radius: 13px; cursor: pointer; }
+.ls-retry { color: #fff; background: rgba(255, 255, 255, 0.2); }
+.ls-retry:hover, .ls-open:hover { background: #fff; color: var(--cob-d); }
+.ls-retry:focus-visible, .ls-open:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.load-status.is-still .ls-dot, .load-status.is-still .ls-bar i { animation: none; transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .load-status, .load-status .ls-dot, .ls-bar i { animation: none !important; transition: none !important; }
+}
+@media (max-width: 900px) {
+  .load-status { top: 60px; font-size: 12.5px; }
+}
+/* a finger needs 44 px (owner decision) */
+@media (pointer: coarse) {
+  .load-status { min-height: 44px; padding: 4px 4px 4px 14px; border-radius: 22px; }
+  .ls-retry, .ls-open { height: 44px; padding: 0 16px; border-radius: 22px; }
+}
+/* a narrow phone: the line may take two rows rather than lose its count
+   («Nicht geladene Kartenbereiche: 6» next to Retry and Layers at 360 px) */
+@media (max-width: 480px) {
+  /* left: 50% would cap a shrink-to-fit width at half the screen */
+  .load-status { width: max-content; }
+  .ls-text { flex: 1 1 auto; white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; line-height: 1.25; }
+  /* failed: the line gets the whole first row and Retry and Layers move to a second one */
+  .load-status[data-state='failed'] { flex-wrap: wrap; justify-content: flex-end; row-gap: 2px; padding-top: 8px; padding-bottom: 6px; border-radius: 18px; }
+  .load-status[data-state='failed'] .ls-text { flex-basis: calc(100% - 24px); padding-right: 8px; }
+}
+/* the guided modes keep the map to themselves (layers-ui.js PILL_MODES; the
+   route fly-along has no body class: layers-ui.js sets .is-mode) */
+body.is-quest .load-status, body.is-story .load-status, body.is-cinema .load-status, .is-embed .load-status, .load-status.is-mode { display: none; }
+body.is-quest .layers, body.is-story .layers, body.is-cinema .layers { display: none; }
+
+/* ------------------------------------------------------------ layers: panel */
+.layers { width: 380px; max-height: calc(100vh - 100px); overflow-y: auto; }
+.layers-note { margin: 4px 0 2px; font: 400 12.5px/1.4 var(--sans); color: var(--mut); }
+.layer-list { margin: 0; padding: 0; list-style: none; }
+.layer-row + .layer-row { border-top: 1px solid var(--line-c); }
+.layer-label { display: grid; grid-template-columns: auto 1fr auto; align-items: start; gap: 4px 10px; min-height: 44px; padding: 9px 0; box-sizing: border-box; cursor: pointer; }
+.layer-switch { appearance: none; position: relative; width: 34px; height: 20px; margin: 1px 0 0; border-radius: 10px; background: #c9d3e3; cursor: pointer; transition: background-color 0.15s; }
+.layer-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(10, 20, 40, 0.3); transition: transform 0.15s; }
+.layer-switch:checked { background: var(--cob-d); }
+.layer-switch:checked::after { transform: translateX(14px); }
+.layer-switch:focus-visible { outline: 2px solid var(--cob); outline-offset: 2px; }
+.layer-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.layer-name { font: 600 14px/1.2 var(--sans); color: var(--cob-d); }
+.layer-hint { font: 400 12px/1.3 var(--sans); color: var(--mut); }
+.layer-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; text-align: right; }
+.layer-size { font: 600 12.5px/1.2 var(--sans); color: #3c4a63; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.layer-state { font: 400 12px/1.2 var(--sans); color: var(--mut); white-space: nowrap; }
+.layer-row[data-state='loading'] .layer-state { color: var(--cob); }
+.layer-row[data-state='ready'] .layer-state { color: var(--moss); }
+.layer-row[data-state='failed'] .layer-state { color: #b3261e; }
+.layers-total { margin: 8px 0 0; padding-top: 10px; border-top: 1px solid var(--line-c); font: 700 13.5px/1.3 var(--sans); color: var(--cob-d); }
+.layers-class { margin: 4px 0 0; font: 400 12px/1.3 var(--sans); color: var(--mut); }
+/* the section heads of the «Атмосфера» look are 10.5 px: 12 px here (no text under 12 px) */
+.layers .atmo-h { font-size: 12px; }
+/* touch: the presets, the close button and the switches are 44 px targets */
+@media (pointer: coarse) {
+  .layers .atmo-opt { min-height: 44px; }
+  .layers .atmo-close { width: 44px; height: 44px; margin-right: -12px; }
+  .layer-switch { width: 44px; height: 26px; border-radius: 13px; }
+  .layer-switch::after { width: 22px; height: 22px; }
+  .layer-switch:checked::after { transform: translateX(18px); }
+}
+@media (max-width: 900px) {
+  .layers { width: auto; max-height: 80vh; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .layer-switch, .layer-switch::after { transition: none; }
+}
+
 .tool {
   padding: 5px 11px 6px;
   font-size: 12.5px;

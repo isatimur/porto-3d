@@ -31,6 +31,7 @@ import { BUILDING_UNIFORMS, createBuildingMaterial, FADE_S, FADE_VERT_PARS, FADE
 import { getFacadeConfig } from './facades.js';
 import { SURFACE, STRUCTURE_COLORS } from './roads.js';
 import { TREE_TABLES } from './nature.js';
+import { createWave } from './load-status.js';
 
 const LAND_PX = 32; // land-cover pixels per tile side (~30 m): the wide mask
 // is 4x smaller than 64, so its upload no longer stalls streaming on mobile
@@ -97,11 +98,18 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
 
   const stats = { enabled: !off, total: 0, loaded: 0, pending: 0, near: 0, far: 0, tris: 0, gpuMB: 0, meshes: 0, trees: 0, radiusKm: 0, altM: 0, fetchMs: 0, buildMs: 0, integrateMs: 0, errors: 0, coverage: null };
   debug.tilesStats = stats;
-  let clock = 0;
+  // the fade clock is shared with buildings-ms.js (BUILDING_UNIFORMS.uClock):
+  // a ring switched on late (Layers panel) goes on from where main.js has
+  // taken it, so the MS buildings already shown do not fade out again
+  let clock = BUILDING_UNIFORMS.uClock.value;
   let frames = 0;
   let index = null;
   let failed = false;
   let started = false;
+  // the Layers panel can switch the ring off (hidden, nothing scheduled)
+  let enabled = true;
+  // the requests of the current camera move, for the status pill (braga-3d)
+  const wave = createWave();
   const tiles = new Map();
   const groups = new Map(); // far blocks
   const ready = [];
@@ -336,6 +344,7 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     T.loading = true;
     W.busy++;
     inflight++;
+    wave.send();
     W.w.postMessage({ type: 'load', id: T.reqId, key: T.key, url: T.url, lod, extras: !T.extras });
     return true;
   }
@@ -395,14 +404,19 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
 
   function integrate(m) {
     const T = tiles.get(m.key);
-    if (!T || m.id !== T.reqId) return; // superseded or dropped
+    if (!T || m.id !== T.reqId) {
+      wave.finish('cancel');
+      return; // superseded or dropped
+    }
     T.loading = false;
+    wave.finish(m.type === 'error' ? 'error' : 'ok');
     if (m.type === 'error') {
       // a tile the index lists but the server does not have (a partial
-      // deploy): given up at once, without noise
+      // deploy): given up at once, without noise (and not offered a Retry)
       if (/HTTP 404|is not JSON/.test(m.error)) {
         stats.missing = (stats.missing || 0) + 1;
         if (T.state === 'loading') T.state = 'failed';
+        T.missing = true;
         return;
       }
       stats.errors++;
@@ -668,8 +682,12 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
       if (request(c.T, c.lod)) sent++;
     }
     quiet = !sent && !inflight && !ready.length ? quiet + 1 : 0;
+    begun = true; // the first tiles are asked for (request() sends the wave at once)
   }
   let quiet = 0;
+  // the index is read and the ring scheduled once: until then the Layers
+  // panel says "loading", not "loaded" (nothing of the ring is on screen)
+  let begun = false;
 
   function evictFor(p) {
     const shown = [...tiles.values()].filter((T) => T.state === 'shown' && T.prio < p).sort((a, b) => a.prio - b.prio);
@@ -702,7 +720,7 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     frames++;
     clock += dt;
     BUILDING_UNIFORMS.uClock.value = clock;
-    if (off || failed) return;
+    if (off || failed || !enabled) return;
     // after the core's first frames: its shaders compile first
     if (!started) {
       // The workers start once the core's buildings exist (they set the
@@ -781,7 +799,9 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     let far = 0;
     let tris = 0;
     let meshes = 0;
+    let stuck = 0;
     for (const T of tiles.values()) {
+      if (T.state === 'failed' && !T.missing) stuck++;
       if (T.state !== 'shown') continue;
       loaded++;
       if (T.lod === 'near') {
@@ -796,6 +816,7 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     }
     Object.assign(stats, {
       loaded,
+      stuck,
       pending: inflight + ready.length,
       near,
       far,
@@ -815,6 +836,46 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     group,
     stats,
     update,
+    // the status pill (layers-ui.js): this camera move's requests
+    wave,
+    // the Layers panel: off hides the ring and schedules nothing more. The
+    // ring's street and river lines are objects of this group (rebuildLines:
+    // Porto does not join them to the core's lines), so they go with it;
+    // the ring's trees live in nature.js and are cleared, then chosen again
+    // on. The core's roads, street lines, trails and waymarks (roads.js,
+    // chunk-geo.js cells) are not touched. update() does nothing while off.
+    setEnabled(on) {
+      enabled = !!on;
+      group.visible = enabled;
+      if (!enabled) {
+        nature?.setStreamTrees?.([]);
+        treeKey = '';
+        stats.trees = 0;
+      } else {
+        treesDirty = true;
+        sinceTrees = 1;
+        sinceSchedule = SCHEDULE_S;
+      }
+    },
+    // false until the first tiles are asked for (true at once when the ring
+    // has nothing to stream: ?tiles=0, no index, no worker)
+    get begun() {
+      return off || failed || begun;
+    },
+    get enabled() {
+      return enabled;
+    },
+    // the tiles that gave up after three tries get three more
+    retry() {
+      for (const T of tiles.values()) {
+        if (T.state !== 'failed' || T.missing) continue;
+        T.state = 'idle';
+        T.tries = 0;
+        T.retryAt = 0;
+      }
+      sinceSchedule = SCHEDULE_S; // schedule on the next frame
+      refreshStats();
+    },
     // main.js starts the tiles with the nature base (land cover only); the
     // trees layer joins once it is built: the streamed woods get their trees
     // the core's built-up channel was painted after the wide mask took its
