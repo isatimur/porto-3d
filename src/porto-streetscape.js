@@ -1322,5 +1322,5 @@ export function buildPortoStreetLife(ctx) {
     lite,
     caps: CAP,
   };
-  return { object: group, stats, paths, layers, live, update };
+  return { object: group, stats, paths, layers, live, update, people };
 }

@@ -1,6 +1,6 @@
 {
   "project": "porto-3d",
-  "last_updated": "2026-11-17",
+  "last_updated": "2026-11-24",
   "rules": {
     "single_active_feature": true,
     "passing_requires_evidence": true,
@@ -711,6 +711,26 @@
         "Moving from Mindera to Clérigos and back: Clérigos keeps its 172 px photo, Mindera has none"
       ],
       "notes": "Height 30 m is an estimate from one photo; the south wing is an assumption; both are stated in dimensions.json and in the place text. The og image was rendered by hand (make-og's SwiftShader browser gets the lite scene)."
+    },
+    {
+      "id": "porto-031",
+      "priority": 37,
+      "area": "modes",
+      "title": "Walk mode from braga-3d: the street at eye height, GLB walker, building collision, GLB passers-by, /play",
+      "user_visible_behavior": "A Walk button in the tools puts the visitor in the street at eye height as a textured GLB walker (idle, walk, run). WASD or the arrows walk, Shift runs, a drag looks, V switches to first person; on a phone a stick walks. The walker stops at house walls, at the landmark models and at the river, and stands on the drawn ground: streets, the Douro quay decks and a landmark's own paving. The passers-by within 35 m are rigged GLB models (eight fictional characters); a passer-by pushes the walker aside. A place within 25 m offers its card. /play opens the walk on the Cais da Ribeira, looking east along the quay to the Luís I bridge. The map at / loads none of it until the button is pressed.",
+      "status": "passing",
+      "verification": [
+        "npm run verify",
+        "node --test scripts/*.test.mjs",
+        "npm run build; npx vite preview --port 5472; PLAYWRIGHT_CORE=... node scripts/check-walk.mjs --out /tmp/porto-walk"
+      ],
+      "evidence": [
+        "2026-11-24: npm run verify OK, 17 passed, 0 skipped; unit tests 77/77 (67 + 10 walk-collide)",
+        "2026-11-24: check-walk.mjs all passed (73 ok): map, desktop 1280x800, phone Pixel 7",
+        "Lazy: walk, crowd-models and character-model are chunks of their own; dist/index.html preloads none; the map check sees no walk file and no .glb before the button",
+        "Screenshots viewed in /tmp/porto-walk: walk-desktop-start (quay, bridge, feet on the deck), walk-desktop-wall (stopped at the Ribeira arcade), crowd-first-person and crowd-third-person (GLB passers-by at Aliados), walk-phone-start (stick)"
+      ],
+      "notes": "Not ported: street missions, e-scooters, the Azulejo game (Braga content). Porto ships no streetscape.json, so no café seats or furniture block the walker. The crowd paths at the Ribeira run inside the Ribeira model's house row, so most passers-by there are hidden in it. Bridge decks of the landmark models are walkable only where the model draws a floor; the walker cannot yet climb onto the Luís I decks from the street."
     }
   ]
 }

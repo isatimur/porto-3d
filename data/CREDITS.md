@@ -17,3 +17,11 @@ S. João, Ponte Infante D. Henrique, Ponte do Freixo, Ponte da Arrábida),
 en.wikipedia (Dom Luís I Bridge, Arrábida Bridge, Freixo Bridge, Ponte de São
 João), Wikidata, OpenStreetMap (ODbL) for the corridors. The shipped photos
 of each bridge keep their credits in `data/landmarks.json` (`image_credit`).
+
+# Credits for the walk mode characters (porto-031)
+
+The walker (`assets/characters/3d/heroi.glb`, with `heroi-idle.glb` and
+`heroi-run.glb`) and the eight passers-by
+(`assets/characters/3d/crowd/passante-1.glb` to `passante-8.glb`) are
+fictional characters. The site's owner made them with Higgsfield for
+braga-3d; they come over unchanged from there. They show no real person.

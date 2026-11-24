@@ -69,8 +69,14 @@ if (LITE || perf.cfg.waterLite) {
   setBuildingsLite(LITE);
 }
 
+// The walk page (/play, vercel.json rewrite): the same map, but it opens in
+// walk mode on the Ribeira quay (cities/porto.json walk_start), among the
+// crowd. The map at / opens as before; its walk button loads the same chunk.
+const PLAY = /^\/play\/?$/.test(location.pathname);
+if (PLAY && !/(^|[#&])walk(&|$)/.test(location.hash.slice(1))) history.replaceState(null, '', `${location.pathname}${location.search}#walk`);
+
 // Exposed for tests and debugging: renderer.info, ready flags, flight count.
-const debug = (window.__porto = { ready: false, flights: 0, dataStatus: null });
+const debug = (window.__porto = { ready: false, flights: 0, dataStatus: null, play: PLAY });
 debug.tier = { ...TIER, dprCap: DPR.cap, mobile: MOBILE, reducedMotion };
 // Load phases in ms since navigation (docs/perf, /tmp/perf/measure.mjs)
 debug.timing = {};
@@ -775,7 +781,7 @@ async function start() {
   // starts with the boot view, before the city is built.
   function makeIntro() {
     const param = new URLSearchParams(location.search).get('intro');
-    const deep = /(^|[#&])((place|route|quest)=|(cinema|story|quest)(&|$))/.test(location.hash);
+    const deep = PLAY || /(^|[#&])((place|route|quest)=|(cinema|story|quest|walk)(&|$))/.test(location.hash);
     let seen = false;
     try {
       seen = sessionStorage.getItem('porto-intro') === '1';
@@ -966,6 +972,8 @@ async function start() {
   let tour = null; // fly-along driver while it plays
   let cinema = null; // cinema and story modes, created further down
   let story = null;
+  let walk = null; // walk mode: the street at eye height (walk.js, a lazy chunk)
+  let walkLoad = null;
   // (quest, questLoad, hasQuest: at the top of start())
   // startMode() numbers each request; a route whose chunk or data arrives
   // after a newer request (or after Esc, cancelQuestLoad) does not start
@@ -1039,7 +1047,7 @@ async function start() {
     },
     onRoute: (id) => openRoute(id),
     toast: (msg, ms) => ui.toast(msg, ms),
-    isBlocked: () => !!(cinema?.active || story?.active || intro?.active || quest?.active),
+    isBlocked: () => !!(cinema?.active || story?.active || intro?.active || quest?.active || walk?.active),
   });
   debug.search = search;
 
@@ -1061,7 +1069,8 @@ async function start() {
   function currentHash() {
     const parts = [];
     // the history routes keep #quest=<id> (or #quest) while they run (a reload resumes)
-    if (quest?.active) parts.push(quest.hash);
+    if (walk?.active) parts.push('walk');
+    else if (quest?.active) parts.push(quest.hash);
     else if (route) parts.push(`route=${route.route.id}`);
     else if (active >= 0) parts.push(`place=${landmarks[active].id}`);
     // a history route shows daylight but the link keeps the visitor's own light
@@ -1089,6 +1098,8 @@ async function start() {
     // #cinema, #story and #quest open the guided modes
     if (q.has('cinema')) return void (cinema.active || startMode('cinema'));
     if (q.has('story')) return void (story.active || startMode('story'));
+    if (q.has('walk')) return void (walk?.active || startMode('walk'));
+    walk?.stop(); // the link no longer says #walk (Back)
     if (q.has('quest') && hasQuest) return void (quest?.active ? quest.open(q.get('quest')) : startMode('quest', q.get('quest')));
     cancelQuestLoad();
     const r = q.get('route');
@@ -1472,6 +1483,121 @@ async function start() {
     mountTool(questBtn, 'modes', { closes: true });
     questBtn.addEventListener('click', () => (quest?.active ? quest.stop() : startMode('quest')));
   }
+  // Walk mode: the street at eye height (walk.js, a lazy chunk with the GLB
+  // walker and the GLB passers-by). The walker stops at the outlines of the
+  // buildings and of the landmark models; a landmark people walk on (a quay,
+  // a square, a garden) is not solid.
+  const WALK_OPEN = new Set(CITY.walk_open_landmarks || []);
+  const WALK_PLAN = new Set(CITY.walk_plan_landmarks || []);
+  let crowdModels = null; // crowd-models.js, from the walk chunk
+  // the street layer's crowds (porto-streetscape.js, street-kit.js)
+  const streetCrowds = () => [life?.street?.porto?.people, life?.street?.kit?.crowd].filter(Boolean);
+  // their paths are the walk lanes: where a walk may start ({ X, Z, Y })
+  let walkLanes = null;
+  let walkLanesFrom = 0;
+  let walkWater = null;
+  function streetForWalk() {
+    const crowds = streetCrowds();
+    if (!crowds.length) return null;
+    if (!walkLanes || walkLanesFrom !== crowds.length) {
+      const X = [], Z = [], Y = [];
+      for (const c of crowds) {
+        for (const p of c.paths) {
+          for (let k = 0; k < p.x.length; k++) {
+            X.push(p.x[k]);
+            Z.push(p.z[k]);
+            Y.push(p.y?.[k] ?? heightAt(p.x[k], p.z[k]));
+          }
+        }
+      }
+      walkLanes = { X: Float32Array.from(X), Z: Float32Array.from(Z), Y: Float32Array.from(Y) };
+      walkLanesFrom = crowds.length;
+    }
+    return { lanes: walkLanes };
+  }
+  // the close passers-by become rigged models once walk mode has loaded
+  function attachCrowdModels() {
+    if (!crowdModels) return;
+    for (const c of streetCrowds()) if (!c.models) c.attachModels(crowdModels, (x, z, y) => walk.surfaceAt(x, z, y));
+  }
+  // The quay terraces (quays.js) and the street crowds come with the
+  // deferred layers: a walk asked for at load (/play, #walk) waits for them,
+  // or the Ribeira quay would read as open river. 20 s at most.
+  function afterStreet() {
+    const t0 = performance.now();
+    return new Promise((done) => {
+      const check = () => {
+        if (LITE_SCENE || (debug.quays && life?.street?.porto) || performance.now() - t0 > 20000) done();
+        else setTimeout(check, 250);
+      };
+      check();
+    });
+  }
+  function ensureWalk() {
+    if (walk) return Promise.resolve(walk);
+    walkLoad ??= Promise.all([import('./walk.js'), import('./crowd-models.js')])
+      .then(([{ createWalk }, { createCrowdModels }]) => {
+        crowdModels = createCrowdModels;
+        // a model drawn over its fitted plan, larger than the OSM outline (the
+        // Ribeira house row): the plan's rectangle blocks too
+        const planRect = (p) => [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([a, b]) => [p.cx + p.ux * p.hu * a - p.uz * p.hv * b, p.cz + p.uz * p.hu * a + p.ux * p.hv * b]);
+        const walkPolys = landmarks.flatMap((l, i) => {
+          if (WALK_OPEN.has(l.id)) return [];
+          const plan = WALK_PLAN.has(l.id) && fits[i] && !fits[i].fallback ? [planRect(fits[i].plan)] : [];
+          return outlines[i] ? [outlines[i], ...plan] : plan;
+        });
+        walk = createWalk({
+          camera,
+          rig,
+          heightAt,
+          dom: canvas,
+          scene,
+          polys: [...city.footprints, ...walkPolys],
+          places: () => marks.items.map((it, i) => ({ i, name: it.labelEl.textContent, x: it.center.x, z: it.center.z, outline: outlines[i] })),
+          street: streetForWalk,
+          solidModels: (CITY.walk_model_landmarks || []).map((id) => `landmark-${id}`),
+          // the card belongs to the map view: the walk ends, then the place opens
+          onPlace: (i) => select(i),
+          reducedMotion,
+          bounds: terrain.bounds,
+          // the river, the ponds and the docks (nature.json water areas)
+          water: () => (walkWater ??= natureBase?.areas.filter((a) => a.k === 'water').map((a) => a.rings[0]) ?? null),
+          onEnter: () => {
+            document.body.classList.add('is-walk');
+            mapLines(false);
+            attachCrowdModels();
+          },
+          onExit: () => {
+            document.body.classList.remove('is-walk');
+            mapLines(true);
+            modeCtx.onExit();
+          },
+        });
+        debug.walk = walk;
+        return walk;
+      })
+      .catch((error) => {
+        walkLoad = null;
+        throw error;
+      });
+    return walkLoad;
+  }
+  // The glowing road lines and the gold outlines of the places belong to the
+  // map view; from the street they hang in the air
+  function mapLines(on) {
+    marks.outlineMaterial.visible = on;
+    for (const o of roadsRef?.group?.children || []) {
+      if (o.isLineSegments2 && o.name !== 'road-water' && o.name !== 'road-tunnel-hint') o.visible = on;
+    }
+  }
+  const walkBtn = document.createElement('button');
+  walkBtn.type = 'button';
+  walkBtn.className = 'tool mode-btn';
+  walkBtn.id = 'walk-toggle';
+  walkBtn.title = t('Прогулка по улицам на уровне глаз');
+  walkBtn.innerHTML = `<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8.6" cy="2.9" r="1.4" /><path d="M8.2 5.2 6.4 9l1.9 1.6.6 3.4M6.4 9l-1.5 4.9M8.2 5.2l2.4 1.9 1.6.3M7.6 6.3 5.4 7.2l-.6 1.9" /></svg><span class="mode-label">${t('Пешком')}</span>`;
+  mountTool(walkBtn, 'modes', { closes: true });
+  walkBtn.addEventListener('click', () => (walk?.active ? walk.stop() : startMode('walk')));
   // arg: the history route's id (#quest=<id>)
   function startMode(name, arg) {
     const request = ++modeRequest;
@@ -1486,6 +1612,31 @@ async function start() {
     search.close();
     flyKeys.reset();
     if (name !== 'quest') quest?.stop();
+    if (name !== 'walk') walk?.stop();
+    if (name === 'walk') {
+      cinema.stop();
+      story.stop();
+      Promise.all([ensureWalk(), afterStreet()])
+        .then(([instance]) => {
+          if (request !== modeRequest) return;
+          // From the city overview (a link straight to #walk, or the button
+          // before any zoom) the view target is no chosen place: the walk
+          // starts on the Ribeira quay (cities/porto.json walk_start), as
+          // the /play page does. From a close view it starts where the
+          // camera looks.
+          const overview = camera.position.distanceTo(rig.controls.target) > 250;
+          const ws = overview ? CITY.walk_start : null;
+          const at = ws ? project(ws.lat, ws.lon) : null;
+          if (!instance.start(at, ws ? (ws.headingDeg ?? 90) * (Math.PI / 180) : null, !!ws)) ui.toast(t('Здесь нет улицы рядом. Выберите другое место.'), 4000);
+          setHash(currentHash());
+        })
+        .catch(() => {
+          if (request !== modeRequest) return;
+          ui.toast(t('Не удалось загрузить прогулку'), 4000);
+          setHash(currentHash());
+        });
+      return;
+    }
     if (name === 'cinema') {
       story.stop();
       cinema.start();
@@ -1532,7 +1683,7 @@ async function start() {
     rig,
     debug,
     // the intro, the route fly-along and the guided modes own the camera
-    isBlocked: () => !!(intro?.active || tour || cinema?.active || story?.active || quest?.active),
+    isBlocked: () => !!(intro?.active || tour || cinema?.active || story?.active || quest?.active || walk?.active),
     placeOpen: () => active >= 0,
   });
   window.addEventListener('keydown', (e) => {
@@ -1542,6 +1693,7 @@ async function start() {
     // cinema and story own every key while they play
     if (cinema?.active) return void cinema.onKey(e);
     if (story?.active) return void story.onKey(e);
+    if (walk?.active) return void walk.onKey(e); // walk owns the keys; Esc goes up
     // the history route: Esc leaves; Tab, Enter and Space stay with its buttons
     if (quest?.active) return void quest.onKey(e);
     if (e.key === 'Escape') {
@@ -1574,6 +1726,7 @@ async function start() {
   });
   canvas.addEventListener('pointerup', (e) => {
     if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5) return;
+    if (walk?.active) return; // the walk owns the map: a drag looks around
     toNdc(e);
     raycaster.setFromCamera(ndc, camera);
     // the history route owns the map: only a find-on-map task's candidates pick
@@ -1583,7 +1736,7 @@ async function start() {
   });
   let hoverQueued = false;
   canvas.addEventListener('pointermove', (e) => {
-    if (quest?.active && !quest.pickable.size) return void setHover(-1);
+    if (walk?.active || (quest?.active && !quest.pickable.size)) return void setHover(-1);
     if (hoverQueued || e.buttons) return;
     hoverQueued = true;
     requestAnimationFrame(() => {
@@ -1933,15 +2086,18 @@ async function start() {
     const dt = Math.min(rawDt, 1 / 30);
     clock += dt;
     renderer.info.reset();
-    // the intro owns the camera while it plays; then the rig does
-    if (!intro?.update(rawDt)) rig.update(dt, now, rawDt);
+    // the intro owns the camera while it plays; then the rig does (walk mode
+    // owns it while it is on, and stands lower than the orbit floor)
+    if (!intro?.update(rawDt) && !walk?.update(dt)) rig.update(dt, now, rawDt);
+    if (walk?.active) attachCrowdModels(); // the street layer may come after the walk
     // never below the ground, whoever moved the camera (parallax included)
-    const floorY = heightAt(camera.position.x, camera.position.z) + 2;
+    const floorY = heightAt(camera.position.x, camera.position.z) + (walk?.active ? 0.38 : 2);
     if (camera.position.y < floorY) camera.position.y = floorY;
     const camDist = intro?.active ? camera.position.distanceTo(home.target) : camera.position.distanceTo(rig.controls.target);
     // near plane follows the orbit distance: 0.5 units (2 m) in a close-up,
-    // up to 6 units over the whole city, for depth precision far away
-    const near = THREE.MathUtils.clamp(camDist * 0.004, 0.5, 6);
+    // up to 6 units over the whole city, for depth precision far away;
+    // walk mode: 0.3 m, so a wall beside the walker is not cut open
+    const near = walk?.active ? 0.075 : THREE.MathUtils.clamp(camDist * 0.004, 0.5, 6);
     if (Math.abs(near - camera.near) > camera.near * 0.1) {
       camera.near = near;
       camera.updateProjectionMatrix();

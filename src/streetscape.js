@@ -483,6 +483,10 @@ export function createStreetscape(ctx) {
     get kit() {
       return kit;
     },
+    // walk mode: the promenade crowd and its paths
+    get porto() {
+      return porto;
+    },
   };
 }
 
