@@ -20,6 +20,16 @@ export const messages = {
   'Иллюстрация, создана ИИ': ['Ilustração criada por IA', 'Illustration created by AI'],
   'Вернуться к карте':['Voltar ao mapa', 'Back to the map'],
   'Не удалось загрузить историю': ['Não foi possível carregar a história', 'The story could not be loaded'],
+  // walk mode (walk.js): the street at eye level
+  'Пешком': ['A pé', 'Walk'],
+  'Прогулка по улицам на уровне глаз': ['Passeio pelas ruas, à altura dos olhos', 'Walk the streets at eye level'],
+  'Наверх': ['Subir', 'Go up'],
+  'От первого лица': ['Na primeira pessoa', 'First person'],
+  'WASD — идти, мышь — смотреть, Shift — бегом, V — вид': ['WASD para andar, rato para olhar, Shift para correr, V muda a vista', 'WASD to walk, drag to look, Shift to run, V changes the view'],
+  'Стик — идти, проведите по экрану — смотреть': ['Manípulo para andar, deslize para olhar', 'Stick to walk, drag to look'],
+  'Направление шага': ['Direção do passo', 'Walking direction'],
+  'Здесь нет улицы рядом. Выберите другое место.': ['Não há rua aqui perto. Escolha outro local.', 'No street near this point. Choose another place.'],
+  'Не удалось загрузить прогулку': ['Não foi possível carregar o passeio', 'The walk could not load'],
   // history routes (quest.js); its own texts live in data/quest.json. The
   // label and title hold for one route or several, and name no count.
   'Исторические маршруты': ['Rotas da história', 'History routes'],

@@ -838,9 +838,11 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
   let near = [];
   let candX = Infinity;
   let candZ = Infinity;
+  let nearR = 0; // the radius `near` was gathered for
   function gather(fx, fz, R) {
     candX = fx;
     candZ = fz;
+    nearR = R;
     const R2 = R * R;
     near = [];
     for (let pi = 0; pi < list.length; pi++) {
@@ -1059,20 +1061,35 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
   let shownStaying = 0;
   let wasOn = false;
   let time = 0;
+  // the people nearest the camera as rigged models (crowd-models.js). Walk
+  // mode attaches them (its lazy chunk owns the loader), so the map at /
+  // never loads a model; from then on a close view shows them.
+  let models = null;
+  let groundAt = null;
+  const MODEL_NEAR2 = (35 * S) ** 2; // a person nearer the camera than 35 m
+  const MODEL_CAM = 40; // the view this close (camera to focus, world units)
+  const STREET_CAM = 8; // street level: camera to focus under 32 m
+  const STREET_R = 45; // world units (180 m)
   function update(dt, camera, frustum, { fx, fz, R, on, demand = 1 }) {
     time += dt;
     uniforms.uPTime.value = time;
+    // at street level (walk mode: the camera a few metres from the focus) the
+    // same people gather within 180 m, so the street around the walker is
+    // not empty while the crowd thins out 600 m away
+    if (models && (camera.position.x - fx) ** 2 + (camera.position.z - fz) ** 2 < STREET_CAM * STREET_CAM) R = Math.min(R, STREET_R);
     if (!on) {
       mesh.visible = false;
       shown = 0;
       wasOn = false;
+      models?.hide();
       return;
     }
     const moved = (fx - candX) ** 2 + (fz - candZ) ** 2;
-    if (moved > 12 * 12 || !near.length) gather(fx, fz, R);
+    if (moved > 12 * 12 || !near.length || R !== nearR) gather(fx, fz, R);
     if (!near.length) {
       mesh.visible = false;
       shown = 0;
+      models?.hide();
       return;
     }
     const want = Math.min(WALK_MAX, Math.max(0, Math.round((WALK_MAX * demand) / DEMAND_MAX)));
@@ -1087,6 +1104,9 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
     const RV2 = (R * 1.05) ** 2;
     let n = 0;
     shownWalkers = 0;
+    const close = !!models && (camera.position.x - fx) ** 2 + (camera.position.z - fz) ** 2 < MODEL_CAM * MODEL_CAM;
+    if (close) models.want();
+    models?.begin();
     for (let i = 0; i < active; i++) {
       if (dt > 0) step(i, dt);
       const p = locate(i);
@@ -1095,6 +1115,14 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
         continue;
       }
       if (n >= cap || (p.x - cx) ** 2 + (p.z - cz) ** 2 > RV2 * 1.6 || !inView(frustum, p.x, p.y + 0.2, p.z, 0.6)) continue;
+      // a close one (not a dog walker): a rigged model when a clone is free
+      if (close && KD[i] !== 4 && (p.x - cx) ** 2 + (p.z - cz) ** 2 < MODEL_NEAR2) {
+        const stopped = reducedMotion || (PAUSER[i] && STOP[i] > 0);
+        if (models.show(i, KD[i], i, p.x, groundAt ? groundAt(p.x, p.z, p.y) : p.y, p.z, p.hx, p.hz, SC[i], stopped ? 0 : V[i] / S, dt)) {
+          shownWalkers++;
+          continue;
+        }
+      }
       // a stopped pauser turns to look across the promenade
       let hx = p.hx;
       let hz = p.hz;
@@ -1125,11 +1153,19 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
           if (RTH[i] > share * 1.1) continue;
           if (!inView(frustum, x, RY[i] + 0.2, z, 0.6)) continue;
           const yaw = RYAW[i];
+          // one who stands in a queue (not one who sits) may be a model too
+          if (close && !RSIT[i] && (x - cx) ** 2 + (z - cz) ** 2 < MODEL_NEAR2) {
+            if (models.show(100000 + i, RKD[i], i, x, groundAt ? groundAt(x, z, RY[i]) : RY[i], z, Math.sin(yaw), Math.cos(yaw), RSC[i], 0, dt)) {
+              shownStaying++;
+              continue;
+            }
+          }
           write(n++, x, RY[i], z, Math.sin(yaw), Math.cos(yaw), RSC[i], RHT[i], RBD[i], RSH[i], RPA[i], RSK[i], RPH[i], 0, RSIT[i], 1, RKD[i]);
           shownStaying++;
         }
       }
     }
+    models?.end();
     shown = n;
     mesh.count = n;
     mesh.visible = n > 0;
@@ -1150,6 +1186,19 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
   return {
     object: mesh,
     update,
+    // walk mode: the paths are its lanes (where a walk may start)
+    paths: list,
+    // walk mode: make(group) -> crowd-models.js handle, added beside the mesh;
+    // ground(x, z, y): the drawn surface there (a quay deck, a model's
+    // paving), which a close model stands on instead of its path's height
+    attachModels(make, ground = null) {
+      if (models || lite || !mesh.parent) return;
+      models = make(mesh.parent);
+      groundAt = ground;
+    },
+    get models() {
+      return models;
+    },
     stats: {
       paths: list.length,
       max: cap,

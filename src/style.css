@@ -1706,3 +1706,107 @@ body.is-cinema .callout, body.is-story .callout { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .callout-inner, .atmo, .tools-sheet, .side { transition: none; }
 }
+
+/* Walk mode (walk.js, from braga-3d): the street at eye height. The map
+   chrome leaves; the HUD is one button, one hint line and, on touch screens,
+   the stick. */
+body.is-walk .side,
+body.is-walk .detail,
+body.is-walk .hint,
+body.is-walk .brand,
+body.is-walk .topbar,
+body.is-walk .life-badge,
+body.is-walk .layers,
+body.is-walk .load-status,
+body.is-walk .scalebar,
+body.is-walk #labels { display: none !important; } /* far names show through the houses at eye level */
+body.is-walk canvas { cursor: grab; touch-action: none; }
+.walk-hud { position: fixed; inset: 0; z-index: 30; pointer-events: none; }
+.walk-hud[hidden] { display: none; }
+.walk-exit {
+  position: absolute;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  left: 16px;
+  min-height: 44px;
+  padding: 0 18px;
+  font: 600 14px/1 var(--sans);
+  color: var(--text);
+  background: var(--glass-strong);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.walk-exit:hover, .walk-view:hover, .walk-place:hover { border-color: var(--gold); }
+.walk-exit:focus-visible, .walk-view:focus-visible, .walk-place:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.walk-view, .walk-place {
+  position: absolute;
+  min-height: 44px;
+  padding: 0 16px;
+  font: 600 14px/1 var(--sans);
+  color: var(--text);
+  background: var(--glass-strong);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.walk-view { top: calc(14px + env(safe-area-inset-top, 0px)); right: 16px; }
+.walk-view[aria-pressed='true'] { color: var(--ink-0); background: var(--gold); border-color: var(--gold); }
+.walk-place {
+  left: 50%;
+  bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  max-width: min(78vw, 420px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-color: var(--gold);
+  transform: translateX(-50%);
+}
+.walk-place[hidden] { display: none; }
+@media (pointer: coarse) {
+  .walk-place { bottom: calc(200px + env(safe-area-inset-bottom, 0px)); }
+}
+.walk-hint {
+  position: absolute;
+  left: 50%;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  margin: 0;
+  padding: 7px 14px;
+  font: 500 13px/1.3 var(--sans);
+  color: var(--text-2);
+  background: var(--glass);
+  border-radius: 999px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.walk-hint-touch, .walk-stick { display: none; }
+.walk-stick {
+  position: absolute;
+  left: 20px;
+  bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  width: 116px;
+  height: 116px;
+  border: 1px solid rgba(240, 222, 192, 0.5);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(224, 169, 72, 0.22), rgba(26, 21, 16, 0.6));
+  touch-action: none;
+  pointer-events: auto;
+}
+.walk-stick-knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(240, 222, 192, 0.85);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f0cf8a, #b47a1e 75%);
+  box-shadow: 0 3px 12px rgba(10, 8, 5, 0.55);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+@media (pointer: coarse) {
+  .walk-hint-keys { display: none; }
+  .walk-hint-touch, .walk-stick { display: block; }
+}

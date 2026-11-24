@@ -58,6 +58,9 @@
   "default_weather": "clear",
   "default_live": true,
   "default_time": "sunset",
+  "walk_start": { "lat": 41.14012, "lon": -8.6131, "headingDeg": 90, "note": "Cais da Ribeira, looking east along the quay to the Luís I bridge (src/main.js startMode('walk'), /play)" },
+  "walk_model_landmarks": ["ribeira", "cais-gaia"],
+  "walk_open_landmarks": ["ribeira", "ponte-luis-i", "ponte-arrabida", "ponte-maria-pia", "ponte-sao-joao", "ponte-infante", "ponte-freixo", "cais-gaia", "praca-batalha", "cordoaria", "jardim-do-morro", "palacio-cristal", "parque-cidade", "serralves", "passeio-alegre"],
   "description": {
     "ru": "Интерактивная 3D-карта Порту: Дору, шесть мостов, Рибейра, соборы, дворцы и сады.",
     "en": "An interactive 3D map of Porto: the Douro, its six bridges, the Ribeira, cathedrals, palaces and gardens.",

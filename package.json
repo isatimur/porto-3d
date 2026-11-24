@@ -27,6 +27,7 @@
     "check:fit": "node scripts/check-fit.mjs --city porto",
     "check:traffic": "node scripts/check-traffic.mjs --city porto",
     "check:models": "node scripts/count-tris.mjs --city porto",
+    "check:walk": "node scripts/check-walk.mjs",
     "count-tris": "node scripts/count-tris.mjs --city porto",
     "city": "node scripts/city.mjs"
   },

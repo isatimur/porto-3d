@@ -21,7 +21,11 @@
       "has": [{ "type": "host", "value": "porto-3d.vercel.app" }],
       "destination": "https://porto-3d.com/$1",
       "permanent": true
-    }
+    },
+    { "source": "/play/", "destination": "/play", "permanent": false }
+  ],
+  "rewrites": [
+    { "source": "/play", "destination": "/" }
   ],
   "headers": [
     {

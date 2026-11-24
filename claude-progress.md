@@ -11,6 +11,7 @@ updates it automatically.
 - Repository root: `~/Dev/porto-3d`
 - Standard startup path: `./init.sh`
 - Standard verification path: `npm run verify`
+- Verified 2026-11-24 (branch feat/walk-mode, walk mode, porto-031): `npm run verify` OK, 17 passed, 0 skipped; `npm test` 77/77; `scripts/check-walk.mjs` all passed on a served build.
 - Verified 2026-11-17 (branch feat/quest-task-types, history routes round 3, porto-028): `npm run verify` OK, 16 passed, 0 skipped (PLAYWRIGHT_CORE set; perf soft gate warns as on main: desktop transfer 2604 KB and p95 33.3 ms, phone-low ready 42.9 s); `node --test scripts/*.test.mjs` 43/43.
 - Verified 2026-11-17 (branch perf/visible-only, perf round 3): `npm run verify` 16 passed, 0 skipped (PLAYWRIGHT_CORE set); `node --test scripts/*.test.mjs` 32/32.
 - Verified 2026-11-17 (branch feat/history-routes): `npm run verify` OK, 16 passed, 0 skipped (with PLAYWRIGHT_CORE set; the new step is «route pages»). `node --test scripts/*.test.mjs` 27/27.
@@ -24,6 +25,17 @@ updates it automatically.
 - Live: https://porto-3d.vercel.app (Vercel project `porto-3d`); git remote `isatimur/porto-3d`.
 
 ## Session Log
+
+### 2026-11-24 — walk mode from braga-3d (branch feat/walk-mode, feature porto-031)
+
+- Goal: Braga's walk mode in Porto: street level at eye height, the GLB walker, building collision, GLB passers-by, and /play.
+- Ported from braga-3d (2884401): `src/walk.js`, `src/walk-collide.js` (+ `scripts/walk-collide.test.mjs`), `src/walk-figure.js`, `src/character-model.js`, `src/crowd-models.js`, the HUD CSS, the i18n strings (ru/pt/en in `src/locales/ui.js`), the GLBs (`assets/characters/3d/heroi*.glb`, `crowd/passante-1..8.glb`; fictional, made by the owner with Higgsfield; credited in `data/CREDITS.md`). Not ported: street missions, e-scooters, the Azulejo game.
+- Porto differences in `walk.js`: the ground mesh refills its index with only the chunks in view, so the terrain is `heightAt`, not its triangles. The walker also stands on the quay decks (`quays-*`, 1.4 m over the terrain at the Ribeira) and on landmark model floors (`landmark-<id>`); these two may be climbed up to 1.8 m (streets 0.6 m). Without this the walker stood waist-deep in the Ribeira model's paving (screenshot checked). People bodies are the `porto-people` meshes under `streetscape`.
+- Collision: OSM footprints plus landmark outlines, except `walk_open_landmarks` in `cities/porto.json` (bridges, quays, squares, gardens). The Ribeira and Cais de Gaia rows are open outlines, and their own models block instead: a 0.5 m mask of every model triangle more than 2.2 m over the ground, with an opening that drops poles and masts (`walk_model_landmarks`). The Douro (nature.json water areas) blocks, except where a quay deck is drawn.
+- Crowd: `people.js` `createCrowd` takes the models through `attachModels()` once walk mode loads (so `/` never loads a GLB). The close ones stand on the walk's drawn surface. At street level the crowd gathers within 180 m, not 600 m. Light mode keeps the instanced figures, as Braga does. Porto ships no streetscape.json: the walk lanes are the crowd paths, and there are no seats or furniture to block.
+- /play (vercel.json rewrite, `/play/` redirects to `/play`): walk mode on the Cais da Ribeira (`walk_start` 41.14012, -8.6131), looking east to the Luís I bridge: the river, the bridge and the house row in one first frame, and the crowd of the quay. A walk asked for at load waits (20 s at most) for the quays and the street layer.
+- Checks: `npm test` 77/77; `scripts/check-walk.mjs` (`npm run check:walk`, needs a served build) all passed, 73 ok, for map, desktop and phone; `npm run verify` OK, 17 passed, 0 skipped (PLAYWRIGHT_CORE set; perf soft gate passed). Screenshots in `/tmp/porto-walk/` (not in the repository).
+- Gaps: the crowd paths at the Ribeira run inside the model's house row (most passers-by there are hidden, also in the map view); the walker cannot climb onto the bridge decks from the street; no café seats or furniture block the walker; the lite scene (class P) was not tried in walk mode.
 
 ### 2026-11-20 — new place: Mindera's Porto office (branch feat/mindera, feature porto-030)
 
