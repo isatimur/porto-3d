@@ -833,6 +833,26 @@
         "Screenshots viewed: /tmp/porto-crowd/before-0.png, before-6.png, after2-4.png, sit.png, dog3.png, fardog3-b.png"
       ],
       "notes": "src/people.js createCrowd: no kind-4 exclusion and no sitter exclusion within MODEL_NEAR2; kind 5 = the dog alone (shader collapses the human parts); instanced y = groundAt when close; getters closeBoxes, closeHidden. src/crowd-models.js: take() falls back to any model with a free clone; show(..., sit) poses the legs over the idle clip (seat()); getter failed. Boxes still show within 35 m only if the models failed to load. The sitters' places (people.js addRest) are unchanged: some sit on the lower deck of the Luis I bridge by the carriageway."
+    },
+    {
+      "id": "porto-036",
+      "priority": 41,
+      "area": "walk mode",
+      "title": "Cars that read as cars at street level: detailed near traffic, STCP buses and shaped parked cars",
+      "user_visible_behavior": "On /play the cars within 80 m of the walker have a bonnet and boot, a dark glass cabin, four wheels with hubs, bumpers, plates, head and tail lamps (lit at night), and cast shadows. STCP buses drive in walk mode with windows, doors, the blue and green bands and wheels. Parked cars along the kerbs have a shaped body, glass, wheels and lamps instead of three boxes. Far traffic and the map at / keep the cheap cars.",
+      "status": "passing",
+      "verification": [
+        "npm run verify",
+        "npm test",
+        "PLAYWRIGHT_CORE=... npm run check:walk -- --base http://localhost:5482/"
+      ],
+      "evidence": [
+        "2026-11-25: /play Ribeira start, 4 s walking, governor 0, 1440x900 DPR 2 (/tmp/porto-cars/gpu.mjs, two runs each): triangles 1,536,977 / 1,530,987 -> 1,539,779 / 1,531,510; draw calls 163.35 / 162.39 -> 163.58 / 162.48",
+        "2026-11-25: map at /: 1,917,941 -> 1,912,209 triangles, 241 calls both; map close-up 150 m over Gaia: 1,349,431 -> 1,371,481 triangles (parked cars), 144 calls both",
+        "2026-11-25: per body: cheap car 36 triangles, near car 424, walk bus 500, parked car 74 (was 38); near cars capped at 90 (38 k triangles worst case)",
+        "Screenshots viewed: /tmp/porto-cars/before-{0,1}.png, after2-{0,1,2}.png, after3-0.png, bus2-0.png, night-1.png, map-after.png, mapc-after.png"
+      ],
+      "notes": "src/car-detail.js builds both bodies and the material (aPaint: instance colour or the part's own; aLamp: head, tail, interior glow). life.js buildTraffic picks the mesh per vehicle: on the map its own skin; in walk mode (WALK_LOD.on) a near car or taxi -> traffic-cars-near, a bus -> traffic-buses-walk, a far taxi -> the cheap car mesh. street-kit.js: the parked car piece uses profile() from car-detail.js; the kit buffer grew to 150,000 vertices because it was full at the Ribeira. Not done: vans and lorries are still boxes near the walker; trams (life.js tramGeometry) are boxes with no wheels; on the map the taxi and bus meshes are never added to the scene (since the fork), so taxis and buses are invisible there."
     }
   ]
 }
