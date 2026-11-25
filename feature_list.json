@@ -792,6 +792,28 @@
         "Screenshots viewed: /tmp/porto-walklod/{day-clear,night-clear,day-fog,day-rain,west-day}-{on,off}.png, map-branch.png against map-base.png"
       ],
       "notes": "src/walk-lod.js holds the shared state and the one shadow rule (walkCasts: bounding sphere within 400 m of the walker, 15 % hysteresis); main.js, tiles.js and buildings-ms.js all use it, so they no longer overwrite each other in walk mode. Setters: tiles.setWalkProfile, ms.setWalkProfile, core group.userData.setFarTier. The far fade is FOG_UNIFORMS.fogFarFade (the atmosphere's apply() never writes it); the cloud deck is pinned to the far plane instead (weather.js). effects.js reads the open sky from the live near/far. The governor ignores 2 s after the switch (perf.holdGovernor, governor.hold). Gains are small at the Ribeira start: the streamed ring is not in view there; the road cells (cell-runs.js) and the OSM core tiles carry most of the triangles. Instanced crowds and cars (people.js, life.js) keep their own camDist rule. Not done (later stages): occlusion, HLOD, dither cross-fade, tile re-cutting, frame time on the owner's laptop."
+    },
+    {
+      "id": "porto-037",
+      "priority": 41,
+      "area": "walk",
+      "title": "Walk mode: streets follow the slope as one surface (no terraces at segment joints, no stacked ramps at the Luís I bridge ends)",
+      "user_visible_behavior": "At street level a sloped street is one surface: no flat plate per 12 m with a step at each joint, and the sidewalks and kerbs run as one line round the bends instead of pieces. At the Ponte Luís I lower deck ends the ways that overlap (General Torres, Largo Luiz I, Diogo Leite; Gustavo Eiffel, Ribeira Negra) rise to one height, so no patch of setts lies on the asphalt. The bridge decks keep their heights. The map at / is unchanged.",
+      "status": "passing",
+      "verification": [
+        "npm run verify",
+        "npm test",
+        "npm run check:traffic",
+        "PLAYWRIGHT_CORE=... npm run check:walk -- --base http://localhost:5483/"
+      ],
+      "evidence": [
+        "2026-11-25: /tmp/porto-roads/way.mjs, drawn surfaces every 4 m along a way, samples with two paved surfaces more than 0.15 m apart, before -> after: Mouzinho da Silveira 27/60 -> 1/60; Rua de General Torres 10/10 -> 4/10; Avenida de Gustavo Eiffel 7/7 -> 2/7; Avenida de Vímara Peres 6/25 -> 3/25; Rua do Cais da Ribeira 5/32 -> 1/32",
+        "2026-11-25: /play, gpu.mjs: triangles per frame 1,557,325 and 1,554,383 -> 1,555,323 and 1,555,624; calls 165.5 and 164.9 -> 164.9 and 164.9",
+        "2026-11-25: npm test 77/77; check:traffic OK; check-walk all passed",
+        "2026-11-25: npm run verify: 16 passed, smoke console failed because another worktree's server held port 5192 (its chunks and /api/adsb 404); SMOKE_PORT=5493 node scripts/smoke-console.mjs OK. Perf soft gate warns (desktop p95 283 ms and phone-low goto timeout on a loaded machine with several agents running)",
+        "Screenshots viewed: /tmp/porto-roads/{b,a}-s1-gaia-fp.png, -s1-gaia-ramp, -s3-mouzinho, -s4-vimara, -s5-ribeira, -map"
+      ],
+      "notes": "src/roads.js strip(): mitred joints up to a 60 degree bend (MITRE_COS), not where the mitre would reach past either segment; ends and sharp bends keep the old lengthening. src/road-network.js harmoniseRamps(): one pass over a snapshot (a chained pass ratcheted ramps up the gorge side), lift over own ground (a height taken across made humps), bridge junctions pinned (else the deck rose, and with it every ramp); spreadRamps() runs again after it. Open: the approach ramps still stand 6 to 9 m over the DEM on flat embankment quads at both Luís I ends; a terrain landfall in heightAt is the real fix (moves buildings, needs a fit re-bake)."
     }
   ]
 }
