@@ -792,6 +792,26 @@
         "Screenshots viewed: /tmp/porto-walklod/{day-clear,night-clear,day-fog,day-rain,west-day}-{on,off}.png, map-branch.png against map-base.png"
       ],
       "notes": "src/walk-lod.js holds the shared state and the one shadow rule (walkCasts: bounding sphere within 400 m of the walker, 15 % hysteresis); main.js, tiles.js and buildings-ms.js all use it, so they no longer overwrite each other in walk mode. Setters: tiles.setWalkProfile, ms.setWalkProfile, core group.userData.setFarTier. The far fade is FOG_UNIFORMS.fogFarFade (the atmosphere's apply() never writes it); the cloud deck is pinned to the far plane instead (weather.js). effects.js reads the open sky from the live near/far. The governor ignores 2 s after the switch (perf.holdGovernor, governor.hold). Gains are small at the Ribeira start: the streamed ring is not in view there; the road cells (cell-runs.js) and the OSM core tiles carry most of the triangles. Instanced crowds and cars (people.js, life.js) keep their own camDist rule. Not done (later stages): occlusion, HLOD, dither cross-fade, tile re-cutting, frame time on the owner's laptop."
+    },
+    {
+      "id": "porto-038",
+      "priority": 41,
+      "area": "performance",
+      "title": "Walk mode does not freeze every few seconds: the walk surface index is built a few milliseconds per frame",
+      "user_visible_behavior": "On /play the walk no longer stops for 0.3-0.5 s every 4-5 seconds. The walker and the crowd still stand on the drawn streets, quays and landmark floors.",
+      "status": "passing",
+      "verification": [
+        "npm test",
+        "node /tmp/porto-live/prof.mjs <url>/play 30 (CPU profile inside long tasks)",
+        "node /tmp/porto-live/hitch.mjs <url>/play 40 (long tasks while walking)"
+      ],
+      "evidence": [
+        "2026-11-25: CPU profile of 30 s walking on main (dev server): 5 long tasks of 259-504 ms; 1,364 of 1,695 sampled ms inside them in walk.js readSurface. The walkable meshes near the Ribeira start: 66 meshes, 1,001,937 triangles (street-minor 184k, sidewalks 124k); their set changed in 3 of 15 s of walking, and each change re-read them all",
+        "2026-11-25: after the change, the same profile: readSurface is gone from the long tasks",
+        "2026-11-25: hitch.mjs, 40 s walking, two runs each: porto-3d.com (main) long tasks over 200 ms: 6 and 6 (292-483 ms, every 4-5 s); this branch: 0 and 1 (one 1,340 ms task, not repeated, while three other builds loaded the machine)",
+        "2026-11-25: npm test 77/77"
+      ],
+      "notes": "src/walk.js: readSurface(x, z, now = true). The periodic reads in update pass now = false: a new index is a generator (buildSurface, yields every 2,048 triangles) pumped 3 ms per frame by pumpSurface, while the old index stays in use. It is read in one go at start, teleport, and when the walker is past 0.75 SURF_R from the old index's centre. The triangles go into a growing Float32Array instead of tri.push(...v). A shader compile of 50-770 ms can still happen once when a new material first draws (seen once in a dev profile, in getProgramInfoLog); not fixed here."
     }
   ]
 }
