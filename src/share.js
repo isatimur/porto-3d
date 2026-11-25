@@ -331,6 +331,8 @@ export function installShare(ctx) {
     };
     const draw = () => {
       beforeRender?.();
+      // the shadow map updates only when asked (atmosphere.setShadowEvery)
+      renderer.shadowMap.needsUpdate = true;
       if (fx.enabled) {
         fx.update(0, atmosphere.sunDir, atmosphere.night);
         fx.render();

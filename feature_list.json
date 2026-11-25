@@ -751,6 +751,25 @@
         "Screenshots viewed: /tmp/porto-live/crowd-local2-day.png and crowd-local2.png (people along the arcades, day and night)"
       ],
       "notes": "Two causes. (1) The road-network paths run through the house row (the model is wider than its OSM outline): in walk mode a blocked path sample steps sideways to the nearest free place (walk.free), up to 8 m, again whenever walk.obstacles changes. (2) A person started anywhere on a path; the quay paths are kilometres long, so most landed outside the 180 m street radius and were placed again every frame. A person now starts on the stretch of a near path inside the radius, and a near path is picked by the length of that stretch. The porto-streetscape crowd still has no path along the open quay apron between Cais da Estiva and the Praça da Ribeira."
+    },
+    {
+      "id": "porto-033",
+      "priority": 39,
+      "area": "performance",
+      "title": "Walk mode draws the shadow map every other frame",
+      "user_visible_behavior": "On /play the frame costs less: the sun's shadow map is drawn every second frame. The walker, the passers-by and the cars cast their shadows at half the frame rate, which a walk's pace does not show. The map at / is unchanged.",
+      "status": "passing",
+      "verification": [
+        "npm run verify",
+        "PLAYWRIGHT_CORE=... node scripts/check-walk.mjs"
+      ],
+      "evidence": [
+        "2026-11-25: /play, 4 s walking, governor level 0, 1440x900 at DPR 2: average triangles per frame 2,129,993 live, 1,823,584 on the branch; draw calls 204.4 live, 179.0 on the branch",
+        "2026-11-25: the map at /: 240 shadow passes in 240 frames",
+        "2026-11-25: npm run verify OK, 17 passed; unit tests 77/77; check-walk all passed",
+        "Screenshots viewed: /tmp/porto-live/shadow-clear.png against shadow-clear-live.png (same shading while walking), map-local.png"
+      ],
+      "notes": "renderer.shadowMap.autoUpdate is off for good: atmosphere.update sets needsUpdate (with the shadow camera fit on the same frame), share.js sets it before a postcard draw. A new render path that skips atmosphere.update must set renderer.shadowMap.needsUpdate itself. Frame time was not measured: headless Chromium holds 60 fps and the GPU timer queries varied 16 to 44 ms on one build."
     }
   ]
 }

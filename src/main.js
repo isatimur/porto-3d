@@ -1566,10 +1566,13 @@ async function start() {
             document.body.classList.add('is-walk');
             mapLines(false);
             attachCrowdModels();
+            // at a walk's pace a shadow map every other frame is not seen
+            atmosphere.setShadowEvery(2);
           },
           onExit: () => {
             document.body.classList.remove('is-walk');
             mapLines(true);
+            atmosphere.setShadowEvery(1);
             modeCtx.onExit();
           },
         });
