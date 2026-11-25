@@ -964,7 +964,21 @@ export function createAtmosphere(renderer, scene, { reducedMotion = false, shado
       rebuildEnv();
     }
     sky.position.copy(camera.position);
-    fitShadow(sun, camera, sunDir);
+    // the shadow map every `shadowEvery` frames; the shadow camera moves on
+    // the same frame as the map, so a kept map still matches its matrix
+    if (++shadowFrame >= shadowEvery || anim) {
+      shadowFrame = 0;
+      fitShadow(sun, camera, sunDir);
+      renderer.shadowMap.needsUpdate = true;
+    }
+  }
+  let shadowEvery = 1;
+  let shadowFrame = 0;
+  renderer.shadowMap.autoUpdate = false;
+  renderer.shadowMap.needsUpdate = true;
+  // walk mode: 2 (people and cars cast at half the frame rate); 1 elsewhere
+  function setShadowEvery(n) {
+    shadowEvery = Math.max(1, n | 0);
   }
 
   function setLinearOutput(on) {
@@ -1008,6 +1022,7 @@ export function createAtmosphere(renderer, scene, { reducedMotion = false, shado
     update,
     setLinearOutput,
     setShadowSize,
+    setShadowEvery,
     rebuildEnv, // after a lost WebGL context: the environment target comes back empty
     onChange: (f) => listeners.add(f),
     get time() {

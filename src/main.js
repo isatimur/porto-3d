@@ -1518,7 +1518,7 @@ async function start() {
   // the close passers-by become rigged models once walk mode has loaded
   function attachCrowdModels() {
     if (!crowdModels) return;
-    for (const c of streetCrowds()) if (!c.models) c.attachModels(crowdModels, (x, z, y) => walk.surfaceAt(x, z, y));
+    for (const c of streetCrowds()) if (!c.models) c.attachModels(crowdModels, (x, z, y) => walk.surfaceAt(x, z, y), (x, z) => walk.free(x, z), () => walk.obstacles);
   }
   // The quay terraces (quays.js) and the street crowds come with the
   // deferred layers: a walk asked for at load (/play, #walk) waits for them,
@@ -1566,10 +1566,13 @@ async function start() {
             document.body.classList.add('is-walk');
             mapLines(false);
             attachCrowdModels();
+            // at a walk's pace a shadow map every other frame is not seen
+            atmosphere.setShadowEvery(2);
           },
           onExit: () => {
             document.body.classList.remove('is-walk');
             mapLines(true);
+            atmosphere.setShadowEvery(1);
             modeCtx.onExit();
           },
         });

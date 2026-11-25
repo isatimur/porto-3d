@@ -93,6 +93,9 @@ export function createWalk({ camera, scene, rig, heightAt, dom, polys, places = 
   // model is (it builds lazily), read through the collider's extra rule.
   const MASK = 0.5 * M; // cell, world units
   const masks = new Map(); // mesh name -> { uuid, x0, z0, w, h, bits } (bits null: nothing high)
+  // counts the changes to what blocks (a model mask, the furniture): the
+  // crowd then moves its paths out of the solids again (people.js)
+  let obstacles = 0;
   function maskModel(o) {
     const g = o.geometry;
     if (masks.get(o.name)?.uuid === g.uuid) return;
@@ -100,6 +103,7 @@ export function createWalk({ camera, scene, rig, heightAt, dom, polys, places = 
     const tris = (g.index ? g.index.count : g.attributes.position.count) / 3;
     if (tris < 200) return void masks.delete(o.name);
     masks.set(o.name, { uuid: g.uuid, bits: null, ...buildMask(o) });
+    obstacles++;
   }
   function buildMask(o) {
     const g = o.geometry;
@@ -381,6 +385,7 @@ export function createWalk({ camera, scene, rig, heightAt, dom, polys, places = 
     }
     solidCount = extra.length - before;
     collider = createCollider([...polys, ...extra], 8, wetAt);
+    obstacles++;
   }
   // People and vehicles are bodies too: the walker cannot stand inside one.
   // Their places come from the instance matrices the crowd and the traffic
@@ -910,6 +915,10 @@ export function createWalk({ camera, scene, rig, heightAt, dom, polys, places = 
     // can a body stand at (x, z), world units
     free(x, z) {
       return !collider.blocked(x, z, BODY);
+    },
+    // counts the changes to what blocks (a model mask, the furniture)
+    get obstacles() {
+      return obstacles;
     },
     // the drawn surface a person at (x, z) stands on, stepping from y (the
     // close passers-by: their paths run on the terrain, under a quay deck)
