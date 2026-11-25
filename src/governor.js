@@ -126,6 +126,14 @@ export function createGovernor({
       s.underSince = 0;
       s.lastChange = hidden ? s.lastChange : t; // a cool-down after the tab returns
     },
+    // a burst that is not load (walk mode on or off refetches tiles): forget
+    // the window and start a cool-down at t; perf.js stops feeding meanwhile
+    hold(t) {
+      s.window.length = 0;
+      s.over = 0;
+      s.underSince = 0;
+      s.lastChange = t;
+    },
     // t: ms on a monotonic clock; dt: this frame's interval in ms
     feed(t, dt) {
       if (s.paused) return;

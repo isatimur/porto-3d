@@ -373,6 +373,12 @@ export function initPerf() {
   // per drawn frame; dtMs is the interval since the previous drawn frame
   let lastSecond = 0;
   let longSeen = 0;
+  // the governor ignores the next `ms` (walk mode on or off: the tile refetch
+  // burst is not load); before `ready` warmUntil is Infinity and stays so
+  perf.holdGovernor = (ms, now = performance.now()) => {
+    perf.warmUntil = Math.max(perf.warmUntil, now + ms);
+    perf.gov?.hold(now + ms);
+  };
   perf.frame = (now, dtMs) => {
     perf.ring[perf.ringN++ % perf.ring.length] = dtMs;
     if (now >= perf.warmUntil && !document.hidden) perf.gov?.feed(now, dtMs);

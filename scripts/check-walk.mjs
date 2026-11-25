@@ -5,7 +5,10 @@
 //   node scripts/check-walk.mjs [--base http://localhost:5472/] [--out dir]
 //
 // map: the map at / loads no walk code and no character model until the
-// walk button is pressed; the button starts the walk.
+// walk button is pressed; the button starts the walk. The walk profile
+// (porto-034, src/walk-lod.js) is on in the walk (far plane 5 km, 1.5 km
+// tiers), and after Go up the far plane, fog, sky and tile tiers match the
+// map again. walklod=0: /play keeps the map's far plane and tiers.
 // desktop, phone: /play opens walk mode on the Ribeira quay
 // (cities/porto.json walk_start). Check the eye height and the feet on the
 // drawn ground, walk forward with W (the stick on the phone), walk into the
@@ -83,12 +86,25 @@ async function map() {
   const before = await walkFiles();
   ok(before.length === 0, `map: no walk code and no character model on the map at / (${before.length} files)`);
   ok(await page.locator('#walk-toggle').count() === 1, 'map: the walk button is in the tools');
+  // the walk profile (porto-034, src/walk-lod.js): what the map had before
+  const lod = () => page.evaluate(() => JSON.stringify(window.__porto.lodSnapshot()));
+  const lodMap = await lod();
   await page.evaluate(() => document.getElementById('walk-toggle').click());
   await page.waitForFunction(() => window.__porto.walk?.active === true, null, { timeout: 40000 });
   const after = await walkFiles();
   ok(after.some((n) => /\/static\/walk-/.test(n)), `map: the button loads the walk chunk (${after.length} files)`);
   ok(/walk/.test(await page.evaluate(() => location.hash)), 'map: the button starts the walk (#walk)');
   if (OUT) await page.screenshot({ path: `${OUT}/walk-map-button.png` });
+  await page.waitForTimeout(1500);
+  const w = JSON.parse(await lod());
+  ok(w.far === 1250 && w.farFade.y > w.farFade.x && w.sky < w.far && w.walkLod, `map: the walk profile is on (far ${w.far}, fade ${w.farFade.x}-${w.farFade.y}, sky ${w.sky})`);
+  ok(w.tiles?.radiusM === 1500 && w.ms?.radiusM === 1500 && w.core?.vfarM === 1500, `map: walk tiers (ring ${w.tiles?.radiusM} m, ms ${w.ms?.radiusM} m, core roofs from ${w.core?.vfarM} m)`);
+  // Go up: everything the profile touched is back as the map had it
+  await page.locator('.walk-exit').click();
+  await page.waitForFunction(() => window.__porto.walk?.active === false, null, { timeout: 10000 });
+  await page.waitForTimeout(3000);
+  const lodBack = await lod();
+  ok(lodBack === lodMap, `map: after Go up far, fog, sky and tile tiers match the map${lodBack === lodMap ? '' : `: ${lodMap} -> ${lodBack}`}`);
   ok(errors.length === 0, `map: no page errors${errors.length ? ': ' + errors[0] : ''}`);
   await browser.close();
 }
@@ -317,7 +333,25 @@ async function run(profile) {
   await browser.close();
 }
 
+// ------------------------------------------------------------ ?walklod=0
+// the kill switch: walk mode keeps the map's far plane and tile tiers
+async function killSwitch() {
+  const browser = await launch();
+  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  const errors = [];
+  watch(page, errors);
+  await page.goto(`${BASE}play?lang=en&walklod=0${HASH}`, { waitUntil: 'load' });
+  await page.waitForFunction(() => window.__porto?.ready === true, null, { timeout: 240000 });
+  await page.waitForFunction(() => window.__porto.walk?.active === true, null, { timeout: 40000 });
+  await page.waitForTimeout(1500);
+  const s = await page.evaluate(() => window.__porto.lodSnapshot());
+  ok(s.far === 16000 && !s.walkLod && s.farFade.y === 0 && (!s.tiles || s.tiles.radiusM === 3000), `walklod=0: walk keeps the map's far plane and tiers (far ${s.far}, ring ${s.tiles?.radiusM} m)`);
+  ok(errors.length === 0, `walklod=0: no page errors${errors.length ? ': ' + errors[0] : ''}`);
+  await browser.close();
+}
+
 await map();
+await killSwitch();
 for (const profile of ['desktop', 'phone']) await run(profile);
 console.log(fails.length ? `\n${fails.length} FAILED` : '\nall passed');
 process.exit(fails.length ? 1 : 0);

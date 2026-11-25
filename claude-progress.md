@@ -9,6 +9,7 @@ updates it automatically.
 ## Current Verified State
 
 - Repository root: `~/Dev/porto-3d`
+- Verified 2026-11-25 (branch feat/walk-lod, walk-mode LOD stage 1a, porto-034): `npm run verify` OK, 17 passed, 0 skipped; `npm test` 77/77; `check:walk` all passed.
 - Standard startup path: `./init.sh`
 - Standard verification path: `npm run verify`
 - Verified 2026-11-24 (branch feat/walk-mode, walk mode, porto-031): `npm run verify` OK, 17 passed, 0 skipped; `npm test` 77/77; `scripts/check-walk.mjs` all passed on a served build.
@@ -25,6 +26,16 @@ updates it automatically.
 - Live: https://porto-3d.vercel.app (Vercel project `porto-3d`); git remote `isatimur/porto-3d`.
 
 ## Session Log
+
+### 2026-11-25 — walk mode level of detail, stage 1a (branch feat/walk-lod, feature porto-034)
+
+- Plan: `~/Dev/braga-3d/concepts_brief.md` (stage 1a, Porto first). Problem: on /play about 2.07 M triangles in the frustum, 3 % within 300 m of the walker; far plane 64 km; tiers and shadows follow the orbit, so walk mode drew the city as the map does.
+- `src/walk-lod.js` (new): `WALK_LOD` (on, walker x/z), the walk tiers (radius 1.5 km, far boxes from 1 km, roof-only from 1.5 km), far plane 1250 units (5 km), and `walkCasts(mesh)`: the one shadow rule in walk mode (bounding sphere within 400 m of the walker, 15 % hysteresis). Outside walk mode it is true, so the map keeps its rules.
+- `src/main.js` `walkProfile.apply()` in the walk's onEnter, `revert()` in onExit (every exit runs walk.stop → onExit; the loop also reverts if the walk is no longer active). It sets the far plane, `FOG_UNIFORMS.fogFarFade` (smoothstep 0.6–0.95 far), the sky sphere at 0.9 far, the tiers of the ring, the MS buildings and the core, and holds the governor 2 s. `?walklod=0` skips it. `debug.lodSnapshot()` for tests.
+- Setters: `tiles.setWalkProfile`, `ms.setWalkProfile`, core `group.userData.setFarTier`; roof-only hysteresis 20 % in walk mode. Shadow toggles in main.js, tiles.js, buildings-ms.js and the lite loop all call `walkCasts`. `scene.js` fog chunk: the far fade, off on the map. `weather.js`: the cloud deck is pinned to the far plane in walk mode (no far fade on it). `effects.js`: the open-sky depth test uses the live near/far when far < 16000. `governor.hold`, `perf.holdGovernor`.
+- Evidence (/play start, governor 0, 1440x900 DPR 2, `?walklod=0` as baseline): triangles per frame 1,823,110 → 1,559,084, calls 176.8 → 169.9; frustum 2,069,544 → 1,859,196, beyond 1 km 1,657,679 → 1,447,331; shadow casters 310 → 132. Screenshots day, night, fog, rain, west view: the same view, no hard edge; one far tower beyond 5 km in the west view is gone.
+- Checks: `npm test` 77/77; `check:walk` all passed, 78 ok (new: profile on in the walk, settings back after Go up, `?walklod=0`); `npm run verify` OK, 17 passed, 0 skipped (perf soft gate warns as on main: desktop transfer 2608 KB, p95 33.4 ms, phone-low ready 43.6 s). One verify run stalled 30 min in the phone-low bench while the machine was loaded; main's build took 529 s to `ready` in the same state, so the stall was the machine, not the branch.
+- Next: the gain at the Ribeira is small, because the road cells and the OSM core tiles carry most triangles and the streamed ring is not in view. Stage 0 (frame time on the owner's laptop) decides whether stage 1b or 2 is needed.
 
 ### 2026-11-25 — Ribeira crowd in walk mode (branch fix/ribeira-crowd, feature porto-032)
 
