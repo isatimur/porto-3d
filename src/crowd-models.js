@@ -33,6 +33,46 @@ const fetchGltf = (url) => {
   return gltfs.get(url);
 };
 
+// A seated pose over the idle clip (the models have no sit clip): the
+// person sits on the quay with the legs out in front. Each thigh and shin
+// turns to point forward, then the body drops until the hips are just over
+// the ground (y). (A seat height would need a seat: the quay sitters of
+// people.js have none.)
+const _a = new THREE.Vector3();
+const _b = new THREE.Vector3();
+const _d = new THREE.Vector3();
+const _t = new THREE.Vector3();
+const _q = new THREE.Quaternion();
+const _wq = new THREE.Quaternion();
+const _pq = new THREE.Quaternion();
+function aim(bone, child, target) {
+  bone.updateWorldMatrix(true, false);
+  child.updateWorldMatrix(false, false);
+  _a.setFromMatrixPosition(bone.matrixWorld);
+  _b.setFromMatrixPosition(child.matrixWorld);
+  _d.subVectors(_b, _a).normalize();
+  _q.setFromUnitVectors(_d, target);
+  bone.getWorldQuaternion(_wq);
+  bone.parent.getWorldQuaternion(_pq);
+  bone.quaternion.copy(_pq.invert().multiply(_q.multiply(_wq)));
+}
+function seat(s, y) {
+  const r = s.root.rotation.y;
+  const fx = Math.sin(r);
+  const fz = Math.cos(r);
+  let hip = 0;
+  s.legs.forEach(([up, leg, foot], k) => {
+    // the knees a little apart, the heels on the ground
+    const sx = (k ? -0.12 : 0.12) * fz;
+    const sz = (k ? 0.12 : -0.12) * fx;
+    aim(up, leg, _t.set(fx + sx, 0.02, fz + sz).normalize());
+    aim(leg, foot, _t.set(fx, -0.14, fz).normalize());
+    hip += _a.setFromMatrixPosition(up.matrixWorld).y / 2;
+  });
+  // the hip joints 12 cm over the ground (root scale: S x the person's scale)
+  s.root.position.y -= hip - (y + 0.12 * s.root.scale.x);
+}
+
 export function createCrowdModels(group) {
   const free = PASSERS.map(() => []); // per model: the clones not in use
   const byKind = [[], [], [], []]; // kind -> model indices
@@ -65,7 +105,9 @@ export function createCrowdModels(group) {
             const ai = mixer.clipAction(idle);
             aw.play();
             ai.play();
-            const slot = { m, root, mixer, aw, ai, owner: null, seen: 0 };
+            // the leg chains, for a seated pose over the idle clip
+            const legs = ['Left', 'Right'].map((sd) => ['UpLeg', 'Leg', 'Foot'].map((b) => model.getObjectByName(sd + b)));
+            const slot = { m, root, mixer, aw, ai, owner: null, seen: 0, legs: legs.every((l) => l.every(Boolean)) ? legs : null };
             group.add(root);
             free[m].push(slot);
             all.push(slot);
@@ -93,6 +135,12 @@ export function createCrowdModels(group) {
       const c = list[(seed + t) % list.length];
       if (free[c].length > (m < 0 ? 0 : free[m].length)) m = c;
     }
+    // all clones of the kind are out (four children close by): any model
+    // with one free stands in
+    for (let t = 0; m < 0 && t < PASSERS.length; t++) {
+      const c = (seed + t) % PASSERS.length;
+      if (free[c].length) m = c;
+    }
     if (m < 0) return null;
     s = free[m].pop();
     s.owner = key;
@@ -117,9 +165,15 @@ export function createCrowdModels(group) {
     begin() {
       frame++;
     },
-    // place the model of person `key` this frame; false: draw the instanced figure
-    // speedMs: ground speed (metres per second), 0 for a person who stands
-    show(key, kind, seed, x, y, z, hx, hz, scale, speedMs, dt) {
+    // a close person may still be drawn as an instanced figure only when the
+    // models cannot come (the load failed)
+    get failed() {
+      return state === 'failed';
+    },
+    // place the model of person `key` this frame; false: none to show
+    // speedMs: ground speed (metres per second), 0 for a person who stands;
+    // sit: the person sits on the ground at y, the legs out (seat())
+    show(key, kind, seed, x, y, z, hx, hz, scale, speedMs, dt, sit = false) {
       if (state !== 'ready') return false;
       const s = take(key, kind, seed);
       if (!s) return false;
@@ -133,6 +187,7 @@ export function createCrowdModels(group) {
       s.ai.setEffectiveWeight(walking ? 0 : 1);
       s.aw.timeScale = walking ? THREE.MathUtils.clamp(speedMs / WALK_MS, 0.5, 1.8) : 1;
       s.mixer.update(dt);
+      if (sit && s.legs) seat(s, y);
       return true;
     },
     // after a frame: the clones nobody asked for go back to the pool

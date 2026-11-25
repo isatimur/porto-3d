@@ -27,6 +27,16 @@ updates it automatically.
 
 ## Session Log
 
+### 2026-11-25 — no box people near the walker (branch fix/crowd-near-boxes, feature porto-035)
+
+- Problem (user report, /play at the Ribeira near the Luís I bridge): a box person with a box dog 2 m from the hero, among the rigged passers-by; people "disappear into textures".
+- Causes: in `createCrowd` (`src/people.js`) a close dog walker (kind 4) and a close sitter never got a model; `take()` in `src/crowd-models.js` gave up when the clones of a kind were out (kind 1 has 4). And at street level the instanced figures stood on their path's y, which runs on the terrain up to 0.77 m under the Ribeira quay deck: about half the figures within 150 m stood knee-deep in the paving.
+- Fix: within the model radius (35 m) every person is a model. A dog walker's dog is an instanced figure with only the dog's parts (new kind 5) on the model's ground. A sitter is a model sat on the quay with the legs out (`seat()`: thighs and shins aimed forward over the idle clip, hips 12 cm over the ground). `take()` falls back to any model with a free clone; with none, the person is left out (`closeHidden`), never drawn as a box, unless the models failed to load. At street level the instanced figures stand on `walk.surfaceAt` too. The far figure's dog is now a dog: rounded body, neck, head, snout, ears, tail, four legs that trot in diagonal pairs (about 150 triangles; the old 4 boxes were 44).
+- New crowd getters: `closeBoxes` (figures drawn as boxes within 35 m) and `closeHidden`.
+- Evidence (/tmp/porto-crowd/near.mjs: 5 points along the quay towards the bridge, 4 quarter turns each, 80 samples, 2026-06-23 20:00 Lisbon): box figures within 35 m summed over samples 43 → 0, max in one frame 4 → 0, people left out 0. Sunk figures within 150 m (/tmp/porto-crowd/sink.mjs, surface over the feet > 0.3 m): 20 of 36 → 2 of 35 at the start.
+- Screenshots viewed: /tmp/porto-crowd/before-{0,6}.png, after2-4.png, after-{0,6}.png, sit.png (seated model), dog3.png (close dog beside its model), fardog3-b.png (far figure with the new dog).
+- Checks: `npm test` 77/77; `check:walk` all passed; `npm run verify` 16 passed, 1 failed: the perf soft gate, phone-low got a 404 on a hashed `harbour-*.js` chunk that is in dist. Rerun of `scripts/perf-bench.mjs --reduced --check` alone: 0 errors, 4 soft budget misses (desktop transfer 2609 KB, p95 33.3 ms; phone-low ready 42.7 s, p95 66.6 ms), as on main.
+
 ### 2026-11-25 — walk mode level of detail, stage 1a (branch feat/walk-lod, feature porto-034)
 
 - Plan: `~/Dev/braga-3d/concepts_brief.md` (stage 1a, Porto first). Problem: on /play about 2.07 M triangles in the frustum, 3 % within 300 m of the walker; far plane 64 km; tiers and shadows follow the orbit, so walk mode drew the city as the map does.
