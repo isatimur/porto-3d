@@ -733,6 +733,11 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
     return c;
   });
   const total = cum.map((c) => c[c.length - 1] || 1);
+  // the stretch of each near path inside the focus radius (arc length, set
+  // by gather): a person starts there, not anywhere on a quay kilometres
+  // long, or most land outside the radius and are placed again every frame
+  const nearLo = new Float32Array(list.length);
+  const nearHi = Float32Array.from(total);
   const rnd = lcg(90210);
   const rrnd = lcg(1301); // runtime only: stops and looks
   const clamp1 = (v) => (v < -1 ? -1 : v > 1 ? 1 : v);
@@ -809,7 +814,7 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
       return;
     }
     P[i] = pi;
-    SS[i] = rnd() * total[pi];
+    SS[i] = nearLo[pi] + rnd() * (nearHi[pi] - nearLo[pi]);
     D[i] = rnd() < 0.5 ? 1 : -1;
     V[i] = (1.05 + rnd() * 0.55) * S;
     F[i] = rnd() * 2 - 1;
@@ -845,15 +850,44 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
     nearR = R;
     const R2 = R * R;
     near = [];
+    nearCum = [];
+    let sum = 0;
     for (let pi = 0; pi < list.length; pi++) {
       const p = list[pi];
-      for (let k = 0; k < p.x.length; k += 3) {
+      const c = cum[pi];
+      let lo = Infinity;
+      let hi = -Infinity;
+      for (let k = 0; k < p.x.length; k++) {
         if ((p.x[k] - fx) ** 2 + (p.z[k] - fz) ** 2 < R2) {
-          near.push(pi);
-          break;
+          if (c[k] < lo) lo = c[k];
+          if (c[k] > hi) hi = c[k];
         }
       }
+      if (lo > hi) continue;
+      // half a segment past each end, so the stretch reaches the radius
+      const n = p.x.length;
+      lo = Math.max(0, lo - (total[pi] / n) * 0.5);
+      hi = Math.min(total[pi], hi + (total[pi] / n) * 0.5);
+      nearLo[pi] = lo;
+      nearHi[pi] = hi;
+      near.push(pi);
+      sum += hi - lo + 2 * S; // a short stretch still gets a few people
+      nearCum.push(sum);
     }
+  }
+  // a near path, by the length of its stretch: a long quay gets more
+  // people than a lane that only touches the radius
+  let nearCum = [];
+  function pickNear() {
+    const t = rnd() * nearCum[nearCum.length - 1];
+    let lo = 0;
+    let hi = nearCum.length - 1;
+    while (lo < hi) {
+      const m = (lo + hi) >> 1;
+      if (nearCum[m] < t) lo = m + 1;
+      else hi = m;
+    }
+    return near[lo];
   }
 
   const pos = { x: 0, y: 0, z: 0, hx: 0, hz: 1 };
@@ -1066,6 +1100,50 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
   // never loads a model; from then on a close view shows them.
   let models = null;
   let groundAt = null;
+  // Walk mode knows where a body can stand. A path drawn from the road
+  // network can run through a solid (the Ribeira house row is wider than
+  // its OSM outline), so its blocked samples step sideways to the nearest
+  // free place, up to 8 m. Each path near the focus is fixed once per
+  // obstacle version, from its original samples.
+  let freeAt = null;
+  let obstaclesNow = null;
+  const fixedAt = new Int32Array(list.length).fill(-1);
+  const orig = new Array(list.length);
+  function unblock(pi, ver) {
+    if (fixedAt[pi] === ver) return;
+    fixedAt[pi] = ver;
+    const p = list[pi];
+    const n = p.x.length;
+    if (!orig[pi]) orig[pi] = { x: Float32Array.from(p.x), z: Float32Array.from(p.z) };
+    const ox = orig[pi].x;
+    const oz = orig[pi].z;
+    let moved = false;
+    for (let k = 0; k < n; k++) {
+      let x = ox[k];
+      let z = oz[k];
+      if (!freeAt(x, z)) {
+        const a = Math.max(0, k - 1);
+        const b = Math.min(n - 1, k + 1);
+        const tx = ox[b] - ox[a];
+        const tz = oz[b] - oz[a];
+        const L = Math.hypot(tx, tz) || 1;
+        const nx = -tz / L;
+        const nz = tx / L;
+        for (let d = 0.5 * S; d <= 8 * S; d += 0.5 * S) {
+          if (freeAt(x + nx * d, z + nz * d)) { x += nx * d; z += nz * d; break; }
+          if (freeAt(x - nx * d, z - nz * d)) { x -= nx * d; z -= nz * d; break; }
+        }
+      }
+      if (x !== p.x[k] || z !== p.z[k]) moved = true;
+      p.x[k] = x;
+      p.z[k] = z;
+    }
+    if (moved) {
+      const c = cum[pi];
+      for (let k = 1; k < n; k++) c[k] = c[k - 1] + Math.hypot(p.x[k] - p.x[k - 1], p.z[k] - p.z[k - 1]);
+      total[pi] = c[n - 1] || 1;
+    }
+  }
   const MODEL_NEAR2 = (35 * S) ** 2; // a person nearer the camera than 35 m
   const MODEL_CAM = 40; // the view this close (camera to focus, world units)
   const STREET_CAM = 8; // street level: camera to focus under 32 m
@@ -1086,6 +1164,10 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
     }
     const moved = (fx - candX) ** 2 + (fz - candZ) ** 2;
     if (moved > 12 * 12 || !near.length || R !== nearR) gather(fx, fz, R);
+    if (freeAt) {
+      const ver = obstaclesNow();
+      for (const pi of near) unblock(pi, ver);
+    }
     if (!near.length) {
       mesh.visible = false;
       shown = 0;
@@ -1095,7 +1177,7 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
     const want = Math.min(WALK_MAX, Math.max(0, Math.round((WALK_MAX * demand) / DEMAND_MAX)));
     const reall = !wasOn || moved > R * R * 0.25;
     if (reall) WSET.fill(0);
-    for (let i = 0; i < want; i++) if (reall || !WSET[i]) place(i, near[Math.floor(rnd() * near.length)]);
+    for (let i = 0; i < want; i++) if (reall || !WSET[i]) place(i, pickNear());
     active = want;
     wasOn = true;
     const cx = camera.position.x;
@@ -1111,7 +1193,7 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
       if (dt > 0) step(i, dt);
       const p = locate(i);
       if ((p.x - fx) ** 2 + (p.z - fz) ** 2 > R2) {
-        place(i, near[Math.floor(rnd() * near.length)]);
+        place(i, pickNear());
         continue;
       }
       if (n >= cap || (p.x - cx) ** 2 + (p.z - cz) ** 2 > RV2 * 1.6 || !inView(frustum, p.x, p.y + 0.2, p.z, 0.6)) continue;
@@ -1190,8 +1272,12 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
     paths: list,
     // walk mode: make(group) -> crowd-models.js handle, added beside the mesh;
     // ground(x, z, y): the drawn surface there (a quay deck, a model's
-    // paving), which a close model stands on instead of its path's height
-    attachModels(make, ground = null) {
+    // paving), which a close model stands on instead of its path's height;
+    // free(x, z): a body can stand there, version(): changes when the solids
+    // do (the paths step out of the solids, see unblock)
+    attachModels(make, ground = null, free = null, version = () => 0) {
+      freeAt = free;
+      obstaclesNow = version;
       if (models || lite || !mesh.parent) return;
       models = make(mesh.parent);
       groundAt = ground;

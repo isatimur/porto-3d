@@ -26,6 +26,13 @@ updates it automatically.
 
 ## Session Log
 
+### 2026-11-25 — Ribeira crowd in walk mode (branch fix/ribeira-crowd, feature porto-032)
+
+- Problem: on /play the Cais da Ribeira was empty. A probe (crowd instance positions, a top-down map of `walk.what` with the crowd paths) showed two causes: path samples inside the house row, and people placed anywhere on kilometre-long quay paths, so few landed inside the 180 m street radius.
+- `src/people.js` (createCrowd): `unblock` steps blocked samples sideways (up to 8 m) from the original samples, per obstacle version; `gather` keeps each near path's stretch inside the radius (`nearLo`/`nearHi`); `pickNear` picks a near path by stretch length; `attachModels(make, ground, free, version)`.
+- `src/walk.js`: `obstacles` counter (model masks, furniture collider) and `walk.obstacles` getter. `src/main.js` passes `walk.free` and `walk.obstacles` to the crowds.
+- Evidence: inside-house samples near the start 39 → 3 of 293; quay crowd within 100 m 1 → 17; verify OK 17 passed; tests 77/77; check-walk all passed.
+
 ### 2026-11-24 — walk mode from braga-3d (branch feat/walk-mode, feature porto-031)
 
 - Goal: Braga's walk mode in Porto: street level at eye height, the GLB walker, building collision, GLB passers-by, and /play.
