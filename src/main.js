@@ -12,6 +12,7 @@ import { buildRoads } from './roads.js';
 import { buildLandmarks, LAMP_UNIFORM } from './landmarks.js';
 import { buildBuildings, BUILDING_UNIFORMS, setBuildingsLite } from './buildings.js';
 import { buildNature, buildNatureBase } from './nature.js';
+import { WALK_LOD, WALK_FAR_U, walkTiersU, walkCasts } from './walk-lod.js';
 import { createEffects } from './effects.js';
 import { createIntro } from './intro.js';
 import { createInstruments } from './ui.js';
@@ -297,6 +298,7 @@ async function start() {
     // switched on after ready: the governor's current radius (at boot it is
     // applied with the other knobs, as before layers existed)
     if (debug.ready) tiles.setBudgetScale(perf.knobs.radius);
+    if (WALK_LOD.on) tiles.setWalkProfile(walkTiersU()); // switched on during a walk
     if (cityRef) tiles.refreshCore(); // the core's built-up channel is already painted
   }
   if (layers.on('ring')) startRing();
@@ -623,6 +625,7 @@ async function start() {
   function createMs() {
     if (ms || !msModule) return;
     ms = msModule.createMsBuildings({ scene, camera, terrain, heightAt, proj, footprints, plans: msPlans, osm: city.footprints, mobile: LITE, lite: LITE, debug });
+    if (WALK_LOD.on) ms.setWalkProfile?.(walkTiersU()); // built during a walk
   }
   const lightInfo = { dir: atmosphere.sunDir, color: new THREE.Color(), ambient: new THREE.Color() };
   const _amb = new THREE.Color();
@@ -1533,6 +1536,67 @@ async function start() {
       check();
     });
   }
+  // The walk profile (porto-034, walk-lod.js): what walk mode changes for
+  // speed, applied in onEnter and reverted in onExit. Every way out of the
+  // walk (Go up, Esc, a place card, Back or a hash edit, another mode) runs
+  // walk.stop(), which calls onExit; revert() is idempotent. ?walklod=0
+  // keeps the old behaviour.
+  //   - the ring, the MS buildings and the core: a 1.5 km radius, far boxes
+  //     from 1 km, roof-only houses from 1.5 km (instead of 3 / 4 / 6 km);
+  //   - the camera far plane at 5 km (from 64 km), everything fading into
+  //     the fog colour from 0.6 to 0.95 of it (scene.js fogFarFade, which
+  //     the atmosphere's apply() never rewrites); the sky sphere inside it;
+  //   - shadows only from meshes within 400 m of the walker (walkCasts);
+  //   - the governor ignores the 2 s after the switch (the tile refetch).
+  const WALK_LOD_OFF = new URLSearchParams(location.search).get('walklod') === '0';
+  const walkProfile = {
+    saved: null,
+    apply() {
+      if (WALK_LOD_OFF || this.saved) return;
+      this.saved = { far: camera.far, sky: atmosphere.sky.scale.x };
+      const p = walkCamFollow();
+      Object.assign(WALK_LOD, { on: true, x: p.x, z: p.z });
+      camera.far = WALK_FAR_U;
+      camera.updateProjectionMatrix();
+      Object.assign(FOG_UNIFORMS.fogFarFade.value, { x: 0.6 * WALK_FAR_U, y: 0.95 * WALK_FAR_U, z: 1 });
+      atmosphere.sky.scale.setScalar(0.9 * WALK_FAR_U);
+      const tiers = walkTiersU();
+      tiles?.setWalkProfile(tiers);
+      ms?.setWalkProfile?.(tiers);
+      cityRef?.group.userData.setFarTier?.(tiers);
+      perf.holdGovernor?.(2000);
+      debug.walkLod = true;
+    },
+    revert() {
+      if (!this.saved) return;
+      const s = this.saved;
+      this.saved = null;
+      WALK_LOD.on = false;
+      camera.far = s.far;
+      camera.updateProjectionMatrix();
+      Object.assign(FOG_UNIFORMS.fogFarFade.value, { x: 0, y: 0, z: 0 });
+      atmosphere.sky.scale.setScalar(s.sky);
+      tiles?.setWalkProfile(null);
+      ms?.setWalkProfile?.(null);
+      cityRef?.group.userData.setFarTier?.(null);
+      perf.holdGovernor?.(2000);
+      debug.walkLod = false;
+    },
+  };
+  // the walker's position for walkCasts (the camera before the walk has one)
+  const walkCamFollow = () => (walk?.active ? walk.position : camera.position);
+  debug.walkProfile = walkProfile;
+  // tests: the settings the walk profile touches, to compare before and after
+  debug.lodSnapshot = () => ({
+    far: camera.far,
+    fogDensity: scene.fog?.density ?? null,
+    farFade: { ...FOG_UNIFORMS.fogFarFade.value },
+    sky: atmosphere.sky.scale.x,
+    walkLod: WALK_LOD.on,
+    tiles: tiles?.lodSettings ?? null,
+    ms: ms?.lodSettings ?? null,
+    core: cityRef?.group.userData.farTier?.() ?? null,
+  });
   function ensureWalk() {
     if (walk) return Promise.resolve(walk);
     walkLoad ??= Promise.all([import('./walk.js'), import('./crowd-models.js')])
@@ -1568,8 +1632,10 @@ async function start() {
             attachCrowdModels();
             // at a walk's pace a shadow map every other frame is not seen
             atmosphere.setShadowEvery(2);
+            walkProfile.apply();
           },
           onExit: () => {
+            walkProfile.revert();
             document.body.classList.remove('is-walk');
             mapLines(true);
             atmosphere.setShadowEvery(1);
@@ -2076,6 +2142,7 @@ async function start() {
   let clock = 0; // not `t`: that name is the translation function
   let cityCasts = true;
   let landCasts = true;
+  let castWalk = false; // walk-lod.js rule in force on the last frame
   let simAcc = 0; // time owed to the simulations (life.js) at a reduced rate
   let lastLabelPass = 0;
   function frame() {
@@ -2106,21 +2173,34 @@ async function start() {
       camera.updateProjectionMatrix();
     }
     camera.userData.focus = rig.controls.target;
+    // the walk profile follows the walker; a walk that ended by any path
+    // the onExit hook missed (a failed start) still gets it reverted
+    if (WALK_LOD.on) {
+      if (walk?.active) {
+        const p = walk.position;
+        WALK_LOD.x = p.x;
+        WALK_LOD.z = p.z;
+      } else walkProfile.revert();
+    }
     // building shadows only when they can be seen: from far away they are
     // sub-pixel and cost one draw call per tile in the shadow pass
     // (700 units = 2.8 km, the radius tiles.js and buildings-ms.js use too;
-    // this also covers the first frames, before the streamed tiles exist)
+    // this also covers the first frames, before the streamed tiles exist).
+    // Walk mode: only the meshes near the walker (walkCasts, the same rule
+    // tiles.js and buildings-ms.js apply), every 15 frames as it moves.
     const castCity = camDist < CAST_NEAR_U;
-    if (castCity !== cityCasts) {
+    const castTick = WALK_LOD.on !== castWalk || (WALK_LOD.on && debug.frames % 15 === 7);
+    castWalk = WALK_LOD.on;
+    if (castCity !== cityCasts || castTick) {
       cityCasts = castCity;
-      for (const m of city.group.children) m.castShadow = castCity;
+      for (const m of city.group.children) m.castShadow = castCity && walkCasts(m);
     }
-    if (castCity !== landCasts) {
+    if (castCity !== landCasts || castTick) {
       landCasts = castCity;
       marks.group.traverse((m) => {
         if (!m.isMesh) return;
         m.userData.castOrig ??= m.castShadow; // the flag as built (tiles.js reads the same key)
-        m.castShadow = castCity && m.userData.castOrig;
+        m.castShadow = castCity && m.userData.castOrig && walkCasts(m);
       });
     }
     applyGeoLod(camDist);
@@ -2163,7 +2243,7 @@ async function start() {
       for (const m of marks.group.children) {
         if (!m.isMesh) continue;
         m.userData.liteCast ??= m.userData.castOrig ?? m.castShadow; // as built, not as the far-view LOD left it
-        m.castShadow = m.userData.liteCast && camDist < 4000 && m.position.distanceToSquared(camera.position) < 1200 * 1200;
+        m.castShadow = m.userData.liteCast && camDist < 4000 && m.position.distanceToSquared(camera.position) < 1200 * 1200 && walkCasts(m);
       }
     }
     cullCells();

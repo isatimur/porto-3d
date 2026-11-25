@@ -107,14 +107,22 @@ function cloudDeck() {
     depthWrite: false,
     side: THREE.DoubleSide,
     fog: true,
+    // its own distance fade (6-9 km) stays; walk mode's far fade is for the
+    // ground and the buildings
+    defines: { BRG_NO_FAR_FADE: '' },
     vertexShader: /* glsl */ `
       varying vec3 vW;
+      uniform vec4 fogFarFade;
       #include <fog_pars_vertex>
       void main() {
         vec4 w = modelMatrix * vec4(position, 1.0);
         vW = w.xyz;
         vec4 mvPosition = viewMatrix * w;
         gl_Position = projectionMatrix * mvPosition;
+        // walk mode (fogFarFade.z): the deck sits at the far plane, like the
+        // sky (scene.js gl_Position.xyww), so the 5 km far plane does not
+        // cut it. It is above every roof and hill, so depth 1 sorts it right.
+        if (fogFarFade.z > 0.5) gl_Position.z = min(gl_Position.z, gl_Position.w);
         #include <fog_vertex>
       }`,
     fragmentShader: /* glsl */ `

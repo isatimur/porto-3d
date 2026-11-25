@@ -1133,7 +1133,18 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
       }
     }
   };
+  // walk mode (main.js walkProfile, walk-lod.js): the roof-only tier from
+  // vfarU, no focus keep (the focus sits by the walker), 20 % hysteresis;
+  // null puts the map's 6 km / 3 km back
+  let farTier = null;
+  group.userData.setFarTier = (p) => {
+    farTier = p ? { vfarU: p.vfarU } : null;
+  };
+  group.userData.farTier = () => ({ walk: !!farTier, vfarM: Math.round((farTier ? farTier.vfarU : VFAR) / S), keepM: farTier ? 0 : Math.round(KEEP / S) });
   group.userData.updateLod = (cam, focus) => {
+    const vfar = farTier ? farTier.vfarU : VFAR;
+    const keep = farTier ? 0 : KEEP;
+    const vfBack = farTier ? 0.8 : 0.9;
     const MID = MID_BASE * lodK;
     const DETAIL = DETAIL_BASE * lodK;
     for (const mesh of group.children) {
@@ -1163,7 +1174,7 @@ export function buildBuildings(data, project, heightAt, masks = { outlines: [], 
       if (!roofs) continue;
       const df = Math.hypot(bs.center.x - focus.x, bs.center.z - focus.z) - bs.radius;
       const now = mesh.geometry === roofs;
-      const want = df > KEEP && dc > (now ? VFAR * 0.9 : VFAR);
+      const want = df > keep && dc > (now ? vfar * vfBack : vfar);
       if (want !== now) mesh.geometry = want ? roofs : full;
     }
   };

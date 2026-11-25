@@ -25,6 +25,7 @@ import { groundAxes } from './scene.js';
 import { BUILDING_UNIFORMS, createBuildingMaterial, extrudeBuilding, lastPlan, hash } from './buildings.js';
 import { hexLinear, minRect } from './facades.js';
 import { createWave } from './load-status.js';
+import { walkCasts } from './walk-lod.js';
 
 const CORE_TILE_M = 2000;
 const GROUP = 3; // far ring tiles per merged block side
@@ -467,6 +468,8 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
   let started = false;
   let coreDone = false;
   let castNow = true;
+  let castWalk = false;
+  let walkP = null; // walk mode: { radiusU, nearU, vfarU } (main.js walkProfile)
   let gpuBytes = 0;
   let sinceSchedule = SCHEDULE_S;
   let quiet = 0;
@@ -853,8 +856,13 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
     const flyingTo = !!dest && clock < dest.until;
     const focus = camera.userData.focus || cam;
     const altU = Math.max(0, cam.y - heightAt(cam.x, cam.z));
-    const R = radiusFor(altU / S, mobile);
-    const nearU = NEAR_M * S;
+    // walk mode (walk-lod.js): a shorter radius and nearer far / roof tiers;
+    // the focus sits by the walker, so its 3 km keep does not apply
+    const R = walkP ? Math.min(radiusFor(altU / S, mobile), walkP.radiusU) : radiusFor(altU / S, mobile);
+    const nearU = walkP && !lite ? Math.min(NEAR_M * S, walkP.nearU) : NEAR_M * S;
+    const vfarU = walkP ? walkP.vfarU : VFAR_U;
+    const keepU = walkP ? 0 : FOCUS_KEEP_U;
+    const vfBack = walkP ? 0.8 : 0.9;
     _pm.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
     _frustum.setFromProjectionMatrix(_pm);
     const cands = [];
@@ -878,7 +886,7 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
       if (T.state === 'built') {
         // very far: roof-only houses, when the tile is 6 km from the camera
         // and 3 km from the focus (hysteresis of 10 %)
-        const vf = dFoc > FOCUS_KEEP_U && d3 > (T.vf ? VFAR_U * 0.9 : VFAR_U);
+        const vf = dFoc > keepU && d3 > (T.vf ? vfarU * vfBack : vfarU);
         if (vf !== !!T.vf) {
           T.vf = vf;
           if (T.lod === 'far') {
@@ -922,7 +930,7 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
       if (!roofs) continue;
       const df = Math.hypot(bs.center.x - focus.x, bs.center.z - focus.z) - bs.radius;
       const roofNow = m.geometry === roofs;
-      const want = df > FOCUS_KEEP_U && dc > (roofNow ? VFAR_U * 0.9 : VFAR_U);
+      const want = df > keepU && dc > (roofNow ? vfarU * vfBack : vfarU);
       if (want !== roofNow) m.geometry = want ? roofs : full;
     }
     jobs.sort((a, b) => b.prio - a.prio);
@@ -1010,11 +1018,15 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
     // and over the whole city their shadows are below a pixel but cost a
     // second pass of every core mesh (the OSM core casts up to 4000 units)
     const focus = camera.userData.focus;
+    // walk mode: only the meshes near the walker (walkCasts, walk-lod.js),
+    // re-applied every 15 frames as the walker moves
     const cast = (focus ? camera.position.distanceTo(focus) : 0) < CAST_U;
-    if (cast !== castNow) {
+    const walking = !!walkP;
+    if (cast !== castNow || walking !== castWalk || (walking && frames % 15 === 0)) {
       castNow = cast;
-      for (const m of coreMeshes) m.castShadow = cast;
-      for (const T of tiles.values()) if (T.mesh) T.mesh.castShadow = cast;
+      castWalk = walking;
+      for (const m of coreMeshes) m.castShadow = cast && walkCasts(m);
+      for (const T of tiles.values()) if (T.mesh) T.mesh.castShadow = cast && walkCasts(T.mesh);
     }
     if (frames % 15 === 0) refreshStats();
   };
@@ -1039,6 +1051,21 @@ export function createMsBuildings({ scene, camera, terrain, heightAt, proj, foot
     sinceSchedule = SCHEDULE_S;
   };
   api.mainMs = () => +buildSum.toFixed(0);
+  // walk mode (main.js walkProfile): { radiusU, nearU, vfarU } or null
+  api.setWalkProfile = function setWalkProfile(p) {
+    walkP = p ? { ...p } : null;
+    sinceSchedule = SCHEDULE_S;
+  };
+  // tests: the distances in force now (metres)
+  Object.defineProperty(api, 'lodSettings', {
+    get: () => ({
+      walk: !!walkP,
+      radiusM: Math.round((walkP ? Math.min(radiusFor(0, mobile), walkP.radiusU) : radiusFor(0, mobile)) / S),
+      nearM: Math.round((walkP && !lite ? Math.min(NEAR_M * S, walkP.nearU) : NEAR_M * S) / S),
+      vfarM: Math.round((walkP ? walkP.vfarU : VFAR_U) / S),
+      keepM: walkP ? 0 : Math.round(FOCUS_KEEP_U / S),
+    }),
+  });
   // for tests: MS buildings drawn with their centre within rM metres of (x, z)
   api.countNear = function countNear(x, z, rM) {
     const r2 = (rM * S) ** 2;

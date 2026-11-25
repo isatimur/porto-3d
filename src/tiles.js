@@ -32,6 +32,7 @@ import { getFacadeConfig } from './facades.js';
 import { SURFACE, STRUCTURE_COLORS } from './roads.js';
 import { TREE_TABLES } from './nature.js';
 import { createWave } from './load-status.js';
+import { walkCasts } from './walk-lod.js';
 
 const LAND_PX = 32; // land-cover pixels per tile side (~30 m): the wide mask
 // is 4x smaller than 64, so its upload no longer stalls streaming on mobile
@@ -84,6 +85,11 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
   // adaptive governor (main.js): < 1 shrinks the streamed radius, the near-LOD
   // draw-call cap and the per-frame integration budget together.
   let budgetScale = 1;
+  // walk mode (walk-lod.js, main.js walkProfile): { radiusU, nearU, vfarU }
+  // or null. The radius replaces the 3 km street-level floor, the far boxes
+  // start at nearU, the roof-only houses at vfarU (the focus sits by the
+  // walker, so its 3 km keep does not apply).
+  let walkP = null;
   // Flight destination (rig.flyTo): its tiles load first, as if the camera
   // were already there, and the fetch limit rises until the flight lands.
   let dest = null; // { x, z, until } in scene clock seconds
@@ -125,7 +131,9 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
   let treesDirty = false;
   let sinceTrees = 0;
   let treeKey = '';
-  let castNow = true;  const nFetch = [0, 0];
+  let castNow = true;
+  let castWalk = false;
+  const nFetch = [0, 0];
   const nBuild = [0, 0];
   const nBuildNear = [0, 0, 0]; // sum, count, max (ms)
   const nBuildFar = [0, 0, 0];
@@ -619,7 +627,8 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
   function radiusFor(altM) {
     if (altM > (mobile ? 6000 : 4500)) return Infinity;
     const r = 3000 * Math.pow(Math.max(altM, 300) / 300, 0.517);
-    return (mobile ? r / 2 : r) * S * budgetScale;
+    const u = (mobile ? r / 2 : r) * S;
+    return (walkP ? Math.min(u, walkP.radiusU) : u) * budgetScale;
   }
 
   function schedule() {
@@ -631,7 +640,12 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     stats.altM = Math.round(altU / S);
     _pm.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
     _frustum.setFromProjectionMatrix(_pm);
-    const nearU = NEAR_M * S;
+    const nearU = walkP ? Math.min(NEAR_M * S, walkP.nearU) : NEAR_M * S;
+    const vfarU = walkP ? walkP.vfarU : VFAR_U;
+    const keepU = walkP ? 0 : FOCUS_KEEP_U;
+    // walk mode: 20 % hysteresis on the roof-only switch (a scooter at the
+    // edge does not rebuild a 3 x 3 block back and forth)
+    const vfBack = walkP ? 0.8 : 0.9;
     _cands.length = 0;
     const nearCap = maxNear();
     const flyingTo = !!dest && clock < dest.until;
@@ -650,7 +664,7 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
       const lodWant = d3 < nearU ? 'near' : d3 > nearU * 1.2 ? 'far' : T.lod || 'far';
       // very far: roof-only houses, when the tile is 6 km from the camera
       // and 3 km from the focus (hysteresis of 10 %)
-      const vf = dFoc > FOCUS_KEEP_U && d3 > (T.vf ? VFAR_U * 0.9 : VFAR_U);
+      const vf = dFoc > keepU && d3 > (T.vf ? vfarU * vfBack : vfarU);
       if (vf !== !!T.vf) {
         T.vf = vf;
         if (T.lod === 'far' && T.far) groupOf(T).dirty = true;
@@ -771,20 +785,27 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     const focus = camera.userData.focus;
     const camDist = focus ? camera.position.distanceTo(focus) : 0;
     const cast = camDist < CAST_U;
-    if (cast !== castNow) {
+    // walk mode: walkCasts (walk-lod.js) keeps only the meshes near the
+    // walker; it is true outside walk mode. The walker moves, so the rule is
+    // re-applied every 15 frames, and once when the mode changes.
+    const walking = !!walkP;
+    if (cast !== castNow || walking !== castWalk) {
       castNow = cast;
-      for (const m of group.children) if (m.userData.casts) m.castShadow = cast;
+      castWalk = walking;
+      for (const m of group.children) if (m.userData.casts) m.castShadow = cast && walkCasts(m);
+    } else if (walking && frames % 15 === 0) {
+      for (const m of group.children) if (m.userData.casts) m.castShadow = cast && walkCasts(m);
     }
     if (frames % 15 === 0) {
       // The OSM core (buildings.js) and the landmarks follow the same rule.
       // Set every time: main.js also sets the core's flag (at 4000 units).
       const core = scene.getObjectByName('buildings');
-      if (core) for (const m of core.children) if (m.isMesh) m.castShadow = cast;
+      if (core) for (const m of core.children) if (m.isMesh) m.castShadow = cast && walkCasts(m);
       core?.userData.updateLod?.(camera.position, focus || camera.position);
       scene.getObjectByName('landmarks')?.traverse((m) => {
         if (!m.isMesh) return;
         if (m.userData.castOrig === undefined) m.userData.castOrig = m.castShadow || !cast; // meshes seen while off keep their casting
-        m.castShadow = cast && m.userData.castOrig;
+        m.castShadow = cast && m.userData.castOrig && walkCasts(m);
       });
     }
     // the thin river line follows the core's (hidden in a close-up)
@@ -904,6 +925,21 @@ export function createTiles({ renderer, scene, camera, terrain, heightAt, proj, 
     },
     get budgetScale() {
       return budgetScale;
+    },
+    // walk mode (main.js walkProfile): { radiusU, nearU, vfarU } or null
+    setWalkProfile(p) {
+      walkP = p ? { ...p } : null;
+      sinceSchedule = SCHEDULE_S; // schedule on the next frame
+    },
+    // tests: the distances in force now (metres); the walk profile changes them
+    get lodSettings() {
+      return {
+        walk: !!walkP,
+        radiusM: Math.round(radiusFor(0) / S),
+        nearM: Math.round((walkP ? Math.min(NEAR_M * S, walkP.nearU) : NEAR_M * S) / S),
+        vfarM: Math.round((walkP ? walkP.vfarU : VFAR_U) / S),
+        keepM: walkP ? 0 : Math.round(FOCUS_KEEP_U / S),
+      };
     },
     get index() {
       return index;

@@ -770,6 +770,28 @@
         "Screenshots viewed: /tmp/porto-live/shadow-clear.png against shadow-clear-live.png (same shading while walking), map-local.png"
       ],
       "notes": "renderer.shadowMap.autoUpdate is off for good: atmosphere.update sets needsUpdate (with the shadow camera fit on the same frame), share.js sets it before a postcard draw. A new render path that skips atmosphere.update must set renderer.shadowMap.needsUpdate itself. Frame time was not measured: headless Chromium holds 60 fps and the GPU timer queries varied 16 to 44 ms on one build."
+    },
+    {
+      "id": "porto-034",
+      "priority": 40,
+      "area": "performance",
+      "title": "Walk mode level of detail, stage 1a: one walk profile (far plane 5 km with a far fade, 1.5 km tiers, shadows near the walker)",
+      "user_visible_behavior": "On /play the frame draws less of the far city. The camera sees 5 km instead of 64 km, and the city fades into the haze from 3 km to 4.75 km, so there is no hard edge and the sky is not cut. The streamed ring and the MS buildings load within 1.5 km of the walker; far boxes start at 1 km and roof-only houses at 1.5 km (the OSM core too). Only meshes within 400 m of the walker cast shadows. The view from the Ribeira to the Luis I bridge and the Gaia bank looks the same by day, by night, in fog and in rain. Leaving the walk by any path puts the map's settings back. ?walklod=0 keeps the old walk. The map at / is unchanged.",
+      "status": "passing",
+      "verification": [
+        "npm run verify",
+        "npm test",
+        "PLAYWRIGHT_CORE=... npm run check:walk -- --base http://localhost:5473/"
+      ],
+      "evidence": [
+        "2026-11-25: /play, 4 s walking, governor level 0, 1440x900 at DPR 2 (/tmp/porto-live/gpu.mjs): average triangles per frame 1,823,110 with ?walklod=0, 1,559,084 with the profile; draw calls 176.8 and 169.9",
+        "2026-11-25: frustum split at the start (/tmp/porto-live/vis.mjs): total 2,069,544 -> 1,859,196 triangles; within 300 m 68,126 both; meshes centred beyond 1 km 1,657,679 -> 1,447,331; camera far 64,000 m -> 5,000 m",
+        "2026-11-25: shadow pass (render.info around shadowMap.render, averaged over all frames, the map is drawn every 2nd frame): 315,727 -> 260,414 triangles per frame, 27 -> 22 calls; shadow casters 310 -> 132 meshes",
+        "2026-11-25: npm run verify OK, 17 passed, 0 skipped (perf soft gate: the same 3 warnings as on main); npm test 77/77; check-walk all passed, 78 ok",
+        "2026-11-25: check-walk: after Go up camera.far, fog density, far fade, sky scale and the tile tiers of the ring, the MS buildings and the core match the map before the walk; ?walklod=0 keeps far 16000 and the 3 km radius",
+        "Screenshots viewed: /tmp/porto-walklod/{day-clear,night-clear,day-fog,day-rain,west-day}-{on,off}.png, map-branch.png against map-base.png"
+      ],
+      "notes": "src/walk-lod.js holds the shared state and the one shadow rule (walkCasts: bounding sphere within 400 m of the walker, 15 % hysteresis); main.js, tiles.js and buildings-ms.js all use it, so they no longer overwrite each other in walk mode. Setters: tiles.setWalkProfile, ms.setWalkProfile, core group.userData.setFarTier. The far fade is FOG_UNIFORMS.fogFarFade (the atmosphere's apply() never writes it); the cloud deck is pinned to the far plane instead (weather.js). effects.js reads the open sky from the live near/far. The governor ignores 2 s after the switch (perf.holdGovernor, governor.hold). Gains are small at the Ribeira start: the streamed ring is not in view there; the road cells (cell-runs.js) and the OSM core tiles carry most of the triangles. Instanced crowds and cars (people.js, life.js) keep their own camDist rule. Not done (later stages): occlusion, HLOD, dither cross-fade, tile re-cutting, frame time on the owner's laptop."
     }
   ]
 }

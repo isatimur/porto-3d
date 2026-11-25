@@ -47,6 +47,11 @@ export const FOG_UNIFORMS = {  fogSunDir: { value: { x: 0, y: 1, z: 0 } },
   fogOcean: { value: { x: -1, y: 0, z: 0 } },
   fogMaritime: { value: { x: 0, y: 0, z: 0, w: 0 } },
   fogSeaColor: { value: { x: 0, y: 0, z: 0 } },
+  // Walk mode's far fade (main.js walkProfile, walk-lod.js): x, y the view
+  // distances (world units) where everything fades into the fog colour
+  // (smoothstep); z = 1 pins the cloud deck to the far plane (weather.js).
+  // All 0 on the map: no fade. atmosphere apply() never writes it.
+  fogFarFade: { value: { x: 0, y: 0, z: 0, w: 0 } },
 };
 
 // ------------------------------------------------------------ sky reflection
@@ -299,6 +304,7 @@ if (cloudShape.z > 0.001) {
   uniform vec3 fogOcean;
   uniform vec3 fogSeaColor;
   uniform vec4 fogMaritime;
+  uniform vec4 fogFarFade;
   varying float vFogDepth;
   varying vec3 vFogWorld;
   #ifdef FOG_EXP2
@@ -350,6 +356,11 @@ if (cloudShape.z > 0.001) {
     // thicker air toward the sea, before the fog factor is resolved
     fTau *= 1.0 + fogMaritime.x * fSea;
     float fogFactor = 1.0 - exp( - max( fTau, 0.0 ) );
+    // walk mode: the short far plane hides behind a fade into the fog colour
+    // (fogFarFade.xy; 0 on the map, and for materials that lack it)
+    #ifndef BRG_NO_FAR_FADE
+    if ( fogFarFade.y > fogFarFade.x ) fogFactor = max( fogFactor, smoothstep( fogFarFade.x, fogFarFade.y, fDist ) );
+    #endif
     vec3 fDir = fRel / max( fDist, 1e-3 );
     float fSun = pow( max( dot( fDir, fogSunDir ), 0.0 ), max( fogParams.y, 1.0 ) ) * fogParams.x;
     vec3 fCol = mix( fogColor, fogSunColor, clamp( fSun, 0.0, 1.0 ) );
