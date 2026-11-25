@@ -9,6 +9,7 @@ updates it automatically.
 ## Current Verified State
 
 - Repository root: `~/Dev/porto-3d`
+- Verified 2026-11-25 (branch feat/walk-cars, cars in walk mode, porto-036): `npm run verify` 16 passed, 1 failed: smoke console got 404s from port 5192, where another worktree's perf-serve was serving its own dist; `SMOKE_PORT=5197 node scripts/smoke-console.mjs` alone: OK. Perf soft gate passed with warnings on a loaded machine (desktop p95 150 ms, phone-low goto timeout). `npm test` 77/77; `check:walk` all passed.
 - Verified 2026-11-25 (branch feat/walk-lod, walk-mode LOD stage 1a, porto-034): `npm run verify` OK, 17 passed, 0 skipped; `npm test` 77/77; `check:walk` all passed.
 - Standard startup path: `./init.sh`
 - Standard verification path: `npm run verify`
@@ -26,6 +27,16 @@ updates it automatically.
 - Live: https://porto-3d.vercel.app (Vercel project `porto-3d`); git remote `isatimur/porto-3d`.
 
 ## Session Log
+
+### 2026-11-25 — cars that read as cars in walk mode (branch feat/walk-cars, feature porto-036)
+
+- Problem: on /play "the cars are square". The traffic cars were three boxes (36 triangles), made for the map; the parked cars of the street kit were three boxes too. At street level both read as boxes.
+- `src/car-detail.js` (new): a car of 424 triangles (bevelled body with a bonnet and boot that fall away, a dark glass cabin narrower at the roof, roof panel, mirrors, bumpers, grille, plates, four wheels with hubs, head and tail lamps) and an STCP bus of 500 (window pillars, doors on the kerb side, livery bands, route board, four wheels). One material: `aPaint` picks the instance colour or the part's own colour, `aLamp` lights head, tail and interior at night.
+- `src/life.js` `buildTraffic`: two more instanced meshes, used only while `WALK_LOD.on`. Cars and taxis within 80 m of the camera take the detailed body (at most 90); every bus takes the detailed bus; a far taxi takes the cheap car body. On the map nothing changes. The detailed bodies stand on the road ribbon (lift 0.07 units, as the parked cars) and cast shadows in walk mode.
+- `src/street-kit.js`: the parked car is a shaped body too (74 triangles, was 38). The kit buffer was full at the Ribeira, so the larger car pushed far cells out; the capacity is 150,000 vertices (50 k triangles at XL, was 42 k).
+- Evidence (/play Ribeira start, 4 s walking, governor 0, 1440x900 DPR 2, `/tmp/porto-cars/gpu.mjs`, two runs each): triangles 1,536,977 / 1,530,987 → 1,539,779 / 1,531,510; calls 163.35 / 162.39 → 163.58 / 162.48. Map at `/`: 1,917,941 → 1,912,209 triangles, 241 calls both. Map close-up over Gaia (150 m up): 1,349,431 → 1,371,481 triangles (the parked cars), 144 calls both.
+- Screenshots viewed: `/tmp/porto-cars/before-{0,1}.png` (box cars), `after2-{0,1,2}.png`, `after3-0.png` (cars with wheels, glass, lamps), `bus2-0.png`, `night-1.png` (head lamps), `map-after.png` and `mapc-after.png` (the map unchanged).
+- Found: the taxi and bus meshes of the traffic were never added to the scene (`group.add(meshes[0], meshes[1], meshes[2], lights)` since the fork), so on the map taxis and buses are invisible while their light streaks drive. Walk mode now draws them; the map is unchanged.
 
 ### 2026-11-25 — walk mode level of detail, stage 1a (branch feat/walk-lod, feature porto-034)
 

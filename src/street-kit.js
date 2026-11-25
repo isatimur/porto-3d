@@ -30,6 +30,7 @@ import { assetUrl } from './data.js';
 import { buildNetwork } from './road-network.js';
 import { RIBBON_LIFT, SIDEWALK_R, WALKED, sidewalkM, lampPosts } from './roads.js';
 import { createCrowd, crowdVariety, pedestrianDemand } from './people.js';
+import { profile } from './car-detail.js';
 
 // ------------------------------------------------------------ geometry
 // metres; y is the bottom; +z is the front of every piece
@@ -120,14 +121,51 @@ const PIECES = {
       box(0.46, 0.12, 0.06, 0, 2.61, 0, STCP_YELLOW, { glow: 0.2 }),
       box(0.3, 0.42, 0.08, 0, 1.2, 0.05, 0xe9e6dc),
     ]),
-  // a parked car (the instance colour paints the body); +z the bonnet
-  car: () =>
-    pieceGeometry([
+  // a parked car (the instance colour paints the body); +z the bonnet. At
+  // street level it must read as a car, not a box (porto-036): a bonnet and
+  // boot that fall away, a glass cabin narrower at the roof, the four wheels
+  // as discs on the sides, head and tail lamps; 74 triangles (was 38)
+  car: () => {
+    const cab = profile(
+      [
+        [0.86, 0.86],
+        [0.04, 1.32],
+        [-1.0, 1.34],
+        [-1.56, 0.88],
+      ],
+      1.5,
+    );
+    const P = cab.attributes.position;
+    for (let i = 0; i < P.count; i++) if (P.getY(i) > 1.15) P.setX(i, P.getX(i) * 0.86);
+    cab.computeVertexNormals();
+    const parts = [
       contact(2.0, 4.5),
-      box(1.74, 0.66, 4.15, 0, 0.2, 0, WHITE, { tint: 1 }),
-      box(1.56, 0.5, 2.1, 0, 0.86, -0.25, 0x262d33),
-      box(1.48, 0.07, 1.9, 0, 1.36, -0.28, WHITE, { tint: 1 }),
-    ]),
+      part(
+        profile(
+          [
+            [-2.06, 0.3],
+            [2.04, 0.3],
+            [2.09, 0.58],
+            [1.9, 0.74],
+            [0.88, 0.86],
+            [-1.55, 0.9],
+            [-2.03, 0.8],
+            [-2.09, 0.55],
+          ],
+          1.74,
+        ),
+        WHITE,
+        { tint: 1 },
+      ),
+      part(cab, 0x262d33),
+    ];
+    for (const sx of [-1, 1]) {
+      for (const z of [1.33, -1.33]) parts.push(part(new THREE.CircleGeometry(0.3, 6).rotateY((sx * Math.PI) / 2).translate(sx * 0.885, 0.3, z), 0x161616));
+      parts.push(part(new THREE.PlaneGeometry(0.32, 0.11).translate(sx * 0.58, 0.64, 2.075), 0xe9eef0));
+      parts.push(part(new THREE.PlaneGeometry(0.3, 0.12).rotateY(Math.PI).translate(sx * 0.6, 0.66, -2.065), 0xa3150f));
+    }
+    return pieceGeometry(parts);
+  },
   // a café table with two chairs under a parasol (the instance colour)
   terrace: () =>
     pieceGeometry([
@@ -1036,9 +1074,10 @@ export function createStreetKit(ctx) {
     stats.cells++;
   }
 
-  // the drawn buffer: capacity scales with the class (42 k triangles at XL,
-  // about 15 k on S)
-  const MAXV = Math.round(126000 * Math.max(0.35, K));
+  // the drawn buffer: capacity scales with the class (50 k triangles at XL,
+  // about 17.5 k on S; was 42 k before the parked car got its shape, which
+  // filled the buffer before the far cells and dropped them)
+  const MAXV = Math.round(150000 * Math.max(0.35, K));
   const geo = new THREE.BufferGeometry();
   const aPos = new THREE.BufferAttribute(new Float32Array(MAXV * 3), 3).setUsage(THREE.DynamicDrawUsage);
   const aNrm = new THREE.BufferAttribute(new Int8Array(MAXV * 3), 3, true).setUsage(THREE.DynamicDrawUsage);

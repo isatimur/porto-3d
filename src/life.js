@@ -55,6 +55,8 @@ export function setLifeData(doc) {
   LIFE = doc && typeof doc === 'object' ? doc : null;
 }
 import { S } from './geo.js';
+import { WALK_LOD } from './walk-lod.js';
+import { carDetailGeometry, busDetailGeometry, carDetailMaterial } from './car-detail.js';
 import { t } from './i18n.js';
 import { createWeather, addScaled } from './weather.js';
 import { createLive } from './live.js';
@@ -2151,6 +2153,30 @@ function buildTraffic({ roads, project, heightAt, mobile, model, N: nCars }) {
     m.instanceColor.setUsage(THREE.DynamicDrawUsage);
     return m;
   });
+  // Walk mode only (car-detail.js): the cars and taxis within NEAR_U of the
+  // walker get a street-level body, and the buses (never drawn on the map)
+  // all ride as the detailed bus. The map keeps the cheap bodies above.
+  const detailMat = carDetailMaterial(LIFE_UNIFORMS);
+  const detail = [
+    // at most 90 near cars: 38 k triangles in the worst case
+    ['traffic-cars-near', carDetailGeometry(), 90],
+    ['traffic-buses-walk', busDetailGeometry(), Math.ceil(N * CAP[4])],
+  ].map(([name, geo, cap]) => {
+    const m = new THREE.InstancedMesh(geo, detailMat, cap);
+    m.name = name;
+    m.frustumCulled = false;
+    m.receiveShadow = true;
+    m.count = 0;
+    m.visible = false;
+    m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    m.setColorAt(0, PAINT[0]);
+    m.instanceColor.setUsage(THREE.DynamicDrawUsage);
+    return m;
+  });
+  const NEAR_U = 80 * S; // 80 m
+  const NEAR2 = NEAR_U * NEAR_U;
+  // 0..4 the cheap skins, 5 the near car, 6 the walk bus
+  const targets = [...meshes, ...detail];
 
   // Night light streaks, one per vehicle, as in a long exposure: a
   // screen-space quad from the vehicle back along its path, at least 22 px
@@ -2229,7 +2255,7 @@ function buildTraffic({ roads, project, heightAt, mobile, model, N: nCars }) {
 
   const group = new THREE.Group();
   group.name = 'traffic';
-  group.add(meshes[0], meshes[1], meshes[2], lights);
+  group.add(meshes[0], meshes[1], meshes[2], ...detail, lights);
 
   const RMAX2 = RMAX * RMAX;
   let visible = 0;
@@ -2262,8 +2288,8 @@ function buildTraffic({ roads, project, heightAt, mobile, model, N: nCars }) {
     return true;
   }
 
-  const counts = [0, 0, 0, 0, 0]; // visible cars, vans, lorries, taxis, buses
-  const caps = meshes.map((m) => m.instanceMatrix.count);
+  const counts = [0, 0, 0, 0, 0, 0, 0]; // visible cars, vans, lorries, taxis, buses; near cars, walk buses
+  const caps = targets.map((m) => m.instanceMatrix.count);
   const streakAttrs = [lpAttr, ldAttr];
   function update(dt, camera, frustum, { night, camDist, width, height }) {
     flowT += dt;
@@ -2276,7 +2302,8 @@ function buildTraffic({ roads, project, heightAt, mobile, model, N: nCars }) {
     } else active = Math.round(N * 0.5 * (1 - 0.2 * night));
     const bodies = camDist < 2800;
     const showLights = night > 0.02;
-    counts[0] = counts[1] = counts[2] = counts[3] = counts[4] = 0;
+    counts.fill(0);
+    const walk = WALK_LOD.on;
     let nl = 0;
     const cx = camera.position.x;
     const cz = camera.position.z;
@@ -2296,9 +2323,19 @@ function buildTraffic({ roads, project, heightAt, mobile, model, N: nCars }) {
       if (p.hidden) continue;
       if (!inView(frustum, p.x, p.y, p.z, 3)) continue;
       const t = vs[i];
-      if (bodies && counts[t] < caps[t] && (p.x - cx) ** 2 + (p.z - cz) ** 2 < 2800 * 2800) {
-        const m = meshes[t];
-        const k = counts[t]++;
+      const d2 = (p.x - cx) ** 2 + (p.z - cz) ** 2;
+      // the mesh it goes in: its own skin on the map; in walk mode a near
+      // car or taxi takes the detailed body, a far taxi the cheap car body,
+      // a bus the detailed bus
+      let ti = t;
+      if (walk) {
+        if (t === 4) ti = 6;
+        else if ((t === 0 || t === 3) && d2 < NEAR2 && counts[5] < caps[5]) ti = 5;
+        else if (t === 3) ti = 0;
+      }
+      if (bodies && counts[ti] < caps[ti] && d2 < 2800 * 2800) {
+        const m = targets[ti];
+        const k = counts[ti]++;
         const e = m.instanceMatrix.array;
         const o = k * 16;
         // +z of the vehicle along the travel direction, pitched with the
@@ -2318,7 +2355,10 @@ function buildTraffic({ roads, project, heightAt, mobile, model, N: nCars }) {
         e[o + 10] = p.hz * cp;
         e[o + 11] = 0;
         e[o + 12] = p.x;
-        e[o + 13] = p.y + 0.13;
+        // the cheap bodies stand 0.5 m up (a dark chassis hides the gap from
+        // above); the walk bodies have wheels: on the road ribbon (roads.js
+        // RIBBON_LIFT 0.08), as the parked cars of street-kit.js
+        e[o + 13] = p.y + (ti >= 5 ? 0.07 : 0.13);
         e[o + 14] = p.z;
         e[o + 15] = 1;
         PAINTS[t][vc[i]].toArray(m.instanceColor.array, k * 3);
@@ -2335,8 +2375,8 @@ function buildTraffic({ roads, project, heightAt, mobile, model, N: nCars }) {
         nl++;
       }
     }
-    for (let t = 0; t < meshes.length; t++) {
-      const m = meshes[t];
+    for (let t = 0; t < targets.length; t++) {
+      const m = targets[t];
       m.count = counts[t];
       m.visible = counts[t] > 0;
       if (counts[t]) {
@@ -2347,8 +2387,9 @@ function buildTraffic({ roads, project, heightAt, mobile, model, N: nCars }) {
         m.instanceColor.addUpdateRange(0, counts[t] * 3);
         m.instanceColor.needsUpdate = true;
       }
-      // shadows only in a close-up, where a car's shadow is more than a pixel
-      m.castShadow = camDist < 260;
+      // shadows only in a close-up, where a car's shadow is more than a pixel;
+      // the walk meshes are close by and few
+      m.castShadow = camDist < 260 || (walk && t >= 5);
     }
     lights.visible = nl > 0;
     if (nl) {
