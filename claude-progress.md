@@ -9,6 +9,7 @@ updates it automatically.
 ## Current Verified State
 
 - Repository root: `~/Dev/porto-3d`
+- Verified 2026-11-25 (branch feat/walk-cars, cars in walk mode, porto-036): `npm run verify` 16 passed, 1 failed: smoke console got 404s from port 5192, where another worktree's perf-serve was serving its own dist; `SMOKE_PORT=5197 node scripts/smoke-console.mjs` alone: OK. Perf soft gate passed with warnings on a loaded machine (desktop p95 150 ms, phone-low goto timeout). `npm test` 77/77; `check:walk` all passed.
 - Verified 2026-11-25 (branch feat/walk-lod, walk-mode LOD stage 1a, porto-034): `npm run verify` OK, 17 passed, 0 skipped; `npm test` 77/77; `check:walk` all passed.
 - Standard startup path: `./init.sh`
 - Standard verification path: `npm run verify`
@@ -26,6 +27,44 @@ updates it automatically.
 - Live: https://porto-3d.vercel.app (Vercel project `porto-3d`); git remote `isatimur/porto-3d`.
 
 ## Session Log
+
+### 2026-11-25 — walk mode freezes every few seconds (branch fix/walk-surface-hitch, feature porto-038)
+
+- Owner report: /play stutters. hitch.mjs on porto-3d.com: long tasks of 0.3-0.5 s every 4-5 s while walking. A CPU profile put 80 % of the time inside them in `walk.js` `readSurface`: it re-read all 66 walkable meshes (about 1 M triangles) whenever the set of visible meshes changed, which happens every few seconds as tiles and landmarks stream.
+- Fix: the periodic read builds the new index as a generator, 3 ms per frame, while the old index stays in use. Start, teleport and a walker near the edge of the old index still read in one go. After: no repeated long tasks (0 and 1 over 200 ms in two 40 s runs, against 6 and 6 on main).
+- Not fixed: a one-off shader compile when a new material first draws.
+
+### 2026-11-25 — no box people near the walker (branch fix/crowd-near-boxes, feature porto-035)
+
+- Problem (user report, /play at the Ribeira near the Luís I bridge): a box person with a box dog 2 m from the hero, among the rigged passers-by; people "disappear into textures".
+- Causes: in `createCrowd` (`src/people.js`) a close dog walker (kind 4) and a close sitter never got a model; `take()` in `src/crowd-models.js` gave up when the clones of a kind were out (kind 1 has 4). And at street level the instanced figures stood on their path's y, which runs on the terrain up to 0.77 m under the Ribeira quay deck: about half the figures within 150 m stood knee-deep in the paving.
+- Fix: within the model radius (35 m) every person is a model. A dog walker's dog is an instanced figure with only the dog's parts (new kind 5) on the model's ground. A sitter is a model sat on the quay with the legs out (`seat()`: thighs and shins aimed forward over the idle clip, hips 12 cm over the ground). `take()` falls back to any model with a free clone; with none, the person is left out (`closeHidden`), never drawn as a box, unless the models failed to load. At street level the instanced figures stand on `walk.surfaceAt` too. The far figure's dog is now a dog: rounded body, neck, head, snout, ears, tail, four legs that trot in diagonal pairs (about 150 triangles; the old 4 boxes were 44).
+- New crowd getters: `closeBoxes` (figures drawn as boxes within 35 m) and `closeHidden`.
+- Evidence (/tmp/porto-crowd/near.mjs: 5 points along the quay towards the bridge, 4 quarter turns each, 80 samples, 2026-06-23 20:00 Lisbon): box figures within 35 m summed over samples 43 → 0, max in one frame 4 → 0, people left out 0. Sunk figures within 150 m (/tmp/porto-crowd/sink.mjs, surface over the feet > 0.3 m): 20 of 36 → 2 of 35 at the start.
+- Screenshots viewed: /tmp/porto-crowd/before-{0,6}.png, after2-4.png, after-{0,6}.png, sit.png (seated model), dog3.png (close dog beside its model), fardog3-b.png (far figure with the new dog).
+- Checks: `npm test` 77/77; `check:walk` all passed; `npm run verify` 16 passed, 1 failed: the perf soft gate, phone-low got a 404 on a hashed `harbour-*.js` chunk that is in dist. Rerun of `scripts/perf-bench.mjs --reduced --check` alone: 0 errors, 4 soft budget misses (desktop transfer 2609 KB, p95 33.3 ms; phone-low ready 42.7 s, p95 66.6 ms), as on main.
+
+### 2026-11-25 — cars that read as cars in walk mode (branch feat/walk-cars, feature porto-036)
+
+- Problem: on /play "the cars are square". The traffic cars were three boxes (36 triangles), made for the map; the parked cars of the street kit were three boxes too. At street level both read as boxes.
+- `src/car-detail.js` (new): a car of 424 triangles (bevelled body with a bonnet and boot that fall away, a dark glass cabin narrower at the roof, roof panel, mirrors, bumpers, grille, plates, four wheels with hubs, head and tail lamps) and an STCP bus of 500 (window pillars, doors on the kerb side, livery bands, route board, four wheels). One material: `aPaint` picks the instance colour or the part's own colour, `aLamp` lights head, tail and interior at night.
+- `src/life.js` `buildTraffic`: two more instanced meshes, used only while `WALK_LOD.on`. Cars and taxis within 80 m of the camera take the detailed body (at most 90); every bus takes the detailed bus; a far taxi takes the cheap car body. On the map nothing changes. The detailed bodies stand on the road ribbon (lift 0.07 units, as the parked cars) and cast shadows in walk mode.
+- `src/street-kit.js`: the parked car is a shaped body too (74 triangles, was 38). The kit buffer was full at the Ribeira, so the larger car pushed far cells out; the capacity is 150,000 vertices (50 k triangles at XL, was 42 k).
+- Evidence (/play Ribeira start, 4 s walking, governor 0, 1440x900 DPR 2, `/tmp/porto-cars/gpu.mjs`, two runs each): triangles 1,536,977 / 1,530,987 → 1,539,779 / 1,531,510; calls 163.35 / 162.39 → 163.58 / 162.48. Map at `/`: 1,917,941 → 1,912,209 triangles, 241 calls both. Map close-up over Gaia (150 m up): 1,349,431 → 1,371,481 triangles (the parked cars), 144 calls both.
+- Screenshots viewed: `/tmp/porto-cars/before-{0,1}.png` (box cars), `after2-{0,1,2}.png`, `after3-0.png` (cars with wheels, glass, lamps), `bus2-0.png`, `night-1.png` (head lamps), `map-after.png` and `mapc-after.png` (the map unchanged).
+- Found: the taxi and bus meshes of the traffic were never added to the scene (`group.add(meshes[0], meshes[1], meshes[2], lights)` since the fork), so on the map taxis and buses are invisible while their light streaks drive. Walk mode now draws them; the map is unchanged.
+
+### 2026-11-25 — walk mode: streets drawn as terraces and stacked slabs (branch fix/walk-road-layers, feature porto-037)
+
+- Report: on /play at the Ponte Luís I lower deck (Gaia end, under the iron piers) the road looked like flat plates at different heights, a patch of setts lay on the asphalt, and the kerbs broke into pieces.
+- Measured with `/tmp/porto-roads/way.mjs` (samples every drawn surface along an OSM way, every 4 m, and compares to `heightAt`):
+  - Cause 1, every sloped street: `strip()` in `src/roads.js` drew one quad per 12 m segment and lengthened it by half the road width at both ends, flat at the end height. On a slope the lengthened end of one quad lay over the start of the next, 0.1 to 0.3 m apart: a terrace step at every joint. The sidewalks and kerbs (lengthened by 0) left a gap on the outside of each bend, so the kerb line broke into pieces. Mouzinho da Silveira: 27 of 60 samples had two ribbons stacked (up to 0.59 m apart).
+  - Cause 2, the bridge ends: the DEM is 6 to 8 m under the lower deck at both ends, so the approach ways are ramps. Each way gets its ramp from its own junction (`road-network.js`), so ways that overlap in plan (General Torres, Largo Luiz I, Diogo Leite in Gaia; the two Gustavo Eiffel carriageways and Ribeira Negra in Porto) stood 0.3 to 1.4 m apart: stacked slabs, and the sett living street lay 0.4 m over the asphalt.
+- Fix: `strip()` mitres the joint where two drawn segments meet at a bend up to 60 degrees (both quads share the corner points, no overlap, no gap); sharper bends and the ends keep the old lengthening. `harmoniseRamps()` in `src/road-network.js`: where two ramps overlap in plan and stand less than 3 m apart, the lower takes the higher's lift over its own ground, in one pass (a chained pass ratcheted the ramps up the gorge side), and the raise runs on along the way at its slope; junctions where a bridge meets the ramps are pinned, so the decks keep their heights. No data change, no rebuild script.
+- Evidence (before → after, stacked samples / max spread): Mouzinho 27/60 0.59 m → 1/60 (at a junction); General Torres 10/10 0.83 m → 4/10; Gustavo Eiffel 7/7 1.35 m → 2/7; Vímara Peres 6/25 → 3/25; Cais da Ribeira 5/32 0.82 m → 1/32 0.18 m. Bridge decks unchanged (node script `/tmp/porto-roads/lifts.mjs`, upper and lower deck lifts as on main). Walk at /play: triangles 1,557,325 / 1,554,383 → 1,555,323 / 1,555,624, calls 165 → 165 (gpu.mjs, two runs each).
+- Screenshots viewed (`/tmp/porto-roads/{b,a}-*.png`): Gaia end first person: the kerbs are one line instead of pieces; Mouzinho and Vímara Peres: the notches in the kerb and the calçada edge are gone; Ribeira quay: the same; map view at / the same.
+- Checks: `npm test` 77/77; `check:traffic` OK; `check:walk` all passed; `npm run verify` 16 passed, 1 failed: smoke console hit another worktree's server on port 5192 (`perf-serve.mjs 5192`); rerun with `SMOKE_PORT=5493` OK. Perf soft gate warned (desktop p95 283 ms, phone-low goto timeout) with several agents loading the machine.
+- Not fixed: the ramps at both bridge ends still stand 6 to 9 m over the DEM on grass embankments (`road-structures`, flat quads per segment), and the walker teleported there lands on the ground under them. The real fix is a terrain landfall (raise `heightAt` at the deck ends, like the model's own landfall in bridge-kit.js), which moves buildings and needs a fit re-bake: a separate change.
 
 ### 2026-11-25 — walk mode level of detail, stage 1a (branch feat/walk-lod, feature porto-034)
 
