@@ -812,6 +812,27 @@
         "2026-11-25: npm test 77/77"
       ],
       "notes": "src/walk.js: readSurface(x, z, now = true). The periodic reads in update pass now = false: a new index is a generator (buildSurface, yields every 2,048 triangles) pumped 3 ms per frame by pumpSurface, while the old index stays in use. It is read in one go at start, teleport, and when the walker is past 0.75 SURF_R from the old index's centre. The triangles go into a growing Float32Array instead of tri.push(...v). A shader compile of 50-770 ms can still happen once when a new material first draws (seen once in a dev profile, in getProgramInfoLog); not fixed here."
+    },
+    {
+      "id": "porto-035",
+      "priority": 41,
+      "area": "walk",
+      "title": "No box people or box dogs near the walker; figures stand on the quay deck",
+      "user_visible_behavior": "In walk mode (/play) every person within 35 m of the camera is a rigged model: dog walkers too (their dog walks beside them as a low-poly dog with a head, snout, ears, tail and four legs), and the quay sitters, who sit on the quay with their legs out. When all model clones are in use, another model stands in; if none is free the person is left out rather than drawn as a box. Farther away the instanced figures stand on the drawn surface (the Ribeira quay deck) instead of sinking up to 0.8 m into it, and the far figure's dog reads as a dog.",
+      "status": "passing",
+      "verification": [
+        "npm test",
+        "PLAYWRIGHT_CORE=... npm run check:walk -- --base http://localhost:5481/",
+        "npm run verify",
+        "node /tmp/porto-crowd/near.mjs http://localhost:5481/ <tag> (crowd closeBoxes / closeHidden)"
+      ],
+      "evidence": [
+        "2026-11-25: /play, 5 points along the Ribeira quay towards the Luis I bridge, 4 quarter turns each, 80 samples, 2026-06-23 20:00: box figures within 35 m summed over samples 43 -> 0, max per frame 4 -> 0, people left out 0; at 2026-11-21 13:00: 0 and 0",
+        "2026-11-25: instanced figures within 150 m with the drawn surface > 0.3 m over their feet (walk.surfaceAt): 20 of 36 -> 2 of 35 at the start",
+        "2026-11-25: npm test 77/77; check-walk all passed; npm run verify 16 passed, 1 failed (perf soft gate: one 404 on a harbour chunk present in dist); perf-bench --reduced --check rerun alone: 0 errors, 4 soft misses as on main",
+        "Screenshots viewed: /tmp/porto-crowd/before-0.png, before-6.png, after2-4.png, sit.png, dog3.png, fardog3-b.png"
+      ],
+      "notes": "src/people.js createCrowd: no kind-4 exclusion and no sitter exclusion within MODEL_NEAR2; kind 5 = the dog alone (shader collapses the human parts); instanced y = groundAt when close; getters closeBoxes, closeHidden. src/crowd-models.js: take() falls back to any model with a free clone; show(..., sit) poses the legs over the idle clip (seat()); getter failed. Boxes still show within 35 m only if the models failed to load. The sitters' places (people.js addRest) are unchanged: some sit on the lower deck of the Luis I bridge by the carriageway."
     }
   ]
 }

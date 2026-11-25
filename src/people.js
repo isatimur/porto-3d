@@ -43,7 +43,7 @@ export const DEMAND_MAX = 1.5;
 // arms, 5 skin, 6 hair, 7 both legs (light mode)
 // variety (0 none, 1 reduced, 2 full) adds parts that only some people show
 // (the shader collapses them for the rest): 8 a shopping bag, 9 a cane,
-// 10 a dog's body and head, 11 / 12 its front and rear legs
+// 10 a dog's body, head, snout, ears and tail, 11 / 12 its front and rear legs
 function figure(lite, variety = 0) {
   const P = [];
   const N = [];
@@ -70,6 +70,33 @@ function figure(lite, variety = 0) {
       }
     }
   };
+  // a low-poly ellipsoid: `seg` around, `rings` from top to bottom
+  const ell = (cx, cy, cz, rx, ry, rz, part, seg, rings) => {
+    const at = (i, j) => {
+      const th = (j / rings) * Math.PI;
+      const ph = (i / seg) * 2 * Math.PI;
+      return [Math.sin(th) * Math.cos(ph), Math.cos(th), Math.sin(th) * Math.sin(ph)];
+    };
+    const put = (u) => {
+      P.push((cx + u[0] * rx) * S, (cy + u[1] * ry) * S, (cz + u[2] * rz) * S);
+      const nx = u[0] / rx;
+      const ny = u[1] / ry;
+      const nz = u[2] / rz;
+      const l = Math.hypot(nx, ny, nz) || 1;
+      N.push(nx / l, ny / l, nz / l);
+      A.push(part);
+    };
+    for (let j = 0; j < rings; j++) {
+      for (let i = 0; i < seg; i++) {
+        const a = at(i, j);
+        const b = at(i + 1, j);
+        const c = at(i + 1, j + 1);
+        const d = at(i, j + 1);
+        if (j > 0) for (const u of [a, b, c]) put(u);
+        if (j < rings - 1) for (const u of [a, c, d]) put(u);
+      }
+    }
+  };
   if (lite) {
     box(-0.17, 0, -0.08, 0.17, 0.84, 0.08, 7, ['bottom', 'top']);
     box(-0.19, 0.84, -0.11, 0.19, 1.44, 0.11, 0, ['bottom']);
@@ -87,11 +114,20 @@ function figure(lite, variety = 0) {
       box(0.3, 0, -0.02, 0.34, 0.9, 0.02, 9, ['bottom', 'top']); // cane
     }
     if (variety >= 2) {
-      // a small dog on the left, a lead's length away
-      box(-0.64, 0.24, -0.3, -0.46, 0.48, 0.2, 10, ['bottom']);
-      box(-0.62, 0.38, 0.2, -0.48, 0.62, 0.42, 10, ['bottom']);
-      box(-0.64, 0, 0.1, -0.46, 0.25, 0.18, 11, ['top', 'bottom']);
-      box(-0.64, 0, -0.28, -0.46, 0.25, -0.2, 12, ['top', 'bottom']);
+      // a small dog on the left, a lead's length away: a rounded body and
+      // head, a snout, pricked ears, four legs and a raised tail
+      const dx = -0.55;
+      ell(dx, 0.34, -0.04, 0.09, 0.105, 0.22, 10, 6, 4);
+      ell(dx, 0.43, 0.15, 0.055, 0.08, 0.065, 10, 5, 3);
+      ell(dx, 0.51, 0.23, 0.072, 0.075, 0.08, 10, 6, 3);
+      box(dx - 0.032, 0.455, 0.28, dx + 0.032, 0.51, 0.37, 10);
+      box(dx - 0.06, 0.55, 0.21, dx - 0.03, 0.62, 0.245, 10, ['bottom']);
+      box(dx + 0.03, 0.55, 0.21, dx + 0.06, 0.62, 0.245, 10, ['bottom']);
+      box(dx - 0.015, 0.37, -0.32, dx + 0.015, 0.48, -0.28, 10);
+      for (const lx of [dx - 0.065, dx + 0.02]) {
+        box(lx, 0, 0.07, lx + 0.045, 0.28, 0.12, 11, ['top', 'bottom']);
+        box(lx, 0, -0.2, lx + 0.045, 0.28, -0.15, 12, ['top', 'bottom']);
+      }
     }
   }
   const g = new THREE.BufferGeometry();
@@ -117,7 +153,7 @@ function peopleMaterial(uniforms) {
 uniform float uPTime;
 attribute float aPart;
 attribute vec4 iAnim; // phase, walking 0..1, seated 0..1, cadence
-attribute vec4 iLook; // trousers rgb, skin 0..2 + 3 x kind (0 adult, 1 child, 2 elderly, 3 shopper, 4 dog walker)
+attribute vec4 iLook; // trousers rgb, skin 0..2 + 3 x kind (0 adult, 1 child, 2 elderly, 3 shopper, 4 dog walker, 5 the dog alone)
 vec3 rotX(vec3 p, float pivot, float a) {
   float y = p.y - pivot;
   float c = cos(a);
@@ -143,6 +179,8 @@ vec3 rotX(vec3 p, float pivot, float a) {
   float isOld = 1.0 - step(0.5, abs(kind - 2.0));
   float isShop = 1.0 - step(0.5, abs(kind - 3.0));
   float isDw = 1.0 - step(0.5, abs(kind - 4.0));
+  // kind 5: the dog alone (its walker is a rigged model, crowd-models.js)
+  float dogOnly = 1.0 - step(0.5, abs(kind - 5.0));
   float isBagP = 1.0 - step(0.5, abs(aPart - 8.0));
   float isCane = 1.0 - step(0.5, abs(aPart - 9.0));
   float isDogF = 1.0 - step(0.5, abs(aPart - 11.0));
@@ -163,11 +201,22 @@ vec3 rotX(vec3 p, float pivot, float a) {
   float armA = isAL * (sw * 0.8 - idle) + (isAR + isBagP) * (-sw * 0.8 * armK) - (isAL + isAR + isBagP) * sit * 0.5;
   transformed = rotX(transformed, ${(1.4 * S).toFixed(5)}, armA);
   transformed.y += (1.0 - isDog) * (walk * abs(sin(ph)) * ${(0.03 * S).toFixed(5)} - sit * ${(0.4 * S).toFixed(5)});
-  // the dog trots: front and rear legs swing against each other
-  transformed = rotX(transformed, ${(0.25 * S).toFixed(5)}, (isDogF - isDogR) * sin(ph * 1.4) * 0.7 * walk);
+  // the dog trots: each leg swings about its own top, the diagonal pairs
+  // together (left front with right rear)
+  {
+    float dogSide = position.x < ${(-0.55 * S).toFixed(5)} ? 1.0 : -1.0;
+    float legTopZ = isDogF * ${(0.095 * S).toFixed(5)} - isDogR * ${(0.175 * S).toFixed(5)};
+    float da = (isDogF - isDogR) * dogSide * sin(ph * 1.4) * 0.35 * walk;
+    float ly = transformed.y - ${(0.28 * S).toFixed(5)};
+    float lz = transformed.z - legTopZ;
+    float dc = cos(da);
+    float ds = sin(da);
+    transformed.y = ${(0.28 * S).toFixed(5)} + ly * dc - lz * ds;
+    transformed.z = legTopZ + ly * ds + lz * dc;
+  }
   transformed.y += isDog * walk * abs(sin(ph * 1.4)) * ${(0.015 * S).toFixed(5)};
   // parts that belong to another kind collapse to a point
-  transformed *= 1.0 - max(max(isBagP * (1.0 - isShop), isCane * (1.0 - isOld)), isDog * (1.0 - isDw));
+  transformed *= 1.0 - max(max(isBagP * (1.0 - isShop), isCane * (1.0 - isOld)), max(isDog * (1.0 - isDw - dogOnly), (1.0 - isDog) * dogOnly));
 }`,
       )
       .replace(
@@ -1093,6 +1142,10 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
   let shown = 0;
   let shownWalkers = 0;
   let shownStaying = 0;
+  // walk mode, within the model radius: people drawn as instanced figures
+  // (0 unless the models failed to load), people left out (no clone free)
+  let closeBoxes = 0;
+  let closeHidden = 0;
   let wasOn = false;
   let time = 0;
   // the people nearest the camera as rigged models (crowd-models.js). Walk
@@ -1186,6 +1239,8 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
     const RV2 = (R * 1.05) ** 2;
     let n = 0;
     shownWalkers = 0;
+    closeBoxes = 0;
+    closeHidden = 0;
     const close = !!models && (camera.position.x - fx) ** 2 + (camera.position.z - fz) ** 2 < MODEL_CAM * MODEL_CAM;
     if (close) models.want();
     models?.begin();
@@ -1197,11 +1252,19 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
         continue;
       }
       if (n >= cap || (p.x - cx) ** 2 + (p.z - cz) ** 2 > RV2 * 1.6 || !inView(frustum, p.x, p.y + 0.2, p.z, 0.6)) continue;
-      // a close one (not a dog walker): a rigged model when a clone is free
-      if (close && KD[i] !== 4 && (p.x - cx) ** 2 + (p.z - cz) ** 2 < MODEL_NEAR2) {
+      // a close one: a rigged model. A dog walker's dog stays an instanced
+      // figure with only the dog's parts (kind 5), on the model's ground.
+      // No clone free: nobody there rather than a box figure 2 m away
+      if (close && (p.x - cx) ** 2 + (p.z - cz) ** 2 < MODEL_NEAR2) {
         const stopped = reducedMotion || (PAUSER[i] && STOP[i] > 0);
-        if (models.show(i, KD[i], i, p.x, groundAt ? groundAt(p.x, p.z, p.y) : p.y, p.z, p.hx, p.hz, SC[i], stopped ? 0 : V[i] / S, dt)) {
+        const gy = groundAt ? groundAt(p.x, p.z, p.y) : p.y;
+        if (models.show(i, KD[i], i, p.x, gy, p.z, p.hx, p.hz, SC[i], stopped ? 0 : V[i] / S, dt)) {
+          if (KD[i] === 4) write(n++, p.x, gy, p.z, p.hx, p.hz, SC[i], HT[i], BD[i], SH[i], PA[i], SK[i], PH[i], stopped ? 0 : 1, 0, CAD[i], 5);
           shownWalkers++;
+          continue;
+        }
+        if (!models.failed) {
+          closeHidden++;
           continue;
         }
       }
@@ -1217,7 +1280,10 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
         hx = nx;
       }
       const walking = reducedMotion || (PAUSER[i] && STOP[i] > 0) ? 0 : 1;
-      write(n++, p.x, p.y, p.z, hx, hz, SC[i], HT[i], BD[i], SH[i], PA[i], SK[i], PH[i], walking, 0, CAD[i], KD[i]);
+      if (close && (p.x - cx) ** 2 + (p.z - cz) ** 2 < MODEL_NEAR2) closeBoxes++;
+      // at street level the figures stand on the drawn surface too (the
+      // paths run on the terrain, up to 0.8 m under the Ribeira quay deck)
+      write(n++, p.x, close && groundAt ? groundAt(p.x, p.z, p.y) : p.y, p.z, hx, hz, SC[i], HT[i], BD[i], SH[i], PA[i], SK[i], PH[i], walking, 0, CAD[i], KD[i]);
       shownWalkers++;
     }
     // the people who stay: sitters on the quay, queues at the ends
@@ -1235,14 +1301,19 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
           if (RTH[i] > share * 1.1) continue;
           if (!inView(frustum, x, RY[i] + 0.2, z, 0.6)) continue;
           const yaw = RYAW[i];
-          // one who stands in a queue (not one who sits) may be a model too
-          if (close && !RSIT[i] && (x - cx) ** 2 + (z - cz) ** 2 < MODEL_NEAR2) {
-            if (models.show(100000 + i, RKD[i], i, x, groundAt ? groundAt(x, z, RY[i]) : RY[i], z, Math.sin(yaw), Math.cos(yaw), RSC[i], 0, dt)) {
+          // close: a model too, one who sits with the legs out on the quay
+          if (close && (x - cx) ** 2 + (z - cz) ** 2 < MODEL_NEAR2) {
+            if (models.show(100000 + i, RKD[i], i, x, groundAt ? groundAt(x, z, RY[i]) : RY[i], z, Math.sin(yaw), Math.cos(yaw), RSC[i], 0, dt, !!RSIT[i])) {
               shownStaying++;
               continue;
             }
+            if (!models.failed) {
+              closeHidden++;
+              continue;
+            }
           }
-          write(n++, x, RY[i], z, Math.sin(yaw), Math.cos(yaw), RSC[i], RHT[i], RBD[i], RSH[i], RPA[i], RSK[i], RPH[i], 0, RSIT[i], 1, RKD[i]);
+          if (close && (x - cx) ** 2 + (z - cz) ** 2 < MODEL_NEAR2) closeBoxes++;
+          write(n++, x, close && groundAt ? groundAt(x, z, RY[i]) : RY[i], z, Math.sin(yaw), Math.cos(yaw), RSC[i], RHT[i], RBD[i], RSH[i], RPA[i], RSK[i], RPH[i], 0, RSIT[i], 1, RKD[i]);
           shownStaying++;
         }
       }
@@ -1284,6 +1355,12 @@ export function createCrowd({ paths, max, lite, reducedMotion = false, variety =
     },
     get models() {
       return models;
+    },
+    get closeBoxes() {
+      return closeBoxes;
+    },
+    get closeHidden() {
+      return closeHidden;
     },
     stats: {
       paths: list.length,
