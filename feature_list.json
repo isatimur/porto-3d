@@ -794,26 +794,6 @@
       "notes": "src/walk-lod.js holds the shared state and the one shadow rule (walkCasts: bounding sphere within 400 m of the walker, 15 % hysteresis); main.js, tiles.js and buildings-ms.js all use it, so they no longer overwrite each other in walk mode. Setters: tiles.setWalkProfile, ms.setWalkProfile, core group.userData.setFarTier. The far fade is FOG_UNIFORMS.fogFarFade (the atmosphere's apply() never writes it); the cloud deck is pinned to the far plane instead (weather.js). effects.js reads the open sky from the live near/far. The governor ignores 2 s after the switch (perf.holdGovernor, governor.hold). Gains are small at the Ribeira start: the streamed ring is not in view there; the road cells (cell-runs.js) and the OSM core tiles carry most of the triangles. Instanced crowds and cars (people.js, life.js) keep their own camDist rule. Not done (later stages): occlusion, HLOD, dither cross-fade, tile re-cutting, frame time on the owner's laptop."
     },
     {
-      "id": "porto-038",
-      "priority": 41,
-      "area": "performance",
-      "title": "Walk mode does not freeze every few seconds: the walk surface index is built a few milliseconds per frame",
-      "user_visible_behavior": "On /play the walk no longer stops for 0.3-0.5 s every 4-5 seconds. The walker and the crowd still stand on the drawn streets, quays and landmark floors.",
-      "status": "passing",
-      "verification": [
-        "npm test",
-        "node /tmp/porto-live/prof.mjs <url>/play 30 (CPU profile inside long tasks)",
-        "node /tmp/porto-live/hitch.mjs <url>/play 40 (long tasks while walking)"
-      ],
-      "evidence": [
-        "2026-11-25: CPU profile of 30 s walking on main (dev server): 5 long tasks of 259-504 ms; 1,364 of 1,695 sampled ms inside them in walk.js readSurface. The walkable meshes near the Ribeira start: 66 meshes, 1,001,937 triangles (street-minor 184k, sidewalks 124k); their set changed in 3 of 15 s of walking, and each change re-read them all",
-        "2026-11-25: after the change, the same profile: readSurface is gone from the long tasks",
-        "2026-11-25: hitch.mjs, 40 s walking, two runs each: porto-3d.com (main) long tasks over 200 ms: 6 and 6 (292-483 ms, every 4-5 s); this branch: 0 and 1 (one 1,340 ms task, not repeated, while three other builds loaded the machine)",
-        "2026-11-25: npm test 77/77"
-      ],
-      "notes": "src/walk.js: readSurface(x, z, now = true). The periodic reads in update pass now = false: a new index is a generator (buildSurface, yields every 2,048 triangles) pumped 3 ms per frame by pumpSurface, while the old index stays in use. It is read in one go at start, teleport, and when the walker is past 0.75 SURF_R from the old index's centre. The triangles go into a growing Float32Array instead of tri.push(...v). A shader compile of 50-770 ms can still happen once when a new material first draws (seen once in a dev profile, in getProgramInfoLog); not fixed here."
-    },
-    {
       "id": "porto-035",
       "priority": 41,
       "area": "walk",
@@ -853,6 +833,48 @@
         "Screenshots viewed: /tmp/porto-cars/before-{0,1}.png, after2-{0,1,2}.png, after3-0.png, bus2-0.png, night-1.png, map-after.png, mapc-after.png"
       ],
       "notes": "src/car-detail.js builds both bodies and the material (aPaint: instance colour or the part's own; aLamp: head, tail, interior glow). life.js buildTraffic picks the mesh per vehicle: on the map its own skin; in walk mode (WALK_LOD.on) a near car or taxi -> traffic-cars-near, a bus -> traffic-buses-walk, a far taxi -> the cheap car mesh. street-kit.js: the parked car piece uses profile() from car-detail.js; the kit buffer grew to 150,000 vertices because it was full at the Ribeira. Not done: vans and lorries are still boxes near the walker; trams (life.js tramGeometry) are boxes with no wheels; on the map the taxi and bus meshes are never added to the scene (since the fork), so taxis and buses are invisible there."
+    },
+    {
+      "id": "porto-037",
+      "priority": 41,
+      "area": "walk",
+      "title": "Walk mode: streets follow the slope as one surface (no terraces at segment joints, no stacked ramps at the Luís I bridge ends)",
+      "user_visible_behavior": "At street level a sloped street is one surface: no flat plate per 12 m with a step at each joint, and the sidewalks and kerbs run as one line round the bends instead of pieces. At the Ponte Luís I lower deck ends the ways that overlap (General Torres, Largo Luiz I, Diogo Leite; Gustavo Eiffel, Ribeira Negra) rise to one height, so no patch of setts lies on the asphalt. The bridge decks keep their heights. The map at / is unchanged.",
+      "status": "passing",
+      "verification": [
+        "npm run verify",
+        "npm test",
+        "npm run check:traffic",
+        "PLAYWRIGHT_CORE=... npm run check:walk -- --base http://localhost:5483/"
+      ],
+      "evidence": [
+        "2026-11-25: /tmp/porto-roads/way.mjs, drawn surfaces every 4 m along a way, samples with two paved surfaces more than 0.15 m apart, before -> after: Mouzinho da Silveira 27/60 -> 1/60; Rua de General Torres 10/10 -> 4/10; Avenida de Gustavo Eiffel 7/7 -> 2/7; Avenida de Vímara Peres 6/25 -> 3/25; Rua do Cais da Ribeira 5/32 -> 1/32",
+        "2026-11-25: /play, gpu.mjs: triangles per frame 1,557,325 and 1,554,383 -> 1,555,323 and 1,555,624; calls 165.5 and 164.9 -> 164.9 and 164.9",
+        "2026-11-25: npm test 77/77; check:traffic OK; check-walk all passed",
+        "2026-11-25: npm run verify: 16 passed, smoke console failed because another worktree's server held port 5192 (its chunks and /api/adsb 404); SMOKE_PORT=5493 node scripts/smoke-console.mjs OK. Perf soft gate warns (desktop p95 283 ms and phone-low goto timeout on a loaded machine with several agents running)",
+        "Screenshots viewed: /tmp/porto-roads/{b,a}-s1-gaia-fp.png, -s1-gaia-ramp, -s3-mouzinho, -s4-vimara, -s5-ribeira, -map"
+      ],
+      "notes": "src/roads.js strip(): mitred joints up to a 60 degree bend (MITRE_COS), not where the mitre would reach past either segment; ends and sharp bends keep the old lengthening. src/road-network.js harmoniseRamps(): one pass over a snapshot (a chained pass ratcheted ramps up the gorge side), lift over own ground (a height taken across made humps), bridge junctions pinned (else the deck rose, and with it every ramp); spreadRamps() runs again after it. Open: the approach ramps still stand 6 to 9 m over the DEM on flat embankment quads at both Luís I ends; a terrain landfall in heightAt is the real fix (moves buildings, needs a fit re-bake)."
+    },
+    {
+      "id": "porto-038",
+      "priority": 41,
+      "area": "performance",
+      "title": "Walk mode does not freeze every few seconds: the walk surface index is built a few milliseconds per frame",
+      "user_visible_behavior": "On /play the walk no longer stops for 0.3-0.5 s every 4-5 seconds. The walker and the crowd still stand on the drawn streets, quays and landmark floors.",
+      "status": "passing",
+      "verification": [
+        "npm test",
+        "node /tmp/porto-live/prof.mjs <url>/play 30 (CPU profile inside long tasks)",
+        "node /tmp/porto-live/hitch.mjs <url>/play 40 (long tasks while walking)"
+      ],
+      "evidence": [
+        "2026-11-25: CPU profile of 30 s walking on main (dev server): 5 long tasks of 259-504 ms; 1,364 of 1,695 sampled ms inside them in walk.js readSurface. The walkable meshes near the Ribeira start: 66 meshes, 1,001,937 triangles (street-minor 184k, sidewalks 124k); their set changed in 3 of 15 s of walking, and each change re-read them all",
+        "2026-11-25: after the change, the same profile: readSurface is gone from the long tasks",
+        "2026-11-25: hitch.mjs, 40 s walking, two runs each: porto-3d.com (main) long tasks over 200 ms: 6 and 6 (292-483 ms, every 4-5 s); this branch: 0 and 1 (one 1,340 ms task, not repeated, while three other builds loaded the machine)",
+        "2026-11-25: npm test 77/77"
+      ],
+      "notes": "src/walk.js: readSurface(x, z, now = true). The periodic reads in update pass now = false: a new index is a generator (buildSurface, yields every 2,048 triangles) pumped 3 ms per frame by pumpSurface, while the old index stays in use. It is read in one go at start, teleport, and when the walker is past 0.75 SURF_R from the old index's centre. The triangles go into a growing Float32Array instead of tri.push(...v). A shader compile of 50-770 ms can still happen once when a new material first draws (seen once in a dev profile, in getProgramInfoLog); not fixed here."
     }
   ]
 }

@@ -210,6 +210,118 @@ export const MIN_TUNNEL_M = 12;
 
 const memo = new WeakMap();
 
+// Two raised ways closer in height than this (m) where they overlap in plan
+// are one surface (headroom under a deck is 5.1 m, CLEAR_WAY)
+const RAMP_SHARE_M = 3;
+// The ramps of the ways that overlap in plan rise to one height (see the
+// caller in build). Only ways already raised by a ramp take part (Y over the
+// ground G by more than PROFILE_FILL somewhere, world units); the lift
+// spreads along a way at its class slope, then the junctions take the new
+// lifts (NL), so the ways that meet there still meet. Raises only.
+export function harmoniseRamps(ways, rampWays, PX, PZ, PC, G, Y, NL, S) {
+  const LIVE = 0.01;
+  // (a way on the ground floats up to PROFILE_FILL after its profile is
+  // smoothed: only a real ramp counts)
+  const raised = rampWays.filter((wi) => {
+    const w = ways[wi];
+    for (let i = w.start; i < w.start + w.n; i++) if (Y[i] - G[i] > PROFILE_FILL) return true;
+    return false;
+  });
+  if (raised.length < 2) return 0;
+  const CELL = 8;
+  const grid = new Map();
+  let maxHalf = 0;
+  for (const wi of raised) {
+    const w = ways[wi];
+    maxHalf = Math.max(maxHalf, (w.widthM / 2) * S);
+    for (let i = w.start; i < w.start + w.n; i++) {
+      const key = Math.floor(PX[i] / CELL) * 100003 + Math.floor(PZ[i] / CELL);
+      let c = grid.get(key);
+      if (!c) grid.set(key, (c = []));
+      c.push(i, wi);
+    }
+  }
+  const share = RAMP_SHARE_M * S;
+  // one pass over the heights as they stand (Y0), not chained: a chain of
+  // overlaps 3 m apart each would ratchet a ramp up the hillside
+  const Y0 = Float32Array.from(Y);
+  // a junction where a bridge meets the ramps keeps its height: the deck
+  // sets it (a raise there would lift the deck, and the deck every ramp)
+  const pinned = new Set();
+  for (const w of ways) if (w.bridge) for (let k = 1; k < w.jp.length; k += 2) pinned.add(w.jp[k]);
+  const fixedPt = new Set();
+  for (const wi of raised) {
+    const w = ways[wi];
+    for (let k = 0; k < w.jp.length; k += 2) if (pinned.has(w.jp[k + 1])) fixedPt.add(w.jp[k]);
+  }
+  let raises = 0;
+  for (const wi of raised) {
+    const w = ways[wi];
+    const half = (w.widthM / 2) * S;
+    const slope = w.cls.slope;
+    const a = w.start;
+    const b = a + w.n - 1;
+    const r = half + maxHalf + MAX_STEP;
+    let any = false;
+    for (let i = a; i <= b; i++) {
+      if (fixedPt.has(i)) continue;
+      let best = Y[i];
+      for (let gx = Math.floor((PX[i] - r) / CELL); gx <= Math.floor((PX[i] + r) / CELL); gx++) {
+        for (let gz = Math.floor((PZ[i] - r) / CELL); gz <= Math.floor((PZ[i] + r) / CELL); gz++) {
+          const c = grid.get(gx * 100003 + gz);
+          if (!c) continue;
+          for (let k = 0; k < c.length; k += 2) {
+            const j = c[k];
+            const oi = c[k + 1];
+            if (oi === wi) continue;
+            const o = ways[oi];
+            // the other way's segment from j on (points lie 12 m apart: the
+            // nearest point can be far from a segment that runs over i)
+            const j1 = j < o.start + o.n - 1 ? j + 1 : j;
+            // a ramp there, not the ground part of a raised way
+            if (Math.max(Y0[j] - G[j], Y0[j1] - G[j1]) <= PROFILE_FILL) continue;
+            const sx = PX[j1] - PX[j];
+            const sz = PZ[j1] - PZ[j];
+            const s2 = sx * sx + sz * sz;
+            const u = s2 > 1e-9 ? Math.max(0, Math.min(1, ((PX[i] - PX[j]) * sx + (PZ[i] - PZ[j]) * sz) / s2)) : 0;
+            const d = Math.hypot(PX[j] + sx * u - PX[i], PZ[j] + sz * u - PZ[i]);
+            if (d > half + (o.widthM / 2) * S) continue; // not over each other
+            const yj = Y0[j] + (Y0[j1] - Y0[j]) * u;
+            if (Math.abs(yj - Y0[i]) > share) continue; // one passes under the other
+            // the other's lift over its own ground, not its height: on the
+            // gorge side the ground falls metres across two overlapping ways,
+            // and a height taken across lifted the lower way into a hump
+            const lj = yj - (G[j] + (G[j1] - G[j]) * u);
+            if (G[i] + lj > best) best = G[i] + lj;
+          }
+        }
+      }
+      if (best > Y[i] + LIVE) {
+        Y[i] = best;
+        any = true;
+        raises++;
+      }
+    }
+    if (!any) continue;
+    // the raise runs on along the way at its slope, both ways
+    for (let i = a + 1; i <= b; i++) {
+      const l = Y[i - 1] - G[i - 1] - slope * (PC[i] - PC[i - 1]);
+      if (l > Y[i] - G[i] + LIVE && !fixedPt.has(i)) Y[i] = G[i] + l;
+    }
+    for (let i = b - 1; i >= a; i--) {
+      const l = Y[i + 1] - G[i + 1] - slope * (PC[i + 1] - PC[i]);
+      if (l > Y[i] - G[i] + LIVE && !fixedPt.has(i)) Y[i] = G[i] + l;
+    }
+    for (let k = 0; k < w.jp.length; k += 2) {
+      const l = Y[w.jp[k]] - G[w.jp[k]];
+      if (l > NL[w.jp[k + 1]] + LIVE && !pinned.has(w.jp[k + 1])) NL[w.jp[k + 1]] = l;
+    }
+  }
+  // every way at a raised junction starts at its lift (spreadRamps, called
+  // next, carries it along the ways)
+  return raises;
+}
+
 export function buildNetwork(roads, project, heightAt) {
   if (memo.has(roads)) return memo.get(roads);
   const net = build(roads, project, heightAt);
@@ -788,34 +900,47 @@ function build(roads, project, heightAt) {
   // approach ramps: the lift spreads from the bridge ends along the
   // connected ways, falling at the class's slope
   const rampWays = ways.map((w, i) => i).filter((i) => !ways[i].bridge && !ways[i].tunnel);
-  for (let pass = 0; pass < 8; pass++) {
-    let changed = false;
-    for (const wi of rampWays) {
-      const w = ways[wi];
-      let any = false;
-      for (let k = 1; k < w.jp.length; k += 2) if (NL[w.jp[k]] > 0.01) any = true;
-      if (!any) continue;
-      const slope = w.cls.slope;
-      for (let i = w.start; i < w.start + w.n; i++) {
-        let lift = 0;
+  const spreadRamps = () => {
+    for (let pass = 0; pass < 8; pass++) {
+      let changed = false;
+      for (const wi of rampWays) {
+        const w = ways[wi];
+        let any = false;
+        for (let k = 1; k < w.jp.length; k += 2) if (NL[w.jp[k]] > 0.01) any = true;
+        if (!any) continue;
+        const slope = w.cls.slope;
+        for (let i = w.start; i < w.start + w.n; i++) {
+          let lift = 0;
+          for (let k = 0; k < w.jp.length; k += 2) {
+            const L = NL[w.jp[k + 1]];
+            if (L <= 0.01) continue;
+            lift = Math.max(lift, L - slope * Math.abs(PC[i] - PC[w.jp[k]]));
+          }
+          if (lift > Y[i] - G[i]) Y[i] = G[i] + lift;
+        }
         for (let k = 0; k < w.jp.length; k += 2) {
-          const L = NL[w.jp[k + 1]];
-          if (L <= 0.01) continue;
-          lift = Math.max(lift, L - slope * Math.abs(PC[i] - PC[w.jp[k]]));
-        }
-        if (lift > Y[i] - G[i]) Y[i] = G[i] + lift;
-      }
-      for (let k = 0; k < w.jp.length; k += 2) {
-        const node = w.jp[k + 1];
-        const l = Y[w.jp[k]] - G[w.jp[k]];
-        if (l > NL[node] + 0.01) {
-          NL[node] = l;
-          changed = true;
+          const node = w.jp[k + 1];
+          const l = Y[w.jp[k]] - G[w.jp[k]];
+          if (l > NL[node] + 0.01) {
+            NL[node] = l;
+            changed = true;
+          }
         }
       }
+      if (!changed) break;
     }
-    if (!changed) break;
-  }
+  };
+  spreadRamps();
+  // Overlapping ramps share one surface. Each ramp rises along its own way
+  // from its own junction, so two ways drawn over each other near a bridge
+  // end (a dual carriageway, a largo over the street it borders, a living
+  // street beside the deck's approach) stood 0.3 to 1.4 m apart: stacked
+  // slabs, a patch of setts lying on the asphalt (porto-037, Ponte Luís I
+  // lower deck). Where two raised ways overlap in plan and stand less than
+  // RAMP_SHARE apart (no vehicle passes under that), the lower takes the
+  // higher's lift, and the raise runs on along the lower way at its slope.
+  // (a junction it raised lifts the other ways that meet there: spread again)
+  if (harmoniseRamps(ways, rampWays, PX, PZ, PC, G, Y, NL, S)) spreadRamps();
   // bridge ends follow what the ramps raised
   for (const wi of bridges) deck(wi);
 

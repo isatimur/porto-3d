@@ -85,35 +85,54 @@ function geometryOf(T) {
   return g;
 }
 
-// A flat strip along points i0..i1 of the network, offset `off` (world,
-// left of travel positive) with half width h, at height Y + lift. One quad
-// per segment, lengthened by `ext` at both ends so consecutive quads overlap
-// at the joints (opaque, so overlaps do not show). Skips hidden points.
+// A strip along points i0..i1 of the network, offset `off` (world, left of
+// travel positive) with half width h, at the surface + lift. One quad per
+// segment. Where two drawn segments meet at a bend of up to 60 degrees they
+// share a mitred edge (the same corner points, so no overlap and no gap); a
+// sharper bend and the strip's two ends are lengthened by `ext` instead.
+// The quads used to be lengthened at every joint, and on a slope the
+// lengthened end of one quad lay flat over the start of the next, 0.1 to
+// 0.3 m apart: the street read as a stack of terraces (porto-037).
+// Skips hidden points.
+const MITRE_COS = Math.cos(Math.PI / 6); // half the sharpest mitred bend (60 degrees)
+function segDir(net, i) {
+  const dx = net.X[i + 1] - net.X[i];
+  const dz = net.Z[i + 1] - net.Z[i];
+  const L = Math.hypot(dx, dz);
+  return L < 0.012 ? null : [dx / L, dz / L, L]; // under ~5 cm: no area, no direction
+}
 function strip(T, net, i0, i1, off, h, lift, col, ext = h) {
   const { X, Z, HID } = net;
+  const sy = net.surfaceY;
+  const drawn = (i) => i >= i0 && i < i1 && !(HID[i] && HID[i + 1]) && segDir(net, i) !== null;
+  // the corner at point j of segment i at lateral offset o; nb: the
+  // neighbour segment across j; sgn: -1 at the segment's start, +1 at its end
+  const corner = (i, j, nb, o, sgn, d, e) => {
+    const lx = d[1]; // left of travel (x east, z south)
+    const lz = -d[0];
+    if (drawn(nb)) {
+      const n = segDir(net, nb);
+      const cosT = d[0] * n[0] + d[1] * n[1];
+      const ch = Math.sqrt(Math.max(0, (1 + cosT) / 2)); // cos of half the bend
+      // (and not where the mitre would reach past the end of either segment:
+      // a short piece on the inside of a bend would fold over)
+      if (ch >= MITRE_COS && (Math.abs(o) * Math.sqrt(1 - ch * ch)) / ch < Math.min(d[2], n[2])) {
+        // the bisector of the two left vectors (the same sum from both sides)
+        const bx = lx + n[1];
+        const bz = lz - n[0];
+        const bl = Math.hypot(bx, bz);
+        const m = o / ch;
+        return [X[j] + (bx / bl) * m, sy(j, m) + lift, Z[j] + (bz / bl) * m];
+      }
+    }
+    return [X[j] + d[0] * e * sgn + lx * o, sy(j, o) + lift, Z[j] + d[1] * e * sgn + lz * o];
+  };
   for (let i = i0; i < i1; i++) {
-    if (HID[i] && HID[i + 1]) continue;
-    const ax = X[i];
-    const az = Z[i];
-    const bx = X[i + 1];
-    const bz = Z[i + 1];
-    let dx = bx - ax;
-    let dz = bz - az;
-    const L = Math.hypot(dx, dz);
-    if (L < 0.012) continue; // under ~5 cm: no area, no direction
-    dx /= L;
-    dz /= L;
-    const lx = dz; // left of travel (x east, z south)
-    const lz = -dx;
-    const e = Math.min(ext, L);
+    if (!drawn(i)) continue;
+    const d = segDir(net, i);
+    const e = Math.min(ext, d[2]);
     // each edge on the surface: level with the way, or up the hillside
-    const sy = net.surfaceY;
-    const c = [
-      [ax - dx * e + lx * (off + h), sy(i, off + h) + lift, az - dz * e + lz * (off + h)],
-      [ax - dx * e + lx * (off - h), sy(i, off - h) + lift, az - dz * e + lz * (off - h)],
-      [bx + dx * e + lx * (off - h), sy(i + 1, off - h) + lift, bz + dz * e + lz * (off - h)],
-      [bx + dx * e + lx * (off + h), sy(i + 1, off + h) + lift, bz + dz * e + lz * (off + h)],
-    ];
+    const c = [corner(i, i, i - 1, off + h, -1, d, e), corner(i, i, i - 1, off - h, -1, d, e), corner(i, i + 1, i + 1, off - h, 1, d, e), corner(i, i + 1, i + 1, off + h, 1, d, e)];
     const v = T.pos.length / 3;
     for (const p of c) {
       T.pos.push(p[0], p[1], p[2]);
