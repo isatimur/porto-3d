@@ -27,6 +27,12 @@ updates it automatically.
 
 ## Session Log
 
+### 2026-11-25 — walk mode freezes every few seconds (branch fix/walk-surface-hitch, feature porto-038)
+
+- Owner report: /play stutters. hitch.mjs on porto-3d.com: long tasks of 0.3-0.5 s every 4-5 s while walking. A CPU profile put 80 % of the time inside them in `walk.js` `readSurface`: it re-read all 66 walkable meshes (about 1 M triangles) whenever the set of visible meshes changed, which happens every few seconds as tiles and landmarks stream.
+- Fix: the periodic read builds the new index as a generator, 3 ms per frame, while the old index stays in use. Start, teleport and a walker near the edge of the old index still read in one go. After: no repeated long tasks (0 and 1 over 200 ms in two 40 s runs, against 6 and 6 on main).
+- Not fixed: a one-off shader compile when a new material first draws.
+
 ### 2026-11-25 — walk mode level of detail, stage 1a (branch feat/walk-lod, feature porto-034)
 
 - Plan: `~/Dev/braga-3d/concepts_brief.md` (stage 1a, Porto first). Problem: on /play about 2.07 M triangles in the frustum, 3 % within 300 m of the walker; far plane 64 km; tiers and shadows follow the orbit, so walk mode drew the city as the map does.

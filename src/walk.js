@@ -233,7 +233,15 @@ export function createWalk({ camera, scene, rig, heightAt, dom, polys, places = 
   const CLIMBS = /^(quays-|landmark-)/;
   let surf = null; // { tri: Float32Array, grid: Map, x, z, key }
   const _sphere = new THREE.Sphere();
-  function readSurface(x, z) {
+  // Reading the surface walks up to a million triangles (about 0.3 s on a
+  // laptop). On the way, while the old index still covers the walker, the new
+  // one is built a few milliseconds per frame (pumpSurface), so the walk does
+  // not freeze. Only the first read and a jump (start, teleport, or a walker
+  // near the edge of the old index) read it in one go.
+  let job = null; // the index being built: a generator, see buildSurface
+  const SLICE_MS = 3;
+  function readSurface(x, z, now = true) {
+    if (job && !now) return;
     readModels();
     const meshes = [];
     scene.traverseVisible((o) => {
@@ -247,11 +255,33 @@ export function createWalk({ camera, scene, rig, heightAt, dom, polys, places = 
       meshes.push(o);
     });
     const key = meshes.map((o) => o.geometry.uuid).join();
-    if (surf && surf.key === key && Math.hypot(x - surf.x, z - surf.z) < SURF_R * 0.6) return;
-    const tri = [];
+    const off = surf ? Math.hypot(x - surf.x, z - surf.z) : Infinity;
+    if (surf && surf.key === key && off < SURF_R * 0.6) return;
+    job = buildSurface(x, z, meshes, key);
+    // the old index still holds 0.25 SURF_R past the walker: build in slices
+    if (!now && off < SURF_R * 0.75) return;
+    pumpSurface(Infinity);
+  }
+  function pumpSurface(ms = SLICE_MS) {
+    if (!job) return;
+    const t0 = performance.now();
+    for (;;) {
+      const r = job.next();
+      if (r.done) {
+        surf = r.value;
+        job = null;
+        return;
+      }
+      if (performance.now() - t0 > ms) return;
+    }
+  }
+  function* buildSurface(x, z, meshes, key) {
+    let tri = new Float32Array(9 * 8192);
+    let nt = 0; // floats used in tri
     const paved = [];
     const climb = [];
     const grid = new Map();
+    let since = 0;
     for (const o of meshes) {
       const hard = o.name !== 'street-plate' ? 1 : 0;
       const up = CLIMBS.test(o.name) ? 1 : 0;
@@ -261,6 +291,10 @@ export function createWalk({ camera, scene, rig, heightAt, dom, polys, places = 
       const n = ix ? ix.length : p.length / 3;
       const v = [0, 0, 0, 0, 0, 0, 0, 0, 0];
       for (let k = 0; k < n; k += 3) {
+        if (++since >= 2048) {
+          since = 0;
+          yield;
+        }
         let x0 = Infinity, x1 = -Infinity, z0 = Infinity, z1 = -Infinity;
         for (let c = 0; c < 3; c++) {
           const a = (ix ? ix[k + c] : k + c) * 3;
@@ -278,8 +312,14 @@ export function createWalk({ camera, scene, rig, heightAt, dom, polys, places = 
         if (x1 < x - SURF_R || x0 > x + SURF_R || z1 < z - SURF_R || z0 > z + SURF_R) continue;
         // a wall or a kerb face has no area from above
         if (Math.abs((v[5] - v[8]) * (v[0] - v[6]) + (v[6] - v[3]) * (v[2] - v[8])) < 1e-9) continue;
-        const at = tri.length;
-        tri.push(...v);
+        const at = nt;
+        if (nt + 9 > tri.length) {
+          const t = new Float32Array(tri.length * 2);
+          t.set(tri);
+          tri = t;
+        }
+        tri.set(v, nt);
+        nt += 9;
         paved.push(hard);
         climb.push(up);
         for (let i = Math.floor(x0); i <= Math.floor(x1); i++) {
@@ -292,7 +332,7 @@ export function createWalk({ camera, scene, rig, heightAt, dom, polys, places = 
         }
       }
     }
-    surf = tri.length ? { tri: new Float32Array(tri), paved, climb, grid, x, z, key } : null;
+    return nt ? { tri: tri.subarray(0, nt), paved, climb, grid, x, z, key } : null;
   }
   // a street, a sidewalk or a paved square is drawn at (x, z)
   function pavedAt(x, z) {
@@ -818,12 +858,13 @@ export function createWalk({ camera, scene, rig, heightAt, dom, polys, places = 
     }
     const n = Math.hypot(ix, iz);
     if (n > 1) { ix /= n; iz /= n; }
+    pumpSurface();
     if (ride) {
       rideStep(dt, ix, iz);
       surfClock -= dt;
       if (surfClock <= 0) {
         surfClock = 1;
-        readSurface(pos.x, pos.z);
+        readSurface(pos.x, pos.z, false);
       }
       place(dt);
       return true;
@@ -862,7 +903,7 @@ export function createWalk({ camera, scene, rig, heightAt, dom, polys, places = 
     surfClock -= dt;
     if (surfClock <= 0) {
       surfClock = 2;
-      readSurface(pos.x, pos.z);
+      readSurface(pos.x, pos.z, false);
     }
     // a place within reach offers its card (checked three times a second)
     nearClock -= dt;
