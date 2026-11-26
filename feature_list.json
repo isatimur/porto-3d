@@ -875,6 +875,30 @@
         "2026-11-25: npm test 77/77"
       ],
       "notes": "src/walk.js: readSurface(x, z, now = true). The periodic reads in update pass now = false: a new index is a generator (buildSurface, yields every 2,048 triangles) pumped 3 ms per frame by pumpSurface, while the old index stays in use. It is read in one go at start, teleport, and when the walker is past 0.75 SURF_R from the old index's centre. The triangles go into a growing Float32Array instead of tri.push(...v). A shader compile of 50-770 ms can still happen once when a new material first draws (seen once in a dev profile, in getProgramInfoLog); not fixed here."
+    },
+    {
+      "id": "porto-040",
+      "priority": 43,
+      "area": "performance",
+      "title": "The map (/) costs less CPU per frame and stops less: fewer shadow draws, no forced layouts in the label pass, no first-draw shader compiles",
+      "user_visible_behavior": "Orbiting, zooming and flying over the map look the same as before, with fewer long frames on a slow laptop. A flight to a place no longer stops for 0.5-1.2 s when a new layer first draws.",
+      "status": "passing",
+      "verification": [
+        "npm test",
+        "node /tmp/mapperf/mapbench.mjs <url> [--throttle 4] [--shot prefix] (idle, orbit, zoom, fly, flyback, mid segments)",
+        "PLAYWRIGHT_CORE=... node scripts/check-walk.mjs --base <url>",
+        "npm run verify"
+      ],
+      "evidence": [
+        "2026-11-26: CPU profile, 4x CPU throttle, the same scripted session: main busy 45,454 sampled ms (21,452 inside long tasks) -> this branch 23,092 (3,051). getBoundingClientRect self 5,609 -> 327 ms; CSS2DRenderer.render 3,806 -> 1,106 ms; nature partition 1,917 -> 410 ms; declutter inclusive 7,271 -> 1,367 ms",
+        "2026-11-26: mapbench, main build vs this branch back to back, interleaved, 1440x900 at DPR 2, governor level 0. Shadow-map draws per session 854-1,102 -> 213-268; shadow triangles 267-388 M -> 96-133 M. rAF callback CPU ms avg at 4x throttle: orbit 19.2 -> 12.4, zoom 15.8 -> 11.1, fly 27.2 -> 13.3, flyback 17.8 -> 13.8, mid 16.9 -> 13.9. Long tasks while zooming at 4x: 55 -> 12. Worst frame during a flight: 1x 559 and 683 ms -> 183 and 192 ms; 4x 1,200 ms -> 291 ms",
+        "2026-11-26: triangles per frame (shadow pass included when drawn): overview 1.92 M -> 1.68 M, mid zoom 2.95 M -> 2.24 M; draw calls 253 -> 235 and 278 -> 211",
+        "2026-11-26: GPU ms (EXT_disjoint_timer_query_webgl2) and frame p50/p95 swung 2-4x between runs of the same build: load average 110-317 from other agents' headless Chromes sharing the GPU. Not used as evidence either way",
+        "2026-11-26: screenshots /tmp/mapperf/final-{base,new}-{overview,mid}.png viewed: the overview and the mid-zoom view over the Se look the same (shadows, trees, labels, clusters)",
+        "2026-11-26: npm test 77/77; check-walk against the branch build: all passed",
+        "2026-11-26: npm run verify OK, 17 passed, 0 failed, 0 skipped (perf soft gate warns on a machine at load average 100-300: desktop-gpu p95 183 ms, phone-low goto timeout)"
+      ],
+      "notes": "src/scene.js: the shadow fit is computed every frame in texel units; when the fit and the sun hold, the map is drawn again only every shadowIdle frames (main.js sets 1 in walk mode or under 150 m, 2 under 400 m, 4 under CAST_NEAR_U, 15 above). src/nature.js: a camera higher over every tree base than the largest near radius skips the re-split (it would write the same buffers). src/life.js: high over the city by day, cars step along their streets but are not placed. src/main.js: CSS2DRenderer walks only the label and route-badge groups; declutter reads every layout first (label sizes cached per thumbnail state, last pass's bubble boxes), writes cluster DOM only when a bubble changes, and runs before the label pass; after ready, every material compiles in idle slots with compileAsync when KHR_parallel_shader_compile exists. Left: GPU time per frame at DPR 2 (post effects, 4096 shadow map) is untouched and needs a real slow-laptop ?perf=1 export to size. Id may be renumbered at merge: another branch adds an entry."
     }
   ]
 }

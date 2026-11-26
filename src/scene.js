@@ -975,21 +975,48 @@ export function createAtmosphere(renderer, scene, { reducedMotion = false, shado
       rebuildEnv();
     }
     sky.position.copy(camera.position);
-    // the shadow map every `shadowEvery` frames; the shadow camera moves on
-    // the same frame as the map, so a kept map still matches its matrix
-    if (++shadowFrame >= shadowEvery || anim) {
+    // The shadow map at most every `shadowEvery` frames. When the fit (the
+    // shadow camera, snapped to texels) and the sun are the same as for the
+    // map we hold, only a moving caster can change it: then every
+    // `shadowIdle` frames (main.js: by view distance on the map, where cars
+    // and people shrink to a pixel). The shadow camera moves on the same
+    // frame as the map, so a kept map still matches its matrix.
+    shadowFrame++;
+    fitShadow(sun, camera, sunDir, _fitNew);
+    const changed =
+      anim ||
+      !sun.shadow.map ||
+      _fitNew.R !== _fitDrawn.R ||
+      _fitNew.a !== _fitDrawn.a ||
+      _fitNew.b !== _fitDrawn.b ||
+      _fitNew.f !== _fitDrawn.f ||
+      !_sunDrawn.equals(sunDir) ||
+      sun.shadow.mapSize.x !== _fitDrawn.size;
+    if (anim || shadowFrame >= (changed ? shadowEvery : Math.max(shadowEvery, shadowIdle))) {
       shadowFrame = 0;
-      fitShadow(sun, camera, sunDir);
+      applyShadowFit(sun, sunDir, _fitNew);
+      Object.assign(_fitDrawn, _fitNew, { size: sun.shadow.mapSize.x });
+      _sunDrawn.copy(sunDir);
       renderer.shadowMap.needsUpdate = true;
+      shadowDraws++;
     }
   }
   let shadowEvery = 1;
+  let shadowIdle = 1;
   let shadowFrame = 0;
+  let shadowDraws = 0;
+  const _fitNew = {};
+  const _fitDrawn = {};
+  const _sunDrawn = new THREE.Vector3();
   renderer.shadowMap.autoUpdate = false;
   renderer.shadowMap.needsUpdate = true;
   // walk mode: 2 (people and cars cast at half the frame rate); 1 elsewhere
   function setShadowEvery(n) {
     shadowEvery = Math.max(1, n | 0);
+  }
+  // frames between draws while the fit and the sun hold (1: every frame)
+  function setShadowIdle(n) {
+    shadowIdle = Math.max(1, n | 0);
   }
 
   function setLinearOutput(on) {
@@ -1034,6 +1061,10 @@ export function createAtmosphere(renderer, scene, { reducedMotion = false, shado
     setLinearOutput,
     setShadowSize,
     setShadowEvery,
+    setShadowIdle,
+    get shadowDraws() {
+      return shadowDraws;
+    },
     rebuildEnv, // after a lost WebGL context: the environment target comes back empty
     onChange: (f) => listeners.add(f),
     get time() {
@@ -1057,7 +1088,11 @@ const _focus = new THREE.Vector3();
 const _lr = new THREE.Vector3();
 const _lu = new THREE.Vector3();
 const _lf = new THREE.Vector3();
-function fitShadow(sun, camera, dir) {
+// The fit is computed into `out` ({ R, a, b, f, texel }: integers a, b, f in
+// texels along the light basis) and applied by applyShadowFit. Two frames
+// with the same fit and the same sun draw the same shadow map, unless a
+// caster moved (scene.js update decides when to draw again).
+function fitShadow(sun, camera, dir, out) {
   // main.js keeps camera.userData.focus on the orbit target; without it,
   // aim where the view ray meets the city level
   const orbit = camera.userData.focus;
@@ -1079,10 +1114,22 @@ function fitShadow(sun, camera, dir) {
   _lf.copy(dir).negate();
   _lr.set(0, 1, 0).cross(_lf).normalize();
   _lu.copy(_lf).cross(_lr).normalize();
-  const a = Math.round(_focus.dot(_lr) / texel) * texel;
-  const b = Math.round(_focus.dot(_lu) / texel) * texel;
-  const f = _focus.dot(_lf);
-  _focus.copy(_lr).multiplyScalar(a).addScaledVector(_lu, b).addScaledVector(_lf, f);
+  out.R = R;
+  out.texel = texel;
+  out.a = Math.round(_focus.dot(_lr) / texel);
+  out.b = Math.round(_focus.dot(_lu) / texel);
+  // along the light the centre is free; a step under a texel changes no depth
+  // the map can resolve, so it does not count as a new fit
+  out.f = Math.round(_focus.dot(_lf) / texel);
+  out.fRaw = _focus.dot(_lf);
+  return out;
+}
+function applyShadowFit(sun, dir, fit) {
+  const { R, texel } = fit;
+  _lf.copy(dir).negate();
+  _lr.set(0, 1, 0).cross(_lf).normalize();
+  _lu.copy(_lf).cross(_lr).normalize();
+  _focus.copy(_lr).multiplyScalar(fit.a * texel).addScaledVector(_lu, fit.b * texel).addScaledVector(_lf, fit.fRaw);
   const cam = sun.shadow.camera;
   if (cam.right !== R) {
     cam.left = -R;

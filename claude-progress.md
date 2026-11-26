@@ -9,6 +9,7 @@ updates it automatically.
 ## Current Verified State
 
 - Repository root: `~/Dev/porto-3d`
+- Verified 2026-11-26 (branch perf/map-mode, cheaper map frames, porto-040): `npm run verify` OK, 17 passed, 0 skipped (perf soft gate warns on a loaded machine); `npm test` 77/77; `check-walk` all passed.
 - Verified 2026-11-25 (branch feat/walk-cars, cars in walk mode, porto-036): `npm run verify` 16 passed, 1 failed: smoke console got 404s from port 5192, where another worktree's perf-serve was serving its own dist; `SMOKE_PORT=5197 node scripts/smoke-console.mjs` alone: OK. Perf soft gate passed with warnings on a loaded machine (desktop p95 150 ms, phone-low goto timeout). `npm test` 77/77; `check:walk` all passed.
 - Verified 2026-11-25 (branch feat/walk-lod, walk-mode LOD stage 1a, porto-034): `npm run verify` OK, 17 passed, 0 skipped; `npm test` 77/77; `check:walk` all passed.
 - Standard startup path: `./init.sh`
@@ -27,6 +28,14 @@ updates it automatically.
 - Live: https://porto-3d.vercel.app (Vercel project `porto-3d`); git remote `isatimur/porto-3d`.
 
 ## Session Log
+
+### 2026-11-26 — the map (/) is cheaper per frame (branch perf/map-mode, feature porto-040)
+
+- Goal: orbit, zoom and fly over the map without stutters on a slow laptop, with the same view from above; /play must not regress.
+- Profile at 4x CPU throttle, main: 45 s busy in the scripted session, 21 s of it in long tasks. Top costs: forced layouts in the label declutter (getBoundingClientRect 5.6 s), CSS2DRenderer walking the whole scene (3.8 s), the shadow map drawn every frame, the tree re-split (1.9 s), car placement high over the city, and 0.5-1.2 s shader compiles when a layer first draws during a flight.
+- Changes: shadow map drawn again only when the texel-snapped fit or the sun changes, else every 2-15 frames by view distance (`setShadowIdle`); the tree re-split skipped when the camera is high over every tree; cars not placed when no car is drawn; the label pass walks only the label groups; declutter reads all layout first and skips unchanged DOM writes; materials precompile in idle slots after ready (KHR_parallel_shader_compile only).
+- After: busy 23 s, 3 s in long tasks; shadow draws -75 %; rAF CPU per frame at 4x down 18-51 % by segment; worst flight frame 1.2 s -> 0.29 s at 4x. Overview and mid-zoom screenshots look the same.
+- GPU ms could not be compared: other agents' headless Chromes held the load average at 110-317, and GPU time swung 2-4x between runs of one build. Next: a ?perf=1 Export JSON from the owner's slow laptop to size the GPU side (post effects, 4096 shadow map at DPR 2).
 
 ### 2026-11-25 — walk mode freezes every few seconds (branch fix/walk-surface-hitch, feature porto-038)
 
