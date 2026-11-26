@@ -2307,13 +2307,17 @@ function buildTraffic({ roads, project, heightAt, mobile, model, N: nCars }) {
     let nl = 0;
     const cx = camera.position.x;
     const cz = camera.position.z;
+    // high over the city by day nothing of a vehicle is drawn: the flow moves
+    // on, but no one is placed in the world (locate was most of this loop)
+    const placed = bodies || showLights;
     for (let i = 0; i < active; i++) {
       if (dt > 0 && !flow.step(i, dt, speedK(i))) {
         // a one-way street that ends (or the map edge): it leaves the map
         spawn(i);
-        flow.locate(i, pos, -1);
+        if (placed) flow.locate(i, pos, -1);
         continue;
       }
+      if (!placed) continue;
       const p = flow.locate(i, pos, dt);
       if (p.x * p.x + p.z * p.z > RMAX2) {
         spawn(i);
