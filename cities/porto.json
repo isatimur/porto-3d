@@ -59,6 +59,28 @@
   "default_live": true,
   "default_time": "sunset",
   "walk_start": { "lat": 41.14012, "lon": -8.6131, "headingDeg": 90, "note": "Cais da Ribeira, looking east along the quay to the Luís I bridge (src/main.js startMode('walk'), /play)" },
+  "quay_terraces": [
+    {
+      "id": "ribeira",
+      "note": "Praça da Ribeira, Cais da Estiva and Cais da Ribeira as one level paving at the real quay height (src/terraces.js). River edge: the quay line of data/quays.json (OSM), from Cais da Estiva to the foot of the Luís I bridge; inland edge: about 3 m inside the OSM house fronts, so the arcades open onto the quay, and the south half of Largo Diocleciano Monteiro. The DEM holds the place at 10-13 m on a ramp; the real quay is about 4-5 m above sea level.",
+      "level_m": 4.6,
+      "fall_m": 6,
+      "fall_max_m": 40,
+      "batter": 3.5,
+      "outline": [
+        [41.140092, -8.614671], [41.140054, -8.614595], [41.140049, -8.614429], [41.140055, -8.613881], [41.140084, -8.613616],
+        [41.140202, -8.613613], [41.140264, -8.613553], [41.140289, -8.613387], [41.140225, -8.613373], [41.140273, -8.612803],
+        [41.140247, -8.612763], [41.14022, -8.612759], [41.140223, -8.612726], [41.140251, -8.612729], [41.140286, -8.6127],
+        [41.14032, -8.612381], [41.140387, -8.61237], [41.140449, -8.611846], [41.140391, -8.611829], [41.140432, -8.61143],
+        [41.140476, -8.611134], [41.140531, -8.611103], [41.140587, -8.610667], [41.14059, -8.610289],
+        [41.140562, -8.610219], [41.140502, -8.610197], [41.140472, -8.610146], [41.140488, -8.610033], [41.140487, -8.609975],
+        [41.1407, -8.6099], [41.14074, -8.61032], [41.14087, -8.6104], [41.14081, -8.6106], [41.14079, -8.6108], [41.14075, -8.611], [41.14073, -8.6112],
+        [41.14069, -8.6114], [41.14067, -8.6116], [41.14063, -8.6118], [41.14063, -8.612], [41.14061, -8.6122], [41.14061, -8.6124],
+        [41.14058, -8.61262], [41.1406, -8.6128], [41.14088, -8.61284], [41.14088, -8.61318], [41.14066, -8.61318],
+        [41.14044, -8.6133], [41.14042, -8.6138], [41.1404, -8.6142], [41.14036, -8.6145], [41.1403, -8.61468]
+      ]
+    }
+  ],
   "walk_model_landmarks": ["ribeira", "cais-gaia"],
   "walk_open_landmarks": ["ribeira", "ponte-luis-i", "ponte-arrabida", "ponte-maria-pia", "ponte-sao-joao", "ponte-infante", "ponte-freixo", "cais-gaia", "praca-batalha", "cordoaria", "jardim-do-morro", "palacio-cristal", "parque-cidade", "serralves", "passeio-alegre"],
   "description": {

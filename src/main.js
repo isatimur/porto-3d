@@ -17,6 +17,7 @@ import { createEffects } from './effects.js';
 import { createIntro } from './intro.js';
 import { createInstruments } from './ui.js';
 import { fitLandmark, padFor, getDims } from './fit.js';
+import { terracePads, terraceLevelAt, nearTerrace } from './terraces.js';
 import { createMeta } from './model-meta.js';
 import { createModelClient } from './model-client.js';
 import { createCameraRig } from './camera.js';
@@ -149,6 +150,9 @@ async function start() {
   debug.projection = { S: proj.S, metresPerUnit: METRES_PER_UNIT, terrain: terrain.source, datum: +terrain.datum.toFixed(1) };
   debug.heightAt = heightAt;
   debug.project = project;
+  // the riverside squares and quays (cities/<id>.json quay_terraces): level
+  // paving at the real quay height, in the terrain before anything reads it
+  for (const pad of terracePads(CITY.quay_terraces, { project, terrain, S: proj.S })) terrain.addPad(pad);
 
   // the shared height fog replaces the stock chunks before any shader exists
   installAtmosphereFog();
@@ -385,6 +389,8 @@ async function start() {
     const { models } = await import('./models.js');
     fitCtx = { project, rawAt: terrain.rawAt, footprints, models };
   }
+  // a landmark on a quay terrace takes the terrace level as its base
+  fitCtx.terraceLevel = (x, z) => terraceLevelAt(terrain.pads, x, z);
   debug.lazyModels = lazyModels;
   debug.modelClient = modelClient;
   const fits = [];
@@ -497,7 +503,7 @@ async function start() {
   await nextFrame();
   const roadLayer = LITE_SCENE
     ? lite.buildRoadsLite(roads, project, surfaceAt, atmosphere, proj.S)
-    : buildRoads(roads, project, heightAt, { waterRibbon: !loaded.nature, lite: LITE });
+    : buildRoads(roads, project, heightAt, { waterRibbon: !loaded.nature, lite: LITE, paved: (x, z) => nearTerrace(terrain.pads, x, z, 8 * proj.S) });
   scene.add(roadLayer.group);
   fadeIn((k) => roadLayer.setReveal(k), 1200);
   debug.roadSegments = roadLayer.counts;

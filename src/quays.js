@@ -202,7 +202,9 @@ export function buildQuays({ doc, heightAt, S }) {
     for (let i = 0; i < n - 1; i++) {
       const A = rows[i];
       const B = rows[i + 1];
-      if (A.cell !== B.cell) continue; // the seam is one step; a gap of 5 m at most
+      // every quad makes its own vertices, so a step across a cell seam goes
+      // into A's cell (skipping it left a 5 m gap in the wall and the deck: one
+      // seam runs across the Cais da Ribeira)
       const cell = A.cell;
       const colWall = (r, band) => (band === 0 ? WEED : band % 2 ? WALL_B : WALL_A).clone().multiplyScalar(r.shade * (1 - 0.05 * band));
       // o: metres inland from the wall face (the face stands r.out metres river-ward of the OSM line)
