@@ -63,6 +63,28 @@ export function nearTerrace(pads, x, z, margin = 0) {
   return false;
 }
 
+// Quay deck tops along a line (src/quays.js), pinned to the terrace behind
+// them. tops[i]: the deck's own height rule; levels[i]: the terrace level
+// behind sample i, or null. A pinned sample lies `lift` over its terrace (the
+// deck flush with the paving: no step, and no gap under the deck); the samples
+// past a terrace's end ease back to their own rule over `r` samples.
+export function pinToTerrace(tops, levels, lift = 0, r = 3) {
+  if (!levels.some((v) => v != null)) return tops.slice();
+  const at = tops.map((y, i) => (levels[i] != null ? levels[i] + lift : y));
+  return at.map((y, i) => {
+    if (levels[i] != null) return y;
+    let s = 0;
+    let n = 0;
+    let near = false;
+    for (let k = Math.max(0, i - r); k <= Math.min(at.length - 1, i + r); k++) {
+      s += at[k];
+      n++;
+      if (levels[k] != null) near = true;
+    }
+    return near ? s / n : y;
+  });
+}
+
 // The level (world y) of the terrace whose outline holds (x, z), or null.
 export function terraceLevelAt(pads, x, z) {
   for (const p of pads) {

@@ -2480,7 +2480,7 @@ async function start() {
     await step('quays', () => {
       quaysP.then(({ m, doc }) => {
         if (!doc) return;
-        const q = m.buildQuays({ doc, heightAt, S: 1 / METRES_PER_UNIT });
+        const q = m.buildQuays({ doc, heightAt, S: 1 / METRES_PER_UNIT, levelAt: (x, z) => terraceLevelAt(terrain.pads, x, z) });
         scene.add(q.group);
         debug.quays = q.stats;
         mark('quays');

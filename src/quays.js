@@ -14,6 +14,7 @@
 import * as THREE from 'three';
 import { dataPath, hasData } from './city.js';
 import { assetUrl } from './data.js';
+import { pinToTerrace } from './terraces.js';
 
 const STEP_M = 5; // sample spacing along a line
 const BOLLARD_M = 30;
@@ -30,6 +31,10 @@ const SKIRT_MIN_M = 0.4;
 const SEA_SEARCH_M = 40; // river-side search for the water level
 const OUT_MAX_M = 22; // the wall never moves further out than this
 const WATER_EPS_M = 0.4; // ground this close to the water counts as the waterline
+// a quay terrace is looked for this far inland of the OSM line (the outline
+// has notches a few metres deep: one probe missed it and dropped the deck)
+const TERRACE_PROBE_M = [2, 4, 8];
+const DECK_LIFT_M = 0.03; // a deck on a terrace lies this far over the paving (no z-fight)
 
 export async function loadQuays() {
   if (!hasData('quays.json')) return null;
@@ -115,8 +120,12 @@ class Cell {
   }
 }
 
-// ctx: { doc, heightAt, S }; returns { group, stats }
-export function buildQuays({ doc, heightAt, S }) {
+// ctx: { doc, heightAt, S, levelAt }; returns { group, stats }
+// levelAt(x, z) (world units, optional): the level of the quay terrace that
+// holds (x, z) (src/terraces.js terraceLevelAt), or null. Where the ground
+// behind the wall is a terrace, the deck lies at the terrace level, flush with
+// the paving: no step up, and no gap under the deck for a walker to fall into.
+export function buildQuays({ doc, heightAt, S, levelAt = null }) {
   const group = new THREE.Group();
   group.name = 'quays';
   const stats = { lines: 0, samples: 0, lengthM: 0, bollards: 0, tris: 0, skipped: 0, cells: 0 };
@@ -176,6 +185,19 @@ export function buildQuays({ doc, heightAt, S }) {
       3,
     );
     const yWs = smooth(yW, 1);
+    // the deck top (world y); on a quay terrace pinned to the terrace level,
+    // and eased into the rule above over three samples past its ends
+    let topY = yWs.map((w, i) => w + topM[i] * S);
+    if (levelAt) {
+      const pin = pts.map((p, i) => {
+        for (const d of TERRACE_PROBE_M) {
+          const y = levelAt((p[0] + L[i][0] * d) * S, -(p[1] + L[i][1] * d) * S);
+          if (y != null) return y;
+        }
+        return null;
+      });
+      topY = pinToTerrace(topY, pin, DECK_LIFT_M * S);
+    }
 
     // build the rows
     const rows = [];
@@ -183,7 +205,7 @@ export function buildQuays({ doc, heightAt, S }) {
       const [px, py] = pts[i];
       const [lx, ly] = L[i];
       const w = yWs[i];
-      const top = w + topM[i] * S;
+      const top = topY[i];
       const at = (o, y, c, cell) => cell.v((px + lx * o) * S, y, -(py + ly * o) * S, c);
       const cell = cellOf(px * S, -py * S);
       // deck width: inland until the ground reaches the deck, within limits
