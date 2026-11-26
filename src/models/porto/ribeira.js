@@ -30,11 +30,15 @@ function builder(k, site) {
   k.begin('main');
 
   // paved quay edge + the river bed under the scene's own Douro (keeps the
-  // box as wide as the OSM extent; below the water line, never seen)
-  k.prism(rect(0, zF + 5.5, L + 26, 7), -0.35, 0.75, 'graniteWarm');
-  k.prism(rect(0, zF + 5.5, L + 25, 6.4), 0.4, 0.2, 'sand');
-  k.prism(rect(0, zF + 30, L + 60, 52), -2.2, 0.42, 'graniteDark');
-  k.prism(rect(0, zF + 3.4, L + 30, 1.0), -0.3, 0.5, 'graniteDark');
+  // box as wide as the OSM extent; below the water line, never seen). The
+  // base is the quay level (cities/porto.json quay_terraces, about 3 m over
+  // the river), so the bed lies 4.2 m under it. The quay paving lies flush
+  // with the terrace and the quay deck (src/quays.js, 3 cm over the terrace):
+  // 0.6 m proud, it was a ledge along the whole quay.
+  k.prism(rect(0, zF + 5.5, L + 26, 7), -0.7, 0.75, 'graniteWarm');
+  k.prism(rect(0, zF + 5.5, L + 25, 6.4), 0.05, 0.02, 'sand');
+  k.prism(rect(0, zF + 30, L + 60, 52), -4.2, 0.42, 'graniteDark');
+  k.prism(rect(0, zF + 3.4, L + 30, 1.0), -0.4, 0.5, 'graniteDark');
 
   // the terrace: houses of varied width, height and colour, side by side
   let x = -L / 2;

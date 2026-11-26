@@ -1323,6 +1323,13 @@ export function buildNature(opts) {
   const _s = new THREE.Vector3();
   const _up = new THREE.Vector3(0, 1, 0);
   const lastCam = new THREE.Vector3(Infinity, 0, 0);
+  let allFar = false; // the last split had the camera high over every tree (farAbove)
+  let topY = Infinity; // the highest tree base at the last split
+  // the tree set or the radius changed: split again at the next update
+  const resplit = () => {
+    lastCam.set(Infinity, 0, 0);
+    allFar = false;
+  };
   let nearR = NEAR;
   const STREET_NEAR_K = 0.38;
   const STREET_FAR_K = 2;
@@ -1362,6 +1369,7 @@ export function buildNature(opts) {
     let streetCount = 0;
     // every near tree stands within this of the camera (honest bounds below)
     const meshR = Math.sqrt(Math.max(r2, rs2, rh2));
+    let top = -Infinity;
     for (let s = 0; s < near.length; s++) {
       const N = near[s];
       let k = 0;
@@ -1371,6 +1379,7 @@ export function buildNature(opts) {
       const ns = nl + N.street.length;
       for (let ti = 0, nt = ns + N.stream.length; ti < nt; ti++) {
         const t = ti < nl ? N.list[ti] : ti < ns ? N.street[ti - nl] : N.stream[ti - ns];
+        if (t.y > top) top = t.y;
         const dx = t.x - cam.x;
         const dy = t.y - cam.y;
         const dz = t.z - cam.z;
@@ -1403,6 +1412,8 @@ export function buildNature(opts) {
       upload(N.tintAttr, k);
       nearCount += k;
     }
+    topY = top;
+    allFar = farAbove(cam);
     bbGeo.instanceCount = far;
     upload(bbInst, far);
     upload(bbInfo, far);
@@ -1475,7 +1486,7 @@ export function buildNature(opts) {
       }
       stats.street = { ...res.stats, planted: trees2, hedgePieces: res.hedges.length, replaced, plantMs };
       stats.street.ms = Math.round(performance.now() - t0);
-      lastCam.set(Infinity, 0, 0); // re-split at the next update
+      resplit(); // re-split at the next update
       // the walks and the leaf field in a second, idle task (a phone gets
       // two short tasks, not one long one)
       const later = window.requestIdleCallback || ((f) => setTimeout(f, 60));
@@ -1537,8 +1548,17 @@ export function buildNature(opts) {
       bbMat.uniforms.uSunColor.value.copy(light.color);
       bbMat.uniforms.uAmbient.value.copy(light.ambient);
     }
-    if (lastCam.distanceToSquared(camera.position) > REPART_MOVE * REPART_MOVE) partition(camera.position);
+    if (lastCam.distanceToSquared(camera.position) > REPART_MOVE * REPART_MOVE) {
+      // high over every tree (the overview, an orbit there): each tree is a
+      // billboard and no street tree is drawn, as at the last split, so the
+      // split would write the same buffers again (it was 5 % of a frame)
+      if (allFar && farAbove(camera.position)) lastCam.copy(camera.position);
+      else partition(camera.position);
+    }
   }
+  // every tree base lies below topY; a camera this high sees none as a mesh
+  // and no street tree as a billboard (all distances are 3D)
+  const farAbove = (cam) => cam.y - topY > nearR * Math.max(AREA_NEAR_K, STREET_NEAR_K, HEDGE_K, STREET_FAR_K);
 
   return {
     group,
@@ -1552,7 +1572,7 @@ export function buildNature(opts) {
     update,
     setNearRadius(r) {
       nearR = r;
-      lastCam.set(Infinity, 0, 0);
+      resplit();
     },
     setShadows(on) {
       for (const N of near) N.mesh.castShadow = on;
@@ -1580,7 +1600,7 @@ export function buildNature(opts) {
         }
       }
       stats.stream = n;
-      lastCam.set(Infinity, 0, 0); // re-split at the next update
+      resplit(); // re-split at the next update
     },
   };
 }

@@ -338,6 +338,11 @@ export function fitLandmark(l, ctx) {
   } else {
     baseM = Math.min(...samplePoly(frame.outline, rawM));
   }
+  // a landmark on a quay terrace (src/terraces.js) stands on the terrace level,
+  // not on the DEM ramp the terrace replaces
+  const lp = ctx.terraceLevel ? ctx.project(l.lat, l.lon) : null;
+  const terraceY = lp ? ctx.terraceLevel(lp.x, lp.z) : null;
+  if (terraceY != null) baseM = terraceY / S;
   // --- pad over named parts (sites that are only partly level): its box,
   // falloff and level profile are known before the build, so the builder
   // gets the visible ground (terrain with this pad) as footprint.ground

@@ -1,6 +1,6 @@
 {
   "project": "porto-3d",
-  "last_updated": "2026-11-24",
+  "last_updated": "2026-11-26",
   "rules": {
     "single_active_feature": true,
     "passing_requires_evidence": true,
@@ -875,6 +875,56 @@
         "2026-11-25: npm test 77/77"
       ],
       "notes": "src/walk.js: readSurface(x, z, now = true). The periodic reads in update pass now = false: a new index is a generator (buildSurface, yields every 2,048 triangles) pumped 3 ms per frame by pumpSurface, while the old index stays in use. It is read in one go at start, teleport, and when the walker is past 0.75 SURF_R from the old index's centre. The triangles go into a growing Float32Array instead of tri.push(...v). A shader compile of 50-770 ms can still happen once when a new material first draws (seen once in a dev profile, in getProgramInfoLog); not fixed here."
+    },
+    {
+      "id": "porto-039",
+      "priority": 42,
+      "area": "walk",
+      "title": "Praça da Ribeira and Cais da Ribeira are one level paving; no terrain humps or grass wedges at the arcades and the Luís I lower-deck foot",
+      "user_visible_behavior": "On /play at the Ribeira the square and the quay are level at about 4.6 m above sea level from Cais da Estiva to the Luís I bridge: the arcades open onto the paving, the walker does not climb humps, no olive wedges stand by the arcades or the small tower house, and the lower-deck approach stands on a granite wall on the quay side, not on a grass slope.",
+      "status": "passing",
+      "verification": [
+        "npm test",
+        "PLAYWRIGHT_CORE=$PWC node scripts/check-walk.mjs --base <preview>",
+        "npm run verify",
+        "node /tmp/layers/probe.mjs <url> 41.1405 -8.6125 41.1405 -8.6090 14",
+        "node /tmp/layers/raised.mjs [--no-terrace]",
+        "node /tmp/layers/shots2.mjs <url> <prefix> <places.json>"
+      ],
+      "evidence": [
+        "2026-11-26: ground along the quay 41.1405 from -8.6125 to the bridge pier: level at 4.6 m above sea level (probe); across the square at -8.6128 from 41.14025 to 41.14085: before 2.8 -> 13.9 m, after 3.9 -> 4.8 m",
+        "2026-11-26: raised ways near the bridge foot (raised.mjs, without -> with the terrace): Muro dos Bacalhoeiros 10.3 -> 6.7 m over the ground, Rua do Cais da Ribeira 1.0 m -> under 0.8 m; the west embankment of the lower-deck approach (way 600, 9 m lift) is a granite wall",
+        "2026-11-26: walk shots before (porto-3d.com) /tmp/rib/B-* and after /tmp/rib/A-*: the hump and the olive wedges at the arcades are gone",
+        "2026-11-26: npm test 83/83; check-walk all passed; npm run verify OK, 17 passed, 0 failed, 0 skipped; data/fits.json equals a fresh node scripts/bake-fits.mjs",
+        "2026-11-26 follow-up (porto-batch): the default walk start (/play, world -44.0, 262.06) stood in the river under the quay deck. Start: before feet on the river bed -89.4 m, deck -86.45 m overhead (3 m, over CLIMB 1.8 m, so a ceiling); after feet -86.41 m on the deck. Along the Cais da Ribeira (-8.6150 to -8.6112, 20 samples) the walker surface is now the deck (-86.41 m) or its coping (-86.11 m) everywhere; the terrace is at -86.44 m. Before, the deck ran -85.3 to -85.5 m at x -49.7, 1 m over the terrace.",
+        "2026-11-26 follow-up: shots /tmp/porto-live/before-start.png, before-ribeira.png (waist-deep in olive water, brown deck edge over the camera) -> batch-start.png, batch-ribeira.png (on the paving, flush with the house-front band, river beyond the coping); /tmp/layers/fix-*.png at the six walk places",
+        "2026-11-26 follow-up: check-walk had passed with the walker in the river (lift 0 m: it compared the feet with the terrain only). New assertion: the feet are on the top drawn surface (walk.surfaceAt from above); the lift bound is now under 5 m (a quay wall), as the deck reaches 3 m over the river bed"
+      ],
+      "notes": "cities/porto.json quay_terraces; src/terraces.js (terracePads, terraceLevelAt, nearTerrace, pinToTerrace); src/terrain.js addPad poly + shore; src/fit.js terrace base; src/road-network.js rampLift; src/roads.js paved -> retaining wall; src/quays.js seam quad + levelAt (a deck on a terrace lies at the terrace level, 3 cm over it); src/walk.js a quay deck is never a ceiling; src/models/porto/ribeira.js river bed, the quay strip flush with the terrace (was 0.6 m proud). The deck still overhangs the river bed between the OSM quay line and the wall face (3 m void, covered by the wall): the 12 m ground lattice cannot drop vertically. Left: the east embankment of way 600 beside the abutment, the green feather north of the bridge foot, Largo Luiz I (Gaia) 9 m over the DEM."
+    },
+    {
+      "id": "porto-040",
+      "priority": 43,
+      "area": "performance",
+      "title": "The map (/) costs less CPU per frame and stops less: fewer shadow draws, no forced layouts in the label pass, no first-draw shader compiles",
+      "user_visible_behavior": "Orbiting, zooming and flying over the map look the same as before, with fewer long frames on a slow laptop. A flight to a place no longer stops for 0.5-1.2 s when a new layer first draws.",
+      "status": "passing",
+      "verification": [
+        "npm test",
+        "node /tmp/mapperf/mapbench.mjs <url> [--throttle 4] [--shot prefix] (idle, orbit, zoom, fly, flyback, mid segments)",
+        "PLAYWRIGHT_CORE=... node scripts/check-walk.mjs --base <url>",
+        "npm run verify"
+      ],
+      "evidence": [
+        "2026-11-26: CPU profile, 4x CPU throttle, the same scripted session: main busy 45,454 sampled ms (21,452 inside long tasks) -> this branch 23,092 (3,051). getBoundingClientRect self 5,609 -> 327 ms; CSS2DRenderer.render 3,806 -> 1,106 ms; nature partition 1,917 -> 410 ms; declutter inclusive 7,271 -> 1,367 ms",
+        "2026-11-26: mapbench, main build vs this branch back to back, interleaved, 1440x900 at DPR 2, governor level 0. Shadow-map draws per session 854-1,102 -> 213-268; shadow triangles 267-388 M -> 96-133 M. rAF callback CPU ms avg at 4x throttle: orbit 19.2 -> 12.4, zoom 15.8 -> 11.1, fly 27.2 -> 13.3, flyback 17.8 -> 13.8, mid 16.9 -> 13.9. Long tasks while zooming at 4x: 55 -> 12. Worst frame during a flight: 1x 559 and 683 ms -> 183 and 192 ms; 4x 1,200 ms -> 291 ms",
+        "2026-11-26: triangles per frame (shadow pass included when drawn): overview 1.92 M -> 1.68 M, mid zoom 2.95 M -> 2.24 M; draw calls 253 -> 235 and 278 -> 211",
+        "2026-11-26: GPU ms (EXT_disjoint_timer_query_webgl2) and frame p50/p95 swung 2-4x between runs of the same build: load average 110-317 from other agents' headless Chromes sharing the GPU. Not used as evidence either way",
+        "2026-11-26: screenshots /tmp/mapperf/final-{base,new}-{overview,mid}.png viewed: the overview and the mid-zoom view over the Se look the same (shadows, trees, labels, clusters)",
+        "2026-11-26: npm test 77/77; check-walk against the branch build: all passed",
+        "2026-11-26: npm run verify OK, 17 passed, 0 failed, 0 skipped (perf soft gate warns on a machine at load average 100-300: desktop-gpu p95 183 ms, phone-low goto timeout)"
+      ],
+      "notes": "src/scene.js: the shadow fit is computed every frame in texel units; when the fit and the sun hold, the map is drawn again only every shadowIdle frames (main.js sets 1 in walk mode or under 150 m, 2 under 400 m, 4 under CAST_NEAR_U, 15 above). src/nature.js: a camera higher over every tree base than the largest near radius skips the re-split (it would write the same buffers). src/life.js: high over the city by day, cars step along their streets but are not placed. src/main.js: CSS2DRenderer walks only the label and route-badge groups; declutter reads every layout first (label sizes cached per thumbnail state, last pass's bubble boxes), writes cluster DOM only when a bubble changes, and runs before the label pass; after ready, every material compiles in idle slots with compileAsync when KHR_parallel_shader_compile exists. Left: GPU time per frame at DPR 2 (post effects, 4096 shadow map) is untouched and needs a real slow-laptop ?perf=1 export to size. Id may be renumbered at merge: another branch adds an entry."
     }
   ]
 }

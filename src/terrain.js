@@ -377,11 +377,45 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
   //   fillMax most ground a pad may add, world units (default unlimited). Where
   //           the pad plane stands higher than the ground it may build, the rest
   //           is a retaining wall (src/pad-walls.js) under the pad's edge.
+  //   poly    a polygon [[x, z], ...] in world units instead of the rectangle
+  //           (src/terraces.js: a riverside square or quay). cx, cz, hu, hv are
+  //           then its bounding box, and the feather is the distance outside it.
+  //   shore   fill inside the outline even on low ground by the water (a quay
+  //           is built up from the river); the feather still keeps off the river.
   function addPad(p) {
-    const fallMax = Math.max(p.fall, p.fallMax ?? p.fall);
-    const pad = { ...p, fallMax, r: Math.hypot(p.hu, p.hv) + fallMax };
+    let q = p;
+    if (p.poly) {
+      let x0 = Infinity, x1 = -Infinity, z0 = Infinity, z1 = -Infinity;
+      for (const [x, z] of p.poly) {
+        x0 = Math.min(x0, x);
+        x1 = Math.max(x1, x);
+        z0 = Math.min(z0, z);
+        z1 = Math.max(z1, z);
+      }
+      q = { ...p, poly: Float64Array.from(p.poly.flat()), cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, ux: 1, uz: 0, hu: (x1 - x0) / 2, hv: (z1 - z0) / 2 };
+    }
+    const fallMax = Math.max(q.fall, q.fallMax ?? q.fall);
+    const pad = { ...q, fallMax, r: Math.hypot(q.hu, q.hv) + fallMax };
     pads.push(pad);
     return pad;
+  }
+  // Distance from (x, z) to a flat polygon [x0, z0, x1, z1, ...]; 0 inside.
+  function polyDist(P, x, z) {
+    let inside = false;
+    let best = Infinity;
+    const n = P.length;
+    for (let i = 0, j = n - 2; i < n; j = i, i += 2) {
+      const xi = P[i], zi = P[i + 1], xj = P[j], zj = P[j + 1];
+      if (zi > z !== zj > z && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) inside = !inside;
+      const ex = xj - xi, ez = zj - zi;
+      const l2 = ex * ex + ez * ez;
+      let t = l2 > 0 ? ((x - xi) * ex + (z - zi) * ez) / l2 : 0;
+      t = t < 0 ? 0 : t > 1 ? 1 : t;
+      const dx = x - (xi + ex * t), dz = z - (zi + ez * t);
+      const d2 = dx * dx + dz * dz;
+      if (d2 < best) best = d2;
+    }
+    return inside ? 0 : Math.sqrt(best);
   }
   // A cut up to 70 % of the limit is taken whole; beyond that it saturates
   // smoothly towards the limit (no kink, so no crease in the ground).
@@ -432,9 +466,13 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
       if (dx * dx + dz * dz > p.r * p.r) continue;
       const u = dx * p.ux + dz * p.uz;
       const v = -dx * p.uz + dz * p.ux;
-      const ou = Math.abs(u) - p.hu;
-      const ov = Math.abs(v) - p.hv;
-      const d = Math.hypot(ou > 0 ? ou : 0, ov > 0 ? ov : 0);
+      let d;
+      if (p.poly) d = polyDist(p.poly, x, z);
+      else {
+        const ou = Math.abs(u) - p.hu;
+        const ov = Math.abs(v) - p.hv;
+        d = Math.hypot(ou > 0 ? ou : 0, ov > 0 ? ov : 0);
+      }
       if (d >= p.fallMax) continue;
       const target = p.yAt ? p.yAt(u, v, x, z) : p.y;
       let step = target - h; // > 0 fill, < 0 cut
@@ -446,7 +484,7 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
         // above sea level is left alone, eased in up to 5 m (a garden terrace
         // used to push a spur 80 m high into the Douro)
         const e = h / k + datum;
-        if (e < 5) step *= e <= 1.5 ? 0 : smooth((e - 1.5) / 3.5);
+        if (e < 5 && !(p.shore && d === 0)) step *= e <= 1.5 ? 0 : smooth((e - 1.5) / 3.5);
       }
       // the feather widens with the step: face no steeper than 1 : batter
       let fall = p.fall;

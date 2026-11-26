@@ -231,6 +231,7 @@ export function createWalk({ camera, scene, rig, heightAt, dom, polys, places = 
   // higher than this.
   const CLIMB = 1.8 * M;
   const CLIMBS = /^(quays-|landmark-)/;
+  const DECKS = /^quays-/;
   let surf = null; // { tri: Float32Array, grid: Map, x, z, key }
   const _sphere = new THREE.Sphere();
   // Reading the surface walks up to a million triangles (about 0.3 s on a
@@ -284,7 +285,10 @@ export function createWalk({ camera, scene, rig, heightAt, dom, polys, places = 
     let since = 0;
     for (const o of meshes) {
       const hard = o.name !== 'street-plate' ? 1 : 0;
-      const up = CLIMBS.test(o.name) ? 1 : 0;
+      // 2: a quay deck (quays.js), solid ground down to the river: never a
+      // ceiling. Where the bank under it falls to the water (the wall stands
+      // river-ward of the OSM line), the walker stands on the deck, not in the river.
+      const up = DECKS.test(o.name) ? 2 : CLIMBS.test(o.name) ? 1 : 0;
       o.updateWorldMatrix(true, false);
       const e = o.matrixWorld.elements;
       const p = o.geometry.attributes.position.array, ix = o.geometry.index?.array;
@@ -367,7 +371,8 @@ export function createWalk({ camera, scene, rig, heightAt, dom, polys, places = 
       const v = ((z3 - z1) * (x - x3) + (x1 - x3) * (z - z3)) / den;
       if (u < -1e-6 || v < -1e-6 || u + v > 1 + 1e-6) continue;
       const y = u * t[a + 1] + v * t[a + 4] + (1 - u - v) * t[a + 7];
-      if (y <= from + (surf.climb[a / 9] ? CLIMB : STEP_UP)) { if (y > best) best = y; } else if (y < over) over = y;
+      const up = surf.climb[a / 9];
+      if (y <= from + (up ? CLIMB : STEP_UP) || (up === 2 && y >= land)) { if (y > best) best = y; } else if (y < over) over = y;
     }
     const s = best > -Infinity ? best : over < Infinity ? over : null;
     return s == null || land > s ? land : s;

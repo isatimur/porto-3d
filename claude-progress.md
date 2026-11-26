@@ -9,6 +9,7 @@ updates it automatically.
 ## Current Verified State
 
 - Repository root: `~/Dev/porto-3d`
+- Verified 2026-11-26 (branch perf/map-mode, cheaper map frames, porto-040): `npm run verify` OK, 17 passed, 0 skipped (perf soft gate warns on a loaded machine); `npm test` 77/77; `check-walk` all passed.
 - Verified 2026-11-25 (branch feat/walk-cars, cars in walk mode, porto-036): `npm run verify` 16 passed, 1 failed: smoke console got 404s from port 5192, where another worktree's perf-serve was serving its own dist; `SMOKE_PORT=5197 node scripts/smoke-console.mjs` alone: OK. Perf soft gate passed with warnings on a loaded machine (desktop p95 150 ms, phone-low goto timeout). `npm test` 77/77; `check:walk` all passed.
 - Verified 2026-11-25 (branch feat/walk-lod, walk-mode LOD stage 1a, porto-034): `npm run verify` OK, 17 passed, 0 skipped; `npm test` 77/77; `check:walk` all passed.
 - Standard startup path: `./init.sh`
@@ -27,6 +28,27 @@ updates it automatically.
 - Live: https://porto-3d.vercel.app (Vercel project `porto-3d`); git remote `isatimur/porto-3d`.
 
 ## Session Log
+
+### 2026-11-26 — Ribeira square and quay as one level paving (branch fix/ribeira-ground, feature porto-039)
+
+- Owner report: walk mode at Praça da Ribeira / Cais da Ribeira: humps of terrain in front of the arcades, walkers go up and down, olive wedges by the arcades and the small tower house; at the foot of the Luís I lower deck a green slab over a bare slope.
+- Cause: the DEM (25-30 m source) smears the quay wall and the hill into one ramp, 10-13 m high at the house fronts against a real quay of about 4-5 m. The street ramps rode their lift up that hill (6-8 m over the ground beside the bridge foot) and stood 1 : 1.5 grass embankments on the quay.
+- Fix: `cities/porto.json` `quay_terraces` (one polygon, 4.6 m above sea level, from Cais da Estiva to the bridge foot, river edge on data/quays.json, inland edge about 3 m inside the house fronts); `src/terraces.js` turns it into a polygon pad (`src/terrain.js` addPad `poly`, `shore`); landmarks on it take its level as base (`src/fit.js`); `road-network.js` `rampLift` makes a ramp meet rising ground sooner; `roads.js` draws an embankment whose foot lands on or within 8 m of the terrace as a granite retaining wall (`nearTerrace`); `quays.js` no longer skips the quad across a cell seam (a 5 m gap on the Cais da Ribeira); `ribeira.js` river bed 4.2 m under the quay. `data/fits.json` re-baked with `node scripts/bake-fits.mjs` (byte-identical to the re-bake).
+- Numbers (probe.mjs, metres above sea level): across the square at lon -8.6128 from the river (41.14025) to 41.14085: before 2.8 -> 13.9 m (11 m of hump), after 3.9 -> 4.8 m; along the quay at 41.1405 from -8.6125 to the bridge pier: 4.6 m at every point; raised ways within 250 m of the bridge foot: Muro dos Bacalhoeiros 10.3 -> 6.7 m over the ground, Rua de Cima do Muro 7.2 -> 6.4 m, Rua do Cais da Ribeira 1.0 m -> flat; the west embankment of the lower-deck approach (way 600, 9 m lift) is gone from the quay (probe x 24-26: no road-structures).
+- Checks: `npm test` 83/83; `check-walk.mjs` all passed; `npm run verify`: OK, 17 passed, 0 failed, 0 skipped (perf soft gate PASS).
+- Shots (walk height, before = porto-3d.com, after = this branch): /tmp/rib/B-* and /tmp/rib/A-* (ribeira-east, ribeira-arcades, foot-ne, foot-e, deck-w, deck-e, deck-n, gaia).
+- Not fixed: the east embankment of the lower-deck approach (way 600) is still a dark grass wedge beside the bridge abutment; the terrace feather north of the bridge foot climbs as green ground; Largo Luiz I on the Gaia side still stands 9 m over the DEM; Rua de São João was not reshot (the teleport point lands under a tree).
+- Follow-up on porto-batch (regression): the default /play start stood waist-deep in the river with the deck edge overhead. Cause: the start (41.14012) lies 14 m river-ward of the OSM quay line, on the quay deck that reaches out to the wall face. The terrace lifts the ground only to the quay line, so the ground under the deck is the river bed (-89.4 m). The deck (-86.45 m) was 3 m over it. That is more than the walker climbs (1.8 m), so the deck was a ceiling and the walker stood on the river bed. Also, beside the start the deck had its own height rule, 1 m over the terrace, and the Ribeira model's quay strip stood 0.6 m proud of the paving.
+- Fix: `src/quays.js` buildQuays `levelAt` (main.js passes `terraceLevelAt`). A deck whose ground 2, 4 or 8 m inland is a terrace lies 3 cm over the terrace level, and it eases back to its own rule over 3 samples past the ends (`src/terraces.js` `pinToTerrace`, tested in `scripts/quays.test.mjs`). `src/walk.js`: a quay deck (quays-*) is never a ceiling: it is a floor wherever it stands over the terrain. `src/models/porto/ribeira.js`: the quay strip is flush with the terrace. `scripts/check-walk.mjs`: the start check now asks that the feet are on the top drawn surface. It had passed with the walker in the river. The lift bound is now under 5 m, because the deck stands 3 m over the river bed. A start 8 m inland (41.14032) is inside the house row, so the start stays.
+- Numbers (metres, x4 world units): start feet -89.4 (river bed) -> -86.41 (deck); deck along the Cais da Ribeira -86.41, coping -86.11, terrace -86.44 (before: -85.3 to -85.5 at x -49.7). The walker surface equals the deck or the coping at all 20 samples from -8.6150 to -8.6112.
+
+### 2026-11-26 — the map (/) is cheaper per frame (branch perf/map-mode, feature porto-040)
+
+- Goal: orbit, zoom and fly over the map without stutters on a slow laptop, with the same view from above; /play must not regress.
+- Profile at 4x CPU throttle, main: 45 s busy in the scripted session, 21 s of it in long tasks. Top costs: forced layouts in the label declutter (getBoundingClientRect 5.6 s), CSS2DRenderer walking the whole scene (3.8 s), the shadow map drawn every frame, the tree re-split (1.9 s), car placement high over the city, and 0.5-1.2 s shader compiles when a layer first draws during a flight.
+- Changes: shadow map drawn again only when the texel-snapped fit or the sun changes, else every 2-15 frames by view distance (`setShadowIdle`); the tree re-split skipped when the camera is high over every tree; cars not placed when no car is drawn; the label pass walks only the label groups; declutter reads all layout first and skips unchanged DOM writes; materials precompile in idle slots after ready (KHR_parallel_shader_compile only).
+- After: busy 23 s, 3 s in long tasks; shadow draws -75 %; rAF CPU per frame at 4x down 18-51 % by segment; worst flight frame 1.2 s -> 0.29 s at 4x. Overview and mid-zoom screenshots look the same.
+- GPU ms could not be compared: other agents' headless Chromes held the load average at 110-317, and GPU time swung 2-4x between runs of one build. Next: a ?perf=1 Export JSON from the owner's slow laptop to size the GPU side (post effects, 4096 shadow map at DPR 2).
 
 ### 2026-11-25 — walk mode freezes every few seconds (branch fix/walk-surface-hitch, feature porto-038)
 

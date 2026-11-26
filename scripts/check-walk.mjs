@@ -125,7 +125,17 @@ async function run(profile) {
   ok(s.cls && s.active, `${profile}: /play opens walk mode (${s.hash})`);
   ok(Math.abs(s.eyeM - 1.7) < 0.15, `${profile}: eye height ${s.eyeM} m`);
   ok(s.inside === false && s.blocked === false, `${profile}: the start point is clear of houses and water`);
-  ok(s.liftM > -0.05 && s.liftM < 2, `${profile}: the feet stand on the drawn ground, ${s.liftM} m over the terrain (the quay deck)`);
+  // the start stands on the Cais da Ribeira quay deck, which reaches over the
+  // river bed (src/quays.js): up to a quay wall (5 m) over the terrain. The
+  // feet must be on the top drawn surface there, not under it: with the old
+  // bound alone (lift < 2 m) a walker in the river under the deck passed
+  // (porto-039 follow-up).
+  const topM = await page.evaluate(() => {
+    const P = window.__porto, q = P.walk.position;
+    return +((P.walk.surfaceAt(q.x, q.z, 1e9) - P.heightAt(q.x, q.z)) * 4).toFixed(2);
+  });
+  ok(s.liftM > -0.05 && s.liftM < 5, `${profile}: the feet stand on the drawn ground, ${s.liftM} m over the terrain (the quay deck)`);
+  ok(Math.abs(s.liftM - topM) < 0.1, `${profile}: the feet are on the top drawn surface, not under a deck (feet ${s.liftM} m, top ${topM} m over the terrain)`);
   ok(s.lanes > 1000, `${profile}: the street crowds gave ${s.lanes} lane points`);
   ok(s.orbit === false, `${profile}: the orbit controls are off`);
   ok(s.camNear < 0.2, `${profile}: near plane ${(s.camNear * 4).toFixed(2)} m`);

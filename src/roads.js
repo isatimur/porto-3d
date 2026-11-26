@@ -301,7 +301,10 @@ function paintArrow(T, p, d, l, off, kind, y, lift, col) {
 // lite (light mode, main.js): the markings, sidewalks and islands only
 // within 450 units instead of 900. (The main-street glow stays: one draw,
 // and the golden streets are the look.)
-export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite = false } = {}) {
+// paved(x, z): true on a paved quay terrace or the foot of its feather
+// (src/terraces.js nearTerrace); an embankment whose foot would land there is a
+// granite retaining wall instead of a grass slope
+export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite = false, paved = null } = {}) {
   const DETAIL_U = lite ? 450 : 900;
   let detailK = 1;
   const group = new THREE.Group();
@@ -567,13 +570,21 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
         const lz = -dx * side;
         const ta = [X[i] + lx * half, Y[i] + RIBBON_LIFT, Z[i] + lz * half];
         const tb = [X[i + 1] + lx * half, Y[i + 1] + RIBBON_LIFT, Z[i + 1] + lz * half];
-        const ra = half + Math.max(0.4 * S, 1.5 * la);
-        const rb = half + Math.max(0.4 * S, 1.5 * lb);
+        let ra = half + Math.max(0.4 * S, 1.5 * la);
+        let rb = half + Math.max(0.4 * S, 1.5 * lb);
+        // a slope that would spill onto a paved quay is a retaining wall at the
+        // way's edge (1 : 10 batter): the lower deck's approach of the Ponte
+        // Luís I stood a 13 m grass wedge on the Cais da Ribeira
+        const wall = !!paved && (paved(X[i] + lx * ra, Z[i] + lz * ra) || paved(X[i + 1] + lx * rb, Z[i + 1] + lz * rb));
+        if (wall) {
+          ra = half + Math.max(0.1 * S, 0.1 * la);
+          rb = half + Math.max(0.1 * S, 0.1 * lb);
+        }
         const fa = [X[i] + lx * ra, 0, Z[i] + lz * ra];
         const fb = [X[i + 1] + lx * rb, 0, Z[i + 1] + lz * rb];
         fa[1] = heightAt(fa[0], fa[2]) - 0.3 * S;
         fb[1] = heightAt(fb[0], fb[2]) - 0.3 * S;
-        embankmentQuad(ST, ta, tb, fb, fa, earth, [lx, 0.6, lz]);
+        embankmentQuad(ST, ta, tb, fb, fa, wall ? granite : earth, [lx, 0.6, lz]);
       }
     }
     if (any) embankments++;

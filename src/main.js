@@ -17,6 +17,7 @@ import { createEffects } from './effects.js';
 import { createIntro } from './intro.js';
 import { createInstruments } from './ui.js';
 import { fitLandmark, padFor, getDims } from './fit.js';
+import { terracePads, terraceLevelAt, nearTerrace } from './terraces.js';
 import { createMeta } from './model-meta.js';
 import { createModelClient } from './model-client.js';
 import { createCameraRig } from './camera.js';
@@ -149,6 +150,9 @@ async function start() {
   debug.projection = { S: proj.S, metresPerUnit: METRES_PER_UNIT, terrain: terrain.source, datum: +terrain.datum.toFixed(1) };
   debug.heightAt = heightAt;
   debug.project = project;
+  // the riverside squares and quays (cities/<id>.json quay_terraces): level
+  // paving at the real quay height, in the terrain before anything reads it
+  for (const pad of terracePads(CITY.quay_terraces, { project, terrain, S: proj.S })) terrain.addPad(pad);
 
   // the shared height fog replaces the stock chunks before any shader exists
   installAtmosphereFog();
@@ -385,6 +389,8 @@ async function start() {
     const { models } = await import('./models.js');
     fitCtx = { project, rawAt: terrain.rawAt, footprints, models };
   }
+  // a landmark on a quay terrace takes the terrace level as its base
+  fitCtx.terraceLevel = (x, z) => terraceLevelAt(terrain.pads, x, z);
   debug.lazyModels = lazyModels;
   debug.modelClient = modelClient;
   const fits = [];
@@ -497,7 +503,7 @@ async function start() {
   await nextFrame();
   const roadLayer = LITE_SCENE
     ? lite.buildRoadsLite(roads, project, surfaceAt, atmosphere, proj.S)
-    : buildRoads(roads, project, heightAt, { waterRibbon: !loaded.nature, lite: LITE });
+    : buildRoads(roads, project, heightAt, { waterRibbon: !loaded.nature, lite: LITE, paved: (x, z) => nearTerrace(terrain.pads, x, z, 8 * proj.S) });
   scene.add(roadLayer.group);
   fadeIn((k) => roadLayer.setReveal(k), 1200);
   debug.roadSegments = roadLayer.counts;
@@ -634,6 +640,14 @@ async function start() {
   scene.add(routeLayer.group);
 
   const labelRenderer = new CSS2DRenderer({ element: document.getElementById('labels') });
+  // The label pass walks only the two groups that hold CSS2D objects (the
+  // landmark labels, the route badges), not the whole scene: CSS2DRenderer
+  // visits every object it is given and first updates all their matrices,
+  // which the frame's WebGL render has just done (it was 9 % of a frame at 4x
+  // CPU). Both groups hang straight off the scene, so visibility is the same.
+  const labelRoot = new THREE.Object3D();
+  labelRoot.matrixWorldAutoUpdate = false;
+  Object.defineProperty(labelRoot, 'children', { get: () => [marks.group, routeLayer.group] });
 
   // The exact home view from the fitted landmarks. The boot view framed the
   // outline centres (a few units off at most): the same `home` object is
@@ -1957,6 +1971,15 @@ async function start() {
       })
       .sort((a, b) => rank(b.it) - rank(a.it) || b.score - a.score || a.d - b.d);
 
+    // Every layout read first, before this pass writes anything: a read after
+    // a write makes the browser lay the page out again on the spot (it was
+    // 2-9 ms a pass, at 8 passes a second). The label sizes are kept per
+    // thumbnail state (the thumbnail has a fixed size); the bubbles' boxes
+    // are the last pass's (they move with the camera every frame anyway).
+    blocks = obstacles();
+    for (const o of order) labelSize(o.it, true);
+    const bubbleBoxes = clusterPool.map((b) => (b.hidden ? null : b.getBoundingClientRect()));
+
     // far zoom: greedy clusters around the highest-priority labels
     const clustering = camDist > CLUSTER_FROM && !route && !story?.active && !cinema?.active && !quest?.active;
     const seeds = [];
@@ -1999,19 +2022,25 @@ async function start() {
     next.forEach((c, k) => {
       c.el = clusterEl(k);
       const n = c.members.length;
-      c.el.textContent = '';
-      const name = document.createElement('span');
-      name.className = 'cluster-name';
-      name.textContent = clusterName(c.members, centreFree);
-      if (name.textContent === t('Центр')) centreFree = false;
-      const count = document.createElement('span');
-      count.className = 'cluster-count';
-      count.textContent = `${n} ${placesWord(n)}`;
-      c.el.append(name, count);
-      c.el.title = c.members.map((it) => it.data.name).join(', ');
-      c.el.hidden = false;
+      const label = clusterName(c.members, centreFree);
+      if (label === t('Центр')) centreFree = false;
+      const title = c.members.map((it) => it.data.name).join(', ');
+      // the same bubble as last pass: no DOM write (each one is a new layout)
+      if (c.el.dataset.key !== label + '\n' + title) {
+        c.el.dataset.key = label + '\n' + title;
+        c.el.textContent = '';
+        const name = document.createElement('span');
+        name.className = 'cluster-name';
+        name.textContent = label;
+        const count = document.createElement('span');
+        count.className = 'cluster-count';
+        count.textContent = `${n} ${placesWord(n)}`;
+        c.el.append(name, count);
+        c.el.title = title;
+      }
+      if (c.el.hidden) c.el.hidden = false;
     });
-    for (let k = next.length; k < clusterPool.length; k++) clusterPool[k].hidden = true;
+    for (let k = next.length; k < clusterPool.length; k++) if (!clusterPool[k].hidden) clusterPool[k].hidden = true;
     clusters = next;
     placeClusters();
 
@@ -2032,12 +2061,11 @@ async function start() {
           th.append(img);
         }
       }
-      el.classList.toggle('has-thumb', want);
+      if (el.classList.contains('has-thumb') !== want) el.classList.toggle('has-thumb', want);
     }
 
     // the UI is in the way too: a label under the header, the list or a
     // card hides (the callout names the active place itself)
-    blocks = obstacles();
     const hits = (box) => blocks.some((p) => box.l < p.r && box.r > p.l && box.t < p.b && box.b > p.t);
     for (const o of order) {
       const el = o.it.labelEl;
@@ -2045,8 +2073,11 @@ async function start() {
         el.classList.add('is-muted');
         continue;
       }
-      const w = el.offsetWidth || 120;
-      const h = (el.offsetHeight || 22) + 10;
+      // (a thumbnail switched on or off this pass and never measured that
+      // way: the one read that lays the page out again)
+      const [lw, lh] = labelSize(o.it);
+      const w = lw || 120;
+      const h = (lh || 22) + 10;
       const box = { l: o.sx - w / 2 - 4, r: o.sx + w / 2 + 4, t: o.sy - h - 2, b: o.sy + 2 };
       const clash = placed.some((p) => box.l < p.r && box.r > p.l && box.t < p.b && box.b > p.t);
       const offEdge = box.l < 0 || box.r > size.w || box.t < 0; // a clipped name reads as a typo
@@ -2057,12 +2088,28 @@ async function start() {
     }
     // a bubble hides the labels it overlaps too
     for (const c of clusters) {
-      const r = c.el.getBoundingClientRect();
+      // last pass's box; a bubble that was hidden then is measured now
+      const k = clusterPool.indexOf(c.el);
+      const r = bubbleBoxes[k]?.width ? bubbleBoxes[k] : c.el.getBoundingClientRect();
       for (const o of order) {
         if (inCluster.has(o.it) || o.it.index === active || o.it.labelEl.classList.contains('is-muted')) continue;
         if (o.sx > r.left - 50 && o.sx < r.right + 50 && o.sy > r.top - 4 && o.sy < r.bottom + 30) o.it.labelEl.classList.add('is-muted');
       }
     }
+  }
+  // [offsetWidth, offsetHeight] of a label in its current thumbnail state:
+  // read while the layout is clean (the start of declutter), and kept for the
+  // other state so a thumbnail switching on does not force a layout
+  function labelSize(it, fresh = false) {
+    const el = it.labelEl;
+    const k = el.classList.contains('has-thumb') ? 1 : 0;
+    const s = (it._size ||= [null, null]);
+    const text = el.textContent;
+    if (fresh || !s[k] || s[k].text !== text) {
+      s[k] = [el.offsetWidth, el.offsetHeight];
+      s[k].text = text;
+    }
+    return s[k];
   }
   let blocks = [];
   function obstacles() {
@@ -2205,6 +2252,10 @@ async function start() {
     }
     applyGeoLod(camDist);
     debug.frames = (debug.frames || 0) + 1;
+    // the map: a still view keeps its shadow map while only cars, trams and
+    // people could change it, and those shrink to a pixel with distance
+    // (scene.js update draws it again at once when the view or the sun moves)
+    atmosphere.setShadowIdle?.(walk?.active || camDist < 150 ? 1 : camDist < 400 ? 2 : camDist < CAST_NEAR_U ? 4 : 15);
     atmosphere.update(rawDt, camera);
     stepFades();
     const night = atmosphere.night;
@@ -2255,14 +2306,16 @@ async function start() {
     }
     // labels project and write their styles at the class's label rate (30 Hz
     // on High, 10 Hz on Low); the declutter pass keeps its own 120 ms cadence
+    // and runs first: its layout reads find the page as the last frame left
+    // it, before this frame's style writes
+    declutter(now, camDist);
     if (now - lastLabelPass >= 1000 / rates.labelHz - 2) {
       lastLabelPass = now;
-      labelRenderer.render(scene, camera);
+      labelRenderer.render(labelRoot, camera);
       placeClusters();
       fadeLabels(camDist);
       instruments.update(camera, rig.controls.target, size.h);
     }
-    declutter(now, camDist);
     placeCallout();
     debug.calls = renderer.info.render.calls;
     debug.triangles = renderer.info.render.triangles;
@@ -2427,7 +2480,7 @@ async function start() {
     await step('quays', () => {
       quaysP.then(({ m, doc }) => {
         if (!doc) return;
-        const q = m.buildQuays({ doc, heightAt, S: 1 / METRES_PER_UNIT });
+        const q = m.buildQuays({ doc, heightAt, S: 1 / METRES_PER_UNIT, levelAt: (x, z) => terraceLevelAt(terrain.pads, x, z) });
         scene.add(q.group);
         debug.quays = q.stats;
         mark('quays');
@@ -2530,6 +2583,41 @@ async function start() {
     } catch (e) {
       console.error('[porto] road cells failed', e);
     }
+    await precompileShaders();
+  }
+
+  // A material draws for the first time when its layer first comes into view
+  // (a zoom, a flight): its shader compiled on the spot and the frame stopped
+  // for 50-700 ms. Here every material in the scene, shown or not, compiles
+  // once after ready, one top-level group per idle slot, on the GPU process's
+  // own threads (KHR_parallel_shader_compile); without that extension a
+  // compile would block here just as it would at first use, so it is left.
+  async function precompileShaders() {
+    if (LITE_SCENE || !renderer.extensions.has('KHR_parallel_shader_compile')) return;
+    const idle = () => new Promise((r) => (window.requestIdleCallback ? requestIdleCallback(() => r(), { timeout: 300 }) : setTimeout(r, 60)));
+    const t0 = performance.now();
+    const before = renderer.info.programs.length;
+    const waits = [];
+    try {
+      for (const group of [...scene.children]) {
+        await idle();
+        if (!group.parent) continue;
+        // the variant the frame uses: into the composer's linear target when
+        // the effects are on, else straight to the canvas
+        const prev = renderer.getRenderTarget();
+        renderer.setRenderTarget(fx.enabled ? fx.composer?.renderTarget1 ?? null : null);
+        try {
+          waits.push(renderer.compileAsync(group, camera, scene));
+        } finally {
+          renderer.setRenderTarget(prev);
+        }
+      }
+      await Promise.all(waits);
+    } catch (e) {
+      console.warn('[porto] shader precompile stopped', e);
+    }
+    debug.precompile = { programs: renderer.info.programs.length - before, ms: Math.round(performance.now() - t0) };
+    mark('precompiled');
   }
 
   // ------------------------------------------------------------ layers
