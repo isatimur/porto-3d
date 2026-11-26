@@ -414,3 +414,8 @@ updates it automatically.
 - Freixo: the OSM bridge ways go on 54 m past the model's end at the Gaia side (a road ribbon at 30 m with nothing under it); the deck runs on over them on one more span and ends on a pier, not on a 22 m wall.
 - Not fixed: the Leça / Matosinhos crossings are streamed-ring bridges (`src/tile-worker.js`), out of this change. A small engine embankment quad still shows at the Arrábida Porto approach (roads.js embankments, lift ~1.5 m).
 - Checks: check:fit 0 fail (never-shrink ok for all six), check:models total 769,310 tris (was 766,342; budget 900k), per bridge 7.6k..25.7k.
+
+
+### 2026-11-26 — walk camera zoom (branch feat/walk-zoom, feature porto-042)
+
+- The mouse wheel scales the third-person camera distance (0.4x-1.6x), start 0.8x. Measured: 3.52 m start, 1.76 m in, 7.03 m out. Checks: npm test, check-walk.
