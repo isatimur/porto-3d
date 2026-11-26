@@ -498,6 +498,60 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
     return h;
   }
 
+  // The street ground (src/street-ground.js, porto-041): in the old centre the
+  // ground follows the streets. A raster of a target height T and a weight W
+  // (1 under a street, its sidewalks and a margin, falling to 0 over a feather);
+  // the ground there is base + W (T - base). Off the raster heightAt is the
+  // DEM with its pads, as before. null until main.js installs it.
+  let street = null;
+  function streetAt(h, x, z) {
+    const f = street;
+    let fc = (x - f.x0) / f.cell;
+    let fr = (z - f.z0) / f.cell;
+    if (fc < 0 || fr < 0 || fc > f.nx - 1 || fr > f.nz - 1) return h;
+    const c0 = Math.min(f.nx - 2, Math.floor(fc));
+    const r0 = Math.min(f.nz - 2, Math.floor(fr));
+    const tc = fc - c0;
+    const tr = fr - r0;
+    const i = r0 * f.nx + c0;
+    const W = f.W;
+    const w00 = W[i], w10 = W[i + 1], w01 = W[i + f.nx], w11 = W[i + f.nx + 1];
+    if (w00 === 0 && w10 === 0 && w01 === 0 && w11 === 0) return h;
+    // T is weighted by W, so a cell with no weight (and no target) adds nothing
+    const T = f.T;
+    const a00 = w00 * (1 - tc) * (1 - tr), a10 = w10 * tc * (1 - tr), a01 = w01 * (1 - tc) * tr, a11 = w11 * tc * tr;
+    const w = a00 + a10 + a01 + a11;
+    if (w <= 0) return h;
+    const t = (a00 * T[i] + a10 * T[i + 1] + a01 * T[i + f.nx] + a11 * T[i + f.nx + 1]) / w;
+    return h + w * (t - h);
+  }
+  // the ground without the street raster (the street-ground builder reads it)
+  const baseAt = heightAt;
+  const heightAtStreet = (x, z) => (street ? streetAt(baseAt(x, z), x, z) : baseAt(x, z));
+
+  // inside the flat part of a pad (a landmark's site, a quay terrace; with
+  // shoreOnly only a quay terrace): the street ground leaves a terrace alone
+  function padInside(x, z, shoreOnly = false) {
+    if (padCount !== pads.length) buildPadCells();
+    const list = padCells.get(padKey(Math.floor(x / PAD_CELL), Math.floor(z / PAD_CELL)));
+    if (!list) return false;
+    for (let j = 0; j < list.length; j++) {
+      const p = pads[list[j]];
+      if (shoreOnly && !p.shore) continue;
+      const dx = x - p.cx;
+      const dz = z - p.cz;
+      if (dx * dx + dz * dz > p.r * p.r) continue;
+      if (p.poly) {
+        if (polyDist(p.poly, x, z) === 0) return true;
+        continue;
+      }
+      const u = dx * p.ux + dz * p.uz;
+      const v = -dx * p.uz + dz * p.ux;
+      if (Math.abs(u) <= p.hu && Math.abs(v) <= p.hv) return true;
+    }
+    return false;
+  }
+
   // Terrain extent in world units, for the ground mesh, the haze wall and
   // the fly-mode walls. The grid now reaches past the core to the streamed
   // tiles (data/tiles); `core` is the original 90 x 60 grid inside it: the
@@ -520,7 +574,21 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
 
   return {
     ok,
-    heightAt,
+    heightAt: heightAtStreet,
+    // the DEM with its pads, without the street ground
+    baseAt,
+    padInside,
+    // install (or clear with null) the street ground raster: { x0, z0, cell, nx, nz, T, W }
+    setStreetGround(f) {
+      street = f && f.nx > 1 && f.nz > 1 ? f : null;
+    },
+    get streetGround() {
+      return street;
+    },
+    // the street-ground district (world rect, set by scene.js createGround):
+    // there the ground mesh is a finer lattice (src/scene.js groundAxes users
+    // read heightAt directly inside it)
+    district: null,
     rawAt,
     rawMetres,
     addPad,
@@ -534,7 +602,7 @@ export function createTerrain(data, toMetres, S, { exaggeration = VERTICAL_EXAGG
     grid: ok ? { bbox: data.bbox, cols, rows, heights: H, core: data.core || null, fine: fineSrc ? { bbox: fineSrc.bbox, cols: fineSrc.cols, rows: fineSrc.rows, heights: FH } : null } : null,
     datum,
     // metres above sea level at a world point (with pads)
-    elevationAt: (x, z) => heightAt(x, z) / k + datum,
+    elevationAt: (x, z) => heightAtStreet(x, z) / k + datum,
     minM: ok ? data.min_m : 0,
     maxM: ok ? data.max_m : 0,
     source: ok ? data.source : 'flat',

@@ -56,7 +56,14 @@ function offsetIndex(a, d) {
   return out;
 }
 
-export function buildGround({ xs, zs, heightAt, lite = false }) {
+// hole: { x0, x1, z0, z1 } world rect: the chunks whose centre lies inside are
+//   never drawn (a finer lattice draws that ground: the street-ground district,
+//   scene.js createGround); `hole` on the result is their exact extent, on
+//   lattice lines, or null.
+// rim: the lattice's own outer edge always hangs a skirt (the district mesh:
+//   its edge meets the coarser ground around it).
+// kScale: scales the level-of-detail distance (below 1: coarser strides sooner)
+export function buildGround({ xs, zs, heightAt, lite = false, hole = null, rim = false, kScale = 1 }) {
   const nx = xs.length;
   const nz = zs.length;
   const cx = chunkRanges(xs);
@@ -64,6 +71,24 @@ export function buildGround({ xs, zs, heightAt, lite = false }) {
   const CXn = cx.length;
   const CZn = cz.length;
   const nChunks = CXn * CZn;
+  const holed = new Uint8Array(nChunks);
+  let holeRect = null;
+  if (hole) {
+    let I0 = Infinity, I1 = -1, J0 = Infinity, J1 = -1;
+    for (let c = 0; c < nChunks; c++) {
+      const [i0, i1] = cx[c % CXn];
+      const [j0, j1] = cz[(c / CXn) | 0];
+      const mx = (xs[i0] + xs[i1]) / 2;
+      const mz = (zs[j0] + zs[j1]) / 2;
+      if (mx < hole.x0 || mx > hole.x1 || mz < hole.z0 || mz > hole.z1) continue;
+      holed[c] = 1;
+      I0 = Math.min(I0, i0);
+      I1 = Math.max(I1, i1);
+      J0 = Math.min(J0, j0);
+      J1 = Math.max(J1, j1);
+    }
+    if (I1 >= 0) holeRect = { i0: I0, i1: I1, j0: J0, j1: J1, x0: xs[I0], x1: xs[I1], z0: zs[J0], z1: zs[J1] };
+  }
 
   // ---- skirt vertices: after the lattice, per chunk, per side
   const skirtBase = new Int32Array(nChunks); // first skirt vertex of a chunk
@@ -295,7 +320,7 @@ export function buildGround({ xs, zs, heightAt, lite = false }) {
   const frustum = new THREE.Frustum();
   const pv = new THREE.Matrix4();
   const sph = new THREE.Sphere();
-  let K = lite ? 28 : 52; // vertex spacing about distance / K
+  let K = (lite ? 28 : 52) * kScale; // vertex spacing about distance / K
   let bias = 1;
   let lastKey = '';
   let planSig = -1;
@@ -345,7 +370,7 @@ export function buildGround({ xs, zs, heightAt, lite = false }) {
     const parts = [];
     stats.stride = [0, 0, 0, 0];
     for (let c = 0; c < nChunks; c++) {
-      if (!vis[c]) continue;
+      if (!vis[c] || holed[c]) continue;
       const g = lg[c];
       const cxi = c % CXn;
       const czi = (c / CXn) | 0;
@@ -353,10 +378,11 @@ export function buildGround({ xs, zs, heightAt, lite = false }) {
       parts.push(b);
       total += b.length;
       stats.stride[g]++;
-      // skirts on the sides whose neighbour draws a different stride
+      // skirts on the sides whose neighbour draws a different stride (and on
+      // the outer edge of a rimmed lattice)
       const nb = [czi > 0 ? c - CXn : -1, czi < CZn - 1 ? c + CXn : -1, cxi > 0 ? c - 1 : -1, cxi < CXn - 1 ? c + 1 : -1];
       for (let side = 0; side < 4; side++) {
-        if (nb[side] < 0 || lg[nb[side]] === g) continue;
+        if (nb[side] < 0 ? !rim : lg[nb[side]] === g || holed[nb[side]]) continue;
         const sk = skirt(c, g, side);
         parts.push(sk);
         total += sk.length;
@@ -465,6 +491,7 @@ export function buildGround({ xs, zs, heightAt, lite = false }) {
     xs,
     zs,
     H, // lattice heights, world units (read only)
+    hole: holeRect,
     stats,
     setBias(b) {
       bias = b;

@@ -675,7 +675,17 @@ export function buildPortoStreetLife(ctx) {
   // ---- furniture placement
   const F = {};
   for (const k of Object.keys(PIECES)) F[k] = [];
-  const put = (type, x, y, z, yaw = 0, sc = 1) => F[type].push(x, y, z, yaw, sc);
+  // the small street furniture stands on the drawn paving where there is one
+  // (the street-ground district, porto-041; roads.js pavedTop), not on the
+  // ground under the ribbon's lift
+  const ON_PAVING = new Set(['plaque', 'trampole', 'bollard', 'ornateLamp', 'trafficlight', 'signpost', 'utilitybox', 'kiosk', 'newskiosk', 'table', 'umbrella']);
+  const put = (type, x, y, z, yaw = 0, sc = 1) => {
+    if (ctx.pavedTop && ON_PAVING.has(type)) {
+      const p = ctx.pavedTop(x, z, y);
+      if (p !== null && Math.abs(p - y) < 1.5) y = p + 0.005;
+    }
+    F[type].push(x, y, z, yaw, sc);
+  };
   const rnd = lcg(20260624);
   const spacing = new Map();
   function spaced(type, x, z, r) {

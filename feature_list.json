@@ -927,6 +927,28 @@
       "notes": "src/scene.js: the shadow fit is computed every frame in texel units; when the fit and the sun hold, the map is drawn again only every shadowIdle frames (main.js sets 1 in walk mode or under 150 m, 2 under 400 m, 4 under CAST_NEAR_U, 15 above). src/nature.js: a camera higher over every tree base than the largest near radius skips the re-split (it would write the same buffers). src/life.js: high over the city by day, cars step along their streets but are not placed. src/main.js: CSS2DRenderer walks only the label and route-badge groups; declutter reads every layout first (label sizes cached per thumbnail state, last pass's bubble boxes), writes cluster DOM only when a bubble changes, and runs before the label pass; after ready, every material compiles in idle slots with compileAsync when KHR_parallel_shader_compile exists. Left: GPU time per frame at DPR 2 (post effects, 4096 shadow map) is untouched and needs a real slow-laptop ?perf=1 export to size. Id may be renumbered at merge: another branch adds an entry."
     },
     {
+      "id": "porto-041",
+      "priority": 44,
+      "area": "walk",
+      "title": "In the old centre the ground follows the streets and the streets follow the ground: no terrain through the paving, no paving in the air, furniture on the paving",
+      "user_visible_behavior": "On /play around the Ribeira, the Barredo, the Sé hill, the Luís I bridge foot and the riverside east of it, the carriageways, sidewalks and squares lie on one continuous surface with the ground: the olive hillside does not poke through the paving, no slab or ramp hangs over the ground (where the ground falls away a granite wall stands under the paving's edge), the inside of a pedestrian square is paved, the approach ramps stand on ground instead of grass embankments, and benches, bollards, lamps and parked cars stand on the paving.",
+      "status": "passing",
+      "verification": [
+        "npm test (scripts/street-ground.test.mjs)",
+        "PLAYWRIGHT_CORE=$PWC node scripts/check-walk.mjs --base <preview>",
+        "npm run verify",
+        "node /tmp/pg/metric.mjs <origin> <out.json> && node /tmp/pg/sum.mjs <before.json> <out.json>",
+        "node /tmp/porto-live/gpu.mjs <origin>/play#walk&time=15:00",
+        "node /tmp/pg/shots.mjs <origin> __porto <prefix> /tmp/pg/final.json"
+      ],
+      "evidence": [
+        "2026-11-26: metric box 41.1395-41.1440 x -8.6160..-8.6080, main -> branch: (a) drawn ground over paving > 0.15 m 1,105 / 28,297 (3.9 %) -> 44 / 29,883 (0.1 %); (b) paving > 1 m over the ground with no wall 1,346 -> 9; (c) props > 0.2 m off the top surface 209 / 592 -> 5 / 611; (d) walker sunk > 0.15 m 1 / 64 (max 0.20 m) -> 1 / 64 (max 0.23 m)",
+        "2026-11-26: walk at the /play start, paired runs: triangles 1,566,807 -> 1,658,630 (+5.9 %), draw calls 166.3 -> 169.0, GPU ms 59.8 -> 59.1",
+        "2026-11-26: shots before/after /tmp/pg/F/cmp-*.png viewed (Largo by the bridge foot, the bridge junction, riverside east, lower-deck foot, Sé slope, Ribeira, Cais de Gaia, Aliados)"
+      ],
+      "notes": "src/street-ground.js (new), src/terrain.js setStreetGround / baseAt / padInside, src/ground-mesh.js hole / rim / kScale, src/scene.js createGround district lattice (3 m), src/road-network.js setStreetDrape / plazaRings / draped surfaceY, src/roads.js lanes, plazaFill, edge walls, pavedHalfOf, pavedTop, src/street-kit.js and src/porto-streetscape.js furniture on pavedTop, src/life.js passes pavedTop, src/main.js wiring (?streetground=0 turns it off), cities/porto.json street_ground. Left: overlapping OSM ways 2-5 m apart (Ribeira Negra over the Largo, Travessa de São Nicolau, Rua dos Mercadores) still bury the lower paving's edge; the Largo is a steep paved slope as the data says; the district is 1.3 km2, the rest of the core keeps the old rules; the Luís I model's landfall pieces and building floors on raw slopes are untouched."
+    },
+    {
       "id": "porto-042",
       "priority": 42,
       "area": "walk",

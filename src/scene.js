@@ -1579,12 +1579,33 @@ function shadowProxy(gm) {
 // cell over the DEM (so draped lines and buildings match it), coarser out
 // to the fogged edge. Vertex colour: an ambient-occlusion term from the
 // local concavity (folds darker, ridges a touch lighter).
-export function createGround(terrain, { lite = false } = {}) {
+// district: optional world rect (the street-ground district, porto-041,
+// cities/<id>.json street_ground): the main lattice leaves a hole of whole
+// chunks there and a second, finer lattice (stepM) draws that ground, so the
+// ground can follow a street's cut and fill (src/street-ground.js). The exact
+// rect lands in terrain.district.
+export function createGround(terrain, { lite = false, district = null, stepM = 3 } = {}) {
   const { heightAt, bounds: b } = terrain;
   const { xs, zs } = groundAxes(terrain);
   // chunked, per-chunk LOD, crack-free (src/ground-mesh.js)
-  const gm = buildGround({ xs: Float64Array.from(xs), zs: Float64Array.from(zs), heightAt, lite });
+  const gm = buildGround({ xs: Float64Array.from(xs), zs: Float64Array.from(zs), heightAt, lite, hole: district });
   const geo = gm.geometry;
+  // the district lattice: every main cell inside the hole split into cells of about stepM
+  let dgm = null;
+  if (gm.hole) {
+    const h = gm.hole;
+    const split = (a, i0, i1) => {
+      const out = [];
+      for (let i = i0; i < i1; i++) {
+        const n = Math.max(1, Math.round((a[i + 1] - a[i]) / (stepM * 0.25)));
+        for (let k = 0; k < n; k++) out.push(a[i] + ((a[i + 1] - a[i]) * k) / n);
+      }
+      out.push(a[i1]);
+      return Float64Array.from(out);
+    };
+    dgm = buildGround({ xs: split(gm.xs, h.i0, h.i1), zs: split(gm.zs, h.j0, h.j1), heightAt, lite, rim: true, kScale: 0.6 });
+    terrain.district = { x0: h.x0, x1: h.x1, z0: h.z0, z1: h.z1 };
+  }
 
   const blank = new THREE.DataTexture(new Uint8Array(4), 1, 1);
   blank.needsUpdate = true;
@@ -1644,6 +1665,7 @@ export function createGround(terrain, { lite = false } = {}) {
     level = Math.max(0, Math.min(2, level | 0));
     if (level === lodLevel) return lodLevel;
     gm.setLevel(level);
+    dgm?.setLevel(level);
     lodLevel = level;
     return lodLevel;
   };
@@ -1652,11 +1674,29 @@ export function createGround(terrain, { lite = false } = {}) {
   mesh.frustumCulled = false;
   mesh.onBeforeRender = (renderer, scene, camera) => gm.plan(camera);
   mesh.userData.groundMesh = gm;
+  // the district's finer lattice: same material, its own chunk plan
+  if (dgm) {
+    const dm = new THREE.Mesh(dgm.geometry, mat);
+    dm.name = 'ground-street';
+    dm.receiveShadow = true;
+    dm.castShadow = false;
+    dm.frustumCulled = false;
+    dm.onBeforeRender = (renderer, scene, camera) => dgm.plan(camera);
+    mesh.add(dm);
+    mesh.userData.districtMesh = dgm;
+  }
   mesh.userData.applyPads = (pads = terrain.pads) => {
     if (!pads.length) return 0;
-    const n = gm.patch(pads);
+    const n = gm.patch(pads) + (dgm ? dgm.patch(pads) : 0);
     proxy.userData.refresh(); // the shadow proxy follows
     return n;
+  };
+  // the street ground came in (main.js): re-read the district
+  mesh.userData.applyStreetGround = () => {
+    const d = terrain.district;
+    if (!d) return 0;
+    const r = { cx: (d.x0 + d.x1) / 2, cz: (d.z0 + d.z1) / 2, r: Math.hypot(d.x1 - d.x0, d.z1 - d.z0) / 2 };
+    return mesh.userData.applyPads([r]);
   };
   mesh.userData.setLandcover = (tex, rect) => {
     uniforms.tLand.value = tex;

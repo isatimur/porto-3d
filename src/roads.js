@@ -25,7 +25,7 @@ import { LineSegments2 } from 'three/examples/jsm/lines/LineSegments2.js';
 import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry.js';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import { S } from './geo.js';
-import { buildNetwork, surfaceOf } from './road-network.js';
+import { buildNetwork, surfaceOf, plazaRings } from './road-network.js';
 import { bridgeGeometry, portalGeometry, quad as embankmentQuad } from './road-structures.js';
 import { language } from './i18n.js';
 import { createCellCuller } from './cell-runs.js';
@@ -101,7 +101,10 @@ function segDir(net, i) {
   const L = Math.hypot(dx, dz);
   return L < 0.012 ? null : [dx / L, dz / L, L]; // under ~5 cm: no area, no direction
 }
-function strip(T, net, i0, i1, off, h, lift, col, ext = h) {
+// pat: { l, r, half } metres: the calçada coordinates of the left and right
+// edge and the half width of the whole street, for a strip that is one lane of
+// a wider street (the draped streets of the street-ground district).
+function strip(T, net, i0, i1, off, h, lift, col, ext = h, pat = null) {
   const { X, Z, HID } = net;
   const sy = net.surfaceY;
   const drawn = (i) => i >= i0 && i < i1 && !(HID[i] && HID[i + 1]) && segDir(net, i) !== null;
@@ -139,7 +142,8 @@ function strip(T, net, i0, i1, off, h, lift, col, ext = h) {
       T.nor.push(0, 1, 0);
       T.col.push(col[0], col[1], col[2]);
     }
-    if (T.pat) {
+    if (T.pat && pat) T.pat.push(T.cur, pat.l, pat.half, T.cur, pat.r, pat.half, T.cur, pat.r, pat.half, T.cur, pat.l, pat.half);
+    else if (T.pat) {
       const hm = h / S;
       T.pat.push(T.cur, hm, hm, T.cur, -hm, hm, T.cur, -hm, hm, T.cur, hm, hm);
     }
@@ -148,6 +152,121 @@ function strip(T, net, i0, i1, off, h, lift, col, ext = h) {
     if (up >= 0) T.idx.push(v, v + 1, v + 2, v, v + 2, v + 3);
     else T.idx.push(v, v + 2, v + 1, v, v + 3, v + 2);
   }
+}
+
+// Half width (world units) of the paving drawn for way w: the carriageway and,
+// in the centre, its sidewalks (the strips below); 0 when no ribbon is drawn
+// (a footway in the core, a deck the bridge model paves). street-ground.js
+// shapes the ground to it.
+export function pavedHalfOf(w, net) {
+  if (w.kind === 'foot' || w.kind === 'water' || w.authored?.surface === 'model') return 0;
+  const half = (w.widthM / 2) * S;
+  if (!WALKED.has(w.hw) || w.tunnel || w.bridge) return half;
+  const m = w.start + (w.n >> 1);
+  if (net.X[m] * net.X[m] + net.Z[m] * net.Z[m] > SIDEWALK_R * SIDEWALK_R) return half;
+  return half + (sidewalkM(w.hw) + 0.15) * S;
+}
+
+// Triangles of the paving layers (T objects) inside rect, in 1-unit cells:
+// returns top(x, z, y): the highest drawn paving at (x, z) no higher than
+// y + reach (world units), or null. Without rect: () => null.
+function topIndex(Ts, rect, reach = 1.5) {
+  if (!rect) return () => null;
+  const tri = [];
+  const grid = new Map();
+  for (const T of Ts) {
+    if (!T) continue;
+    const P = T.pos;
+    const I = T.idx;
+    for (let k = 0; k + 2 < I.length; k += 3) {
+      const a = I[k] * 3, b = I[k + 1] * 3, c = I[k + 2] * 3;
+      const x0 = Math.min(P[a], P[b], P[c]);
+      const x1 = Math.max(P[a], P[b], P[c]);
+      const z0 = Math.min(P[a + 2], P[b + 2], P[c + 2]);
+      const z1 = Math.max(P[a + 2], P[b + 2], P[c + 2]);
+      if (x1 < rect.x0 || x0 > rect.x1 || z1 < rect.z0 || z0 > rect.z1) continue;
+      const t = tri.length;
+      tri.push(P[a], P[a + 1], P[a + 2], P[b], P[b + 1], P[b + 2], P[c], P[c + 1], P[c + 2]);
+      for (let i = Math.floor(x0); i <= Math.floor(x1); i++) {
+        for (let j = Math.floor(z0); j <= Math.floor(z1); j++) {
+          const key = i * 65536 + j;
+          let cell = grid.get(key);
+          if (!cell) grid.set(key, (cell = []));
+          cell.push(t);
+        }
+      }
+    }
+  }
+  const F = Float32Array.from(tri);
+  const top = (x, z, y = Infinity) => {
+    const cell = grid.get(Math.floor(x) * 65536 + Math.floor(z));
+    if (!cell) return null;
+    let best = null;
+    for (const t of cell) {
+      const den = (F[t + 5] - F[t + 8]) * (F[t] - F[t + 6]) + (F[t + 6] - F[t + 3]) * (F[t + 2] - F[t + 8]);
+      if (Math.abs(den) < 1e-12) continue;
+      const u = ((F[t + 5] - F[t + 8]) * (x - F[t + 6]) + (F[t + 6] - F[t + 3]) * (z - F[t + 8])) / den;
+      const v = ((F[t + 8] - F[t + 2]) * (x - F[t + 6]) + (F[t] - F[t + 6]) * (z - F[t + 8])) / den;
+      if (u < -1e-6 || v < -1e-6 || u + v > 1 + 1e-6) continue;
+      const h = u * F[t + 1] + v * F[t + 4] + (1 - u - v) * F[t + 7];
+      if (h <= y + reach && (best === null || h > best)) best = h;
+    }
+    return best;
+  };
+  // inside the indexed rect: where top() is null, nothing is drawn over the ground
+  top.inside = (x, z) => x >= rect.x0 && x <= rect.x1 && z >= rect.z0 && z <= rect.z1;
+  return top;
+}
+
+// A paved polygon draped on the ground: ring [[x, z], ...] (world units),
+// triangulated, every triangle split until its edges are under PLAZA_EDGE, each
+// vertex at heightAt + lift (the ground under a square is shaped to it).
+const PLAZA_EDGE = 1; // world units (4 m): the ground lattice is 3 m
+const DRAPE_LANE = 1; // world units: the widest draped strip (4 m)
+function plazaFill(T, ring, heightAt, lift, col) {
+  const contour = ring.map(([x, z]) => new THREE.Vector2(x, z));
+  if (THREE.ShapeUtils.isClockWise(contour)) contour.reverse();
+  let tris;
+  try {
+    tris = THREE.ShapeUtils.triangulateShape(contour, []);
+  } catch {
+    return;
+  }
+  const emit = (a, b, c) => {
+    const v = T.pos.length / 3;
+    for (const p of [a, b, c]) {
+      T.pos.push(p[0], heightAt(p[0], p[1]) + lift, p[1]);
+      T.nor.push(0, 1, 0);
+      T.col.push(col[0], col[1], col[2]);
+      if (T.pat) T.pat.push(T.cur, 0, 100);
+    }
+    // counter-clockwise from above
+    const up = (b[1] - a[1]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[1] - a[1]);
+    if (up >= 0) T.idx.push(v, v + 1, v + 2);
+    else T.idx.push(v, v + 2, v + 1);
+  };
+  const split = (a, b, c, depth) => {
+    const ab = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const bc = Math.hypot(c[0] - b[0], c[1] - b[1]);
+    const ca = Math.hypot(a[0] - c[0], a[1] - c[1]);
+    const m = Math.max(ab, bc, ca);
+    if (m <= PLAZA_EDGE || depth > 10) return emit(a, b, c);
+    // halve the longest edge
+    if (m === ab) {
+      const q = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+      split(a, q, c, depth + 1);
+      split(q, b, c, depth + 1);
+    } else if (m === bc) {
+      const q = [(b[0] + c[0]) / 2, (b[1] + c[1]) / 2];
+      split(a, b, q, depth + 1);
+      split(a, q, c, depth + 1);
+    } else {
+      const q = [(c[0] + a[0]) / 2, (c[1] + a[1]) / 2];
+      split(a, b, q, depth + 1);
+      split(q, b, c, depth + 1);
+    }
+  };
+  for (const [i, j, k] of tris) split([contour[i].x, contour[i].y], [contour[j].x, contour[j].y], [contour[k].x, contour[k].y], 0);
 }
 
 // Dashes along a way at offset `off`: dash / gap in metres (gap 0: solid)
@@ -417,8 +536,30 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
       T.cur = (w.hw === 'pedestrian' || w.hw === 'living_street') && !w.tunnel && X[m] * X[m] + Z[m] * Z[m] < SIDEWALK_R * SIDEWALK_R ? calcadaPatternOf(w.t.name, 'street') : 0;
       if (T.cur) calcadaWays++;
     }
-    strip(T, net, w.start, w.start + w.n - 1, 0, h, RIBBON_LIFT, colOf(surfaceOf(w.f)));
+    // draped in the street-ground district: lanes of at most 4 m, so the
+    // surface follows the ground across a wide street (porto-041)
+    const lanes = net.drape && (net.DR[w.start] || net.DR[w.start + w.n - 1] || net.DR[w.start + (w.n >> 1)]) ? Math.ceil((2 * h) / DRAPE_LANE) : 1;
+    if (lanes > 1) {
+      for (let q = 0; q < lanes; q++) {
+        const o0 = -h + (2 * h * q) / lanes;
+        const o1 = o0 + (2 * h) / lanes;
+        strip(T, net, w.start, w.start + w.n - 1, (o0 + o1) / 2, (o1 - o0) / 2, RIBBON_LIFT, colOf(surfaceOf(w.f)), h, { l: o1 / S, r: o0 / S, half: h / S });
+      }
+    } else strip(T, net, w.start, w.start + w.n - 1, 0, h, RIBBON_LIFT, colOf(surfaceOf(w.f)));
   }
+  // the pedestrian squares of the street-ground district (porto-041): the
+  // inside of a closed pedestrian way is paved too, draped on the ground
+  // (which street-ground.js shaped to the ring), just under the ring's ribbon
+  let plazas = 0;
+  for (const p of plazaRings(net, S)) {
+    const w = net.ways[p.wi];
+    const T = surf.minor;
+    T.cur = calcadaPatternOf(w.t.name, 'square');
+    plazaFill(T, p.ring.map((i) => [X[i], Z[i]]), heightAt, RIBBON_LIFT - 0.004, colOf(surfaceOf(w.f)));
+    T.cur = 0;
+    plazas++;
+  }
+  counts.plazas = plazas;
   let ribbonTris = 0;
   let order = 1;
   ORDER.forEach((kind, k) => {
@@ -589,6 +730,44 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
     }
     if (any) embankments++;
   }
+  // street-ground district (porto-041): where the ground beside a draped
+  // street falls away (a road over a square, a street over the next one down
+  // the hill), the paving's outer edge stands on a granite retaining wall to
+  // the ground, not in the air
+  let edgeWalls = 0;
+  if (net.drape) {
+    const DROP = 0.3 * S; // a lower ground than this is a kerb, not a wall
+    for (const w of net.ways) {
+      const o = pavedHalfOf(w, net);
+      if (!o || w.bridge || w.tunnel) continue;
+      const lift = o > (w.widthM / 2) * S + 0.01 ? RIBBON_LIFT + 0.02 : RIBBON_LIFT;
+      for (let i = w.start; i < w.start + w.n - 1; i++) {
+        if (!net.DR[i] || !net.DR[i + 1] || HID[i] || HID[i + 1]) continue;
+        let dx = X[i + 1] - X[i];
+        let dz = Z[i + 1] - Z[i];
+        const L = Math.hypot(dx, dz);
+        if (L < 1e-4) continue;
+        dx /= L;
+        dz /= L;
+        for (const side of [1, -1]) {
+          const lx = dz * side;
+          const lz = -dx * side;
+          const ya = net.surfaceY(i, side * o) + lift;
+          const yb = net.surfaceY(i + 1, side * o) + lift;
+          const ax = X[i] + lx * o, az = Z[i] + lz * o;
+          const bx = X[i + 1] + lx * o, bz = Z[i + 1] + lz * o;
+          // the ground just outside the edge
+          const ga = heightAt(ax + lx * 0.25, az + lz * 0.25);
+          const gb = heightAt(bx + lx * 0.25, bz + lz * 0.25);
+          // (both ends: a wedge that tapers to nothing reads as a fin, not a wall)
+          if (ya - ga < DROP || yb - gb < DROP) continue;
+          embankmentQuad(ST, [ax, ya, az], [bx, yb, bz], [bx, Math.min(yb, gb) - 0.05, bz], [ax, Math.min(ya, ga) - 0.05, az], granite, [lx, 0, lz]);
+          edgeWalls++;
+        }
+      }
+    }
+  }
+  counts.edgeWalls = edgeWalls;
   const portalCol = lin(PORTAL);
   const coveredCol = lin(CONCRETE);
   const dark = [0.008, 0.008, 0.01];
@@ -1065,11 +1244,19 @@ export function buildRoads(roads, project, heightAt, { waterRibbon = true, lite 
     if (o !== group && !o.isPoints && (o.isMesh || o.isLineSegments2)) pendingCells.push(o);
   });
 
+  // The drawn paving of the street-ground district, indexed: pavedTop(x, z, y)
+  // is the top of the carriageways, sidewalks and squares at (x, z) within
+  // reach of a base at y (null where none is drawn). The street furniture
+  // stands on it (street-kit.js, porto-streetscape.js), not on the ground under
+  // the ribbon's lift.
+  const pavedTop = topIndex([...ORDER.map((k) => surf[k]), SW], net.drape);
+
   let detailOn = true;
   const api = {
     group,
     counts,
     net,
+    pavedTop,
     // the constant-width lines by kind, and the primary glow materials: the
     // streamed tiles (src/tiles.js) draw their main streets with the same
     // materials, so night, bloom and view-distance changes reach them too
