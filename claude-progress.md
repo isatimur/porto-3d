@@ -28,6 +28,16 @@ updates it automatically.
 
 ## Session Log
 
+### 2026-11-26 — Ribeira square and quay as one level paving (branch fix/ribeira-ground, feature porto-039)
+
+- Owner report: walk mode at Praça da Ribeira / Cais da Ribeira: humps of terrain in front of the arcades, walkers go up and down, olive wedges by the arcades and the small tower house; at the foot of the Luís I lower deck a green slab over a bare slope.
+- Cause: the DEM (25-30 m source) smears the quay wall and the hill into one ramp, 10-13 m high at the house fronts against a real quay of about 4-5 m. The street ramps rode their lift up that hill (6-8 m over the ground beside the bridge foot) and stood 1 : 1.5 grass embankments on the quay.
+- Fix: `cities/porto.json` `quay_terraces` (one polygon, 4.6 m above sea level, from Cais da Estiva to the bridge foot, river edge on data/quays.json, inland edge about 3 m inside the house fronts); `src/terraces.js` turns it into a polygon pad (`src/terrain.js` addPad `poly`, `shore`); landmarks on it take its level as base (`src/fit.js`); `road-network.js` `rampLift` makes a ramp meet rising ground sooner; `roads.js` draws an embankment whose foot lands on or within 8 m of the terrace as a granite retaining wall (`nearTerrace`); `quays.js` no longer skips the quad across a cell seam (a 5 m gap on the Cais da Ribeira); `ribeira.js` river bed 4.2 m under the quay. `data/fits.json` re-baked with `node scripts/bake-fits.mjs` (byte-identical to the re-bake).
+- Numbers (probe.mjs, metres above sea level): across the square at lon -8.6128 from the river (41.14025) to 41.14085: before 2.8 -> 13.9 m (11 m of hump), after 3.9 -> 4.8 m; along the quay at 41.1405 from -8.6125 to the bridge pier: 4.6 m at every point; raised ways within 250 m of the bridge foot: Muro dos Bacalhoeiros 10.3 -> 6.7 m over the ground, Rua de Cima do Muro 7.2 -> 6.4 m, Rua do Cais da Ribeira 1.0 m -> flat; the west embankment of the lower-deck approach (way 600, 9 m lift) is gone from the quay (probe x 24-26: no road-structures).
+- Checks: `npm test` 83/83; `check-walk.mjs` all passed; `npm run verify`: OK, 17 passed, 0 failed, 0 skipped (perf soft gate PASS).
+- Shots (walk height, before = porto-3d.com, after = this branch): /tmp/rib/B-* and /tmp/rib/A-* (ribeira-east, ribeira-arcades, foot-ne, foot-e, deck-w, deck-e, deck-n, gaia).
+- Not fixed: the east embankment of the lower-deck approach (way 600) is still a dark grass wedge beside the bridge abutment; the terrace feather north of the bridge foot climbs as green ground; Largo Luiz I on the Gaia side still stands 9 m over the DEM; Rua de São João was not reshot (the teleport point lands under a tree).
+
 ### 2026-11-25 — walk mode freezes every few seconds (branch fix/walk-surface-hitch, feature porto-038)
 
 - Owner report: /play stutters. hitch.mjs on porto-3d.com: long tasks of 0.3-0.5 s every 4-5 s while walking. A CPU profile put 80 % of the time inside them in `walk.js` `readSurface`: it re-read all 66 walkable meshes (about 1 M triangles) whenever the set of visible meshes changed, which happens every few seconds as tiles and landmarks stream.

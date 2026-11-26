@@ -1,6 +1,6 @@
 {
   "project": "porto-3d",
-  "last_updated": "2026-11-24",
+  "last_updated": "2026-11-26",
   "rules": {
     "single_active_feature": true,
     "passing_requires_evidence": true,
@@ -875,6 +875,29 @@
         "2026-11-25: npm test 77/77"
       ],
       "notes": "src/walk.js: readSurface(x, z, now = true). The periodic reads in update pass now = false: a new index is a generator (buildSurface, yields every 2,048 triangles) pumped 3 ms per frame by pumpSurface, while the old index stays in use. It is read in one go at start, teleport, and when the walker is past 0.75 SURF_R from the old index's centre. The triangles go into a growing Float32Array instead of tri.push(...v). A shader compile of 50-770 ms can still happen once when a new material first draws (seen once in a dev profile, in getProgramInfoLog); not fixed here."
+    },
+    {
+      "id": "porto-039",
+      "priority": 42,
+      "area": "walk",
+      "title": "Praça da Ribeira and Cais da Ribeira are one level paving; no terrain humps or grass wedges at the arcades and the Luís I lower-deck foot",
+      "user_visible_behavior": "On /play at the Ribeira the square and the quay are level at about 4.6 m above sea level from Cais da Estiva to the Luís I bridge: the arcades open onto the paving, the walker does not climb humps, no olive wedges stand by the arcades or the small tower house, and the lower-deck approach stands on a granite wall on the quay side, not on a grass slope.",
+      "status": "passing",
+      "verification": [
+        "npm test",
+        "PLAYWRIGHT_CORE=$PWC node scripts/check-walk.mjs --base <preview>",
+        "npm run verify",
+        "node /tmp/layers/probe.mjs <url> 41.1405 -8.6125 41.1405 -8.6090 14",
+        "node /tmp/layers/raised.mjs [--no-terrace]",
+        "node /tmp/layers/shots2.mjs <url> <prefix> <places.json>"
+      ],
+      "evidence": [
+        "2026-11-26: ground along the quay 41.1405 from -8.6125 to the bridge pier: level at 4.6 m above sea level (probe); across the square at -8.6128 from 41.14025 to 41.14085: before 2.8 -> 13.9 m, after 3.9 -> 4.8 m",
+        "2026-11-26: raised ways near the bridge foot (raised.mjs, without -> with the terrace): Muro dos Bacalhoeiros 10.3 -> 6.7 m over the ground, Rua do Cais da Ribeira 1.0 m -> under 0.8 m; the west embankment of the lower-deck approach (way 600, 9 m lift) is a granite wall",
+        "2026-11-26: walk shots before (porto-3d.com) /tmp/rib/B-* and after /tmp/rib/A-*: the hump and the olive wedges at the arcades are gone",
+        "2026-11-26: npm test 83/83; check-walk all passed; npm run verify OK, 17 passed, 0 failed, 0 skipped; data/fits.json equals a fresh node scripts/bake-fits.mjs"
+      ],
+      "notes": "cities/porto.json quay_terraces; src/terraces.js (terracePads, terraceLevelAt, nearTerrace); src/terrain.js addPad poly + shore; src/fit.js terrace base; src/road-network.js rampLift; src/roads.js paved -> retaining wall; src/quays.js seam quad; src/models/porto/ribeira.js river bed. Left: the east embankment of way 600 beside the abutment, the green feather north of the bridge foot, Largo Luiz I (Gaia) 9 m over the DEM."
     }
   ]
 }

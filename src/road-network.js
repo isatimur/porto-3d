@@ -210,6 +210,19 @@ export const MIN_TUNNEL_M = 12;
 
 const memo = new WeakMap();
 
+// The lift of a ramp at a point, from a lift L at a point on the same way
+// whose ground is g0, `fall` (world units) further along: the ramp falls at
+// its slope from that height, so where the ground rises toward it the ramp
+// meets the ground sooner. A lift carried at full height up a hillside stood
+// a street 6-8 m over the ground beside the foot of the Ponte Luís I (the
+// olive embankment wedges of the Ribeira). Where the ground falls away the
+// lift falls as before (no longer embankments over a valley).
+export function rampLift(L, g0, g, fall) {
+  const rel = L - fall;
+  const abs = g0 + L - fall - g;
+  return abs < rel ? abs : rel;
+}
+
 // Two raised ways closer in height than this (m) where they overlap in plan
 // are one surface (headroom under a deck is 5.1 m, CLEAR_WAY)
 const RAMP_SHARE_M = 3;
@@ -303,13 +316,14 @@ export function harmoniseRamps(ways, rampWays, PX, PZ, PC, G, Y, NL, S) {
       }
     }
     if (!any) continue;
-    // the raise runs on along the way at its slope, both ways
+    // the raise runs on along the way at its slope, both ways (rampLift: it
+    // meets rising ground sooner)
     for (let i = a + 1; i <= b; i++) {
-      const l = Y[i - 1] - G[i - 1] - slope * (PC[i] - PC[i - 1]);
+      const l = rampLift(Y[i - 1] - G[i - 1], G[i - 1], G[i], slope * (PC[i] - PC[i - 1]));
       if (l > Y[i] - G[i] + LIVE && !fixedPt.has(i)) Y[i] = G[i] + l;
     }
     for (let i = b - 1; i >= a; i--) {
-      const l = Y[i + 1] - G[i + 1] - slope * (PC[i + 1] - PC[i]);
+      const l = rampLift(Y[i + 1] - G[i + 1], G[i + 1], G[i], slope * (PC[i + 1] - PC[i]));
       if (l > Y[i] - G[i] + LIVE && !fixedPt.has(i)) Y[i] = G[i] + l;
     }
     for (let k = 0; k < w.jp.length; k += 2) {
@@ -914,7 +928,8 @@ function build(roads, project, heightAt) {
           for (let k = 0; k < w.jp.length; k += 2) {
             const L = NL[w.jp[k + 1]];
             if (L <= 0.01) continue;
-            lift = Math.max(lift, L - slope * Math.abs(PC[i] - PC[w.jp[k]]));
+            const j = w.jp[k];
+            lift = Math.max(lift, rampLift(L, G[j], G[i], slope * Math.abs(PC[i] - PC[j])));
           }
           if (lift > Y[i] - G[i]) Y[i] = G[i] + lift;
         }
