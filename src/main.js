@@ -8,7 +8,9 @@ import { buildPadWalls, openWaterTest } from './pad-walls.js';
 import { installAtmosphereFog, createRenderer, createAtmosphere, createGround, FOG_UNIFORMS, TIMES, DEFAULT_TIME, DPR, deviceDpr } from './scene.js';
 import { setWaterLite, setWaterLiteLive, setBridgeLamps, setBridgeNight } from './water.js';
 import { setDeckBases } from './bridge-decks.js';
-import { buildRoads } from './roads.js';
+import { buildRoads, RIBBON_LIFT, pavedHalfOf } from './roads.js';
+import { buildNetwork, setStreetDrape, plazaRings } from './road-network.js';
+import { buildStreetGround, EDGE_M as SG_EDGE_M } from './street-ground.js';
 import { buildLandmarks, LAMP_UNIFORM } from './landmarks.js';
 import { buildBuildings, BUILDING_UNIFORMS, setBuildingsLite } from './buildings.js';
 import { buildNature, buildNatureBase } from './nature.js';
@@ -149,6 +151,7 @@ async function start() {
   const { project, heightAt, terrain } = proj;
   debug.projection = { S: proj.S, metresPerUnit: METRES_PER_UNIT, terrain: terrain.source, datum: +terrain.datum.toFixed(1) };
   debug.heightAt = heightAt;
+  debug.terrain = terrain;
   debug.project = project;
   // the riverside squares and quays (cities/<id>.json quay_terraces): level
   // paving at the real quay height, in the terrain before anything reads it
@@ -187,7 +190,17 @@ async function start() {
   // __porto.ready still means "fully built and interactive".
   loader.set(0.45, t('Строим рельеф'));
   const tb = terrain.bounds;
-  const ground = LITE_SCENE ? lite.createGroundLite({ terrain, heightAt, atmosphere, S: proj.S }) : createGround(terrain, { lite: LITE });
+  // the street-ground district (porto-041): a 3 m ground lattice there, the
+  // ground shaped to the streets once the road network exists (below)
+  const sg = !LITE_SCENE && CITY.street_ground && !/[?&]streetground=0\b/.test(location.search) ? CITY.street_ground : null;
+  const sgRect = sg
+    ? (() => {
+        const a = project(sg.s, sg.w);
+        const c = project(sg.n, sg.e);
+        return { x0: Math.min(a.x, c.x), x1: Math.max(a.x, c.x), z0: Math.min(a.z, c.z), z1: Math.max(a.z, c.z) };
+      })()
+    : null;
+  const ground = LITE_SCENE ? lite.createGroundLite({ terrain, heightAt, atmosphere, S: proj.S }) : createGround(terrain, { lite: LITE, district: sgRect, stepM: sg?.step_m ?? 3 });
   const surfaceAt = LITE_SCENE ? ground.userData.surfaceAt : heightAt;
 
   // Geometry LOD by the distance from the camera to the focus (world units;
@@ -501,12 +514,44 @@ async function start() {
   roads = await loaded.roadsReady;
   mark('roadsData');
   await nextFrame();
+  // The street ground (porto-041, src/street-ground.js): the network on the
+  // plain ground gives each street's profile; the ground in the district takes
+  // it, and everything built from here on (the roads' own network, buildings,
+  // street furniture, people, the walker) reads that one ground.
+  if (sgRect && terrain.district) {
+    const t0 = performance.now();
+    const net0 = buildNetwork(roads, project, heightAt);
+    // the ribbons drape inside the district's faded edge (below)
+    const e = SG_EDGE_M * proj.S;
+    const dr = terrain.district;
+    const drape = { x0: dr.x0 + e, x1: dr.x1 - e, z0: dr.z0 + e, z1: dr.z1 - e };
+    const field = buildStreetGround(net0, terrain.district, {
+      plazas: plazaRings(net0, proj.S, drape),
+      baseAt: terrain.baseAt,
+      // a quay terrace keeps its level (streets cross the landmark sites), and
+      // so does the bank under a quay deck (under the quay level, 4.5 m above
+      // sea level: quays.js lays its decks where the bank is low)
+      padInside: (x, z) => terrain.padInside(x, z, true) || terrain.baseAt(x, z) / proj.S + terrain.datum < 4.5,
+      S: proj.S,
+      lift: RIBBON_LIFT,
+      pavedHalf: (w) => pavedHalfOf(w, net0),
+    });
+    terrain.setStreetGround(field);
+    ground.userData.applyStreetGround();
+    // the ribbons drape on that ground; the networks built from here on
+    // (roads, street furniture, people) are new
+    setStreetDrape(drape);
+    debug.streetGround = { ...field.stats, ms: Math.round(performance.now() - t0), district: terrain.district };
+    mark('streetGround');
+    await nextFrame();
+  }
   const roadLayer = LITE_SCENE
     ? lite.buildRoadsLite(roads, project, surfaceAt, atmosphere, proj.S)
     : buildRoads(roads, project, heightAt, { waterRibbon: !loaded.nature, lite: LITE, paved: (x, z) => nearTerrace(terrain.pads, x, z, 8 * proj.S) });
   scene.add(roadLayer.group);
   fadeIn((k) => roadLayer.setReveal(k), 1200);
   debug.roadSegments = roadLayer.counts;
+  debug.roadNet = roadLayer.net; // tests: the street network the ribbons are drawn from
   debug.roadCells = () => roadLayer.cellStats; // per object: cells, runs, drawn of total
 
 
@@ -2539,7 +2584,7 @@ async function start() {
         await marks.ensureBuilt(sites, { pin: true });
       }
       // footprints, outlines: where the people of streetscape.js may not walk
-      life = m.createLife({ renderer, scene, camera, atmosphere, project, heightAt, roads, items: marks.items, nature, fx, reducedMotion, mobile: LITE, lite: LITE, debug, setHash: () => setHash(currentHash()), footprints: city.footprints, outlines, layers: { live: layers.on('live') } });
+      life = m.createLife({ renderer, scene, camera, atmosphere, project, heightAt, roads, items: marks.items, nature, fx, reducedMotion, mobile: LITE, lite: LITE, debug, setHash: () => setHash(currentHash()), footprints: city.footprints, outlines, layers: { live: layers.on('live') }, pavedTop: roadsRef?.pavedTop });
       // the status pill follows the first load of the live layer
       if (layers.on('live')) track('live', life.setLive(true));
       quest?.lifeReady();

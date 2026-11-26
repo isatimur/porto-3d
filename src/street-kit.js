@@ -497,6 +497,14 @@ export function createStreetKit(ctx) {
   const count = Object.fromEntries(TYPES.map((t) => [t, 0]));
   function put(type, x, y, z, yaw = 0, pitch = 0) {
     if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) return -1;
+    // on the drawn paving where there is one (the street-ground district, porto-041)
+    if (type !== 'awning' && ctx.pavedTop) {
+      const p = ctx.pavedTop(x, z, y);
+      if (p !== null && Math.abs(p - y) < 1.5) y = p + 0.005;
+      // no paving drawn here (a quay terrace, a garden): on the ground, not a
+      // ribbon's lift over it
+      else if (p === null && ctx.pavedTop.inside(x, z) && Math.abs(y - groundY(x, z)) < 1e-3) y = heightAt(x, z) + 0.012;
+    }
     IT.push(typeId[type]);
     IX.push(x);
     IY.push(y);

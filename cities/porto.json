@@ -59,6 +59,7 @@
   "default_live": true,
   "default_time": "sunset",
   "walk_start": { "lat": 41.14012, "lon": -8.6131, "headingDeg": 90, "note": "Cais da Ribeira, looking east along the quay to the Luís I bridge (src/main.js startMode('walk'), /play)" },
+  "street_ground": { "s": 41.1362, "w": -8.6185, "n": 41.1462, "e": -8.6045, "step_m": 3, "note": "porto-041: the old centre where the ground follows the streets (src/street-ground.js) on a 3 m ground lattice (src/scene.js createGround): the Ribeira, the Barredo and the Sé hill, the Luís I bridge foot and the riverside east of it, São Bento, and the Gaia quay. Snapped to whole ground chunks." },
   "quay_terraces": [
     {
       "id": "ribeira",

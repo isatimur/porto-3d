@@ -2924,7 +2924,7 @@ export function createLife(ctx) {
   // the street level: calçada squares, furniture, people, POI signs
   // (streetscape.js; it builds once its data has arrived)
   const street = safe('streetscape', () =>
-    createStreetscape({ camera, roads, project, heightAt, items, outlines: ctx.outlines, footprints: ctx.footprints, lite, mobile, debug, model, fx, surfaceHeights }),
+    createStreetscape({ camera, roads, project, heightAt, items, outlines: ctx.outlines, footprints: ctx.footprints, lite, mobile, debug, model, fx, surfaceHeights, pavedTop: ctx.pavedTop }),
   );
   for (const p of [funicular, trams, trains, cablecar, boats, traffic, birds, fountains, street]) if (p) group.add(p.object);
 

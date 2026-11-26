@@ -208,7 +208,58 @@ export const CLEAR_WAY = 6.4;
 // building: drawn as an open road, no portals, never hidden
 export const MIN_TUNNEL_M = 12;
 
-const memo = new WeakMap();
+let memo = new WeakMap();
+
+// The street-ground district (porto-041, src/street-ground.js): a world rect
+// where the ground has been shaped to the streets. There the ways are draped:
+// points every 1.5 units (6 m), the profile is the ground itself (no low-pass,
+// the ground is already the street's profile) and a ribbon's edge lies on the
+// ground at its offset, so ground, carriageway, sidewalk, prop and walker
+// share one surface. A ramp lifted over the ground keeps its lift. Setting it
+// drops the networks built so far (they were built on the plain ground).
+let DRAPE = null;
+const DRAPE_RAMP = 0.375; // world units (1.5 m): a lower ramp lift in the district lies on the ground
+export function setStreetDrape(rect) {
+  DRAPE = rect || null;
+  memo = new WeakMap();
+}
+const draped = (x, z) => !!DRAPE && x > DRAPE.x0 && x < DRAPE.x1 && z > DRAPE.z0 && z < DRAPE.z1;
+
+// The pedestrian squares of the district: a closed highway=pedestrian way (an
+// OSM area: Largo Diocleciano Monteiro, the Praça da Ribeira pieces) of
+// PLAZA_MIN..PLAZA_MAX m2. Its ring is drawn as a ribbon like any way; the
+// inside is paved too (roads.js) and the ground there is the ring's surface
+// (street-ground.js). Returns [{ wi, ring: [global point], area }] (area in m2).
+const PLAZA_MIN = 40;
+const PLAZA_MAX = 9000;
+export function plazaRings(net, S = 0.25, rect = DRAPE) {
+  const out = [];
+  if (!rect) return out;
+  const inRect = (x, z) => x > rect.x0 && x < rect.x1 && z > rect.z0 && z < rect.z1;
+  const { X, Z } = net;
+  net.ways.forEach((w, wi) => {
+    if (w.hw !== 'pedestrian' || w.tunnel || w.bridge || w.n < 4) return;
+    const a = w.start;
+    const b = a + w.n - 1;
+    if (Math.hypot(X[a] - X[b], Z[a] - Z[b]) > 0.05) return;
+    let area = 0;
+    let cx = 0;
+    let cz = 0;
+    for (let i = a; i < b; i++) {
+      area += X[i] * Z[i + 1] - X[i + 1] * Z[i];
+      cx += X[i];
+      cz += Z[i];
+    }
+    cx /= b - a;
+    cz /= b - a;
+    const m2 = Math.abs(area) / 2 / (S * S);
+    if (m2 < PLAZA_MIN || m2 > PLAZA_MAX || !inRect(cx, cz)) return;
+    const ring = [];
+    for (let i = a; i < b; i++) ring.push(i);
+    out.push({ wi, ring, area: m2 });
+  });
+  return out;
+}
 
 // The lift of a ramp at a point, from a lift L at a point on the same way
 // whose ground is g0, `fall` (world units) further along: the ramp falls at
@@ -509,7 +560,8 @@ function build(roads, project, heightAt) {
         const mz = (p.z + prev.z) / 2;
         const gx = heightAt(mx + 1, mz) - heightAt(mx - 1, mz);
         const gz = heightAt(mx, mz + 1) - heightAt(mx, mz - 1);
-        const step = Math.hypot(gx, gz) > 0.5 ? MAX_STEP / 2 : MAX_STEP;
+        // (and in the street-ground district: the ribbons drape on the ground)
+        const step = Math.hypot(gx, gz) > 0.5 || draped(mx, mz) ? MAX_STEP / 2 : MAX_STEP;
         const n = Math.max(1, Math.ceil(L / step));
         for (let k = 1; k <= n; k++) {
           X.push(prev.x + ((p.x - prev.x) * k) / n);
@@ -591,6 +643,9 @@ function build(roads, project, heightAt) {
   const PC = Float32Array.from(C);
   const G = new Float32Array(NP);
   for (let i = 0; i < NP; i++) G[i] = heightAt(PX[i], PZ[i]);
+  // the points in the street-ground district (not in a tunnel): draped
+  const DR = new Uint8Array(NP);
+  if (DRAPE) for (const w of ways) if (!w.tunnel) for (let i = w.start; i < w.start + w.n; i++) DR[i] = draped(PX[i], PZ[i]) ? 1 : 0;
   const Y = Float32Array.from(G);
   const HID = new Uint8Array(NP);
   // the ground's cross slope at each point (rise per world unit to the left
@@ -655,7 +710,7 @@ function build(roads, project, heightAt) {
         for (let i = a; i <= b; i++) tmp[i] = pin[i] ? Y[i] : (Y[i - 1] + 2 * Y[i] + Y[i + 1]) / 4;
         for (let i = a; i <= b; i++) Y[i] = tmp[i];
       }
-      for (let i = a; i <= b; i++) Y[i] = pin[i] ? G[i] : Math.min(G[i] + PROFILE_FILL, Math.max(G[i] - PROFILE_CUT, Y[i]));
+      for (let i = a; i <= b; i++) Y[i] = pin[i] || DR[i] ? G[i] : Math.min(G[i] + PROFILE_FILL, Math.max(G[i] - PROFILE_CUT, Y[i]));
       for (let pass = 0; pass < 2; pass++) {
         for (let i = a; i <= b; i++) tmp[i] = i === a || i === b ? SL[i] : (SL[i - 1] + 2 * SL[i] + SL[i + 1]) / 4;
         for (let i = a; i <= b; i++) SL[i] = tmp[i];
@@ -958,6 +1013,16 @@ function build(roads, project, heightAt) {
   if (harmoniseRamps(ways, rampWays, PX, PZ, PC, G, Y, NL, S)) spreadRamps();
   // bridge ends follow what the ramps raised
   for (const wi of bridges) deck(wi);
+  // the street-ground district: the ground was raised to the ramps already
+  // (street-ground.js), so what is left of a ramp's lift there is a residue of
+  // the second pass; a ramp under 1.5 m lies on the ground, or it stood over
+  // the other ways drawn on that ground (a 1 m slab over the lower deck's approach)
+  if (DRAPE) {
+    for (const wi of rampWays) {
+      const w = ways[wi];
+      for (let i = w.start; i < w.start + w.n; i++) if (DR[i] && Y[i] - G[i] < DRAPE_RAMP) Y[i] = Math.min(Y[i], G[i]);
+    }
+  }
 
   // tunnels: hidden inside, portals where they meet the open air
   const tunnels = [];
@@ -1079,6 +1144,9 @@ function build(roads, project, heightAt) {
     CAP,
     NL,
     heightAt,
+    // the street-ground district this network was draped in (null: none)
+    drape: DRAPE,
+    DR,
     // the surface at point i, `left` world units left of the way's direction:
     // the way's height, or the real terrain at that lateral offset where the
     // ground rises across the road (roads.js draws with this same call, so
@@ -1087,6 +1155,9 @@ function build(roads, project, heightAt) {
       const g = heightAt(PX[i] + LX[i] * left, PZ[i] + LZ[i] * left);
       // a deck, a ramp or a hood: level with the way, or the ground if higher
       if (Y[i] - G[i] > PROFILE_FILL) return g > Y[i] ? g : Y[i];
+      // the street-ground district: the ground is the street's surface (two
+      // ways drawn over each other share it: no stacked slabs)
+      if (DR[i] && Y[i] - G[i] < 0.02) return g;
       // on the ground: the one centreline height plus a bounded cross fall, so
       // the edges do not twist from point to point; kept within CUT below /
       // FILL above the real ground at the edge
