@@ -925,6 +925,23 @@
         "2026-11-26: npm run verify OK, 17 passed, 0 failed, 0 skipped (perf soft gate warns on a machine at load average 100-300: desktop-gpu p95 183 ms, phone-low goto timeout)"
       ],
       "notes": "src/scene.js: the shadow fit is computed every frame in texel units; when the fit and the sun hold, the map is drawn again only every shadowIdle frames (main.js sets 1 in walk mode or under 150 m, 2 under 400 m, 4 under CAST_NEAR_U, 15 above). src/nature.js: a camera higher over every tree base than the largest near radius skips the re-split (it would write the same buffers). src/life.js: high over the city by day, cars step along their streets but are not placed. src/main.js: CSS2DRenderer walks only the label and route-badge groups; declutter reads every layout first (label sizes cached per thumbnail state, last pass's bubble boxes), writes cluster DOM only when a bubble changes, and runs before the label pass; after ready, every material compiles in idle slots with compileAsync when KHR_parallel_shader_compile exists. Left: GPU time per frame at DPR 2 (post effects, 4096 shadow map) is untouched and needs a real slow-laptop ?perf=1 export to size. Id may be renumbered at merge: another branch adds an entry."
+    },
+    {
+      "id": "porto-042",
+      "priority": 42,
+      "area": "walk",
+      "title": "Walk camera zooms with the mouse wheel",
+      "user_visible_behavior": "In third-person walk and ride the mouse wheel or trackpad moves the camera closer to or further from the walker (0.4x to 1.6x of the old distance). The walk starts at 0.8x, a little closer than before. First person and the map are unchanged.",
+      "status": "passing",
+      "verification": [
+        "node /tmp/layers/zoom.mjs <origin> <handle> <prefix> (volatile: camera distance at start, after six wheel steps in, after fourteen out)",
+        "node scripts/check-walk.mjs",
+        "npm test"
+      ],
+      "evidence": [
+        "2026-11-26: camera distance 3.52 m at start (was 4.4 m), 1.76 m zoomed in, 7.03 m zoomed out; walk still active; no page errors; screenshots viewed"
+      ],
+      "notes": "ZOOM_MIN/ZOOM_MAX/ZOOM_START in src/walk.js; the wheel listener is on the canvas in the capture phase and stops propagation only while the walk is active in third person."
     }
   ]
 }

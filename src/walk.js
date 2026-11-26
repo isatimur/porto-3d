@@ -35,6 +35,9 @@ const LOOK = 0.0042; // radians per pixel
 const PITCH = 1.25; // look up and down limit, radians
 const AHEAD = 12 * M; // the orbit target rides this far ahead
 const BACK = 4.6 * M; // third person: the camera's distance from the head
+// the mouse wheel / trackpad scales the third-person distance; it starts a
+// little closer than BACK
+const ZOOM_MIN = 0.4, ZOOM_MAX = 1.6, ZOOM_START = 0.8;
 const HEAD = 1.62 * M; // third person: the point the camera turns about
 const TILT = 0.3; // third person: the camera sits this far above level, radians
 const CLOSE = 1.6 * M; // third person: with less room than this the camera looks from the eyes
@@ -538,7 +541,8 @@ export function createWalk({ camera, scene, rig, heightAt, dom, polys, places = 
       .catch(() => { /* keep the simple figure */ });
   }
   let view = 'third'; // 'third' | 'first'
-  let back = BACK; // the camera's current distance, eased
+  let zoom = ZOOM_START; // wheel zoom, see ZOOM_MIN
+  let back = BACK * zoom; // the camera's current distance, eased
   let faceYaw = 0; // where the figure faces
   let spots = [];
   let near = null; // the place within reach, or null
@@ -640,6 +644,12 @@ export function createWalk({ camera, scene, rig, heightAt, dom, polys, places = 
     if (e.pointerId === lookPointer) lookPointer = null;
   };
   dom.addEventListener('pointerdown', onDown);
+  dom.addEventListener('wheel', (e) => {
+    if (!active || view === 'first') return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    zoom = THREE.MathUtils.clamp(zoom * Math.exp(e.deltaY * 0.0015), ZOOM_MIN, ZOOM_MAX);
+  }, { passive: false, capture: true });
   window.addEventListener('pointermove', onMove);
   window.addEventListener('pointerup', onUp);
   window.addEventListener('pointercancel', onUp);
@@ -763,7 +773,7 @@ export function createWalk({ camera, scene, rig, heightAt, dom, polys, places = 
       // level; it comes closer when a house stands in the way
       const e = THREE.MathUtils.clamp(TILT - pitch, 0.02, 1.3);
       const ce = Math.cos(e), se = Math.sin(e);
-      const far = ride ? RIDE_CAM : BACK;
+      const far = (ride ? RIDE_CAM : BACK) * zoom;
       let reach = far;
       for (let k = 1; k <= 12; k++) {
         const d = (far * k) / 12;
