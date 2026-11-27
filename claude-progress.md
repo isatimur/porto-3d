@@ -31,6 +31,11 @@ updates it automatically.
 
 ## Session Log
 
+### 2026-11-28 — verify runs the unit tests (branch chore/verify-runs-tests, feature porto-045)
+
+- Roadmap item 2a. `scripts/verify.mjs` runs `npm test` as its first step; before, CI ran only verify, so a failing unit test never failed a build. Same change as braga-039.
+- Proof: `npm run verify` OK, 18 passed. With a temporary failing test: `FAIL unit tests`, `verify: FAILED — 17 passed, 1 failed`; the test was deleted. A first clean run failed only at `perf budgets (soft)` (perf-serve warm-up timed out under load); the rerun passed.
+
 ### 2026-11-27 — governor resolution steps no longer resize the canvas (branch fix/porto-governor-resize, feature porto-043)
 
 - Port of braga-3d braga-033 (commit 629877a). A governor resolution step set the canvas pixel ratio and resized the canvas. A canvas resize waits for the GPU to finish the frames in flight; in Braga it gave a 50-100 ms long frame on each step in walk mode.

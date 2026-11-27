@@ -21,6 +21,7 @@ const CITY = process.env.CITY || 'porto';
 const has = (...parts) => existsSync(join(ROOT, ...parts));
 
 const checks = [
+  { name: 'unit tests', cmd: ['npm', 'test'], needs: [], why: 'CI runs only verify, so a failing unit test must fail it' },
   { name: 'build', cmd: ['npm', 'run', 'build'], needs: [], why: 'the app must compile' },
   // the history routes' text pages (public/route/) match data/quest.json
   ...(CITY === 'porto' ? [{ name: 'route pages', cmd: ['node', 'scripts/route-pages.mjs', '--check'], needs: ['data/quest.json'], why: 'data/quest.json holds the history routes' }] : []),
