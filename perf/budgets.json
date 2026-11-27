@@ -67,8 +67,8 @@
   },
   "walk": {
     "_doc": "Limits for scripts/check-walk.mjs walkBudget(). Counts are whole-frame totals while standing at the /play start (not the map's worst-path mean). calls and tris: the highest p95 of five baseline runs plus 20 %, the rule of this file. minCalls and minTris: half the lowest p50 of the same runs, a floor that catches a scene that draws nothing. A miss FAILs. check-walk --record prints these numbers; a person pastes them here. Raise a limit only with a phone measurement (docs/specs/walk-budget.md §6).",
-    "probe": { "path": "play", "date": "2026-05-13T12:00:00+01:00", "hash": "#walk&time=day&weather=clear&live=0", "frames": 240, "runs": 5, "quietMs": 3000, "timeoutMs": 90000, "start": null },
-    "desktop": { "quality": "ultra", "calls": null, "tris": null, "minCalls": null, "minTris": null },
-    "phone": { "quality": "low", "calls": null, "tris": null, "minCalls": null, "minTris": null }
+    "probe": { "path": "play", "date": "2026-05-13T12:00:00+01:00", "hash": "#walk&time=day&weather=clear&live=0", "frames": 240, "runs": 5, "quietMs": 3000, "timeoutMs": 90000, "start": { "x": -44.007, "z": 262.06, "yaw": 1.5708 } },
+    "desktop": { "quality": "ultra", "calls": 250, "tris": 2260000, "minCalls": 102, "minTris": 920000 },
+    "phone": { "quality": "low", "calls": 117, "tris": 1050000, "minCalls": 48, "minTris": 430000 }
   }
 }
