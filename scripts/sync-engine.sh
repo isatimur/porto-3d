@@ -7,7 +7,8 @@
 #   scripts/sync-engine.sh --apply      # copy the changed engine files, then verify
 #
 # Engine = everything EXCEPT this fork's city-specific files:
-#   src/ (minus src/models/porto/, src/locales/{en,pt}.porto.js), scripts/, api/,
+#   src/ (minus src/models/porto/, src/locales/{en,pt}.porto.js), scripts/
+#   (minus scripts/check-walk.mjs, Porto's own; port its changes by hand), api/,
 #   index.html, vite.config.js.
 #
 # The base commit is recorded in scripts/engine-base.txt. See feature_list.json
@@ -20,7 +21,7 @@ cd "$ROOT"
 BRAGA="${BRAGA_DIR:-$(cd "$ROOT/.." && pwd)/braga-3d}"
 BASE_FILE="$ROOT/scripts/engine-base.txt"
 PATHS=(src scripts api index.html vite.config.js)
-EXCLUDES=(':(exclude)src/models/porto' ':(exclude)src/locales/en.porto.js' ':(exclude)src/locales/pt.porto.js')
+EXCLUDES=(':(exclude)src/models/porto' ':(exclude)src/locales/en.porto.js' ':(exclude)src/locales/pt.porto.js' ':(exclude)scripts/check-walk.mjs')
 
 die() { echo "error: $*" >&2; exit 1; }
 [ -d "$BRAGA/.git" ] || die "braga-3d not found at $BRAGA (set BRAGA_DIR)"
