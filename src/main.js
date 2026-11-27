@@ -910,8 +910,10 @@ async function start() {
   registerGlow(marks.pins?.material, 2.8);
   // the gold OSM outlines stay gold under tone mapping instead of going white
   registerGlow(marks.outlineMaterial, 0.62);
+  let sized = false; // resize() below has run: the canvas ratio follows the effects switch
   function setFx(on, { save = false, reason = '' } = {}) {
     fx.setEnabled(on);
+    if (sized) resize();
     atmosphere.setLinearOutput(on);
     for (const g of glowBoost) g.material.color.copy(g.base).multiplyScalar(on ? g.k : 1);
     roadLayer.setBloom?.(on);
@@ -1915,26 +1917,35 @@ async function start() {
 
   // Resize: CSS owns the size; renderer, labels and line widths follow.
   const container = document.getElementById('app');
-  let size = { w: 0, h: 0, dpr: 0 };
+  let size = { w: 0, h: 0, dpr: 0, draw: 0 };
   function resize() {
     const w = container.clientWidth;
     const h = container.clientHeight;
-    const dpr = deviceDpr(); // capped by the tier (scene.js DPR)
-    if (!w || !h || (w === size.w && h === size.h && dpr === size.dpr)) return;
-    size = { w, h, dpr };
-    renderer.setPixelRatio(dpr);
-    renderer.setSize(w, h, false);
-    labelRenderer.setSize(w, h);
-    roadLayer.setResolution(w, h, dpr);
+    // capped by the tier and scaled by the governor (scene.js DPR). With the
+    // effects on, the governor's scale goes to the effect targets and the
+    // canvas keeps the full ratio: a canvas resize waits for the GPU to
+    // finish the frames in flight, a long frame on every governor step.
+    const draw = deviceDpr();
+    const dpr = fx.enabled ? deviceDpr(1) : draw;
+    if (!w || !h || (w === size.w && h === size.h && dpr === size.dpr && draw === size.draw)) return;
+    const canvasChanged = w !== size.w || h !== size.h || dpr !== size.dpr;
+    size = { w, h, dpr, draw };
+    if (canvasChanged) {
+      renderer.setPixelRatio(dpr);
+      renderer.setSize(w, h, false);
+      labelRenderer.setSize(w, h);
+    }
+    roadLayer.setResolution(w, h, draw);
     routeLayer.setResolution(w, h);
-    fx.setSize(w, h, dpr);
+    fx.setSize(w, h, dpr, draw / dpr); // also sets DPR.draw (effects.js)
     // after fx: the 2x quality mode may have raised the buffer ratio (far LOD)
-    marks.setResolution(w, h, renderer.getPixelRatio());
+    marks.setResolution(w, h, fx.drawRatio);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
   }
   new ResizeObserver(resize).observe(container);
   resize();
+  sized = true;
 
   // ------------------------------------------------------------ labels
   // Labels without clutter (every 120 ms):

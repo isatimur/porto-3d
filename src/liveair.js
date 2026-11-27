@@ -34,6 +34,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { t, locale, language } from './i18n.js';
 import { cityT, cityQuery } from './city.js';
+import { sceneBufferSize } from './scene.js';
 
 const MAX = 60;
 const POLL_MS = 15e3;
@@ -697,7 +698,7 @@ export function createLiveAir({ scene, camera, renderer, project, heightAt, datu
     time += adt;
     uni.uTime.value = time;
     uni.uNight.value = atmosphere?.night ?? 0;
-    renderer.getDrawingBufferSize(_size);
+    sceneBufferSize(renderer, _size);
     uni.uHeight.value = _size.y;
     const k = 1 - Math.exp(-dt / 1.2); // blend-out rate of a new fix
     drawn = 0;

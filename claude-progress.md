@@ -9,6 +9,7 @@ updates it automatically.
 ## Current Verified State
 
 - Repository root: `~/Dev/porto-3d`
+- Verified 2026-11-27 (branch fix/porto-governor-resize, governor resolution steps no longer resize the canvas, porto-043): `npm run verify` OK, 17 passed, 0 skipped (perf soft gate warns on a loaded machine); `npm test` 91/91; `check-walk` all passed.
 - Verified 2026-11-26 (branch fix/porto-ground-conform, the ground follows the streets in the old centre, porto-041): `npm run verify` OK, 17 passed, 0 skipped (perf soft gate warns on a loaded machine); `npm test` 91/91; `check-walk` all passed.
 - Verified 2026-11-26 (branch perf/map-mode, cheaper map frames, porto-040): `npm run verify` OK, 17 passed, 0 skipped (perf soft gate warns on a loaded machine); `npm test` 77/77; `check-walk` all passed.
 - Verified 2026-11-25 (branch feat/walk-cars, cars in walk mode, porto-036): `npm run verify` 16 passed, 1 failed: smoke console got 404s from port 5192, where another worktree's perf-serve was serving its own dist; `SMOKE_PORT=5197 node scripts/smoke-console.mjs` alone: OK. Perf soft gate passed with warnings on a loaded machine (desktop p95 150 ms, phone-low goto timeout). `npm test` 77/77; `check:walk` all passed.
@@ -29,6 +30,13 @@ updates it automatically.
 - Live: https://porto-3d.vercel.app (Vercel project `porto-3d`); git remote `isatimur/porto-3d`.
 
 ## Session Log
+
+### 2026-11-27 — governor resolution steps no longer resize the canvas (branch fix/porto-governor-resize, feature porto-043)
+
+- Port of braga-3d braga-033 (commit 629877a). A governor resolution step set the canvas pixel ratio and resized the canvas. A canvas resize waits for the GPU to finish the frames in flight; in Braga it gave a 50-100 ms long frame on each step in walk mode.
+- Fix: with the effects on, `src/main.js` resize() keeps the canvas at the full ratio (`deviceDpr(1)`) and passes the governor's scale to `fx.setSize(w, h, dpr, scale)`; `src/effects.js` draws the composer at `dpr * scale` and resizes it only when that ratio changes; it also sets `DPR.draw` in `src/scene.js` (the scene's pixels per canvas pixel). `sceneBufferSize()` feeds the point sizes in `src/life.js`, `src/liveair.js` and `src/seasons.js`. `setFx` calls resize(), so the canvas ratio follows the effects switch. With the effects off the canvas still carries the scale, as before.
+- Beyond the Braga patch: `src/share.js` restores the governor's scale after a postcard, and `DPR.draw` lives in effects.js so the 2x quality mode keeps it right.
+- Measured (headless, 1280x800, DPR 2, ?fx=1, walk, six steps 7 <-> 8): main resizes the canvas on each step (2560x1600 -> 1920x1200 / 1792x1120), 8.9-15.2 ms per step call; branch canvas stays 2560x1600, 0.3-0.4 ms per step call. Scene target size per level is the same on both builds. Headless frame times show no long frame on either build (max 33 ms, 0 over 50 ms): the headless shell does not reproduce the GPU stall, so the long-frame win needs a check on a real browser.
 
 ### 2026-11-26 — the ground follows the streets in the old centre (branch fix/porto-ground-conform, feature porto-041)
 

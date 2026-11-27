@@ -385,9 +385,16 @@ if (cloudShape.z > 0.001) {
 // light mode, 1.25 on a low-end device (main.js sets it before the renderer
 // exists). createRenderer, main.js resize() and effects.js read it here.
 // `scale` is the governor's dynamic resolution (0.5 .. 1): it multiplies the
-// capped ratio, so it also bites on a 1x screen.
-export const DPR = { cap: 2, scale: 1 };
-export const deviceDpr = () => Math.max(0.5, Math.min(window.devicePixelRatio || 1, DPR.cap) * DPR.scale);
+// capped ratio, so it also bites on a 1x screen. With the effects on, main.js
+// applies `scale` to the effect targets and keeps the canvas at the full
+// ratio; `draw` is then the scene's pixels per canvas pixel (1 otherwise).
+export const DPR = { cap: 2, scale: 1, draw: 1 };
+export const deviceDpr = (scale = DPR.scale) => Math.max(0.5, Math.min(window.devicePixelRatio || 1, DPR.cap) * scale);
+// The buffer the scene is drawn into, in pixels: the canvas, or the smaller
+// effect targets. Pixel sizes (gl_PointSize) follow this, not the canvas.
+export function sceneBufferSize(renderer, v) {
+  return renderer.getDrawingBufferSize(v).multiplyScalar(DPR.draw);
+}
 
 export function createRenderer(canvas, { antialias = true } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias, powerPreference: 'high-performance', stencil: false });

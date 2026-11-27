@@ -7,7 +7,6 @@
 import { language, locale } from './i18n.js';
 import { mountTool } from './ui.js';
 import { CITY, cityName, cityT } from './city.js';
-
 // the canonical site of this city (cities/<id>.json domain), else this origin
 const SITE = () => CITY.domain || location.origin;
 const SITE_HOST = () => SITE().replace(/^https?:\/\//, '').replace(/\/$/, '');
@@ -279,7 +278,7 @@ function download(blob, name) {
 }
 
 // ------------------------------------------------------------ install
-// ctx: the running scene. getSize returns main.js' current { w, h, dpr }.
+// ctx: the running scene. getSize returns main.js' current { w, h, dpr, draw }.
 export function installShare(ctx) {
   // beforeRender: main.js's per-frame culling (cell-runs.js), for the postcard's own aspect
   const { renderer, scene, camera, fx, setFx, atmosphere, roadLayer, routeLayer, marks, landmarks, routes, getSize, ui, beforeRender } = ctx;
@@ -319,13 +318,15 @@ export function installShare(ctx) {
     frame.height = H;
     const fctx = frame.getContext('2d');
     const wasFx = fx.enabled;
-    const setAll = (w, h, dpr) => {
+    // scale: the governor's share of the ratio, drawn by the effect targets
+    // only (main.js resize); the capture itself draws at the full ratio
+    const setAll = (w, h, dpr, scale = 1) => {
       renderer.setPixelRatio(dpr);
       renderer.setSize(w, h, false);
-      roadLayer?.setResolution?.(w, h, dpr);
+      roadLayer?.setResolution?.(w, h, dpr * scale);
       routeLayer?.setResolution?.(w, h);
       marks?.setResolution?.(w, h);
-      fx.setSize(w, h, dpr);
+      fx.setSize(w, h, dpr, scale); // also sets DPR.draw (effects.js)
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
     };
@@ -344,7 +345,7 @@ export function installShare(ctx) {
       draw();
       fctx.drawImage(renderer.domElement, 0, 0, W, H);
     } finally {
-      setAll(s.w, s.h, s.dpr);
+      setAll(s.w, s.h, s.dpr, s.draw / s.dpr);
       if (!wasFx) {
         const prev = debug.fx?.reason;
         setFx(false, { reason: 'postcard' });
