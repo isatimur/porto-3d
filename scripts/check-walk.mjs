@@ -3,6 +3,17 @@
 // the phone. Ported from braga-3d scripts/check-walk.mjs (porto-031).
 //
 //   node scripts/check-walk.mjs [--base http://localhost:5472/] [--out dir]
+//        [--budget on|off|only] [--budget-file perf/budgets.json] [--record]
+//
+// Walk budget (docs/specs/walk-budget.md, scripts/frame-budget.mjs): after
+// the checks below (--budget on, the default) or alone (--budget only), stand
+// at the /play start with a fixed clock, a pinned class and a frozen
+// governor, let the scene settle, sample 240 frames and FAIL when the p95
+// draw calls or triangles are above the walk limits in perf/budgets.json, or
+// the p50 below their floors. --budget off runs the old checks only.
+// --record runs the probe five times per profile and prints the proposed
+// limits; a person pastes them into perf/budgets.json (no code writes it).
+// This file is Porto's own: scripts/sync-engine.sh does not copy Braga's.
 //
 // map: the map at / loads no walk code and no character model until the
 // walk button is pressed; the button starts the walk. The walk profile
@@ -21,15 +32,28 @@
 // Needs a served build (npm run build; npx vite preview --port 5472) and
 // playwright-core with a Chromium; without them it exits 77 (skip).
 // Env: PLAYWRIGHT_CORE.
-import { existsSync, mkdirSync } from 'node:fs';
-import { pathToFileURL } from 'node:url';
+import { existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { loadavg } from 'node:os';
+import { execFileSync } from 'node:child_process';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { QUALITY_CLASS, waitWalk, readPose, freezeGovernor, readGovernor, settle, sampleFrames, judge, computeLimits, angleDiff } from './frame-budget.mjs';
 
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const flag = (k) => process.argv.includes('--' + k);
+// a value flag: the next token, unless it is the next flag
 const arg = (k, d) => {
   const i = process.argv.indexOf('--' + k);
-  return i > 0 ? process.argv[i + 1] : d;
+  const v = i > 0 ? process.argv[i + 1] : undefined;
+  return v === undefined || v.startsWith('--') ? d : v;
 };
 const BASE = arg('base', 'http://localhost:5472/');
 const OUT = arg('out', '');
+const BUDGET = arg('budget', 'on'); // on | off | only
+const RECORD = flag('record');
+const BUDGET_FILE = arg('budget-file', 'perf/budgets.json');
+if (!['on', 'off', 'only'].includes(BUDGET)) { console.log(`--budget must be on, off or only (got ${BUDGET})`); process.exit(2); }
+if (RECORD && BUDGET === 'off') { console.log('--record needs a budget mode other than off'); process.exit(2); }
 const CORE = process.env.PLAYWRIGHT_CORE;
 if (!CORE || !existsSync(CORE)) {
   console.log('skip: set PLAYWRIGHT_CORE to playwright-core/index.mjs');
@@ -360,8 +384,151 @@ async function killSwitch() {
   await browser.close();
 }
 
-await map();
-await killSwitch();
-for (const profile of ['desktop', 'phone']) await run(profile);
+// ------------------------------------------------------------ walk budget
+// One probe run (docs/specs/walk-budget.md §3) in a fresh browser: ?quality=
+// is saved to localStorage, and the old checks must not see it. Never
+// throws: an exception is the fault "probe error".
+async function probeRun(profile, walk, tag) {
+  const probe = walk.probe;
+  const quality = walk[profile].quality;
+  const run = {
+    profile, want: QUALITY_CLASS[quality], fault: null, errors: [],
+    cls: null, level: null, renderer: null, tiles: null,
+    pose: null, metresPerUnit: null, drift: null, calls: null, tris: null, frames: 0,
+  };
+  const fault = (text) => {
+    run.fault = `budget ${tag}: ${text}`;
+    return run;
+  };
+  let browser;
+  try {
+    browser = await launch();
+    const ctx = await browser.newContext(profile === 'phone' ? { ...devices['Pixel 7'] } : { viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 });
+    const page = await ctx.newPage();
+    watch(page, run.errors);
+    // 1. load and wait
+    const url = `${BASE}${probe.path}?intro=0&lang=en&quality=${quality}${probe.hash}`;
+    const w = await waitWalk(page, url, probe);
+    if (w.fault) return fault(w.fault);
+    // 2. start check
+    const pose = await readPose(page);
+    run.pose = { x: pose.x, z: pose.z, yaw: pose.yaw };
+    run.metresPerUnit = pose.metresPerUnit;
+    const start = probe.start;
+    if (start) {
+      const d = Math.hypot(pose.x - start.x, pose.z - start.z) * pose.metresPerUnit;
+      const a = Math.abs(angleDiff(pose.yaw, start.yaw));
+      if (d > 2 || a > 0.02) {
+        const why = w.lanesAtWalk === 0 ? '; walk.state.lanes was 0 when the walk began, so the start could not snap to a walk lane' : '';
+        return fault(`start moved ${d.toFixed(1)} m, ${a.toFixed(3)} rad (limit 2 m, 0.02 rad)${why}`);
+      }
+    }
+    const yaw = start ? start.yaw : pose.yaw;
+    // 3. freeze the governor at level 0
+    const frozen = await freezeGovernor(page);
+    if (frozen.fault) return fault(frozen.fault);
+    run.cls = frozen.cls;
+    run.level = frozen.level;
+    run.renderer = frozen.renderer;
+    let sample = null, drift = 0, drift1 = null;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      // 4. turn; 5. settle
+      await page.evaluate((y) => (window.__braga || window.__porto || window.__city).walk.turn(y, 0), yaw);
+      const st = await settle(page, probe);
+      run.tiles = st.tiles;
+      if (!st.settled) return fault(`scene did not settle in ${Math.round(st.ms / 1000)} s (${st.cause})`);
+      // 6. the pose before sampling, and the camera looks along the target yaw
+      const p0 = await readPose(page);
+      const off = Math.abs(angleDiff(p0.camYaw, yaw));
+      if (off > 0.02) return fault(`view not fixed (camera yaw off by ${off.toFixed(3)} rad)`);
+      // 7. sample
+      sample = await sampleFrames(page, { frames: probe.frames });
+      run.frames = sample.frames;
+      if (sample.frames < probe.frames) return fault(`too few frames (${sample.frames} of ${probe.frames} in 60 s)`);
+      // 8. drift: a passer-by may have shoved the walker; one retry
+      const p1 = await readPose(page);
+      drift = Math.hypot(p1.x - p0.x, p1.z - p0.z) * p0.metresPerUnit;
+      if (drift <= 0.5) break;
+      if (drift1 != null) return fault(`walker pushed twice (drift ${drift1.toFixed(1)} m, then ${drift.toFixed(1)} m)`);
+      drift1 = drift;
+      const back = await page.evaluate(([x, z]) => (window.__braga || window.__porto || window.__city).walk.teleport(x, z), [p0.x, p0.z]);
+      if (back === false) return fault(`walker pushed twice (drift ${drift1.toFixed(1)} m, teleport back refused)`);
+    }
+    // 9. the governor did not move during settle, samples and retry
+    const gov = await readGovernor(page);
+    if (gov.level !== 0 || gov.lastT !== frozen.lastT) return fault(`governor moved (level ${gov.level}, last change ${gov.why})`);
+    run.drift = drift;
+    run.calls = sample.calls;
+    run.tris = sample.tris;
+    return run;
+  } catch (e) {
+    return fault(`probe error: ${String(e?.message || e).split('\n')[0]}`);
+  } finally {
+    await browser?.close().catch(() => {});
+  }
+}
+
+const print = (entries) => {
+  for (const e of entries) {
+    if (e.level === 'FAIL') ok(false, e.msg);
+    else if (e.level === 'ok') ok(true, e.msg);
+    else console.log(`info ${e.msg}`);
+  }
+};
+
+// The only budget entry point: read the walk section, run the probe per
+// profile, judge each run; with --record, print the proposed limits.
+async function walkBudget() {
+  let walk = null;
+  try {
+    walk = JSON.parse(readFileSync(BUDGET_FILE === 'perf/budgets.json' ? join(ROOT, BUDGET_FILE) : resolve(BUDGET_FILE), 'utf8')).walk;
+  } catch {}
+  if (!walk?.probe || !walk.desktop || !walk.phone) {
+    ok(false, `budget: no walk budget in ${BUDGET_FILE}`);
+    return;
+  }
+  const runs = [];
+  for (const profile of ['desktop', 'phone']) {
+    const n = RECORD ? walk.probe.runs : 1;
+    for (let i = 1; i <= n; i++) {
+      const tag = RECORD ? `${profile} run ${i}/${n}` : profile;
+      const run = await probeRun(profile, walk, tag);
+      runs.push(run);
+      print(judge(run, walk, { record: RECORD, tag }));
+    }
+  }
+  if (!RECORD) return;
+  const r = computeLimits(runs, walk);
+  const pct = (s) => (s == null ? '?' : (s * 100).toFixed(1));
+  for (const p of ['desktop', 'phone']) {
+    const s = r.spread[p];
+    console.log(`record ${p}: ${r.ok[p]} of ${walk.probe.runs} runs ok; spread p95 calls ${pct(s?.calls)} %, p95 triangles ${pct(s?.tris)} %`);
+  }
+  for (const e of r.errors) ok(false, e);
+  if (r.errors.length) {
+    console.log('record: no limits proposed (see FAIL lines)');
+    return;
+  }
+  let sha = '?';
+  try {
+    sha = execFileSync('git', ['rev-parse', '--short', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim();
+  } catch {}
+  const okRun = (p) => runs.find((x) => x.profile === p && !x.fault && !x.errors.length && x.cls === x.want);
+  const renderer = (okRun('desktop') || okRun('phone'))?.renderer || 'unknown renderer';
+  const start = { x: +r.start.x.toFixed(3), z: +r.start.z.toFixed(3), yaw: +r.start.yaw.toFixed(4) };
+  console.log('--- walk limits: paste into perf/budgets.json and copy this block into the commit message ---');
+  console.log(`sha ${sha}, load ${loadavg()[0].toFixed(1)}, ${new Date().toISOString()}, ${renderer}`);
+  console.log(`walk.probe.start = ${JSON.stringify(start)}`);
+  console.log(`walk.desktop = ${JSON.stringify(r.limits.desktop)}`);
+  console.log(`walk.phone = ${JSON.stringify(r.limits.phone)}`);
+  console.log('--- end ---');
+}
+
+if (BUDGET !== 'only' && !RECORD) {
+  await map();
+  await killSwitch();
+  for (const profile of ['desktop', 'phone']) await run(profile);
+}
+if (BUDGET !== 'off') await walkBudget();
 console.log(fails.length ? `\n${fails.length} FAILED` : '\nall passed');
 process.exit(fails.length ? 1 : 0);

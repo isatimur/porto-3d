@@ -38,6 +38,14 @@ updates it automatically.
 - Beyond the Braga patch: `src/share.js` restores the governor's scale after a postcard, and `DPR.draw` lives in effects.js so the 2x quality mode keeps it right.
 - Measured (headless, 1280x800, DPR 2, ?fx=1, walk, six steps 7 <-> 8): main resizes the canvas on each step (2560x1600 -> 1920x1200 / 1792x1120), 8.9-15.2 ms per step call; branch canvas stays 2560x1600, 0.3-0.4 ms per step call. Scene target size per level is the same on both builds. Headless frame times show no long frame on either build (max 33 ms, 0 over 50 ms): the headless shell does not reproduce the GPU stall, so the long-frame win needs a check on a real browser.
 
+### 2026-11-27 — walk budget in check-walk (branch feat/walk-budget, feature porto-044)
+
+- Spec: braga-3d `docs/specs/walk-budget.md` (roadmap item 2). `scripts/frame-budget.mjs` and its test are byte-identical copies of Braga's (braga-038). `scripts/check-walk.mjs` `walkBudget()` runs after `map()`, `killSwitch()` and the two profiles: at the /play start (`walk_start`) with a fixed clock (2026-05-13 noon), desktop `quality=ultra` (XL, 1280x800, DPR 1) and phone `quality=low` (S, Pixel 7), the governor frozen at level 0, a settled scene and 240 app frames, it FAILs when p95 calls or triangles pass the limits in `perf/budgets.json` `walk`, or p50 drops under the floors. `profiles` is unchanged.
+- Baseline (`--record`, load 13.7, ANGLE Metal on Apple M1 Max): desktop p50 204, p95 206-208 calls; 1.85 M / 1.86-1.88 M triangles; phone 97 calls, 0.87 M. Spread desktop 1.0 % calls, 0.7 % triangles; phone 0.0 %. Inside the spec's expected range (180-210 calls, 1.7-1.9 M). Limits: desktop 250 calls, 2.26 M, floors 102 and 0.92 M; phone 117, 1.05 M, floors 48 and 0.43 M.
+- Proof: default check-walk exit 0, both budget lines at 83 %, 2:42 (2:11 with `--budget off`). Negative tests, each exit 1: limits at 0.9 x baseline (`FAIL budget desktop: calls p95 208 > limit 187`), `minCalls` = `calls` (`scene is broken (calls p50 204 < floor 250)`), start moved 2.5 units (`start moved 10.0 m`). npm test 106/106.
+- `scripts/sync-engine.sh` excludes `scripts/check-walk.mjs`; the report-only run lists no `check-walk.mjs` under `=== changed engine files ===`. The base stays `1784ff3`.
+- Verify (2026-11-28, after old agent dist/ folders were freed): `npm run verify` OK, 17 passed, 0 failed, 0 skipped; perf budgets soft gate warned on phone-low, as on earlier loaded runs. porto-044 set to passing.
+
 ### 2026-11-26 — the ground follows the streets in the old centre (branch fix/porto-ground-conform, feature porto-041)
 
 - Owner report (5 shots from live /play): around the Luís I bridge foot, the Largo Diocleciano Monteiro and the riverside east of the bridge, paving patches and ramps lie at odd angles on a raw olive hillside, a passer-by and the walker are sunk, a bench and a parked car float, layers "stick out everywhere".

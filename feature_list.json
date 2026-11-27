@@ -985,6 +985,29 @@
         "2026-11-27: walk screenshot after a step-down viewed: sharp HUD, scene intact"
       ],
       "notes": "src/main.js resize(): the canvas ratio is deviceDpr(1) while the effects are on, the governor's scale goes to fx.setSize(w, h, dpr, scale). src/effects.js keeps scene.js DPR.draw (the scene's pixels per canvas pixel) in step; sceneBufferSize() feeds point sizes in life.js, liveair.js and seasons.js. Beyond braga-033: share.js restores the governor's scale after a postcard, and DPR.draw is set in effects.js so the 2x quality mode keeps it right."
+    },
+    {
+      "id": "porto-044",
+      "priority": 44,
+      "area": "perf",
+      "title": "Walk budget: check-walk measures and limits the walk frame",
+      "user_visible_behavior": "No change for visitors. scripts/check-walk.mjs measures the draw calls and triangles of a walk frame at the /play start (fixed clock, pinned class, governor frozen at level 0, settled scene, 240 frames) and FAILs when p95 is above the walk limits in perf/budgets.json (the new walk section) or p50 below their floors. --budget only runs the probe alone; --record prints proposed limits.",
+      "status": "passing",
+      "verification": [
+        "npm test (scripts/frame-budget.test.mjs)",
+        "PLAYWRIGHT_CORE=… node scripts/check-walk.mjs [--budget only] (served build)",
+        "PLAYWRIGHT_CORE=… node scripts/check-walk.mjs --record",
+        "bash scripts/sync-engine.sh (report only): no check-walk.mjs under changed engine files",
+        "npm run verify"
+      ],
+      "evidence": [
+        "2026-11-27: --record 5 of 5 runs ok per profile; spread desktop 1.0 % calls, 0.7 % triangles, phone 0.0 %; desktop p50/p95 204/206-208 calls, 1.85/1.86-1.88 M triangles; phone 97 calls, 0.87 M; limits desktop 250 calls, 2.26 M, floors 102, 0.92 M; phone 117, 1.05 M, floors 48, 0.43 M",
+        "2026-11-27: default check-walk exit 0 (both budget lines at 83 %), 2:42; --budget off exit 0, all passed, 2:11",
+        "2026-11-27: negative tests exit 1: tight calls (calls p95 208 > limit 187), floor (scene is broken), start +10 m (start moved 10.0 m)",
+        "2026-11-27: npm test 106/106; frame-budget.mjs and its test cmp-identical to braga-3d; sync-engine.sh report lists 0 check-walk.mjs",
+        "2026-11-28: npm run verify OK, 17 passed, 0 failed, 0 skipped (perf budgets soft: 9 phone-low misses on a loaded machine, as before)"
+      ],
+      "notes": "Spec braga-3d docs/specs/walk-budget.md. scripts/frame-budget.mjs and frame-budget.test.mjs are engine-shared copies of Braga (change Braga first). scripts/check-walk.mjs is Porto's own and excluded from sync-engine.sh; port its changes by hand. porto-043 is taken by the unmerged fix/porto-governor-resize branch, so this is porto-044. Raise a walk limit only per spec §6."
     }
   ]
 }
