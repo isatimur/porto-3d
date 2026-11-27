@@ -1008,6 +1008,23 @@
         "2026-11-28: npm run verify OK, 17 passed, 0 failed, 0 skipped (perf budgets soft: 9 phone-low misses on a loaded machine, as before)"
       ],
       "notes": "Spec braga-3d docs/specs/walk-budget.md. scripts/frame-budget.mjs and frame-budget.test.mjs are engine-shared copies of Braga (change Braga first). scripts/check-walk.mjs is Porto's own and excluded from sync-engine.sh; port its changes by hand. porto-043 is taken by the unmerged fix/porto-governor-resize branch, so this is porto-044. Raise a walk limit only per spec §6."
+    },
+    {
+      "id": "porto-045",
+      "priority": 45,
+      "area": "tooling",
+      "title": "npm run verify runs the unit tests",
+      "user_visible_behavior": "No change for visitors. scripts/verify.mjs runs `npm test` as its first step, so a failing unit test fails verify and CI (which runs only verify).",
+      "status": "passing",
+      "verification": [
+        "npm run verify",
+        "npm run verify with a deliberately failing scripts/*.test.mjs"
+      ],
+      "evidence": [
+        "2026-11-28: npm run verify OK, 18 passed, 0 failed, 0 skipped (a first run failed only at 'perf budgets (soft)': perf-serve warm-up timed out on a loaded machine; the rerun passed)",
+        "2026-11-28: with a temporary failing test: FAIL unit tests, verify: FAILED — 17 passed, 1 failed; the temporary test was removed"
+      ],
+      "notes": "Roadmap item 2a (braga-3d docs/plan-next-program-2026-11-27.md); same step as braga-039."
     }
   ]
 }
