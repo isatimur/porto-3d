@@ -36,7 +36,7 @@ updates it automatically.
 - Baseline (`--record`, load 13.7, ANGLE Metal on Apple M1 Max): desktop p50 204, p95 206-208 calls; 1.85 M / 1.86-1.88 M triangles; phone 97 calls, 0.87 M. Spread desktop 1.0 % calls, 0.7 % triangles; phone 0.0 %. Inside the spec's expected range (180-210 calls, 1.7-1.9 M). Limits: desktop 250 calls, 2.26 M, floors 102 and 0.92 M; phone 117, 1.05 M, floors 48 and 0.43 M.
 - Proof: default check-walk exit 0, both budget lines at 83 %, 2:42 (2:11 with `--budget off`). Negative tests, each exit 1: limits at 0.9 x baseline (`FAIL budget desktop: calls p95 208 > limit 187`), `minCalls` = `calls` (`scene is broken (calls p50 204 < floor 250)`), start moved 2.5 units (`start moved 10.0 m`). npm test 106/106.
 - `scripts/sync-engine.sh` excludes `scripts/check-walk.mjs`; the report-only run lists no `check-walk.mjs` under `=== changed engine files ===`. The base stays `1784ff3`.
-- Open: `npm run verify` in this worktree is not run yet. Its build (dist 174 MB) would take free disk under the 1.5 GiB floor set for the session (1.66 GiB free). Run it when space allows, then set porto-044 to passing.
+- Verify (2026-11-28, after old agent dist/ folders were freed): `npm run verify` OK, 17 passed, 0 failed, 0 skipped; perf budgets soft gate warned on phone-low, as on earlier loaded runs. porto-044 set to passing.
 
 ### 2026-11-26 — the ground follows the streets in the old centre (branch fix/porto-ground-conform, feature porto-041)
 
