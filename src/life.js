@@ -63,6 +63,7 @@ import { createLive } from './live.js';
 import { createTrafficModel } from './traffic-model.js';
 import { buildNetwork, createFlow } from './road-network.js';
 import { createStreetscape, floorSites } from './streetscape.js';
+import { sceneBufferSize } from './scene.js';
 
 export { floorSites };
 
@@ -3000,7 +3001,7 @@ export function createLife(ctx) {
     LIFE_UNIFORMS.uLifeGlow.value = fx?.enabled ? 2.6 : 1;
     camera.updateMatrixWorld();
     frustum.setFromProjectionMatrix(_pm.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
-    renderer.getDrawingBufferSize(_size);
+    sceneBufferSize(renderer, _size);
 
     live.update();
     weather.update(dt, camera, camDist);

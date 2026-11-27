@@ -34,7 +34,7 @@
 import * as THREE from 'three';
 import { t } from './i18n.js';
 import * as UI from './ui.js';
-import { WEATHER_UNIFORMS } from './scene.js';
+import { WEATHER_UNIFORMS, sceneBufferSize } from './scene.js';
 import { S } from './geo.js';
 import { CITY } from './city.js';
 import { createLeaves } from './leaves.js';
@@ -284,7 +284,7 @@ export function createSeasons({ renderer, scene, camera, atmosphere, nature, fx,
     const focus = camera.userData.focus;
     const camDist = focus ? camera.position.distanceTo(focus) : 300;
     leaves.update(reducedMotion ? 0 : dt, camera, camDist, mix, weather?.wind, light);
-    const px = (renderer.getDrawingBufferSize(_db).y * 0.5) * camera.projectionMatrix.elements[5];
+    const px = (sceneBufferSize(renderer, _db).y * 0.5) * camera.projectionMatrix.elements[5];
     weather?.setSnow?.(wi * 0.1, px); // Porto rarely sees a flake: a hint, not a fall
     fx?.setHaze?.(fx.enabled ? su * 0.8 * (1 - atmosphere.night) * (reducedMotion ? 0 : 1) : 0);
 

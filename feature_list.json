@@ -964,6 +964,27 @@
         "2026-11-26: camera distance 3.52 m at start (was 4.4 m), 1.76 m zoomed in, 7.03 m zoomed out; walk still active; no page errors; screenshots viewed"
       ],
       "notes": "ZOOM_MIN/ZOOM_MAX/ZOOM_START in src/walk.js; the wheel listener is on the canvas in the capture phase and stops propagation only while the walk is active in third person."
+    },
+    {
+      "id": "porto-043",
+      "priority": 43,
+      "area": "perf",
+      "title": "Governor resolution steps no longer resize the canvas",
+      "user_visible_behavior": "With the effects on, a governor resolution step changes only the size of the effect targets the scene is drawn into. The canvas keeps the full pixel ratio, so the HUD, labels and the final image stay sharp and a step costs no canvas resize. Port of braga-3d braga-033.",
+      "status": "passing",
+      "verification": [
+        "npm run verify",
+        "node /tmp/porto-probe/probe.mjs <base> <label> (volatile: rAF frame times for 10 s while __porto.setGovernorLevel steps 7 <-> 8, canvas size and the synchronous cost of each step)",
+        "node /tmp/porto-probe/targets.mjs <base> (volatile: canvas and scene target size per governor level)",
+        "node scripts/check-walk.mjs --base <preview>",
+        "npm test"
+      ],
+      "evidence": [
+        "2026-11-27: npm run verify OK, 17 passed, 0 skipped (perf soft gate warns on a loaded machine); npm test 91/91; check-walk all passed",
+        "2026-11-27: headless walk at 1280x800, DPR 2, ?fx=1, six steps 7 <-> 8: main resizes the canvas 2560x1600 -> 1920x1200 / 1792x1120 on each step and a step costs 8.9-15.2 ms synchronously; the branch keeps the canvas at 2560x1600 and a step costs 0.3-0.4 ms. The scene target is 1792x1120 at res 0.7 and 1920x1200 at 0.75 on both builds. Headless frame times: max 33.4 ms (main) and 33.3 ms (branch), 0 frames over 50 ms on both (the headless shell does not show the GPU stall of a canvas resize)",
+        "2026-11-27: walk screenshot after a step-down viewed: sharp HUD, scene intact"
+      ],
+      "notes": "src/main.js resize(): the canvas ratio is deviceDpr(1) while the effects are on, the governor's scale goes to fx.setSize(w, h, dpr, scale). src/effects.js keeps scene.js DPR.draw (the scene's pixels per canvas pixel) in step; sceneBufferSize() feeds point sizes in life.js, liveair.js and seasons.js. Beyond braga-033: share.js restores the governor's scale after a postcard, and DPR.draw is set in effects.js so the 2x quality mode keeps it right."
     }
   ]
 }
